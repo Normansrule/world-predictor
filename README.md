@@ -44,6 +44,8 @@ cd world-predictions
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[timesfm,dev]"      # installs TimesFM with PyTorch
 
+psychohistory run                    # everything below in one go
+
 psychohistory fetch                  # download all series into data/ (cached)
 psychohistory backtest               # rolling backtest vs baselines, writes results/REPORT.md
 psychohistory predict                # record forecasts in predictions/ledger.csv, plus fan charts
@@ -51,7 +53,10 @@ psychohistory score                  # score ledger forecasts whose dates have a
 ```
 
 Useful options: `--domain markets` (repeatable), `--series gold --series silver`,
-`--model timesfm-3`, `--windows 24`, `-v` for progress logs.
+`--model timesfm-3`, `--windows 24`, `--skip-backtest` (for `run`), `-v` for progress logs.
+
+The report ends with **what the model expects next**: for every series, the median forecast
+and its 10%-90% range as a change from today, plus a fan chart.
 
 Without a GPU everything still runs on CPU; TimesFM 2.5 has 200M parameters. To try the
 pipeline without downloading the model, use a baseline: `psychohistory backtest --model drift`.
@@ -96,6 +101,7 @@ src/psychohistory/
   report.py      results/REPORT.md and charts
   cli.py         the `psychohistory` command
 tests/           offline tests (synthetic data, no downloads)
+scripts/         publish_to_github.sh: create the GitHub repo and push
 ```
 
 ## Credits

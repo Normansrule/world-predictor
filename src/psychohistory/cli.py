@@ -1,4 +1,4 @@
-"""Command line interface: ``psychohistory fetch | backtest | predict | score | report``."""
+"""Command line interface: ``psychohistory run | fetch | backtest | predict | score | report``."""
 
 from __future__ import annotations
 
@@ -40,7 +40,11 @@ def cmd_backtest(args) -> None:
         if spec.id in series:
             log.info("backtesting %s", spec.id)
             frames.append(backtest.backtest_series(spec, series[spec.id], models, windows=args.windows))
-    results = pd.concat([f for f in frames if not f.empty], ignore_index=True)
+    frames = [f for f in frames if not f.empty]
+    if not frames:
+        print("No series had enough data to backtest. Try `psychohistory fetch` first.")
+        return
+    results = pd.concat(frames, ignore_index=True)
     args.out_dir.mkdir(parents=True, exist_ok=True)
     results.to_csv(args.out_dir / "backtest_windows.csv", index=False)
     summary = backtest.summarize(results)
@@ -75,8 +79,24 @@ def cmd_score(args) -> None:
     print(table.to_string(index=False) if not table.empty else "No predictions have reached their target date yet.")
 
 
+def cmd_run(args) -> None:
+    """Everything in order: fetch fresh data, record forecasts, score old ones, backtest."""
+    cmd_fetch(args)
+    cmd_predict(args)
+    cmd_score(args)
+    if args.skip_backtest:
+        if (args.out_dir / "backtest_windows.csv").exists():
+            cmd_report(args)
+    else:
+        cmd_backtest(args)
+
+
 def cmd_report(args) -> None:
-    results = pd.read_csv(args.out_dir / "backtest_windows.csv")
+    path = args.out_dir / "backtest_windows.csv"
+    if not path.exists():
+        print(f"No backtest results at {path}; run `psychohistory backtest` first.")
+        return
+    results = pd.read_csv(path)
     summary = backtest.summarize(results)
     _write_report(args, results, summary)
 
@@ -85,8 +105,9 @@ def _write_report(args, results: pd.DataFrame, summary: pd.DataFrame) -> None:
     ledger_table = None
     if args.scored.exists():
         ledger_table = ledger.ledger_summary(pd.read_csv(args.scored))
+    latest = ledger.latest(pd.read_csv(args.ledger)) if args.ledger.exists() else None
     report.plot_skill(summary, args.out_dir)
-    path = report.write_report(results, summary, args.model, ledger_table, args.out_dir)
+    path = report.write_report(results, summary, args.model, ledger_table, args.out_dir, latest)
     print(f"Report written to {path}")
 
 
@@ -121,6 +142,12 @@ def main(argv: list[str] | None = None) -> None:
     p = sub.add_parser("score", help="score ledger predictions whose target dates have passed")
     common(p)
     p.set_defaults(func=cmd_score)
+
+    p = sub.add_parser("run", help="fetch, predict, score and backtest in one go")
+    common(p)
+    p.add_argument("--windows", type=int, default=12, help="forecast origins per series")
+    p.add_argument("--skip-backtest", action="store_true", help="only fetch, predict and score")
+    p.set_defaults(func=cmd_run)
 
     p = sub.add_parser("report", help="rebuild results/REPORT.md from saved backtest results")
     common(p)

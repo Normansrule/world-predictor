@@ -93,6 +93,16 @@ def test_ledger_predict_then_score():
     assert table.loc[0, "predictions"] == 5
 
 
+def test_latest_picks_newest_run_and_final_step():
+    spec = SeriesSpec("demo", "tech", "wikipedia", freq="D", horizon=3)
+    old = ledger.predict([spec], {"demo": synthetic(100)}, NaiveForecaster(), made_on=date(2024, 1, 1))
+    new = ledger.predict([spec], {"demo": synthetic(120)}, NaiveForecaster(), made_on=date(2024, 2, 1))
+    latest = ledger.latest(pd.concat([old, new]))
+    assert len(latest) == 1
+    assert latest.loc[0, "target_date"] == new["target_date"].iloc[-1]
+    assert latest.loc[0, "median_change"] == pytest.approx(0.0)
+
+
 def test_catalog_ids_are_unique_and_composites_resolve():
     ids = [s.id for s in catalog.CATALOG]
     assert len(ids) == len(set(ids))
@@ -116,8 +126,10 @@ def test_cli_end_to_end_from_cache(tmp_path):
     cli.main(["backtest", *common, *series_args, "--windows", "4"])
     cli.main(["predict", *common, *series_args])
     cli.main(["score", *common])
+    cli.main(["report", *common])
     report = (tmp_path / "results" / "REPORT.md").read_text()
     assert "Seldon" in report and "sp500" in report
+    assert "## 6. What the model expects next" in report and "plots/sp500.png" in report
     assert (tmp_path / "results" / "plots" / "skill_by_domain.png").exists()
     assert (tmp_path / "results" / "plots" / "sp500.png").exists()
     assert len(pd.read_csv(tmp_path / "ledger.csv")) == sum(s.horizon for s in specs)

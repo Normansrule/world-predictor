@@ -48,6 +48,7 @@ def write_report(
     model: str,
     ledger_table: pd.DataFrame | None = None,
     out_dir: Path = Path("results"),
+    latest: pd.DataFrame | None = None,
 ) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
     domains = domain_table(summary)
@@ -89,9 +90,43 @@ def write_report(
     else:
         lines.append("_No ledger predictions have reached their target dates yet._\n")
     lines += ["## 5. Every series", "", _fmt(summary[summary["model"] == model].round(3))]
+    lines += _latest_section(latest, model, out_dir)
     path = out_dir / "REPORT.md"
     path.write_text("\n".join(lines))
     return path
+
+
+def _latest_section(latest: pd.DataFrame | None, model: str, out_dir: Path) -> list[str]:
+    """What the model expects next, with the 10%-90% range as a change from the last value."""
+    lines = ["## 6. What the model expects next", ""]
+    if latest is None or latest.empty or model not in set(latest["model"]):
+        return lines + ["_Run `psychohistory predict` to record forecasts._", ""]
+    rows = latest[latest["model"] == model]
+    lines += [
+        f"Latest forecasts recorded in the ledger (made with data up to each series' last date). "
+        "Changes are relative to the last observed value; the range is the 10%-90% band.",
+        "",
+    ]
+    for domain in ("news", "markets", "tech"):
+        part = rows[rows["domain"] == domain]
+        if part.empty:
+            continue
+        lines += [f"### {DOMAIN_TITLES[domain]}", ""]
+        table = pd.DataFrame(
+            {
+                "series": part["series_id"],
+                "last": part["last_value"].round(3),
+                "target date": part["target_date"],
+                "median": part["median_change"].map("{:+.1%}".format),
+                "range (10%-90%)": [f"{lo:+.1%} to {hi:+.1%}" for lo, hi in zip(part["low_change"], part["high_change"])],
+            }
+        )
+        lines += [table.to_markdown(index=False), ""]
+        for series_id in part["series_id"]:
+            if (out_dir / "plots" / f"{series_id}.png").exists():
+                lines.append(f"![{series_id}](plots/{series_id}.png)")
+        lines.append("")
+    return lines
 
 
 def _style(ax):
