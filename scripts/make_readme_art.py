@@ -6,7 +6,7 @@
   then "what really happened" dots appear. Pure SVG + CSS, so it animates on github.com.
 * how-to-read.svg - labelled anatomy of a fan chart, for readers new to forecasts.
 * seldon-crowd.gif - the toy crowd simulation (psychohistory.simulate), animated.
-* placeholder charts in results/plots/ until the first real run replaces them.
+* placeholder scoreboard (results/plots/scorecard-*.svg) and charts in results/plots/ until the first real run replaces them.
 """
 
 from __future__ import annotations
@@ -169,9 +169,12 @@ def main() -> None:
 
     sys.path.insert(0, str(ROOT / "src"))
     from psychohistory.simulate import crowd_gif
+    from psychohistory.story import scorecard, write_scorecards
 
     crowd_gif(ASSETS / "seldon-crowd.gif")
     plots = ROOT / "results" / "plots"
+    if not (plots / "scorecard-light.svg").exists():
+        write_scorecards(plots.parent, scorecard(None, "timesfm-2.5"), "timesfm-2.5", None)
     for name, text in [
         ("skill_by_domain.png", "The skill chart appears after the first forecast run."),
         ("skill_by_step.png", "The 'how far ahead' chart appears after the first forecast run."),

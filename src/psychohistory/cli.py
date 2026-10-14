@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+from datetime import date
 from pathlib import Path
 
 import pandas as pd
@@ -134,6 +135,9 @@ def _write_report(args, results: pd.DataFrame, summary: pd.DataFrame) -> None:
     steps_path = args.out_dir / "skill_by_step.csv"
     by_step = pd.read_csv(steps_path) if steps_path.exists() else None
     report.plot_skill(summary, args.out_dir, args.model)
+    story.write_scorecards(
+        args.out_dir, story.scorecard(summary, args.model, by_step, results), args.model, date.today().isoformat()
+    )
     paths_file = args.out_dir / "backtest_paths.csv"
     paths = pd.read_csv(paths_file) if paths_file.exists() and paths_file.stat().st_size > 1 else pd.DataFrame()
     headline = story.pick_headline_series(paths)

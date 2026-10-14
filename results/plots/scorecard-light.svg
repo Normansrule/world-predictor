@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 310" role="img" aria-label="Scoreboard: how timesfm-2.5 did in each domain">
+<style>
+  .bg { fill: #fcfcfb; }
+  .card { fill: none; stroke: #e4e3df; stroke-width: 1.5; }
+  .title { font: 600 15px Inter, system-ui, sans-serif; fill: #52514e; letter-spacing: .06em; }
+  .name { font: 600 18px Inter, system-ui, sans-serif; fill: #0b0b0b; }
+  .big { font: 700 52px Inter, system-ui, sans-serif; }
+  .cap { font: 400 14px Inter, system-ui, sans-serif; fill: #52514e; }
+  .k { font: 400 14px Inter, system-ui, sans-serif; fill: #52514e; }
+  .v { font: 600 14px Inter, system-ui, sans-serif; fill: #0b0b0b; }
+  .foot { font: 400 12px Inter, system-ui, sans-serif; fill: #52514e; }
+</style>
+<rect class="bg" width="1200" height="310" rx="16"/>
+<text x="40" y="42" class="title">SCOREBOARD  ·  TIMESFM-2.5  VS  "TOMORROW LOOKS LIKE TODAY"</text>
+
+<g transform="translate(40,0)">
+  <rect x="0" y="62" width="350" height="208" rx="12" class="card"/>
+  <text x="22" y="98" class="name">📰  World news</text>
+  <text x="22" y="160" class="big" style="fill:#52514e">?</text>
+  <text x="22" y="186" class="cap">after the first forecast run</text>
+  <text x="22" y="222" class="k">Sees ahead</text><text x="328" y="222" class="v" text-anchor="end">–</text>
+  <text x="22" y="250" class="k">Right direction</text><text x="328" y="250" class="v" text-anchor="end">–</text>
+</g>
+<g transform="translate(420,0)">
+  <rect x="0" y="62" width="350" height="208" rx="12" class="card"/>
+  <text x="22" y="98" class="name">📈  Markets</text>
+  <text x="22" y="160" class="big" style="fill:#52514e">?</text>
+  <text x="22" y="186" class="cap">after the first forecast run</text>
+  <text x="22" y="222" class="k">Sees ahead</text><text x="328" y="222" class="v" text-anchor="end">–</text>
+  <text x="22" y="250" class="k">Right direction</text><text x="328" y="250" class="v" text-anchor="end">–</text>
+</g>
+<g transform="translate(800,0)">
+  <rect x="0" y="62" width="350" height="208" rx="12" class="card"/>
+  <text x="22" y="98" class="name">🚀  Technology</text>
+  <text x="22" y="160" class="big" style="fill:#52514e">?</text>
+  <text x="22" y="186" class="cap">after the first forecast run</text>
+  <text x="22" y="222" class="k">Sees ahead</text><text x="328" y="222" class="v" text-anchor="end">–</text>
+  <text x="22" y="250" class="k">Right direction</text><text x="328" y="250" class="v" text-anchor="end">–</text>
+</g>
+<text x="40" y="296" class="foot">Placeholder: the real scoreboard is drawn by the first forecast run</text>
+</svg>

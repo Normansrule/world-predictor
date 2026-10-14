@@ -66,16 +66,11 @@ def headlines(
 
     if by_step is not None and not by_step.empty:
         for d in ("news", "markets", "tech"):
-            part = by_step[(by_step["model"] == model) & (by_step["domain"] == d)].sort_values("step")
-            if part.empty:
+            steps = edge_steps(by_step, model, d)
+            if steps is None:
                 continue
-            smooth = part["skill"].rolling(3, min_periods=1, center=True).median().to_numpy()
-            positive = np.flatnonzero(smooth > 0)
-            if len(positive):
-                lines.append(
-                    f"In {DOMAIN_PLAIN[d]}, its edge lasts up to about {int(part['step'].iloc[positive[-1]])} "
-                    f"{STEP_UNIT[d]} ahead."
-                )
+            if steps:
+                lines.append(f"In {DOMAIN_PLAIN[d]}, its edge lasts up to about {steps} {STEP_UNIT[d]} ahead.")
             else:
                 lines.append(f"In {DOMAIN_PLAIN[d]}, it had no edge at any distance ahead.")
 
@@ -88,6 +83,118 @@ def headlines(
                 f"{confident['went_up'].mean():.0%} of the time ({len(confident)} forecasts)."
             )
     return lines
+
+
+def edge_steps(by_step: pd.DataFrame | None, model: str, domain: str) -> int | None:
+    """How many steps ahead the model still beats the naive guess in a domain (0 = never, None =
+    no data). Skill is smoothed over three steps so one lucky step does not count."""
+    if by_step is None or by_step.empty:
+        return None
+    part = by_step[(by_step["model"] == model) & (by_step["domain"] == domain)].sort_values("step")
+    if part.empty:
+        return None
+    smooth = part["skill"].rolling(3, min_periods=1, center=True).median().to_numpy()
+    positive = np.flatnonzero(smooth > 0)
+    return int(part["step"].iloc[positive[-1]]) if len(positive) else 0
+
+
+# Colours for the README scoreboard, which GitHub shows in light or dark mode.
+SVG_THEMES = {
+    "light": {"bg": "#fcfcfb", "text": "#0b0b0b", "muted": "#52514e", "grid": "#e4e3df", "blue": "#2a78d6",
+              "orange": "#eb6834", "dot": "#0b0b0b"},
+    "dark": {"bg": "#1a1a19", "text": "#f0efec", "muted": "#c3c2b7", "grid": "#383835", "blue": "#3987e5",
+             "orange": "#d95926", "dot": "#f0efec"},
+}
+DOMAIN_CARDS = (("news", "📰", "World news"), ("markets", "📈", "Markets"), ("tech", "🚀", "Technology"))
+
+
+def scorecard(
+    summary: pd.DataFrame | None,
+    model: str,
+    by_step: pd.DataFrame | None = None,
+    results: pd.DataFrame | None = None,
+) -> dict[str, dict]:
+    """The three numbers per domain that the scoreboard shows: skill, how far ahead it sees, and
+    how often it called the direction right. Missing values are None."""
+    card = {}
+    mine = pd.DataFrame()
+    if summary is not None and not summary.empty:
+        table = domain_table(summary)
+        mine = table[table["model"] == model].set_index("domain")
+    for domain, _, _ in DOMAIN_CARDS:
+        row = mine.loc[domain] if domain in mine.index else None
+        forecasts = None
+        if results is not None and not results.empty:
+            forecasts = int(((results["model"] == model) & (results["domain"] == domain)).sum())
+        card[domain] = {
+            "skill": None if row is None else float(row["median_skill"]),
+            "direction": None if row is None or pd.isna(row["direction"]) else float(row["direction"]),
+            "edge": edge_steps(by_step, model, domain),
+            "forecasts": forecasts,
+        }
+    return card
+
+
+def scorecard_svg(card: dict[str, dict], model: str, theme: str = "light", updated: str | None = None) -> str:
+    """An SVG 'scoreboard' for the top of the README: one column per domain with a big skill
+    number, how far ahead the model sees, and its direction hit rate."""
+    from html import escape
+
+    c = SVG_THEMES[theme]
+    columns = []
+    for i, (domain, icon, name) in enumerate(DOMAIN_CARDS):
+        x = 40 + i * 380
+        v = card.get(domain, {})
+        skill, edge, direction = v.get("skill"), v.get("edge"), v.get("direction")
+        if skill is None:
+            big, colour, caption = "?", c["muted"], "after the first forecast run"
+        else:
+            big = f"{skill:+.0%}".replace("-", "−")
+            colour = c["blue"] if skill > 0 else c["orange"]
+            caption = "less error than the simple guess" if skill > 0 else "more error than the simple guess"
+        unit = STEP_UNIT[domain]
+        sees = "–" if edge is None else ("no edge at any distance" if edge == 0 else f"about {edge} {unit}")
+        hits = "–" if direction is None else f"{direction:.0%} of the time"
+        columns.append(f"""
+<g transform="translate({x},0)">
+  <rect x="0" y="62" width="350" height="208" rx="12" class="card"/>
+  <text x="22" y="98" class="name">{icon}  {escape(name)}</text>
+  <text x="22" y="160" class="big" style="fill:{colour}">{big}</text>
+  <text x="22" y="186" class="cap">{escape(caption)}</text>
+  <text x="22" y="222" class="k">Sees ahead</text><text x="328" y="222" class="v" text-anchor="end">{escape(sees)}</text>
+  <text x="22" y="250" class="k">Right direction</text><text x="328" y="250" class="v" text-anchor="end">{escape(hits)}</text>
+</g>""")
+    total = sum((card.get(d, {}).get("forecasts") or 0) for d, _, _ in DOMAIN_CARDS)
+    footer = (f"Updated {updated} · {total:,} backtest forecasts scored · refreshed every week"
+              if updated and total else "Placeholder: the real scoreboard is drawn by the first forecast run")
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 310" role="img" aria-label="Scoreboard: how {escape(model)} did in each domain">
+<style>
+  .bg {{ fill: {c['bg']}; }}
+  .card {{ fill: none; stroke: {c['grid']}; stroke-width: 1.5; }}
+  .title {{ font: 600 15px Inter, system-ui, sans-serif; fill: {c['muted']}; letter-spacing: .06em; }}
+  .name {{ font: 600 18px Inter, system-ui, sans-serif; fill: {c['text']}; }}
+  .big {{ font: 700 52px Inter, system-ui, sans-serif; }}
+  .cap {{ font: 400 14px Inter, system-ui, sans-serif; fill: {c['muted']}; }}
+  .k {{ font: 400 14px Inter, system-ui, sans-serif; fill: {c['muted']}; }}
+  .v {{ font: 600 14px Inter, system-ui, sans-serif; fill: {c['text']}; }}
+  .foot {{ font: 400 12px Inter, system-ui, sans-serif; fill: {c['muted']}; }}
+</style>
+<rect class="bg" width="1200" height="310" rx="16"/>
+<text x="40" y="42" class="title">SCOREBOARD  ·  {escape(model.upper())}  VS  "TOMORROW LOOKS LIKE TODAY"</text>
+{''.join(columns)}
+<text x="40" y="296" class="foot">{escape(footer)}</text>
+</svg>
+"""
+
+
+def write_scorecards(out_dir: Path, card: dict[str, dict], model: str, updated: str | None) -> list[Path]:
+    paths = []
+    for theme in SVG_THEMES:
+        path = out_dir / "plots" / f"scorecard-{theme}.svg"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(scorecard_svg(card, model, theme, updated))
+        paths.append(path)
+    return paths
 
 
 def pick_headline_series(paths: pd.DataFrame) -> str | None:
