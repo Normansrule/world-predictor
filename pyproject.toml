@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "world-predictions"
+version = "0.1.0"
+description = "Seldon-style psychohistory experiments: forecasting news, markets and technology with Google's TimesFM"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+requires-python = ">=3.10"
+authors = [{ name = "Normansrule" }]
+dependencies = [
+  "numpy>=1.26",
+  "pandas>=2.0",
+  "requests>=2.31",
+  "yfinance>=0.2.40",
+  "tabulate>=0.9",
+  "matplotlib>=3.7",
+]
+
+[project.optional-dependencies]
+timesfm = ["timesfm[torch]>=3.0"]
+dev = ["pytest>=8"]
+
+[project.scripts]
+psychohistory = "psychohistory.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/Normansrule/world-predictions"
+TimesFM = "https://github.com/google-research/timesfm"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
