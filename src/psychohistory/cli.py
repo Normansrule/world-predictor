@@ -24,6 +24,14 @@ def _load(specs, cache: Path, refresh: bool = False) -> dict[str, pd.Series]:
     return loaded
 
 
+def ensemble_members(args) -> list[str]:
+    """Models averaged by --ensemble: the model under test, its rivals and AutoETS if available."""
+    members = list(dict.fromkeys([args.model, *args.compare]))
+    if classical_available() and "auto-ets" not in members:
+        members.append("auto-ets")
+    return members
+
+
 def cmd_fetch(args) -> None:
     specs = catalog.select(args.domain, args.series)
     loaded = _load(specs, args.data_dir, refresh=True)
@@ -38,12 +46,15 @@ def cmd_backtest(args) -> None:
     if classical_available() and "auto-ets" not in names:
         names.append("auto-ets")  # the strongest classical baseline, when statsforecast is installed
     models = [load_model(name) for name in names]
+    members = ensemble_members(args) if args.ensemble else None
     frames, step_rows = [], []
     for spec in specs:
         if spec.id in series:
             log.info("backtesting %s", spec.id)
             frames.append(
-                backtest.backtest_series(spec, series[spec.id], models, windows=args.windows, step_rows=step_rows)
+                backtest.backtest_series(
+                    spec, series[spec.id], models, windows=args.windows, step_rows=step_rows, ensemble_of=members
+                )
             )
     frames = [f for f in frames if not f.empty]
     if not frames:
@@ -64,10 +75,12 @@ def cmd_predict(args) -> None:
     specs = catalog.select(args.domain, args.series)
     series = _load(specs, args.data_dir, refresh=args.refresh)
     # The model under test plus any --compare rivals, so the ledger becomes a head-to-head record.
-    rows = pd.concat(
-        [ledger.predict(specs, series, load_model(name)) for name in dict.fromkeys([args.model, *args.compare])],
-        ignore_index=True,
-    )
+    names = list(dict.fromkeys([args.model, *args.compare]))
+    if args.ensemble:
+        names = list(dict.fromkeys(names + ensemble_members(args)))
+    rows = pd.concat([ledger.predict(specs, series, load_model(name)) for name in names], ignore_index=True)
+    if args.ensemble:
+        rows = pd.concat([rows, ledger.ensemble_rows(rows, ensemble_members(args))], ignore_index=True)
     ledger.append(rows, args.ledger)
     print(f"Recorded {len(rows)} predictions for {rows['series_id'].nunique()} series in {args.ledger}")
     for series_id, group in rows[rows["model"] == args.model].groupby("series_id"):
@@ -144,6 +157,8 @@ def main(argv: list[str] | None = None) -> None:
         p.add_argument("--model", default="timesfm-2.5", help="model under test: timesfm-2.5 (default), timesfm-3, chronos-bolt, chronos-2, auto-ets, auto-arima, naive, drift, mean")
         p.add_argument("--compare", action="append", default=[], metavar="MODEL",
                        help="rival model to run alongside, e.g. --compare chronos-bolt (repeatable)")
+        p.add_argument("--ensemble", action="store_true",
+                       help="also score the average of the model, its rivals and AutoETS (quantile averaging)")
         p.add_argument("--data-dir", type=Path, default=Path("data"))
         p.add_argument("--out-dir", type=Path, default=Path("results"))
         p.add_argument("--ledger", type=Path, default=ledger.LEDGER)

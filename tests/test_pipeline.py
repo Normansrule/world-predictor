@@ -271,3 +271,48 @@ def test_compare_adds_rivals_to_backtest_and_ledger(tmp_path):
     cli.main(["predict", *common])
     assert {"drift", "mean", "naive"} <= set(pd.read_csv(tmp_path / "results" / "backtest_windows.csv")["model"])
     assert set(pd.read_csv(tmp_path / "ledger.csv")["model"]) == {"drift", "mean"}
+
+
+def test_bass_recovers_an_s_curve():
+    from psychohistory.models import BassForecaster, bass_curve
+
+    t = np.arange(1, 31) + 6
+    truth = 40 * bass_curve(t, 0.003, 0.45)
+    history, future = truth[:26], truth[26:]
+    out = BassForecaster().forecast([history], horizon=4)[0]
+    assert np.max(np.abs(out.point - future)) < 0.05 * truth.max()
+    assert np.all(np.diff(out.quantiles, axis=1) >= 0)
+
+
+def test_combine_averages_points_and_quantiles():
+    from psychohistory.models import combine
+
+    a = Forecast(np.zeros(3), np.zeros((3, 9)))
+    b = Forecast(np.full(3, 2.0), np.full((3, 9), 4.0))
+    c = combine([a, b])
+    np.testing.assert_allclose(c.point, 1.0)
+    np.testing.assert_allclose(c.quantiles, 2.0)
+
+
+def test_ensemble_and_bass_show_up_in_backtest_and_ledger(tmp_path):
+    from psychohistory.models import bass_curve
+
+    gold, solar = catalog.by_id("gold"), catalog.by_id("adoption_solar")
+    for spec, values, freq in [
+        (gold, synthetic(300, freq="B").to_numpy(), "B"),
+        (solar, 20 * bass_curve(np.arange(1, 41) + 5, 0.002, 0.4), "YS"),
+    ]:
+        path = data.cache_path(spec, tmp_path / "data")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        pd.Series(values, index=pd.date_range("1985-01-01", periods=len(values), freq=freq)).to_frame("value").to_csv(
+            path, index_label="date"
+        )
+    common = ["--data-dir", str(tmp_path / "data"), "--out-dir", str(tmp_path / "results"),
+              "--ledger", str(tmp_path / "ledger.csv"), "--scored", str(tmp_path / "scored.csv"),
+              "--series", "gold", "--series", "adoption_solar", "--model", "drift", "--compare", "mean", "--ensemble"]
+    cli.main(["backtest", *common, "--windows", "3"])
+    cli.main(["predict", *common])
+    results = pd.read_csv(tmp_path / "results" / "backtest_windows.csv")
+    assert "ensemble" in set(results["model"])
+    assert set(results[results["model"] == "bass"]["series_id"]) == {"adoption_solar"}
+    assert "ensemble" in set(pd.read_csv(tmp_path / "ledger.csv")["model"])

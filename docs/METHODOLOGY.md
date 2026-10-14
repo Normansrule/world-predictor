@@ -27,6 +27,15 @@ Every model is run on the same windows: TimesFM plus three baselines.
 - `drift`: last value plus the historical average slope.
 - `mean`: average of the last 90 points.
 
+Two more comparison models come from the reference list (REFERENCES.md):
+
+- `bass` (adoption series only): the Bass diffusion curve, fitted by grid search over
+  innovation p, imitation q and the start of diffusion, with market size solved by least
+  squares. Uncertainty is the fit's residual spread, widening with the square root of the
+  steps ahead.
+- `ensemble` (with `--ensemble`): the average of the model under test, its `--compare` rivals
+  and AutoETS, averaging each decile separately (quantile averaging, as in GluonTS).
+
 Baseline uncertainty bands come from each series' own history of k-step changes, so the
 calibration comparison is fair.
 

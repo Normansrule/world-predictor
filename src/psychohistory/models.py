@@ -194,6 +194,81 @@ class ChronosForecaster:
 
 
 # --------------------------------------------------------------------------------------------
+# Theory-driven model: Bass diffusion (Frank Bass, "A New Product Growth Model", 1969).
+# --------------------------------------------------------------------------------------------
+
+# Standard normal quantiles for the deciles 0.1 ... 0.9.
+_Z = np.array([-1.2816, -0.8416, -0.5244, -0.2533, 0.0, 0.2533, 0.5244, 0.8416, 1.2816])
+
+
+def bass_curve(t: np.ndarray, p: float, q: float) -> np.ndarray:
+    """Cumulative share of eventual adopters at time t: innovation p, imitation q."""
+    e = np.exp(-(p + q) * t)
+    return (1 - e) / (1 + (q / p) * e)
+
+
+class BassForecaster:
+    """Fits the Bass S-curve to an adoption series (share of electricity from solar, share of
+    people online) and extends it. A theory-driven rival: if TimesFM cannot beat the textbook
+    diffusion curve on technology adoption, its "pattern recognition" adds little there.
+
+    Fitting is a grid search over innovation p, imitation q and how many periods before the
+    data the diffusion started; market size m is then solved exactly by least squares."""
+
+    name = "bass"
+
+    P_GRID = np.geomspace(1e-4, 0.3, 28)
+    Q_GRID = np.linspace(0.02, 1.2, 40)
+    START_GRID = (0, 3, 6, 10, 15, 25)
+
+    def fit(self, y: np.ndarray) -> tuple[float, float, int, float]:
+        n = len(y)
+        best = (np.inf, 0.01, 0.3, 0, float(y.max()))
+        for start in self.START_GRID:
+            t = np.arange(1, n + 1) + start
+            for p in self.P_GRID:
+                for q in self.Q_GRID:
+                    f = bass_curve(t, p, q)
+                    m = float(f @ y / (f @ f)) if f @ f > 0 else 0.0
+                    if m < y.max():  # the market cannot be smaller than adoption already seen
+                        m = float(y.max())
+                    sse = float(np.sum((y - m * f) ** 2))
+                    if sse < best[0]:
+                        best = (sse, p, q, start, m)
+        return best[1], best[2], best[3], best[4]
+
+    def forecast(self, contexts: Sequence[np.ndarray], horizon: int) -> list[Forecast]:
+        out = []
+        for context in contexts:
+            y = _clean(context)
+            p, q, start, m = self.fit(y)
+            n = len(y)
+            fitted = m * bass_curve(np.arange(1, n + 1) + start, p, q)
+            sigma = float(np.std(y - fitted)) or 1e-9
+            point = m * bass_curve(np.arange(n + 1, n + horizon + 1) + start, p, q)
+            # Uncertainty widens with the square root of the steps ahead.
+            spread = sigma * np.sqrt(np.arange(1, horizon + 1))[:, None] * _Z[None, :]
+            out.append(Forecast(point, point[:, None] + spread))
+        return out
+
+
+# --------------------------------------------------------------------------------------------
+# Ensembles (quantile averaging, as in GluonTS and the fev / GIFT-Eval leaderboards).
+# --------------------------------------------------------------------------------------------
+
+
+def combine(forecasts: Sequence[Forecast]) -> Forecast:
+    """Average point forecasts and each quantile across models ("Vincentization"). Ensembles
+    of diverse forecasters are among the most reliable wins in forecasting competitions."""
+    point = np.mean([f.point for f in forecasts], axis=0)
+    quantiles = np.sort(np.mean([f.quantiles for f in forecasts], axis=0), axis=1)
+    return Forecast(point, quantiles)
+
+
+ENSEMBLE = "ensemble"
+
+
+# --------------------------------------------------------------------------------------------
 # Classical statistics (Nixtla statsforecast, https://github.com/Nixtla/statsforecast). Optional:
 # pip install "world-predictions[classical]". ETS and ARIMA are the workhorses that won or
 # anchored the M-competitions, so a foundation model should beat them, not just the naive walk.
@@ -241,6 +316,7 @@ MODELS = {
     "timesfm-3": TimesFM3Forecaster,
     "chronos-bolt": ChronosForecaster,
     "chronos-2": lambda: ChronosForecaster(CHRONOS_2_CHECKPOINT, "chronos-2"),
+    "bass": BassForecaster,
     "naive": NaiveForecaster,
     "drift": DriftForecaster,
     "mean": MeanForecaster,

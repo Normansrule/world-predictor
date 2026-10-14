@@ -63,6 +63,10 @@ psychohistory score                  # score ledger forecasts whose dates have a
 and TimesFM and Chronos are scored on exactly the same windows and recorded side by side in the
 prediction ledger.
 
+**Ensemble:** add `--ensemble` to also score the average of all those models. Averaging diverse
+forecasters is one of the most reliable wins on the GIFT-Eval and fev leaderboards, and it tests
+whether TimesFM adds something the others do not.
+
 Useful options: `--domain markets` (repeatable), `--series gold --series silver`,
 `--model timesfm-3`, `--windows 24`, `--skip-backtest` (for `run`), `-v` for progress logs.
 
@@ -81,6 +85,8 @@ pipeline without downloading the model, use a baseline: `psychohistory backtest 
 | `timesfm-2.5` (default) | [google/timesfm-2.5-200m-pytorch](https://huggingface.co/google/timesfm-2.5-200m-pytorch) | Apache-2.0 |
 | `timesfm-3` | [google/timesfm-3.0-pytorch](https://huggingface.co/google/timesfm-3.0-pytorch) | **Non-commercial only** ([licence](https://huggingface.co/google/timesfm-3.0-pytorch/blob/main/LICENSE)) |
 | `chronos-bolt`, `chronos-2` | Amazon's rival foundation models, [amazon/chronos-bolt-small](https://huggingface.co/amazon/chronos-bolt-small) and [amazon/chronos-2](https://huggingface.co/amazon/chronos-2) (install the `rivals` extra) | See each model card |
+| `ensemble` | Average of TimesFM, its `--compare` rivals and AutoETS (add `--ensemble`) | n/a |
+| `bass` | Bass diffusion S-curve (Bass, 1969), run automatically on technology-adoption series | Apache-2.0 (this repo) |
 | `auto-ets`, `auto-arima` | Classical baselines from [statsforecast](https://github.com/Nixtla/statsforecast) (install the `classical` extra) | Apache-2.0 |
 | `naive`, `drift`, `mean` | Baselines in `src/psychohistory/models.py` | Apache-2.0 (this repo) |
 

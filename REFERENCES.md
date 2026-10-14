@@ -26,7 +26,7 @@ everything that ships or downloads with this project are in [CREDITS.md](CREDITS
 | 8 | [facebook/prophet](https://github.com/facebook/prophet) | Meta's decomposable trend-plus-seasonality model. Its plots of forecasts with uncertainty inspired the fan charts. |
 | 9 | [unit8co/darts](https://github.com/unit8co/darts) | A single forecasting API over dozens of models with built-in backtesting. A reference for the rolling-origin backtest design. |
 | 10 | [sktime/sktime](https://github.com/sktime/sktime) | A scikit-learn-style unified interface for time-series learning. A reference for the small `Forecaster` protocol in `models.py`. |
-| 11 | [awslabs/gluonts](https://github.com/awslabs/gluonts) | Amazon's probabilistic forecasting toolkit and its quantile-based evaluation, which shaped the decile-based scoring here. |
+| 11 | [awslabs/gluonts](https://github.com/awslabs/gluonts) | Amazon's probabilistic forecasting toolkit. Its quantile-based evaluation shaped the decile scoring, and its quantile-averaging ensembles are the model for `--ensemble`. |
 | 12 | [statsmodels/statsmodels](https://github.com/statsmodels/statsmodels) | The classical econometrics toolbox (ARIMA, state-space models, unit-root tests) behind the random-walk view of markets. |
 | 13 | [bashtage/arch](https://github.com/bashtage/arch) | GARCH and other volatility models. Market *volatility* is far more predictable than direction, which suits a future extension. |
 
@@ -62,7 +62,7 @@ everything that ships or downloads with this project are in [CREDITS.md](CREDITS
 | Efficient-market hypothesis | Eugene Fama, "Efficient Capital Markets" (1970) | Why the naive random walk is the right market baseline, and why beating it is hard. |
 | Fat tails and black swans | Benoit Mandelbrot (1963); Nassim Taleb, *The Black Swan* (2007) | Test 5, Seldon crises: shocks that fall outside forecast bands. |
 | Chaos and limits to predictability | Edward Lorenz, "Deterministic Nonperiodic Flow" (1963) | Test 3, the Seldon horizon: skill should decay as the forecast reaches further ahead. |
-| Bass diffusion model | Frank Bass, "A New Product Growth Model" (1969) | The S-curve that technology-adoption series such as solar and the internet are expected to follow. |
+| Bass diffusion model | Frank Bass, "A New Product Growth Model" (1969) | **Built in** as the `bass` model: an S-curve fitted to each technology-adoption series and run against TimesFM. |
 | Gartner hype cycle | Gartner (1995) | Why attention to a technology (Wikipedia views) spikes and fades even while adoption keeps rising. |
 | Proper scoring rules | Glenn Brier (1950); Gneiting and Raftery (2007) | Brier and pinball scores; honest odds (test 4). |
 | Superforecasting | Philip Tetlock and Dan Gardner, *Superforecasting* (2015) | Keeping a dated prediction ledger and scoring calibration over time. |

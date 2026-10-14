@@ -14,7 +14,7 @@ import pandas as pd
 
 from .catalog import SeriesSpec
 from .metrics import naive_scale, score
-from .models import Forecaster
+from .models import ENSEMBLE, Forecaster, combine, load_model
 
 log = logging.getLogger(__name__)
 
@@ -35,9 +35,11 @@ def backtest_series(
     windows: int = 12,
     max_context: int = MAX_CONTEXT,
     step_rows: list[dict] | None = None,
+    ensemble_of: list[str] | None = None,
 ) -> pd.DataFrame:
     """Backtest one series. If ``step_rows`` is given, per-step errors are appended to it for
-    the horizon analysis (how fast does skill decay the further ahead we look?)."""
+    the horizon analysis (how fast does skill decay the further ahead we look?). If
+    ``ensemble_of`` names models, their quantile-averaged ensemble is scored too."""
     y = series.to_numpy(dtype=float)
     horizon = spec.horizon
     cuts = origins(len(y), horizon, windows, min_train=max(2 * horizon, 16))
@@ -46,15 +48,21 @@ def backtest_series(
         return pd.DataFrame()
 
     contexts = [y[max(0, t - max_context) : t] for t in cuts]
+    names = {m.name for m in models}
+    models = models + [load_model(m) for m in spec.extra_models if m not in names]
+    by_model = {model.name: model.forecast(contexts, horizon) for model in models}
+    members = [m for m in (ensemble_of or []) if m in by_model]
+    if len(members) >= 2:
+        by_model[ENSEMBLE] = [combine(group) for group in zip(*(by_model[m] for m in members))]
+
     rows = []
-    for model in models:
-        forecasts = model.forecast(contexts, horizon)
+    for name, forecasts in by_model.items():
         for t, context, forecast in zip(cuts, contexts, forecasts):
             actual = y[t : t + horizon]
             if step_rows is not None and spec.freq != "YS":  # yearly series are too short
                 errors = np.abs(actual - forecast.point[:horizon]) / naive_scale(context)
                 step_rows.extend(
-                    {"series_id": spec.id, "domain": spec.domain, "model": model.name, "step": k + 1, "scaled_error": float(e)}
+                    {"series_id": spec.id, "domain": spec.domain, "model": name, "step": k + 1, "scaled_error": float(e)}
                     for k, e in enumerate(errors)
                 )
             rows.append(
@@ -62,7 +70,7 @@ def backtest_series(
                     "series_id": spec.id,
                     "domain": spec.domain,
                     "scale": spec.scale,
-                    "model": model.name,
+                    "model": name,
                     "origin": series.index[t - 1].date(),
                     "horizon": horizon,
                     **score(context, actual, forecast),
