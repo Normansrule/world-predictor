@@ -128,3 +128,17 @@ def ledger_summary(scored: pd.DataFrame) -> pd.DataFrame:
         )
         .reset_index()
     )
+
+
+def latest(entries: pd.DataFrame) -> pd.DataFrame:
+    """The most recent forecast for each series and model, at its furthest horizon."""
+    if entries.empty:
+        return entries
+    newest = entries[entries["made_on"] == entries.groupby(["model", "series_id"])["made_on"].transform("max")]
+    final = newest[newest["step"] == newest.groupby(["model", "series_id"])["step"].transform("max")].copy()
+    final["median_change"] = final["q50"] / final["last_value"] - 1
+    final["low_change"] = final["q10"] / final["last_value"] - 1
+    final["high_change"] = final["q90"] / final["last_value"] - 1
+    columns = ["domain", "series_id", "model", "last_date", "last_value", "target_date",
+               "q10", "q50", "q90", "low_change", "median_change", "high_change"]
+    return final[columns].sort_values(["domain", "series_id"]).reset_index(drop=True)
