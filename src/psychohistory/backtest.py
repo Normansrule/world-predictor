@@ -36,10 +36,14 @@ def backtest_series(
     max_context: int = MAX_CONTEXT,
     step_rows: list[dict] | None = None,
     ensemble_of: list[str] | None = None,
+    path_rows: list[dict] | None = None,
+    paths_for: str | None = None,
 ) -> pd.DataFrame:
     """Backtest one series. If ``step_rows`` is given, per-step errors are appended to it for
     the horizon analysis (how fast does skill decay the further ahead we look?). If
-    ``ensemble_of`` names models, their quantile-averaged ensemble is scored too."""
+    ``ensemble_of`` names models, their quantile-averaged ensemble is scored too. If
+    ``path_rows`` is given, the full forecast paths of model ``paths_for`` are appended to it,
+    which is what the animated "replay" of forecasts versus reality is drawn from."""
     y = series.to_numpy(dtype=float)
     horizon = spec.horizon
     cuts = origins(len(y), horizon, windows, min_train=max(2 * horizon, 16))
@@ -59,6 +63,15 @@ def backtest_series(
     for name, forecasts in by_model.items():
         for t, context, forecast in zip(cuts, contexts, forecasts):
             actual = y[t : t + horizon]
+            if path_rows is not None and name == paths_for:
+                path_rows.extend(
+                    {
+                        "series_id": spec.id, "model": name, "origin": series.index[t - 1].date(),
+                        "date": series.index[t + k].date(), "step": k + 1, "q10": float(forecast.q(0.1)[k]),
+                        "q50": float(forecast.q(0.5)[k]), "q90": float(forecast.q(0.9)[k]), "actual": float(actual[k]),
+                    }
+                    for k in range(len(actual))
+                )
             if step_rows is not None and spec.freq != "YS":  # yearly series are too short
                 errors = np.abs(actual - forecast.point[:horizon]) / naive_scale(context)
                 step_rows.extend(

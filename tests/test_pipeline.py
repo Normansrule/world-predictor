@@ -186,7 +186,10 @@ def test_cli_end_to_end_from_cache(tmp_path):
     assert (tmp_path / "results" / "plots" / "skill_by_step.png").exists()
     assert "## 5. How far ahead can it see?" in report and "11-20" in report
     assert "## 6. Are its odds honest?" in report and "happened" in report
+    assert "## In plain English" in report and "plots/replay.gif" in report
+    assert (tmp_path / "results" / "plots" / "replay.gif").stat().st_size > 1000
     board = (tmp_path / "results" / "dashboard.html").read_text()
+    assert "In plain English" in board and "Replay:" in board
     assert "plotly" in board and "What the model expects next" in board and "S&P 500 index" in board
     assert len(pd.read_csv(tmp_path / "ledger.csv")) == sum(s.horizon for s in specs)
 
