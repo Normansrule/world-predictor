@@ -1,0 +1,11 @@
+World Predictions
+Copyright 2026 Normansrule and contributors
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+This product uses TimesFM (https://github.com/google-research/timesfm),
+Copyright Google LLC, licensed under the Apache License, Version 2.0.
+TimesFM 3.0 pretrained weights, if used, are licensed separately under the
+timesfm-non-commercial-license-v1.0 and may not be used commercially.
+
+Data sources and their terms are listed in CREDITS.md.

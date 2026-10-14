@@ -1,0 +1,53 @@
+name: predict
+
+# Every Monday: fetch fresh data, record new TimesFM forecasts in the ledger, score old ones.
+# On the 1st of each month (or on demand) also rerun the full backtest.
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+    - cron: "0 7 1 * *"
+  workflow_dispatch:
+    inputs:
+      backtest:
+        description: "Also run the full backtest"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: predict
+  cancel-in-progress: false
+
+jobs:
+  predict:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install (CPU PyTorch)
+        run: |
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -e ".[timesfm]"
+      - name: Fetch data
+        run: psychohistory -v fetch
+      - name: Record forecasts
+        run: psychohistory -v predict
+      - name: Score past forecasts
+        run: psychohistory -v score
+      - name: Refresh report with new ledger scores
+        run: if [ -f results/backtest_windows.csv ]; then psychohistory report; fi
+      - name: Backtest
+        if: github.event.schedule == '0 7 1 * *' || (github.event_name == 'workflow_dispatch' && inputs.backtest)
+        run: psychohistory -v backtest
+      - name: Commit results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add predictions results
+          git diff --cached --quiet || git commit -m "Update predictions and results ($(date -u +%F))"
+          git push
