@@ -69,4 +69,6 @@ def score(train: np.ndarray, actual: np.ndarray, forecast: Forecast) -> dict[str
         "coverage80": coverage,
         "pinball": pinball,
         "brier": brier,
+        "p_up": p_up,
+        "went_up": float(actual[-1] > last),
     }

@@ -50,7 +50,10 @@ calibration comparison is fair.
 3. *Horizon*: skill at each step ahead (`results/skill_by_step.csv`), computed per series as
    1 - mean scaled error(model) / mean scaled error(naive) at that step, then the median per
    domain. Yearly adoption series have too few steps and are excluded.
-4. *Crises*: windows with coverage80 at or below 0.5 are listed as events the model missed.
+4. *Honest odds*: backtest forecasts are grouped by the probability they gave of ending higher
+   (0-20%, 20-40%, ...), and each group's stated probability is compared with how often the
+   series really ended higher. Matching numbers mean the odds can be taken at face value.
+5. *Crises*: windows with coverage80 at or below 0.5 are listed as events the model missed.
 
 ## Known limitations
 
