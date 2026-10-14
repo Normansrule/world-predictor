@@ -37,6 +37,9 @@ calibration comparison is fair.
 - **Direction**: share of windows where the sign of the change over the horizon was right. A
   forecast of exactly no change is not counted.
 - **Coverage80**: share of actual values inside the 10%-90% forecast band. Target 0.80.
+- **Brier**: the forecast's deciles are turned into a probability that the series ends the
+  horizon above today's value (interpolated between deciles, tails capped at 5% and 95%).
+  Brier = (probability - outcome)^2, averaged. 0.25 is a coin flip; lower is better.
 - **Pinball**: average quantile loss over the nine deciles, scaled like MASE. Lower is better.
 
 ## The Seldon hypotheses

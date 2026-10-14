@@ -39,6 +39,23 @@ def test_perfect_forecast_scores_zero_error():
     assert m["mae"] == 0 and m["mase"] == 0 and m["coverage80"] == 1 and m["direction"] == 1
 
 
+def test_prob_above_reads_the_deciles():
+    from psychohistory.metrics import prob_above
+
+    deciles = np.arange(1.0, 10.0)  # 10% quantile = 1 ... 90% quantile = 9
+    assert prob_above(deciles, 5.0) == pytest.approx(0.5)
+    assert prob_above(deciles, 3.0) == pytest.approx(0.7)
+    assert prob_above(deciles, -100.0) == pytest.approx(0.95)
+    assert prob_above(deciles, 100.0) == pytest.approx(0.05)
+
+
+def test_brier_rewards_confident_correct_calls():
+    train = np.arange(50.0)
+    actual = np.arange(50.0, 60.0)
+    confident = Forecast(actual.copy(), np.tile(actual[:, None], (1, 9)) + np.linspace(-1, 1, 9))
+    assert score(train, actual, confident)["brier"] == pytest.approx(0.05**2)
+
+
 class RecordingModel:
     """Fails the test if any context contains data from on or after its forecast origin."""
 
@@ -119,6 +136,7 @@ def test_latest_picks_newest_run_and_final_step():
     assert len(latest) == 1
     assert latest.loc[0, "target_date"] == new["target_date"].iloc[-1]
     assert latest.loc[0, "median_change"] == pytest.approx(0.0)
+    assert 0.0 <= latest.loc[0, "p_up"] <= 1.0
 
 
 def test_catalog_ids_are_unique_and_composites_resolve():
