@@ -35,11 +35,13 @@ def cmd_backtest(args) -> None:
     series = _load(specs, args.data_dir)
     names = [args.model] + [b for b in BASELINES if b != args.model]
     models = [load_model(name) for name in names]
-    frames = []
+    frames, step_rows = [], []
     for spec in specs:
         if spec.id in series:
             log.info("backtesting %s", spec.id)
-            frames.append(backtest.backtest_series(spec, series[spec.id], models, windows=args.windows))
+            frames.append(
+                backtest.backtest_series(spec, series[spec.id], models, windows=args.windows, step_rows=step_rows)
+            )
     frames = [f for f in frames if not f.empty]
     if not frames:
         print("No series had enough data to backtest. Try `psychohistory fetch` first.")
@@ -49,6 +51,8 @@ def cmd_backtest(args) -> None:
     results.to_csv(args.out_dir / "backtest_windows.csv", index=False)
     summary = backtest.summarize(results)
     summary.to_csv(args.out_dir / "backtest_summary.csv", index=False)
+    by_step = backtest.skill_by_step(pd.DataFrame(step_rows))
+    by_step.to_csv(args.out_dir / "skill_by_step.csv", index=False)
     print(backtest.domain_table(summary).to_string(index=False))
     _write_report(args, results, summary)
 
@@ -106,8 +110,12 @@ def _write_report(args, results: pd.DataFrame, summary: pd.DataFrame) -> None:
     if args.scored.exists():
         ledger_table = ledger.ledger_summary(pd.read_csv(args.scored))
     latest = ledger.latest(pd.read_csv(args.ledger)) if args.ledger.exists() else None
+    steps_path = args.out_dir / "skill_by_step.csv"
+    by_step = pd.read_csv(steps_path) if steps_path.exists() else None
     report.plot_skill(summary, args.out_dir)
-    path = report.write_report(results, summary, args.model, ledger_table, args.out_dir, latest)
+    if by_step is not None:
+        report.plot_horizon(by_step, args.model, args.out_dir)
+    path = report.write_report(results, summary, args.model, ledger_table, args.out_dir, latest, by_step)
     print(f"Report written to {path}")
 
 
