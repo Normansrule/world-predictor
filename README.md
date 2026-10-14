@@ -37,7 +37,10 @@ so the repo keeps a **prediction ledger**. Forecasts are written to `predictions
 with a date *before* the future happens and scored once it arrives, like Seldon's recordings
 in the Time Vault.
 
-Results land in [`results/REPORT.md`](results/REPORT.md). Methodology details are in
+Results land in [`results/REPORT.md`](results/REPORT.md) and an interactive
+[`results/dashboard.html`](results/dashboard.html) (Plotly, laid out like Our World in Data's
+charts): skill by domain, how far ahead the model can see, whether its odds are honest, and a
+fan chart for every series. Methodology details are in
 [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md).
 
 ## Quick start
@@ -46,7 +49,7 @@ Results land in [`results/REPORT.md`](results/REPORT.md). Methodology details ar
 git clone https://github.com/Normansrule/world-predictions.git
 cd world-predictions
 python -m venv .venv && source .venv/bin/activate
-pip install -e ".[timesfm,dev]"      # installs TimesFM with PyTorch
+pip install -e ".[timesfm,classical,dev]"   # TimesFM + PyTorch, plus AutoETS baselines
 
 psychohistory run                    # everything below in one go
 
@@ -73,7 +76,11 @@ pipeline without downloading the model, use a baseline: `psychohistory backtest 
 |---|---|---|
 | `timesfm-2.5` (default) | [google/timesfm-2.5-200m-pytorch](https://huggingface.co/google/timesfm-2.5-200m-pytorch) | Apache-2.0 |
 | `timesfm-3` | [google/timesfm-3.0-pytorch](https://huggingface.co/google/timesfm-3.0-pytorch) | **Non-commercial only** ([licence](https://huggingface.co/google/timesfm-3.0-pytorch/blob/main/LICENSE)) |
+| `auto-ets`, `auto-arima` | Classical baselines from [statsforecast](https://github.com/Nixtla/statsforecast) (install the `classical` extra) | Apache-2.0 |
 | `naive`, `drift`, `mean` | Baselines in `src/psychohistory/models.py` | Apache-2.0 (this repo) |
+
+Backtests always include the simple baselines, plus `auto-ets` when statsforecast is
+installed, so TimesFM has to beat a serious classical model and not just a random walk.
 
 TimesFM 2.5 is the default so the whole project stays usable under Apache-2.0. TimesFM 3.0 is
 stronger but its downloaded weights may not be used commercially or in production.
@@ -105,10 +112,20 @@ src/psychohistory/
   backtest.py    rolling-origin backtest and the Seldon summary tables
   ledger.py      record forecasts now, score them later
   report.py      results/REPORT.md and charts
+  dashboard.py   results/dashboard.html (interactive Plotly)
   cli.py         the `psychohistory` command
 tests/           offline tests (synthetic data, no downloads)
 scripts/         publish_to_github.sh: create the GitHub repo and push
 ```
+
+## References
+
+[**REFERENCES.md**](REFERENCES.md) lists 20 open-source repositories this project learns from:
+rival foundation models (Chronos, Moirai, Lag-Llama, MOMENT, TimeGPT), forecasting frameworks
+(statsforecast, neuralforecast, Prophet, Darts, sktime, GluonTS, statsmodels, arch), benchmarks
+(GIFT-Eval, fev, properscoring), simulation (Mesa) and presentation (Plotly, OWID Grapher,
+Streamlit). It also lists the modelling theories behind each test, from cliodynamics to the
+efficient-market hypothesis.
 
 ## Credits
 

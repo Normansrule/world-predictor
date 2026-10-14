@@ -161,15 +161,68 @@ class TimesFM3Forecaster:
         return out
 
 
+# --------------------------------------------------------------------------------------------
+# Classical statistics (Nixtla statsforecast, https://github.com/Nixtla/statsforecast). Optional:
+# pip install "world-predictions[classical]". ETS and ARIMA are the workhorses that won or
+# anchored the M-competitions, so a foundation model should beat them, not just the naive walk.
+# --------------------------------------------------------------------------------------------
+
+
+class StatsForecastForecaster:
+    """AutoETS or AutoARIMA from statsforecast, with deciles from its prediction intervals."""
+
+    LEVELS = (20, 40, 60, 80)
+
+    def __init__(self, kind: str = "ets"):
+        try:
+            from statsforecast.models import AutoARIMA, AutoETS
+        except ImportError as exc:  # pragma: no cover - depends on optional install
+            raise ImportError('statsforecast is not installed. Run: pip install "statsforecast"') from exc
+        self.name = "auto-" + kind
+        self._model = AutoETS() if kind == "ets" else AutoARIMA()
+
+    def forecast(self, contexts: Sequence[np.ndarray], horizon: int) -> list[Forecast]:
+        import pandas as pd
+        from statsforecast import StatsForecast
+
+        frames = []
+        for i, context in enumerate(contexts):
+            y = _clean(context)
+            frames.append(pd.DataFrame({"unique_id": i, "ds": np.arange(len(y)), "y": y}))
+        sf = StatsForecast(models=[self._model], freq=1)
+        out = sf.forecast(df=pd.concat(frames, ignore_index=True), h=horizon, level=list(self.LEVELS))
+        col = type(self._model).__name__
+        results = []
+        for i in range(len(contexts)):
+            rows = out[out["unique_id"] == i]
+            point = rows[col].to_numpy(dtype=float)
+            # Level L% interval = quantiles (50 - L/2)% and (50 + L/2)%.
+            lows = [rows[f"{col}-lo-{level}"].to_numpy(dtype=float) for level in reversed(self.LEVELS)]
+            highs = [rows[f"{col}-hi-{level}"].to_numpy(dtype=float) for level in self.LEVELS]
+            quantiles = np.column_stack(lows + [point] + highs)
+            results.append(Forecast(point, np.sort(quantiles, axis=1)))
+        return results
+
+
 MODELS = {
     "timesfm-2.5": TimesFM25Forecaster,
     "timesfm-3": TimesFM3Forecaster,
     "naive": NaiveForecaster,
     "drift": DriftForecaster,
     "mean": MeanForecaster,
+    "auto-ets": lambda: StatsForecastForecaster("ets"),
+    "auto-arima": lambda: StatsForecastForecaster("arima"),
 }
 
 BASELINES = ("naive", "drift", "mean")
+
+
+def classical_available() -> bool:
+    try:
+        import statsforecast  # noqa: F401
+    except ImportError:
+        return False
+    return True
 
 
 _LOADED: dict[str, Forecaster] = {}

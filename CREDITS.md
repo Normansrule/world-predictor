@@ -63,9 +63,17 @@ affiliated with or endorsed by Google.
 - pandas (BSD-3-Clause) <https://pandas.pydata.org/>
 - Matplotlib (Matplotlib licence, BSD-compatible) <https://matplotlib.org/>
 - Requests (Apache 2.0) <https://requests.readthedocs.io/>
+- Plotly for Python (MIT), used for `results/dashboard.html` <https://github.com/plotly/plotly.py>
+- statsforecast by Nixtla (Apache 2.0), optional, used for the AutoETS / AutoARIMA baselines
+  <https://github.com/Nixtla/statsforecast>
 - tabulate (MIT) <https://github.com/astanin/python-tabulate>
 - PyTorch (BSD-3-Clause), installed with TimesFM <https://pytorch.org/>
 - Hugging Face Hub client (Apache 2.0) <https://github.com/huggingface/huggingface_hub>
+
+## Further references
+
+Twenty open-source repositories and the modelling theories this project draws on are listed in
+[REFERENCES.md](REFERENCES.md).
 
 ## Inspiration
 

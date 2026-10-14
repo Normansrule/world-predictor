@@ -186,6 +186,8 @@ def test_cli_end_to_end_from_cache(tmp_path):
     assert (tmp_path / "results" / "plots" / "skill_by_step.png").exists()
     assert "## 5. How far ahead can it see?" in report and "11-20" in report
     assert "## 6. Are its odds honest?" in report and "happened" in report
+    board = (tmp_path / "results" / "dashboard.html").read_text()
+    assert "plotly" in board and "What the model expects next" in board and "S&P 500 index" in board
     assert len(pd.read_csv(tmp_path / "ledger.csv")) == sum(s.horizon for s in specs)
 
 
@@ -216,3 +218,15 @@ def test_timesfm25_wrapper_maps_deciles(monkeypatch):
     assert out[0].quantiles.shape == (3, 9)
     np.testing.assert_array_equal(out[0].q(0.1), [1, 1, 1])
     np.testing.assert_array_equal(out[0].q(0.9), [9, 9, 9])
+
+
+def test_auto_ets_deciles_are_ordered_and_centered():
+    pytest.importorskip("statsforecast")
+    from psychohistory.models import StatsForecastForecaster
+
+    out = StatsForecastForecaster("ets").forecast([synthetic(200).to_numpy(), synthetic(120, seed=3).to_numpy()], 7)
+    assert len(out) == 2
+    for f in out:
+        assert f.quantiles.shape == (7, 9)
+        assert np.all(np.diff(f.quantiles, axis=1) >= 0)
+        np.testing.assert_allclose(f.q(0.5), f.point)
