@@ -230,3 +230,44 @@ def test_auto_ets_deciles_are_ordered_and_centered():
         assert f.quantiles.shape == (7, 9)
         assert np.all(np.diff(f.quantiles, axis=1) >= 0)
         np.testing.assert_allclose(f.q(0.5), f.point)
+
+
+@pytest.mark.parametrize("style", ["bolt", "chronos2"])
+def test_chronos_wrapper_handles_both_output_shapes(monkeypatch, style):
+    import sys
+    import types
+
+    from psychohistory.models import ChronosForecaster
+
+    class FakePipeline:
+        @classmethod
+        def from_pretrained(cls, checkpoint, device_map):
+            return cls()
+
+        def predict_quantiles(self, inputs, prediction_length, quantile_levels):
+            n, q = len(inputs), np.arange(1.0, 10.0)
+            if style == "bolt":
+                return np.broadcast_to(q, (n, prediction_length, 9)).copy(), np.full((n, prediction_length), 5.0)
+            return [np.broadcast_to(q, (1, prediction_length, 9)).copy() for _ in inputs], [np.full((1, prediction_length), 5.0) for _ in inputs]
+
+    fake_torch = types.SimpleNamespace(tensor=lambda x, dtype=None: np.asarray(x), float32=None)
+    monkeypatch.setitem(sys.modules, "torch", fake_torch)
+    monkeypatch.setitem(sys.modules, "chronos", types.SimpleNamespace(BaseChronosPipeline=FakePipeline))
+    out = ChronosForecaster().forecast([np.arange(30.0), np.arange(40.0)], horizon=4)
+    assert len(out) == 2
+    assert out[0].quantiles.shape == (4, 9) and out[0].point.shape == (4,)
+    np.testing.assert_array_equal(out[1].q(0.9), [9, 9, 9, 9])
+
+
+def test_compare_adds_rivals_to_backtest_and_ledger(tmp_path):
+    spec = catalog.by_id("gold")
+    path = data.cache_path(spec, tmp_path / "data")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    synthetic(400, freq="B").to_frame("value").to_csv(path, index_label="date")
+    common = ["--data-dir", str(tmp_path / "data"), "--out-dir", str(tmp_path / "results"),
+              "--ledger", str(tmp_path / "ledger.csv"), "--scored", str(tmp_path / "scored.csv"),
+              "--series", "gold", "--model", "drift", "--compare", "mean"]
+    cli.main(["backtest", *common, "--windows", "3"])
+    cli.main(["predict", *common])
+    assert {"drift", "mean", "naive"} <= set(pd.read_csv(tmp_path / "results" / "backtest_windows.csv")["model"])
+    assert set(pd.read_csv(tmp_path / "ledger.csv")["model"]) == {"drift", "mean"}

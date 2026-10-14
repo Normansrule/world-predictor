@@ -32,18 +32,18 @@ jobs:
       - name: Install (CPU PyTorch)
         run: |
           pip install torch --index-url https://download.pytorch.org/whl/cpu
-          pip install -e ".[timesfm,classical]"
+          pip install -e ".[timesfm,rivals,classical]"
       - name: Fetch data
         run: psychohistory -v fetch
       - name: Record forecasts
-        run: psychohistory -v predict
+        run: psychohistory -v predict --compare chronos-bolt
       - name: Score past forecasts
         run: psychohistory -v score
       - name: Refresh report with new ledger scores
         run: if [ -f results/backtest_windows.csv ]; then psychohistory report; fi
       - name: Backtest
         if: github.event.schedule == '0 7 1 * *' || (github.event_name == 'workflow_dispatch' && inputs.backtest)
-        run: psychohistory -v backtest
+        run: psychohistory -v backtest --compare chronos-bolt
       - name: Commit results
         run: |
           git config user.name "github-actions[bot]"

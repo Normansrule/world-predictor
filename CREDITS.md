@@ -31,6 +31,13 @@ affiliated with or endorsed by Google.
 }
 ```
 
+### Chronos, Amazon Science (optional rival model)
+- Code: <https://github.com/amazon-science/chronos-forecasting> (Apache License 2.0)
+- Weights: <https://huggingface.co/amazon/chronos-bolt-small> and <https://huggingface.co/amazon/chronos-2>;
+  check each model card for its licence before commercial use.
+- Paper: Abdul Fatir Ansari et al. *Chronos: Learning the Language of Time Series.* TMLR 2024.
+  <https://arxiv.org/abs/2403.07815>
+
 ## Data sources
 
 ### World events: The GDELT Project

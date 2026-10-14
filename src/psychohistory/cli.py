@@ -33,7 +33,8 @@ def cmd_fetch(args) -> None:
 def cmd_backtest(args) -> None:
     specs = catalog.select(args.domain, args.series)
     series = _load(specs, args.data_dir)
-    names = [args.model] + [b for b in BASELINES if b != args.model]
+    names = [args.model] + [m for m in args.compare if m != args.model]
+    names += [b for b in BASELINES if b not in names]
     if classical_available() and "auto-ets" not in names:
         names.append("auto-ets")  # the strongest classical baseline, when statsforecast is installed
     models = [load_model(name) for name in names]
@@ -62,11 +63,14 @@ def cmd_backtest(args) -> None:
 def cmd_predict(args) -> None:
     specs = catalog.select(args.domain, args.series)
     series = _load(specs, args.data_dir, refresh=args.refresh)
-    model = load_model(args.model)
-    rows = ledger.predict(specs, series, model)
+    # The model under test plus any --compare rivals, so the ledger becomes a head-to-head record.
+    rows = pd.concat(
+        [ledger.predict(specs, series, load_model(name)) for name in dict.fromkeys([args.model, *args.compare])],
+        ignore_index=True,
+    )
     ledger.append(rows, args.ledger)
     print(f"Recorded {len(rows)} predictions for {rows['series_id'].nunique()} series in {args.ledger}")
-    for series_id, group in rows.groupby("series_id"):
+    for series_id, group in rows[rows["model"] == args.model].groupby("series_id"):
         spec = catalog.by_id(series_id)
         report.plot_fan(series[series_id], group, spec.description, args.out_dir)
 
@@ -137,7 +141,9 @@ def main(argv: list[str] | None = None) -> None:
     def common(p):
         p.add_argument("--domain", action="append", choices=catalog.DOMAINS, help="limit to a domain (repeatable)")
         p.add_argument("--series", action="append", help="limit to a series id (repeatable)")
-        p.add_argument("--model", default="timesfm-2.5", help="timesfm-2.5 (default), timesfm-3, naive, drift, mean")
+        p.add_argument("--model", default="timesfm-2.5", help="model under test: timesfm-2.5 (default), timesfm-3, chronos-bolt, chronos-2, auto-ets, auto-arima, naive, drift, mean")
+        p.add_argument("--compare", action="append", default=[], metavar="MODEL",
+                       help="rival model to run alongside, e.g. --compare chronos-bolt (repeatable)")
         p.add_argument("--data-dir", type=Path, default=Path("data"))
         p.add_argument("--out-dir", type=Path, default=Path("results"))
         p.add_argument("--ledger", type=Path, default=ledger.LEDGER)
