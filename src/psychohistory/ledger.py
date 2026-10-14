@@ -18,6 +18,7 @@ import numpy as np
 import pandas as pd
 
 from .catalog import SeriesSpec
+from .metrics import prob_above
 from .models import Forecaster
 
 LEDGER = Path("predictions/ledger.csv")
@@ -25,7 +26,7 @@ SCORED = Path("predictions/scored.csv")
 
 COLUMNS = [
     "made_on", "model", "series_id", "domain", "scale", "last_date", "last_value",
-    "step", "target_date", "q10", "q50", "q90", "point",
+    "step", "target_date", "q10", "q50", "q90", "point", "p_up",
 ]
 
 
@@ -67,6 +68,7 @@ def predict(
                         "q50": float(forecast.q(0.5)[step]),
                         "q90": float(forecast.q(0.9)[step]),
                         "point": float(forecast.point[step]),
+                        "p_up": prob_above(forecast.quantiles[step], float(series.iloc[-1])),
                     }
                 )
     return pd.DataFrame(rows, columns=COLUMNS)
@@ -101,6 +103,7 @@ def score(ledger: pd.DataFrame, data: dict[str, pd.Series]) -> pd.DataFrame:
     true_move = np.sign(scored["actual"] - scored["last_value"])
     pred_move = np.sign(scored["point"] - scored["last_value"])
     scored["direction_correct"] = np.where((true_move != 0) & (pred_move != 0), (true_move == pred_move).astype(float), np.nan)
+    scored["brier"] = (scored["p_up"] - (scored["actual"] > scored["last_value"]).astype(float)) ** 2
     return scored
 
 
@@ -115,6 +118,7 @@ def ledger_summary(scored: pd.DataFrame) -> pd.DataFrame:
         naive_mae=("naive_abs_error", "mean"),
         direction=("direction_correct", "mean"),
         coverage80=("in_band80", "mean"),
+        brier=("brier", "mean"),
     )
     per_series["skill"] = 1 - per_series["mae"] / per_series["naive_mae"].replace(0, np.nan)
     return (
@@ -125,6 +129,7 @@ def ledger_summary(scored: pd.DataFrame) -> pd.DataFrame:
             median_skill=("skill", "median"),
             direction=("direction", "mean"),
             coverage80=("coverage80", "mean"),
+            brier=("brier", "mean"),
         )
         .reset_index()
     )
@@ -140,5 +145,5 @@ def latest(entries: pd.DataFrame) -> pd.DataFrame:
     final["low_change"] = final["q10"] / final["last_value"] - 1
     final["high_change"] = final["q90"] / final["last_value"] - 1
     columns = ["domain", "series_id", "model", "last_date", "last_value", "target_date",
-               "q10", "q50", "q90", "low_change", "median_change", "high_change"]
+               "q10", "q50", "q90", "low_change", "median_change", "high_change", "p_up"]
     return final[columns].sort_values(["domain", "series_id"]).reset_index(drop=True)

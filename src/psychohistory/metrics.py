@@ -7,6 +7,8 @@
 * Direction - did the forecast get the sign of the change over the horizon right?
 * Coverage80 - share of actual values inside the forecast's 10%-90% band. A calibrated model
   scores about 0.80; much lower means overconfident, much higher means vague.
+* Brier - squared error of the forecast's probability that the series ends the horizon higher
+  than it started (0 is perfect, 0.25 is a coin flip). Turns forecasts into checkable odds.
 * Pinball - mean quantile loss across the deciles (scaled like MASE). Rewards forecasts that
   are both sharp and honest about uncertainty.
 """
@@ -16,6 +18,14 @@ from __future__ import annotations
 import numpy as np
 
 from .models import QUANTILES, Forecast
+
+
+def prob_above(deciles: np.ndarray, threshold: float) -> float:
+    """Probability that the outcome exceeds ``threshold``, read off the forecast's deciles by
+    linear interpolation. Tails beyond the 10% / 90% deciles are capped at 5% / 95% because the
+    forecast says nothing more precise about them."""
+    cdf = np.interp(threshold, np.asarray(deciles, dtype=float), np.asarray(QUANTILES), left=0.05, right=0.95)
+    return float(1 - cdf)
 
 
 def naive_scale(train: np.ndarray) -> float:
@@ -47,6 +57,9 @@ def score(train: np.ndarray, actual: np.ndarray, forecast: Forecast) -> dict[str
     lo, hi = forecast.q(0.1)[:h], forecast.q(0.9)[:h]
     coverage = float(np.mean((actual >= lo) & (actual <= hi)))
 
+    p_up = prob_above(quantiles[-1], last)
+    brier = (p_up - float(actual[-1] > last)) ** 2
+
     return {
         "mae": float(np.mean(np.abs(err))),
         "rmse": float(np.sqrt(np.mean(err**2))),
@@ -55,4 +68,5 @@ def score(train: np.ndarray, actual: np.ndarray, forecast: Forecast) -> dict[str
         "direction": direction,
         "coverage80": coverage,
         "pinball": pinball,
+        "brier": brier,
     }

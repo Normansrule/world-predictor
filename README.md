@@ -57,8 +57,10 @@ psychohistory score                  # score ledger forecasts whose dates have a
 Useful options: `--domain markets` (repeatable), `--series gold --series silver`,
 `--model timesfm-3`, `--windows 24`, `--skip-backtest` (for `run`), `-v` for progress logs.
 
-The report ends with **what the model expects next**: for every series, the median forecast
-and its 10%-90% range as a change from today, plus a fan chart.
+The report ends with **what the model expects next**: for every series, the median forecast,
+its 10%-90% range as a change from today, the **chance it ends higher**, and a fan chart.
+Those odds are scored later with the Brier score, so the project can say not just "TimesFM
+said gold would rise" but "when TimesFM says 70%, it is right about 70% of the time".
 
 Without a GPU everything still runs on CPU; TimesFM 2.5 has 200M parameters. To try the
 pipeline without downloading the model, use a baseline: `psychohistory backtest --model drift`.

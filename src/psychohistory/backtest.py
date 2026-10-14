@@ -77,7 +77,7 @@ def summarize(results: pd.DataFrame, baseline: str = "naive") -> pd.DataFrame:
     ``skill`` = 1 - MAE(model) / MAE(baseline) over the same windows. Positive means the model
     beat the baseline; 0.2 means 20% less error.
     """
-    metrics = ["mae", "mase", "smape", "direction", "coverage80", "pinball"]
+    metrics = ["mae", "mase", "smape", "direction", "coverage80", "pinball", "brier"]
     per_series = results.groupby(["series_id", "domain", "scale", "model"], as_index=False)[metrics].mean()
     base = per_series[per_series["model"] == baseline][["series_id", "mae", "pinball"]]
     base = base.rename(columns={"mae": "baseline_mae", "pinball": "baseline_pinball"})
@@ -105,6 +105,7 @@ def domain_table(summary: pd.DataFrame) -> pd.DataFrame:
             median_mase=("mase", "median"),
             direction=("direction", "mean"),
             coverage80=("coverage80", "mean"),
+            brier=("brier", "mean"),
         )
         .reset_index()
     )

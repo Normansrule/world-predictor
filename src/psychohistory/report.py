@@ -59,7 +59,8 @@ def write_report(
         "",
         f"_Generated {date.today().isoformat()} with model `{model}`. "
         "Skill = 1 - MAE(model) / MAE(naive random walk); positive is better than naive. "
-        "Coverage80 should be close to 0.80 for an honest forecaster. See docs/METHODOLOGY.md._",
+        "Coverage80 should be close to 0.80 for an honest forecaster. "
+        "Brier scores the probability of going up (0.25 = coin flip, lower is better). See docs/METHODOLOGY.md._",
         "",
         "## 1. Can the future be predicted?",
         "",
@@ -123,7 +124,9 @@ def _latest_section(latest: pd.DataFrame | None, model: str, out_dir: Path) -> l
     rows = latest[latest["model"] == model]
     lines += [
         f"Latest forecasts recorded in the ledger (made with data up to each series' last date). "
-        "Changes are relative to the last observed value; the range is the 10%-90% band.",
+        "Changes are relative to the last observed value; the range is the 10%-90% band; "
+        "\"chance higher\" is the model's probability that the value on the target date is above "
+        "today's (scored later with the Brier score: 0 is perfect, 0.25 is a coin flip).",
         "",
     ]
     for domain in ("news", "markets", "tech"):
@@ -137,6 +140,7 @@ def _latest_section(latest: pd.DataFrame | None, model: str, out_dir: Path) -> l
                 "last": part["last_value"].round(3),
                 "target date": part["target_date"],
                 "median": part["median_change"].map("{:+.1%}".format),
+                "chance higher": part["p_up"].map("{:.0%}".format),
                 "range (10%-90%)": [f"{lo:+.1%} to {hi:+.1%}" for lo, hi in zip(part["low_change"], part["high_change"])],
             }
         )
