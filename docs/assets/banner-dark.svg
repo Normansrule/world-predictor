@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 320" role="img" aria-label="World Predictions: an animated forecast fan chart">
+<style>
+  .bg { fill: #1a1a19; }
+  .title { font: 700 46px Inter, system-ui, sans-serif; fill: #f0efec; }
+  .sub { font: 400 19px Inter, system-ui, sans-serif; fill: #c3c2b7; }
+  .tag { font: 600 14px Inter, system-ui, sans-serif; fill: #c3c2b7; letter-spacing: .08em; }
+  .grid line { stroke: #383835; stroke-width: 1; }
+  .history { fill: none; stroke: #3987e5; stroke-width: 3; stroke-linejoin: round;
+             stroke-dasharray: 1400; stroke-dashoffset: 1400; animation: draw 2s ease-out forwards; }
+  .fan { fill: #d95926; opacity: 0; animation: fade .9s ease-out 2s forwards; }
+  .median { fill: none; stroke: #d95926; stroke-width: 3; opacity: 0; animation: show .5s ease-out 2.4s forwards; }
+  .dot { fill: #f0efec; opacity: 0; animation: show .3s ease-out forwards; }
+  .label { font: 500 13px Inter, system-ui, sans-serif; fill: #c3c2b7; opacity: 0; animation: show .6s ease-out 2.8s forwards; }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  @keyframes fade { to { opacity: .22; } }
+  @keyframes show { to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) {
+    .history, .fan, .median, .dot, .label { animation: none; opacity: 1; stroke-dashoffset: 0; }
+    .fan { opacity: .22; }
+  }
+</style>
+<rect class="bg" width="1200" height="320" rx="16"/>
+<text class="tag" x="48" y="88">PSYCHOHISTORY  ×  GOOGLE TIMESFM</text>
+<text class="title" x="48" y="146">World Predictions</text>
+<text class="sub" x="48" y="190">Can Hari Seldon's math predict the future?</text>
+<text class="sub" x="48" y="218">Testing an AI forecaster on world news, markets</text>
+<text class="sub" x="48" y="246">(stocks, gold, silver) and new technologies.</text>
+<g class="grid"><line x1="640" x2="1160" y1="50" y2="50"/><line x1="640" x2="1160" y1="105" y2="105"/><line x1="640" x2="1160" y1="160" y2="160"/><line x1="640" x2="1160" y1="215" y2="215"/><line x1="640" x2="1160" y1="270" y2="270"/></g>
+<polygon class="fan" points="1028.4,172.3 1034.9,155.8 1041.5,147.8 1048.1,141.3 1054.7,135.5 1061.3,130.1 1067.8,125.1 1074.4,120.4 1081.0,115.8 1087.6,111.4 1094.2,107.1 1100.8,103.0 1107.3,98.9 1113.9,94.9 1120.5,91.1 1127.1,87.2 1133.7,83.5 1140.3,79.8 1146.8,76.1 1153.4,72.6 1160.0,69.0 1160.0,199.5 1153.4,199.8 1146.8,200.0 1140.3,200.1 1133.7,200.2 1127.1,200.3 1120.5,200.3 1113.9,200.2 1107.3,200.0 1100.8,199.8 1094.2,199.4 1087.6,198.9 1081.0,198.3 1074.4,197.6 1067.8,196.6 1061.3,195.4 1054.7,193.8 1048.1,191.8 1041.5,189.1 1034.9,185.0 1028.4,172.3"/>
+<polyline class="history" points="640.0,113.1 646.6,108.3 653.2,110.0 659.7,118.7 666.3,122.5 672.9,132.4 679.5,130.3 686.1,113.5 692.7,117.7 699.2,123.4 705.8,116.4 712.4,110.9 719.0,108.3 725.6,117.4 732.2,116.3 738.7,107.0 745.3,120.9 751.9,124.7 758.5,144.9 765.1,158.2 771.6,177.8 778.2,179.0 784.8,192.1 791.4,187.5 798.0,184.3 804.6,185.0 811.1,212.3 817.7,217.0 824.3,216.1 830.9,213.4 837.5,229.5 844.1,233.5 850.6,243.2 857.2,251.0 863.8,237.5 870.4,245.3 877.0,244.2 883.5,232.7 890.1,237.9 896.7,237.8 903.3,235.1 909.9,232.9 916.5,245.5 923.0,243.2 929.6,226.3 936.2,242.5 942.8,231.3 949.4,228.5 955.9,234.4 962.5,210.1 969.1,200.0 975.7,212.3 982.3,210.0 988.9,202.0 995.4,202.7 1002.0,193.5 1008.6,192.8 1015.2,183.8 1021.8,166.0 1028.4,172.3"/>
+<polyline class="median" points="1028.4,172.3 1034.9,170.4 1041.5,168.5 1048.1,166.6 1054.7,164.7 1061.3,162.8 1067.8,160.9 1074.4,159.0 1081.0,157.1 1087.6,155.2 1094.2,153.3 1100.8,151.4 1107.3,149.5 1113.9,147.6 1120.5,145.7 1127.1,143.8 1133.7,141.9 1140.3,140.0 1146.8,138.1 1153.4,136.2 1160.0,134.3"/>
+<circle class="dot" style="animation-delay:3.20s" cx="1034.9" cy="169.2" r="3.2"/><circle class="dot" style="animation-delay:3.28s" cx="1041.5" cy="169.9" r="3.2"/><circle class="dot" style="animation-delay:3.36s" cx="1048.1" cy="167.3" r="3.2"/><circle class="dot" style="animation-delay:3.44s" cx="1054.7" cy="172.2" r="3.2"/><circle class="dot" style="animation-delay:3.52s" cx="1061.3" cy="173.6" r="3.2"/><circle class="dot" style="animation-delay:3.60s" cx="1067.8" cy="172.8" r="3.2"/><circle class="dot" style="animation-delay:3.68s" cx="1074.4" cy="165.8" r="3.2"/><circle class="dot" style="animation-delay:3.76s" cx="1081.0" cy="157.4" r="3.2"/><circle class="dot" style="animation-delay:3.84s" cx="1087.6" cy="163.0" r="3.2"/><circle class="dot" style="animation-delay:3.92s" cx="1094.2" cy="165.6" r="3.2"/><circle class="dot" style="animation-delay:4.00s" cx="1100.8" cy="160.0" r="3.2"/><circle class="dot" style="animation-delay:4.08s" cx="1107.3" cy="169.5" r="3.2"/><circle class="dot" style="animation-delay:4.16s" cx="1113.9" cy="170.2" r="3.2"/><circle class="dot" style="animation-delay:4.24s" cx="1120.5" cy="168.9" r="3.2"/><circle class="dot" style="animation-delay:4.32s" cx="1127.1" cy="159.8" r="3.2"/><circle class="dot" style="animation-delay:4.40s" cx="1133.7" cy="154.0" r="3.2"/><circle class="dot" style="animation-delay:4.48s" cx="1140.3" cy="154.0" r="3.2"/><circle class="dot" style="animation-delay:4.56s" cx="1146.8" cy="154.2" r="3.2"/><circle class="dot" style="animation-delay:4.64s" cx="1153.4" cy="153.7" r="3.2"/><circle class="dot" style="animation-delay:4.72s" cx="1160.0" cy="143.1" r="3.2"/>
+<text class="label" x="640" y="304">what it could see</text>
+<text class="label" x="1160" y="304" text-anchor="end">its forecast  ·  what really happened</text>
+</svg>

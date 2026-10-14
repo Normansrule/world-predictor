@@ -73,9 +73,21 @@ def write_report(
         "Coverage80 should be close to 0.80 for an honest forecaster. "
         "Brier scores the probability of going up (0.25 = coin flip, lower is better). See docs/METHODOLOGY.md._",
         "",
-        "## 1. Can the future be predicted?",
-        "",
     ]
+    from .story import headlines  # local import: story builds on this module's palette
+
+    plain = headlines(summary, model, results, by_step)
+    if plain:
+        lines += ["## In plain English", ""] + [f"- {line}" for line in plain] + [""]
+    if (out_dir / "plots" / "replay.gif").exists():
+        lines += [
+            "![Replay of past forecasts against what really happened](plots/replay.gif)",
+            "",
+            "_Each frame is a forecast made in the past: the orange band is what the model expected, "
+            "the dark dots are what really happened._",
+            "",
+        ]
+    lines += ["## 1. Can the future be predicted?", ""]
     if (out_dir / "plots" / "skill_by_domain.png").exists():
         lines += ["![Skill by domain](plots/skill_by_domain.png)", ""]
     for domain in ("news", "markets", "tech"):

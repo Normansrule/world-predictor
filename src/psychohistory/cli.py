@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from . import backtest, catalog, dashboard, data, ledger, report
+from . import backtest, catalog, dashboard, data, ledger, report, story
 from .models import BASELINES, classical_available, load_model
 
 log = logging.getLogger("psychohistory")
@@ -47,13 +47,14 @@ def cmd_backtest(args) -> None:
         names.append("auto-ets")  # the strongest classical baseline, when statsforecast is installed
     models = [load_model(name) for name in names]
     members = ensemble_members(args) if args.ensemble else None
-    frames, step_rows = [], []
+    frames, step_rows, path_rows = [], [], []
     for spec in specs:
         if spec.id in series:
             log.info("backtesting %s", spec.id)
             frames.append(
                 backtest.backtest_series(
-                    spec, series[spec.id], models, windows=args.windows, step_rows=step_rows, ensemble_of=members
+                    spec, series[spec.id], models, windows=args.windows, step_rows=step_rows, ensemble_of=members,
+                    path_rows=path_rows, paths_for=args.model,
                 )
             )
     frames = [f for f in frames if not f.empty]
@@ -67,6 +68,7 @@ def cmd_backtest(args) -> None:
     summary.to_csv(args.out_dir / "backtest_summary.csv", index=False)
     by_step = backtest.skill_by_step(pd.DataFrame(step_rows))
     by_step.to_csv(args.out_dir / "skill_by_step.csv", index=False)
+    pd.DataFrame(path_rows).to_csv(args.out_dir / "backtest_paths.csv", index=False)
     print(backtest.domain_table(summary).to_string(index=False))
     _write_report(args, results, summary)
 
@@ -132,6 +134,15 @@ def _write_report(args, results: pd.DataFrame, summary: pd.DataFrame) -> None:
     steps_path = args.out_dir / "skill_by_step.csv"
     by_step = pd.read_csv(steps_path) if steps_path.exists() else None
     report.plot_skill(summary, args.out_dir, args.model)
+    paths_file = args.out_dir / "backtest_paths.csv"
+    paths = pd.read_csv(paths_file) if paths_file.exists() and paths_file.stat().st_size > 1 else pd.DataFrame()
+    headline = story.pick_headline_series(paths)
+    headline_data = _load([catalog.by_id(headline)], args.data_dir) if headline else {}
+    if headline in headline_data:
+        story.replay_gif(
+            headline_data[headline], paths[paths["series_id"] == headline], catalog.by_id(headline).description,
+            args.out_dir / "plots" / "replay.gif",
+        )
     if by_step is not None:
         report.plot_horizon(by_step, args.model, args.out_dir)
     path = report.write_report(results, summary, args.model, ledger_table, args.out_dir, latest, by_step)
@@ -141,7 +152,12 @@ def _write_report(args, results: pd.DataFrame, summary: pd.DataFrame) -> None:
     if latest is not None and not latest.empty:
         specs = [s for s in catalog.CATALOG if s.id in set(latest["series_id"])]
         data_for_fans = _load(specs, args.data_dir)
-    board = dashboard.write_dashboard(results, summary, args.model, args.out_dir, by_step, latest, entries, data_for_fans)
+    if headline in headline_data:
+        data_for_fans.setdefault(headline, headline_data[headline])
+    board = dashboard.write_dashboard(
+        results, summary, args.model, args.out_dir, by_step, latest, entries, data_for_fans,
+        paths=paths[paths["series_id"] == headline] if headline else None, headline=headline,
+    )
     if board:
         print(f"Dashboard written to {board}")
 

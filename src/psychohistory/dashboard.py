@@ -135,6 +135,54 @@ def _fan_figure(latest: pd.DataFrame, ledger: pd.DataFrame, data: dict[str, pd.S
     return fig
 
 
+def _replay_figure(series: pd.Series, paths: pd.DataFrame, title: str):
+    """Animated replay: press play to step through past forecasts and see each one meet reality."""
+    import plotly.graph_objects as go
+
+    origins = sorted(paths["origin"].unique())
+    first = pd.Timestamp(origins[0])
+    end = pd.Timestamp(paths["date"].max())
+    window = series[(series.index >= first - (end - first) * 0.6) & (series.index <= end)]
+
+    def traces(origin):
+        now = paths[paths["origin"] == origin].sort_values("step")
+        dates = pd.to_datetime(now["date"])
+        known = window[window.index <= pd.Timestamp(origin)]
+        return [
+            go.Scatter(x=known.index, y=known.values, name="What it could see", line={"color": SERIES_COLORS[0], "width": 2}),
+            go.Scatter(x=list(dates) + list(dates[::-1]), y=list(now["q90"]) + list(now["q10"][::-1]), fill="toself",
+                       fillcolor="rgba(235,104,52,0.2)", line={"width": 0}, name="Its 80% range", hoverinfo="skip"),
+            go.Scatter(x=dates, y=now["q50"], name="Its best guess", line={"color": SERIES_COLORS[1], "width": 2}),
+            go.Scatter(x=dates, y=now["actual"], mode="markers", name="What really happened",
+                       marker={"color": TEXT, "size": 6}),
+        ]
+
+    frames = [go.Frame(data=traces(o), name=str(o)) for o in origins]
+    fig = go.Figure(data=traces(origins[0]), frames=frames)
+    fig.update_layout(
+        updatemenus=[{
+            "type": "buttons", "showactive": False, "x": 0, "y": -0.28, "xanchor": "left",
+            "buttons": [
+                {"label": "▶ Play", "method": "animate",
+                 "args": [None, {"frame": {"duration": 900, "redraw": True}, "fromcurrent": True, "transition": {"duration": 300}}]},
+                {"label": "❚❚ Pause", "method": "animate",
+                 "args": [[None], {"frame": {"duration": 0}, "mode": "immediate"}]},
+            ],
+        }],
+        sliders=[{
+            "x": 0.18, "len": 0.82, "y": -0.2, "currentvalue": {"prefix": "Forecast made on "},
+            "steps": [{"label": str(o), "method": "animate",
+                       "args": [[str(o)], {"frame": {"duration": 0, "redraw": True}, "mode": "immediate"}]} for o in origins],
+        }],
+    )
+    fig.update_xaxes(range=[window.index[0], window.index[-1]])
+    pad = 0.05 * float(window.max() - window.min())
+    fig.update_yaxes(range=[float(window.min()) - pad, float(window.max()) + pad])
+    fig = _layout(fig, f"Replay: {title}. What it expected vs what happened", "", "")
+    fig.update_layout(height=470, margin={"b": 130}, legend={"y": 1.08, "orientation": "h"})
+    return fig
+
+
 def write_dashboard(
     results: pd.DataFrame,
     summary: pd.DataFrame,
@@ -144,12 +192,20 @@ def write_dashboard(
     latest: pd.DataFrame | None = None,
     ledger: pd.DataFrame | None = None,
     data: dict[str, pd.Series] | None = None,
+    paths: pd.DataFrame | None = None,
+    headline: str | None = None,
 ) -> Path | None:
     try:
         import plotly  # noqa: F401
     except ImportError:
         return None
-    figures = [_skill_figure(summary, model)]
+    from . import catalog
+    from .story import headlines
+
+    figures = []
+    if paths is not None and not paths.empty and data and headline in data:
+        figures.append(_replay_figure(data[headline], paths, catalog.by_id(headline).description))
+    figures.append(_skill_figure(summary, model))
     if by_step is not None and not by_step.empty:
         figures.append(_horizon_figure(by_step, model))
     if "p_up" in results.columns:
@@ -164,6 +220,9 @@ def write_dashboard(
             + fig.to_html(full_html=False, include_plotlyjs="cdn" if i == 0 else False, config={"displaylogo": False})
             + "</section>"
         )
+    plain = headlines(summary, model, results, by_step)
+    cards = "".join(f'<li>{html.escape(line)}</li>' for line in plain)
+    plain_html = f'<section class="plain"><h2>In plain English</h2><ul>{cards}</ul></section>' if plain else ""
     page = f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>World Predictions</title>
@@ -175,12 +234,16 @@ def write_dashboard(
   p.lede {{ color: var(--muted); margin: 0 0 24px; max-width: 70ch; line-height: 1.5; }}
   .card {{ border: 1px solid var(--line); border-radius: 12px; padding: 8px; margin: 0 0 20px; overflow-x: auto; }}
   footer {{ color: var(--muted); font-size: 13px; }}
+  .plain {{ background: #f3f7fd; border-left: 4px solid #2a78d6; border-radius: 8px; padding: 12px 20px; margin: 0 0 24px; }}
+  .plain h2 {{ font-size: 16px; margin: 4px 0 8px; }}
+  .plain li {{ margin: 6px 0; line-height: 1.5; }}
 </style></head>
 <body><main>
 <h1>World Predictions</h1>
 <p class="lede">Can Hari Seldon's psychohistory work with a modern forecasting model? {html.escape(model)} is scored against
 simple baselines on world news attention, markets and technology. Generated {date.today().isoformat()}.
 Full tables are in REPORT.md.</p>
+{plain_html}
 {''.join(blocks)}
 <footer>{html.escape(SOURCE)} See CREDITS.md and REFERENCES.md.</footer>
 </main></body></html>
