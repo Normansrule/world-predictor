@@ -1,0 +1,50 @@
+name: pages
+
+# Publishes results/ (the interactive dashboard, report and charts) to GitHub Pages after every
+# forecast run, so the dashboard can be opened in a browser at
+# https://<owner>.github.io/<repo>/
+# One-time setup: Settings -> Pages -> Source: GitHub Actions.
+on:
+  workflow_run:
+    workflows: [predict]
+    types: [completed]
+  push:
+    branches: [main]
+    paths: ["results/**", "docs/assets/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Build site
+        run: |
+          mkdir -p _site
+          cp -r results/. _site/
+          cp -r docs/assets _site/assets
+          if [ -f _site/dashboard.html ]; then
+            printf '<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=dashboard.html"><title>World Predictions</title><a href="dashboard.html">Open the dashboard</a>\n' > _site/index.html
+          else
+            printf '<!doctype html><meta charset="utf-8"><title>World Predictions</title><p>The dashboard appears after the first forecast run. Open the <b>predict</b> workflow under Actions and press Run workflow.</p>\n' > _site/index.html
+          fi
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4

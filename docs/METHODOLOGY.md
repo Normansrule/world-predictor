@@ -64,6 +64,17 @@ calibration comparison is fair.
    series really ended higher. Matching numbers mean the odds can be taken at face value.
 5. *Crises*: windows with coverage80 at or below 0.5 are listed as events the model missed.
 
+## The toy crowd (`psychohistory simulate`)
+
+A teaching aid for hypothesis 2, not evidence for it. Each of 10,000 agents has a mood
+`x_i(t) = tide(t) + e_i(t)`, where the shared tide is a slow sine wave plus an AR(1) drift and
+`e_i` is independent AR(1) personal noise (phi 0.8, roughly three times the tide's spread).
+For crowd sizes 1 to 10,000 the script reports the squared correlation between the crowd's
+average and the tide: the share of the crowd's movement a model could in principle learn.
+Because personal noise averages away at rate 1/sqrt(N), that share rises from about 0.2 for one
+person to above 0.99 for 10,000. Real series need not behave like this (shared shocks such as
+a crash hit everyone at once), which is why the real backtest tests it rather than assuming it.
+
 ## Known limitations
 
 - **Leakage through pretraining.** TimesFM was pretrained on large public corpora that may
