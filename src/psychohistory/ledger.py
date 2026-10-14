@@ -74,6 +74,18 @@ def predict(
     return pd.DataFrame(rows, columns=COLUMNS)
 
 
+def ensemble_rows(rows: pd.DataFrame, members: list[str], name: str = "ensemble") -> pd.DataFrame:
+    """Quantile-averaged ensemble of the members' ledger rows. Averaging ``p_up`` gives the
+    probability under an equal-weight mixture of the members."""
+    part = rows[rows["model"].isin(members)]
+    if part["model"].nunique() < 2:
+        return pd.DataFrame(columns=COLUMNS)
+    keys = ["made_on", "series_id", "domain", "scale", "last_date", "last_value", "step", "target_date"]
+    combined = part.groupby(keys, as_index=False)[["q10", "q50", "q90", "point", "p_up"]].mean()
+    combined["model"] = name
+    return combined[COLUMNS]
+
+
 def append(rows: pd.DataFrame, path: Path = LEDGER) -> pd.DataFrame:
     path.parent.mkdir(parents=True, exist_ok=True)
     if path.exists():

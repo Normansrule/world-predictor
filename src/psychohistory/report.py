@@ -20,7 +20,7 @@ GRID = "#e4e3df"
 SURFACE = "#fcfcfb"
 
 # Fixed model order so each model keeps its colour across charts: the model under test first.
-MODEL_ORDER = ("timesfm-2.5", "timesfm-3", "chronos-bolt", "chronos-2", "auto-ets", "auto-arima", "drift", "mean")
+MODEL_ORDER = ("timesfm-2.5", "timesfm-3", "ensemble", "chronos-bolt", "chronos-2", "auto-ets", "auto-arima", "bass", "drift", "mean")
 
 
 def model_order(models, main: str) -> list[str]:

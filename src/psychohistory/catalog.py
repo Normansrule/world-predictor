@@ -22,6 +22,7 @@ class SeriesSpec:
     horizon: int = 28  # steps ahead to forecast
     scale: str = "individual"  # "individual" | "aggregate"
     description: str = ""
+    extra_models: tuple[str, ...] = ()  # models that only make sense for this kind of series
 
 
 def _news(id_, query, desc):
@@ -37,7 +38,8 @@ def _wiki(id_, article, desc):
 
 
 def _owid(id_, slug, desc):
-    return SeriesSpec(id_, "tech", "owid", {"slug": slug}, "YS", 3, "aggregate", desc)
+    # Adoption curves also get the Bass diffusion model as a theory-driven rival.
+    return SeriesSpec(id_, "tech", "owid", {"slug": slug}, "YS", 3, "aggregate", desc, ("bass",))
 
 
 NEWS = [
