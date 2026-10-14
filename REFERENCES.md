@@ -42,14 +42,14 @@ everything that ships or downloads with this project are in [CREDITS.md](CREDITS
 
 | # | Repository | What it contributes here |
 |---|---|---|
-| 17 | [projectmesa/mesa](https://github.com/projectmesa/mesa) | Agent-based modelling in Python, the closest open-source cousin of psychohistory: simulate many individuals and watch aggregate behaviour emerge. |
+| 17 | [projectmesa/mesa](https://github.com/projectmesa/mesa) | **Inspired** `psychohistory simulate`. Agent-based modelling in Python, the closest open-source cousin of psychohistory: simulate many individuals and watch aggregate behaviour emerge. The toy crowd here is plain NumPy in the same spirit. |
 
 ### Visuals and presentation
 
 | # | Repository | What it contributes here |
 |---|---|---|
 | 18 | [plotly/plotly.py](https://github.com/plotly/plotly.py) | **Used**: the interactive `results/dashboard.html`, with hover tooltips and a series picker on the fan chart. |
-| 19 | [owid/owid-grapher](https://github.com/owid/owid-grapher) | Our World in Data's chart engine. Its one-question-per-chart layout, plain captions and source lines are the model for the dashboard. |
+| 19 | [owid/owid-grapher](https://github.com/owid/owid-grapher) | Our World in Data's chart engine. Its one-question-per-chart layout, plain captions, play-button timelines and source lines are the model for the dashboard and its animated replay. |
 | 20 | [streamlit/streamlit](https://github.com/streamlit/streamlit) | Python apps for data exploration. The natural next step if the dashboard becomes an interactive app with live re-forecasting. |
 
 ## Modelling theories behind the tests
@@ -58,7 +58,7 @@ everything that ships or downloads with this project are in [CREDITS.md](CREDITS
 |---|---|---|
 | Psychohistory | Isaac Asimov, *Foundation* (1951) | The whole project: forecast populations, not individuals. |
 | Cliodynamics | Peter Turchin, *Historical Dynamics* (2003); the Seshat Global History Databank | The real-world attempt at mathematical history, and the scientific framing for the news domain. |
-| Law of large numbers | Jacob Bernoulli, *Ars Conjectandi* (1713) | Test 2: aggregates should be more predictable than individuals. |
+| Law of large numbers | Jacob Bernoulli, *Ars Conjectandi* (1713) | Test 2: aggregates should be more predictable than individuals. Shown directly by the toy crowd in `psychohistory simulate`. |
 | Efficient-market hypothesis | Eugene Fama, "Efficient Capital Markets" (1970) | Why the naive random walk is the right market baseline, and why beating it is hard. |
 | Fat tails and black swans | Benoit Mandelbrot (1963); Nassim Taleb, *The Black Swan* (2007) | Test 5, Seldon crises: shocks that fall outside forecast bands. |
 | Chaos and limits to predictability | Edward Lorenz, "Deterministic Nonperiodic Flow" (1963) | Test 3, the Seldon horizon: skill should decay as the forecast reaches further ahead. |

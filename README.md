@@ -36,6 +36,16 @@ Every week it makes dated forecasts, waits for the future to arrive, and keeps s
 Nothing here is financial advice. Most of the interesting results are about *where prediction
 fails*.
 
+## 👥 Why crowds are predictable (a toy world)
+
+<p align="center"><img src="docs/assets/seldon-crowd.gif" alt="Animated simulation: as the crowd grows, its average locks onto the shared tide" width="90%"></p>
+
+Ten thousand simulated people each have a mood that is a little shared "tide" plus a lot of
+personal noise. One person is mostly noise: only about a fifth of their movement is predictable.
+Average a crowd of a thousand and the noise cancels out, so almost all of what is left is the
+tide. That is Seldon's bet in one picture, and test 2 below checks whether real indices and
+composites behave the same way. Run it yourself, no downloads needed: `psychohistory simulate`.
+
 ## 🌍 Three kinds of future
 
 | | Domain | What is forecast | Data |
@@ -63,8 +73,11 @@ dots are what really happened. Faint lines are its earlier guesses.
 
 Read the full write-up in [**results/REPORT.md**](results/REPORT.md), which opens with the findings
 in plain English, or open [**results/dashboard.html**](results/dashboard.html) for the interactive
-version with a play button, hover tooltips and a fan chart for every series. (To view the
-dashboard online, turn on GitHub Pages for the repo and open `/results/dashboard.html`.)
+version with a play button, hover tooltips and a fan chart for every series.
+
+**Live dashboard:** after each weekly run the `pages` workflow publishes it to
+[normansrule.github.io/world-predictions](https://normansrule.github.io/world-predictions/)
+(one-time setup: Settings → Pages → Source: **GitHub Actions**).
 
 ## 🧭 How to read a forecast
 
@@ -131,6 +144,7 @@ python -m venv .venv && source .venv/bin/activate
 pip install torch --index-url https://download.pytorch.org/whl/cpu   # optional: small CPU-only PyTorch
 pip install -e ".[timesfm,rivals,classical,dev]"                   # TimesFM, Chronos, AutoETS
 
+psychohistory simulate                                   # 5-second demo, no downloads
 psychohistory -v run --compare chronos-bolt --ensemble   # everything in one go
 ```
 
@@ -201,11 +215,13 @@ src/psychohistory/
   backtest.py    rolling-origin backtest and the Seldon summary tables
   ledger.py      record forecasts now, score them later
   story.py       plain-English headlines and the animated replay GIF
+  simulate.py    toy agent-based crowd: why aggregates are predictable
   report.py      results/REPORT.md and charts
   dashboard.py   results/dashboard.html (interactive Plotly, animated replay)
   cli.py         the `psychohistory` command
 tests/           offline tests (synthetic data, no downloads)
 docs/            METHODOLOGY.md and the README artwork in docs/assets/
+.github/         tests, weekly predict, and pages (publishes the dashboard)
 scripts/         make_readme_art.py (redraws the README art), publish_to_github.sh
 ```
 

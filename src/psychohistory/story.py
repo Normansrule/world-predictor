@@ -114,7 +114,7 @@ def replay_gif(
 
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
-        from matplotlib.animation import FuncAnimation, PillowWriter
+        from PIL import Image  # noqa: F401  (needed by save_gif)
     except ImportError:
         return None
     origins = sorted(paths["origin"].unique())
@@ -158,8 +158,32 @@ def replay_gif(
                   bbox_to_anchor=(0.5, -0.1), ncol=4)
         fig.tight_layout()
 
-    animation = FuncAnimation(fig, draw, frames=len(origins), interval=1000 / fps)
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    animation.save(out_path, writer=PillowWriter(fps=fps))
+    save_gif(fig, draw, range(len(origins)), out_path, fps)
     plt.close(fig)
+    return out_path
+
+
+def save_gif(fig, draw, frames, out_path: Path, fps: float) -> Path:
+    """Render ``draw(i)`` for each frame into an animated GIF with one shared palette.
+
+    GIFs hold 256 colours per frame; quantizing each frame on its own can turn a thin orange
+    line grey. Seeding a shared palette with large swatches of the chart colours keeps them true."""
+    from PIL import Image
+
+    images = []
+    for i in frames:
+        draw(i)
+        fig.canvas.draw()
+        images.append(Image.fromarray(np.asarray(fig.canvas.buffer_rgba())[..., :3].copy()))
+    swatches = Image.new("RGB", (len(SERIES_COLORS + [TEXT, TEXT_SECONDARY, GRID, SURFACE]) * 64, 64))
+    for k, color in enumerate(SERIES_COLORS + [TEXT, TEXT_SECONDARY, GRID, SURFACE]):
+        swatches.paste(color, (k * 64, 0, (k + 1) * 64, 64))
+    sample = Image.new("RGB", (images[0].width, images[0].height * 2 + 64), SURFACE)
+    sample.paste(images[0], (0, 0))
+    sample.paste(images[-1], (0, images[0].height))
+    sample.paste(swatches, (0, images[0].height * 2))
+    palette = sample.quantize(colors=255, method=Image.Quantize.MEDIANCUT)
+    frames_p = [im.quantize(palette=palette, dither=Image.Dither.NONE) for im in images]
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    frames_p[0].save(out_path, save_all=True, append_images=frames_p[1:], duration=int(1000 / fps), loop=0, optimize=True)
     return out_path

@@ -1,4 +1,4 @@
-"""Command line interface: ``psychohistory run | fetch | backtest | predict | score | report``."""
+"""Command line interface: ``psychohistory run | fetch | backtest | predict | score | report | simulate``."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from . import backtest, catalog, dashboard, data, ledger, report, story
+from . import backtest, catalog, dashboard, data, ledger, report, simulate, story
 from .models import BASELINES, classical_available, load_model
 
 log = logging.getLogger("psychohistory")
@@ -162,6 +162,16 @@ def _write_report(args, results: pd.DataFrame, summary: pd.DataFrame) -> None:
         print(f"Dashboard written to {board}")
 
 
+def cmd_simulate(args) -> None:
+    """Seldon's law in a toy world: no downloads, runs in seconds."""
+    tide, people = simulate.simulate_crowd(seed=args.seed)
+    table = simulate.crowd_predictability(tide, people)
+    print(table.assign(predictable_share=table["predictable_share"].map("{:.0%}".format)).to_string(index=False))
+    gif = simulate.crowd_gif(args.out_dir / "plots" / "seldon_crowd.gif", seed=args.seed)
+    if gif:
+        print(f"Animation written to {gif}")
+
+
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(prog="psychohistory", description=__doc__)
     parser.add_argument("-v", "--verbose", action="store_true")
@@ -207,6 +217,11 @@ def main(argv: list[str] | None = None) -> None:
     p = sub.add_parser("report", help="rebuild results/REPORT.md from saved backtest results")
     common(p)
     p.set_defaults(func=cmd_report)
+
+    p = sub.add_parser("simulate", help="toy agent-based world showing why crowds are more predictable than people")
+    p.add_argument("--out-dir", type=Path, default=Path("results"))
+    p.add_argument("--seed", type=int, default=0)
+    p.set_defaults(func=cmd_simulate)
 
     args = parser.parse_args(argv)
     logging.basicConfig(level=logging.INFO if args.verbose else logging.WARNING, format="%(levelname)s %(message)s")

@@ -5,6 +5,7 @@
 * banner-light.svg / banner-dark.svg - animated hero: history draws in, the forecast fan opens,
   then "what really happened" dots appear. Pure SVG + CSS, so it animates on github.com.
 * how-to-read.svg - labelled anatomy of a fan chart, for readers new to forecasts.
+* seldon-crowd.gif - the toy crowd simulation (psychohistory.simulate), animated.
 * placeholder charts in results/plots/ until the first real run replaces them.
 """
 
@@ -164,6 +165,12 @@ def main() -> None:
     for theme in THEMES:
         (ASSETS / f"banner-{theme}.svg").write_text(banner(theme))
         (ASSETS / f"how-to-read-{theme}.svg").write_text(how_to_read(theme))
+    import sys
+
+    sys.path.insert(0, str(ROOT / "src"))
+    from psychohistory.simulate import crowd_gif
+
+    crowd_gif(ASSETS / "seldon-crowd.gif")
     plots = ROOT / "results" / "plots"
     for name, text in [
         ("skill_by_domain.png", "The skill chart appears after the first forecast run."),

@@ -319,3 +319,19 @@ def test_ensemble_and_bass_show_up_in_backtest_and_ledger(tmp_path):
     assert "ensemble" in set(results["model"])
     assert set(results[results["model"] == "bass"]["series_id"]) == {"adoption_solar"}
     assert "ensemble" in set(pd.read_csv(tmp_path / "ledger.csv")["model"])
+
+
+def test_crowds_are_more_predictable_than_people(tmp_path):
+    from psychohistory import simulate
+
+    tide, people = simulate.simulate_crowd(n_agents=2000, steps=200, seed=1)
+    table = simulate.crowd_predictability(tide, people, sizes=(1, 10, 100, 1000))
+    shares = table["predictable_share"].to_numpy()
+    assert shares[0] < 0.4 and shares[-1] > 0.9
+    assert np.all(np.diff(shares) > -0.05)  # grows with crowd size, allowing a little sampling noise
+
+
+def test_simulate_command_writes_animation(tmp_path, capsys):
+    cli.main(["simulate", "--out-dir", str(tmp_path)])
+    assert (tmp_path / "plots" / "seldon_crowd.gif").stat().st_size > 1000
+    assert "predictable_share" in capsys.readouterr().out
