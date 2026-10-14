@@ -101,6 +101,21 @@ def test_skill_by_step_shows_drift_advantage_growing_with_horizon():
     assert list(table.columns) == ["domain", "1 step", "2-5", "6-10", "11-20"]
 
 
+def test_calibration_buckets_match_given_odds():
+    results = pd.DataFrame(
+        {
+            "model": "m",
+            "domain": "markets",
+            "p_up": [0.9, 0.9, 0.9, 0.9, 0.1, 0.1],
+            "went_up": [1.0, 1.0, 1.0, 0.0, 0.0, 0.0],
+        }
+    )
+    table = backtest.calibration(results, "m").set_index("odds given")
+    assert table.loc["80%-100%", "happened"] == pytest.approx(0.75)
+    assert table.loc["0%-20%", "happened"] == pytest.approx(0.0)
+    assert table.loc["80%-100%", "forecasts"] == 4
+
+
 def test_load_model_is_cached():
     from psychohistory.models import load_model
 
@@ -165,11 +180,12 @@ def test_cli_end_to_end_from_cache(tmp_path):
     cli.main(["report", *common])
     report = (tmp_path / "results" / "REPORT.md").read_text()
     assert "Seldon" in report and "sp500" in report
-    assert "## 7. What the model expects next" in report and "plots/sp500.png" in report
+    assert "## 8. What the model expects next" in report and "plots/sp500.png" in report
     assert (tmp_path / "results" / "plots" / "skill_by_domain.png").exists()
     assert (tmp_path / "results" / "plots" / "sp500.png").exists()
     assert (tmp_path / "results" / "plots" / "skill_by_step.png").exists()
     assert "## 5. How far ahead can it see?" in report and "11-20" in report
+    assert "## 6. Are its odds honest?" in report and "happened" in report
     assert len(pd.read_csv(tmp_path / "ledger.csv")) == sum(s.horizon for s in specs)
 
 

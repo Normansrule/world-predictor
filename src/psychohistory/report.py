@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from .backtest import crises, domain_table, horizon_table, scale_table
+from .backtest import calibration, crises, domain_table, horizon_table, scale_table
 
 log = logging.getLogger(__name__)
 
@@ -92,7 +92,8 @@ def write_report(
     else:
         lines.append("_No ledger predictions have reached their target dates yet._\n")
     lines += _horizon_section(by_step, model, out_dir)
-    lines += ["## 6. Every series", "", _fmt(summary[summary["model"] == model].round(3))]
+    lines += _calibration_section(results, model)
+    lines += ["## 7. Every series", "", _fmt(summary[summary["model"] == model].round(3))]
     lines += _latest_section(latest, model, out_dir)
     path = out_dir / "REPORT.md"
     path.write_text("\n".join(lines))
@@ -116,9 +117,23 @@ def _horizon_section(by_step: pd.DataFrame | None, model: str, out_dir: Path) ->
     return lines + [_fmt(horizon_table(by_step, model))]
 
 
+def _calibration_section(results: pd.DataFrame, model: str) -> list[str]:
+    """Are the model's odds honest? Compares the probability it gave with what happened."""
+    lines = ["## 6. Are its odds honest?", ""]
+    if "p_up" not in results.columns:
+        return lines + ["_Rerun `psychohistory backtest` to measure this._", ""]
+    lines += [
+        "Backtest forecasts grouped by the chance they gave of the series ending higher. "
+        "`said` is the average probability given, `happened` is how often it really went up. "
+        "When the two match, the odds can be taken at face value.",
+        "",
+    ]
+    return lines + [_fmt(calibration(results, model))]
+
+
 def _latest_section(latest: pd.DataFrame | None, model: str, out_dir: Path) -> list[str]:
     """What the model expects next, with the 10%-90% range as a change from the last value."""
-    lines = ["## 7. What the model expects next", ""]
+    lines = ["## 8. What the model expects next", ""]
     if latest is None or latest.empty or model not in set(latest["model"]):
         return lines + ["_Run `psychohistory predict` to record forecasts._", ""]
     rows = latest[latest["model"] == model]

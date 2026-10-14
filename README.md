@@ -17,7 +17,7 @@ time-series foundation model, across three kinds of "future":
 Nothing here is financial advice. Most of the interesting results are about *where prediction
 fails*.
 
-## The four Seldon tests
+## The five Seldon tests
 
 1. **Can the future be predicted at all?** Every forecast is scored against a naive
    "tomorrow looks like today" baseline. *Skill* is the share of error TimesFM removes
@@ -27,7 +27,9 @@ fails*.
    one topic). If Seldon is right, aggregates should be more predictable.
 3. **The Seldon horizon.** Skill is measured at every step ahead, so the report shows how far
    into the future the model can genuinely see in each domain before it is no better than naive.
-4. **Seldon crises.** Windows where reality leaves the model's 80% band are the shocks the
+4. **Honest odds.** Every forecast gives a chance of ending higher. The report checks whether
+   "70%" calls really come true about 70% of the time.
+5. **Seldon crises.** Windows where reality leaves the model's 80% band are the shocks the
    model did not foresee. They are listed in every report.
 
 And one honesty rule: backtests can flatter a model that was pretrained on the same history,

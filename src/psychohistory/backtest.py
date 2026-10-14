@@ -77,7 +77,7 @@ def summarize(results: pd.DataFrame, baseline: str = "naive") -> pd.DataFrame:
     ``skill`` = 1 - MAE(model) / MAE(baseline) over the same windows. Positive means the model
     beat the baseline; 0.2 means 20% less error.
     """
-    metrics = ["mae", "mase", "smape", "direction", "coverage80", "pinball", "brier"]
+    metrics = ["mae", "mase", "smape", "direction", "coverage80", "pinball", "brier"]  # p_up/went_up feed calibration()
     per_series = results.groupby(["series_id", "domain", "scale", "model"], as_index=False)[metrics].mean()
     base = per_series[per_series["model"] == baseline][["series_id", "mae", "pinball"]]
     base = base.rename(columns={"mae": "baseline_mae", "pinball": "baseline_pinball"})
@@ -149,3 +149,25 @@ def horizon_table(by_step: pd.DataFrame, model: str) -> pd.DataFrame:
     order = [label for _, _, label in STEP_BUCKETS if label in set(labels)]
     table = rows.pivot_table(index="domain", columns="ahead", values="skill", aggfunc="median")
     return table[order].reset_index()
+
+
+PROBABILITY_BINS = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
+
+
+def calibration(results: pd.DataFrame, model: str) -> pd.DataFrame:
+    """Reliability table for the "chance it ends higher" odds: group forecasts by the
+    probability they gave, then count how often the series really did end higher.
+
+    An honest forecaster's "60-80%" bucket goes up about 70% of the time."""
+    rows = results[(results["model"] == model)].dropna(subset=["p_up", "went_up"])
+    if rows.empty:
+        return pd.DataFrame()
+    labels = [f"{lo:.0%}-{hi:.0%}" for lo, hi in zip(PROBABILITY_BINS[:-1], PROBABILITY_BINS[1:])]
+    bucket = pd.cut(rows["p_up"], PROBABILITY_BINS, labels=labels, include_lowest=True)
+    table = (
+        rows.groupby([rows["domain"], bucket], observed=True)
+        .agg(forecasts=("p_up", "size"), said=("p_up", "mean"), happened=("went_up", "mean"))
+        .reset_index()
+        .rename(columns={"p_up": "odds given"})
+    )
+    return table
