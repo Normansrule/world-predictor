@@ -16,6 +16,9 @@ QUANTILES = (0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9)
 # Hugging Face checkpoints published by Google Research (https://github.com/google-research/timesfm).
 TIMESFM_2P5_CHECKPOINT = "google/timesfm-2.5-200m-pytorch"  # Apache-2.0 weights
 TIMESFM_3_CHECKPOINT = "google/timesfm-3.0-pytorch"  # non-commercial weights, see CREDITS.md
+# Amazon's rival foundation models (https://github.com/amazon-science/chronos-forecasting).
+CHRONOS_BOLT_CHECKPOINT = "amazon/chronos-bolt-small"
+CHRONOS_2_CHECKPOINT = "amazon/chronos-2"
 
 
 @dataclass
@@ -161,6 +164,35 @@ class TimesFM3Forecaster:
         return out
 
 
+class ChronosForecaster:
+    """Amazon Chronos, the most common head-to-head rival to TimesFM. Chronos-Bolt (small) is
+    the default because it is fast on a CPU; ``chronos-2`` is the newer, larger model."""
+
+    def __init__(self, checkpoint: str = CHRONOS_BOLT_CHECKPOINT, name: str = "chronos-bolt"):
+        try:
+            import torch
+            from chronos import BaseChronosPipeline
+        except ImportError as exc:  # pragma: no cover - depends on optional install
+            raise ImportError('Chronos is not installed. Run: pip install "chronos-forecasting"') from exc
+        self.name = name
+        self._torch = torch
+        self._pipeline = BaseChronosPipeline.from_pretrained(checkpoint, device_map="cpu")
+
+    def forecast(self, contexts: Sequence[np.ndarray], horizon: int) -> list[Forecast]:
+        torch = self._torch
+        inputs = [torch.tensor(_clean(c), dtype=torch.float32) for c in contexts]
+        quantiles, mean = self._pipeline.predict_quantiles(inputs, prediction_length=horizon, quantile_levels=list(QUANTILES))
+        out = []
+        for i in range(len(inputs)):
+            # Chronos-Bolt returns one batched tensor (n, h, q); Chronos-2 a list of (variates, h, q).
+            q = np.asarray(quantiles[i], dtype=np.float64)
+            m = np.asarray(mean[i], dtype=np.float64)
+            if q.ndim == 3:
+                q, m = q[0], m[0]
+            out.append(Forecast(m[:horizon], np.sort(q[:horizon], axis=1)))
+        return out
+
+
 # --------------------------------------------------------------------------------------------
 # Classical statistics (Nixtla statsforecast, https://github.com/Nixtla/statsforecast). Optional:
 # pip install "world-predictions[classical]". ETS and ARIMA are the workhorses that won or
@@ -207,6 +239,8 @@ class StatsForecastForecaster:
 MODELS = {
     "timesfm-2.5": TimesFM25Forecaster,
     "timesfm-3": TimesFM3Forecaster,
+    "chronos-bolt": ChronosForecaster,
+    "chronos-2": lambda: ChronosForecaster(CHRONOS_2_CHECKPOINT, "chronos-2"),
     "naive": NaiveForecaster,
     "drift": DriftForecaster,
     "mean": MeanForecaster,

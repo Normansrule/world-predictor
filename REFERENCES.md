@@ -1,6 +1,6 @@
 # References
 
-Open-source projects and modelling ideas this project learns from. Two of the repositories are
+Open-source projects and modelling ideas this project learns from. Three of the repositories are
 used directly in the code (marked **used**); the rest shaped its design, metrics and
 presentation, or are natural next models to compare against TimesFM. Licences and terms for
 everything that ships or downloads with this project are in [CREDITS.md](CREDITS.md).
@@ -11,7 +11,7 @@ everything that ships or downloads with this project are in [CREDITS.md](CREDITS
 
 | # | Repository | What it contributes here |
 |---|---|---|
-| 1 | [amazon-science/chronos-forecasting](https://github.com/amazon-science/chronos-forecasting) | Amazon's Chronos models, which treat time series like language tokens. The most common head-to-head rival for TimesFM. |
+| 1 | [amazon-science/chronos-forecasting](https://github.com/amazon-science/chronos-forecasting) | **Used**: `chronos-bolt` and `chronos-2`, run with `--compare`. Amazon's Chronos models, the most common head-to-head rival for TimesFM. |
 | 2 | [SalesforceAIResearch/uni2ts](https://github.com/SalesforceAIResearch/uni2ts) | Salesforce's Moirai, a universal any-frequency forecaster. Another candidate for the model table. |
 | 3 | [time-series-foundation-models/lag-llama](https://github.com/time-series-foundation-models/lag-llama) | An open probabilistic foundation model built on lagged features. Shows how to report full forecast distributions. |
 | 4 | [moment-timeseries-foundation-model/moment](https://github.com/moment-timeseries-foundation-model/moment) | MOMENT, a family of open time-series models for forecasting, anomaly detection and classification. Its anomaly detection points toward spotting "Seldon crises". |

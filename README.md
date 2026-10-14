@@ -49,7 +49,7 @@ fan chart for every series. Methodology details are in
 git clone https://github.com/Normansrule/world-predictions.git
 cd world-predictions
 python -m venv .venv && source .venv/bin/activate
-pip install -e ".[timesfm,classical,dev]"   # TimesFM + PyTorch, plus AutoETS baselines
+pip install -e ".[timesfm,rivals,classical,dev]"   # TimesFM, Chronos, AutoETS
 
 psychohistory run                    # everything below in one go
 
@@ -58,6 +58,10 @@ psychohistory backtest               # rolling backtest vs baselines, writes res
 psychohistory predict                # record forecasts in predictions/ledger.csv, plus fan charts
 psychohistory score                  # score ledger forecasts whose dates have arrived
 ```
+
+**Head to head:** add `--compare chronos-bolt` (repeatable) to `backtest`, `predict` or `run`
+and TimesFM and Chronos are scored on exactly the same windows and recorded side by side in the
+prediction ledger.
 
 Useful options: `--domain markets` (repeatable), `--series gold --series silver`,
 `--model timesfm-3`, `--windows 24`, `--skip-backtest` (for `run`), `-v` for progress logs.
@@ -76,6 +80,7 @@ pipeline without downloading the model, use a baseline: `psychohistory backtest 
 |---|---|---|
 | `timesfm-2.5` (default) | [google/timesfm-2.5-200m-pytorch](https://huggingface.co/google/timesfm-2.5-200m-pytorch) | Apache-2.0 |
 | `timesfm-3` | [google/timesfm-3.0-pytorch](https://huggingface.co/google/timesfm-3.0-pytorch) | **Non-commercial only** ([licence](https://huggingface.co/google/timesfm-3.0-pytorch/blob/main/LICENSE)) |
+| `chronos-bolt`, `chronos-2` | Amazon's rival foundation models, [amazon/chronos-bolt-small](https://huggingface.co/amazon/chronos-bolt-small) and [amazon/chronos-2](https://huggingface.co/amazon/chronos-2) (install the `rivals` extra) | See each model card |
 | `auto-ets`, `auto-arima` | Classical baselines from [statsforecast](https://github.com/Nixtla/statsforecast) (install the `classical` extra) | Apache-2.0 |
 | `naive`, `drift`, `mean` | Baselines in `src/psychohistory/models.py` | Apache-2.0 (this repo) |
 
