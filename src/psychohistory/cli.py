@@ -8,8 +8,8 @@ from pathlib import Path
 
 import pandas as pd
 
-from . import backtest, catalog, data, ledger, report
-from .models import BASELINES, load_model
+from . import backtest, catalog, dashboard, data, ledger, report
+from .models import BASELINES, classical_available, load_model
 
 log = logging.getLogger("psychohistory")
 
@@ -34,6 +34,8 @@ def cmd_backtest(args) -> None:
     specs = catalog.select(args.domain, args.series)
     series = _load(specs, args.data_dir)
     names = [args.model] + [b for b in BASELINES if b != args.model]
+    if classical_available() and "auto-ets" not in names:
+        names.append("auto-ets")  # the strongest classical baseline, when statsforecast is installed
     models = [load_model(name) for name in names]
     frames, step_rows = [], []
     for spec in specs:
@@ -112,11 +114,19 @@ def _write_report(args, results: pd.DataFrame, summary: pd.DataFrame) -> None:
     latest = ledger.latest(pd.read_csv(args.ledger)) if args.ledger.exists() else None
     steps_path = args.out_dir / "skill_by_step.csv"
     by_step = pd.read_csv(steps_path) if steps_path.exists() else None
-    report.plot_skill(summary, args.out_dir)
+    report.plot_skill(summary, args.out_dir, args.model)
     if by_step is not None:
         report.plot_horizon(by_step, args.model, args.out_dir)
     path = report.write_report(results, summary, args.model, ledger_table, args.out_dir, latest, by_step)
     print(f"Report written to {path}")
+    entries = pd.read_csv(args.ledger) if args.ledger.exists() else None
+    data_for_fans = {}
+    if latest is not None and not latest.empty:
+        specs = [s for s in catalog.CATALOG if s.id in set(latest["series_id"])]
+        data_for_fans = _load(specs, args.data_dir)
+    board = dashboard.write_dashboard(results, summary, args.model, args.out_dir, by_step, latest, entries, data_for_fans)
+    if board:
+        print(f"Dashboard written to {board}")
 
 
 def main(argv: list[str] | None = None) -> None:

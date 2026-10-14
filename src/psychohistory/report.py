@@ -19,6 +19,17 @@ TEXT_SECONDARY = "#52514e"
 GRID = "#e4e3df"
 SURFACE = "#fcfcfb"
 
+# Fixed model order so each model keeps its colour across charts: the model under test first.
+MODEL_ORDER = ("timesfm-2.5", "timesfm-3", "auto-ets", "auto-arima", "drift", "mean")
+
+
+def model_order(models, main: str) -> list[str]:
+    models = list(dict.fromkeys(models))
+    rank = {name: i for i, name in enumerate(MODEL_ORDER)}
+    rest = sorted((m for m in models if m != main), key=lambda m: (rank.get(m, len(rank)), m))
+    return ([main] if main in models else []) + rest
+
+
 DOMAIN_TITLES = {
     "news": "World events in the news",
     "markets": "Stock and value markets",
@@ -179,7 +190,7 @@ def _style(ax):
     ax.set_axisbelow(True)
 
 
-def plot_skill(summary: pd.DataFrame, out_dir: Path = Path("results")) -> Path | None:
+def plot_skill(summary: pd.DataFrame, out_dir: Path = Path("results"), main_model: str = "") -> Path | None:
     try:
         import matplotlib
 
@@ -190,7 +201,7 @@ def plot_skill(summary: pd.DataFrame, out_dir: Path = Path("results")) -> Path |
         return None
     table = domain_table(summary)
     table = table[table["model"] != "naive"]
-    models = list(dict.fromkeys(table["model"]))
+    models = model_order(table["model"], main_model)
     domains = [d for d in ("news", "markets", "tech") if d in set(table["domain"])]
     fig, ax = plt.subplots(figsize=(7.5, 3.8), dpi=150)
     _style(ax)
