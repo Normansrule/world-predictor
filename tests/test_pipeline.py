@@ -190,6 +190,10 @@ def test_cli_end_to_end_from_cache(tmp_path):
     assert (tmp_path / "results" / "plots" / "replay.gif").stat().st_size > 1000
     board = (tmp_path / "results" / "dashboard.html").read_text()
     assert "In plain English" in board and "Replay:" in board
+    assert "SCOREBOARD" in board and "Why crowds are predictable" in board
+    for theme in ("light", "dark"):
+        svg = (tmp_path / "results" / "plots" / f"scorecard-{theme}.svg").read_text()
+        assert "Updated" in svg and "%" in svg
     assert "plotly" in board and "What the model expects next" in board and "S&P 500 index" in board
     assert len(pd.read_csv(tmp_path / "ledger.csv")) == sum(s.horizon for s in specs)
 
@@ -335,3 +339,15 @@ def test_simulate_command_writes_animation(tmp_path, capsys):
     cli.main(["simulate", "--out-dir", str(tmp_path)])
     assert (tmp_path / "plots" / "seldon_crowd.gif").stat().st_size > 1000
     assert "predictable_share" in capsys.readouterr().out
+
+
+def test_scorecard_shows_numbers_or_placeholders():
+    from psychohistory import story
+
+    empty = story.scorecard_svg(story.scorecard(None, "timesfm-2.5"), "timesfm-2.5")
+    assert "after the first forecast run" in empty and "Placeholder" in empty
+    card = {"news": {"skill": 0.12, "edge": 9, "direction": 0.58, "forecasts": 10},
+            "markets": {"skill": -0.03, "edge": 0, "direction": 0.5, "forecasts": 10}}
+    svg = story.scorecard_svg(card, "timesfm-2.5", "dark", "2026-10-14")
+    assert "+12%" in svg and "−3%" in svg and "about 9 days" in svg and "no edge at any distance" in svg
+    assert "Updated 2026-10-14 · 20 backtest forecasts" in svg

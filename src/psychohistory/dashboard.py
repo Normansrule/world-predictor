@@ -183,6 +183,43 @@ def _replay_figure(series: pd.Series, paths: pd.DataFrame, title: str):
     return fig
 
 
+def _crowd_figure():
+    """Interactive toy world: drag the slider to grow the crowd and watch its average lock onto
+    the shared tide (see psychohistory.simulate)."""
+    import plotly.graph_objects as go
+
+    from .simulate import crowd_predictability, simulate_crowd
+
+    tide, people = simulate_crowd()
+    table = crowd_predictability(tide, people).set_index("crowd_size")["predictable_share"]
+    t = list(range(len(tide)))
+
+    def traces(n):
+        return [
+            go.Scatter(x=t, y=people[:, :n].mean(axis=1), name="Crowd average",
+                       line={"color": SERIES_COLORS[0], "width": 2}),
+            go.Scatter(x=t, y=tide, name="Shared tide (the predictable part)",
+                       line={"color": SERIES_COLORS[1], "width": 2, "dash": "dash"}),
+        ]
+
+    sizes = list(table.index)
+    frames = [go.Frame(data=traces(n), name=str(n)) for n in sizes]
+    fig = go.Figure(data=traces(sizes[0]), frames=frames)
+    span = float(abs(people[:, :1]).max()) * 1.05
+    fig.update_yaxes(range=[-span, span])
+    fig.update_xaxes(showticklabels=False)
+    fig.update_layout(sliders=[{
+        "active": 0, "x": 0, "len": 1, "y": -0.12, "currentvalue": {"prefix": "Crowd size: "},
+        "steps": [{
+            "label": f"{n:,} ({table[n]:.0%} predictable)", "method": "animate",
+            "args": [[str(n)], {"frame": {"duration": 0, "redraw": True}, "mode": "immediate"}],
+        } for n in sizes],
+    }])
+    fig = _layout(fig, "Why crowds are predictable: drag the slider to grow the crowd", "", "Mood")
+    fig.update_layout(height=430, margin={"b": 110}, legend={"y": 1.1, "orientation": "h"}, hovermode=False)
+    return fig
+
+
 def write_dashboard(
     results: pd.DataFrame,
     summary: pd.DataFrame,
@@ -200,7 +237,7 @@ def write_dashboard(
     except ImportError:
         return None
     from . import catalog
-    from .story import headlines
+    from .story import headlines, scorecard, scorecard_svg
 
     figures = []
     if paths is not None and not paths.empty and data and headline in data:
@@ -212,6 +249,7 @@ def write_dashboard(
         figures.append(_calibration_figure(results, model))
     if latest is not None and ledger is not None and data:
         figures.append(_fan_figure(latest, ledger, data, model))
+    figures.append(_crowd_figure())
 
     blocks = []
     for i, fig in enumerate(figures):
@@ -223,6 +261,8 @@ def write_dashboard(
     plain = headlines(summary, model, results, by_step)
     cards = "".join(f'<li>{html.escape(line)}</li>' for line in plain)
     plain_html = f'<section class="plain"><h2>In plain English</h2><ul>{cards}</ul></section>' if plain else ""
+    board = scorecard_svg(scorecard(summary, model, by_step, results), model, "light", date.today().isoformat())
+    board_html = f'<section class="board">{board}</section>'
     page = f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>World Predictions</title>
@@ -235,6 +275,7 @@ def write_dashboard(
   .card {{ border: 1px solid var(--line); border-radius: 12px; padding: 8px; margin: 0 0 20px; overflow-x: auto; }}
   footer {{ color: var(--muted); font-size: 13px; }}
   .plain {{ background: #f3f7fd; border-left: 4px solid #2a78d6; border-radius: 8px; padding: 12px 20px; margin: 0 0 24px; }}
+  .board svg {{ width: 100%; height: auto; display: block; margin: 0 0 20px; }}
   .plain h2 {{ font-size: 16px; margin: 4px 0 8px; }}
   .plain li {{ margin: 6px 0; line-height: 1.5; }}
 </style></head>
@@ -243,6 +284,7 @@ def write_dashboard(
 <p class="lede">Can Hari Seldon's psychohistory work with a modern forecasting model? {html.escape(model)} is scored against
 simple baselines on world news attention, markets and technology. Generated {date.today().isoformat()}.
 Full tables are in REPORT.md.</p>
+{board_html}
 {plain_html}
 {''.join(blocks)}
 <footer>{html.escape(SOURCE)} See CREDITS.md and REFERENCES.md.</footer>
