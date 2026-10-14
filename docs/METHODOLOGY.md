@@ -44,7 +44,10 @@ calibration comparison is fair.
 1. *Predictability*: median skill above 0 in a domain.
 2. *Law of large numbers*: aggregates (indices, composites, world totals) show higher skill
    and lower MASE than individual series in the same domain.
-3. *Crises*: windows with coverage80 at or below 0.5 are listed as events the model missed.
+3. *Horizon*: skill at each step ahead (`results/skill_by_step.csv`), computed per series as
+   1 - mean scaled error(model) / mean scaled error(naive) at that step, then the median per
+   domain. Yearly adoption series have too few steps and are excluded.
+4. *Crises*: windows with coverage80 at or below 0.5 are listed as events the model missed.
 
 ## Known limitations
 

@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from .backtest import crises, domain_table, scale_table
+from .backtest import crises, domain_table, horizon_table, scale_table
 
 log = logging.getLogger(__name__)
 
@@ -49,6 +49,7 @@ def write_report(
     ledger_table: pd.DataFrame | None = None,
     out_dir: Path = Path("results"),
     latest: pd.DataFrame | None = None,
+    by_step: pd.DataFrame | None = None,
 ) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
     domains = domain_table(summary)
@@ -89,16 +90,34 @@ def write_report(
         lines.append(_fmt(ledger_table))
     else:
         lines.append("_No ledger predictions have reached their target dates yet._\n")
-    lines += ["## 5. Every series", "", _fmt(summary[summary["model"] == model].round(3))]
+    lines += _horizon_section(by_step, model, out_dir)
+    lines += ["## 6. Every series", "", _fmt(summary[summary["model"] == model].round(3))]
     lines += _latest_section(latest, model, out_dir)
     path = out_dir / "REPORT.md"
     path.write_text("\n".join(lines))
     return path
 
 
+def _horizon_section(by_step: pd.DataFrame | None, model: str, out_dir: Path) -> list[str]:
+    """The Seldon horizon: how skill changes the further ahead the model looks."""
+    lines = ["## 5. How far ahead can it see?", ""]
+    if by_step is None or by_step.empty:
+        return lines + ["_Run `psychohistory backtest` to measure this._", ""]
+    lines += [
+        "Median skill versus the naive baseline by how many steps ahead the forecast is "
+        "(days for news and tech attention, trading days for markets; yearly adoption series "
+        "are too short for this and are left out). "
+        "Where skill drops to zero is the limit of the model's foresight in that domain.",
+        "",
+    ]
+    if (out_dir / "plots" / "skill_by_step.png").exists():
+        lines += ["![Skill by step](plots/skill_by_step.png)", ""]
+    return lines + [_fmt(horizon_table(by_step, model))]
+
+
 def _latest_section(latest: pd.DataFrame | None, model: str, out_dir: Path) -> list[str]:
     """What the model expects next, with the 10%-90% range as a change from the last value."""
-    lines = ["## 6. What the model expects next", ""]
+    lines = ["## 7. What the model expects next", ""]
     if latest is None or latest.empty or model not in set(latest["model"]):
         return lines + ["_Run `psychohistory predict` to record forecasts._", ""]
     rows = latest[latest["model"] == model]
@@ -200,6 +219,37 @@ def plot_fan(series: pd.Series, ledger_rows: pd.DataFrame, title: str, out_dir: 
     fig.autofmt_xdate()
     fig.tight_layout()
     path = out_dir / "plots" / f"{series.name}.png"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(path)
+    plt.close(fig)
+    return path
+
+
+def plot_horizon(by_step: pd.DataFrame, model: str, out_dir: Path = Path("results")) -> Path | None:
+    """Skill versus steps ahead, one line per domain."""
+    try:
+        import matplotlib
+
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+    except ImportError:
+        return None
+    rows = by_step[(by_step["model"] == model) & (by_step["step"] > 0)]
+    if rows.empty:
+        return None
+    fig, ax = plt.subplots(figsize=(7.5, 3.6), dpi=150)
+    _style(ax)
+    for i, domain in enumerate(d for d in ("news", "markets", "tech") if d in set(rows["domain"])):
+        part = rows[rows["domain"] == domain].sort_values("step")
+        color = SERIES_COLORS[i]
+        ax.plot(part["step"], part["skill"], color=color, linewidth=2, label=DOMAIN_TITLES[domain])
+    ax.axhline(0, color=TEXT_SECONDARY, linewidth=1)
+    ax.set_xlabel("Steps ahead", color=TEXT_SECONDARY)
+    ax.set_ylabel("Median skill vs naive", color=TEXT_SECONDARY)
+    ax.set_title(f"How far ahead can {model} see?", color=TEXT, loc="left", fontsize=11)
+    ax.legend(frameon=False, fontsize=9, labelcolor=TEXT_SECONDARY, loc="best")
+    fig.tight_layout()
+    path = out_dir / "plots" / "skill_by_step.png"
     path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(path)
     plt.close(fig)

@@ -72,6 +72,24 @@ def test_drift_beats_naive_on_a_trend():
     assert summary.set_index("model").loc["drift", "skill"] > 0.5
 
 
+def test_skill_by_step_shows_drift_advantage_growing_with_horizon():
+    series = pd.Series(np.arange(500.0) * 2 + np.random.default_rng(2).normal(0, 3, 500))
+    series.index = pd.date_range("2020-01-01", periods=500)
+    spec = SeriesSpec("trend", "markets", "yahoo", horizon=20)
+    steps = []
+    backtest.backtest_series(spec, series, [DriftForecaster(), NaiveForecaster()], windows=10, step_rows=steps)
+    by_step = backtest.skill_by_step(pd.DataFrame(steps)).set_index(["model", "step"])["skill"]
+    assert by_step[("drift", 20)] > by_step[("drift", 1)]
+    table = backtest.horizon_table(backtest.skill_by_step(pd.DataFrame(steps)), "drift")
+    assert list(table.columns) == ["domain", "1 step", "2-5", "6-10", "11-20"]
+
+
+def test_load_model_is_cached():
+    from psychohistory.models import load_model
+
+    assert load_model("naive") is load_model("naive")
+
+
 def test_composite_scales_members_to_their_mean():
     a = pd.Series([1.0, 2.0, 3.0], index=pd.date_range("2024-01-01", periods=3))
     b = pd.Series([100.0, 200.0, 300.0, 400.0], index=pd.date_range("2024-01-01", periods=4))
@@ -129,9 +147,11 @@ def test_cli_end_to_end_from_cache(tmp_path):
     cli.main(["report", *common])
     report = (tmp_path / "results" / "REPORT.md").read_text()
     assert "Seldon" in report and "sp500" in report
-    assert "## 6. What the model expects next" in report and "plots/sp500.png" in report
+    assert "## 7. What the model expects next" in report and "plots/sp500.png" in report
     assert (tmp_path / "results" / "plots" / "skill_by_domain.png").exists()
     assert (tmp_path / "results" / "plots" / "sp500.png").exists()
+    assert (tmp_path / "results" / "plots" / "skill_by_step.png").exists()
+    assert "## 5. How far ahead can it see?" in report and "11-20" in report
     assert len(pd.read_csv(tmp_path / "ledger.csv")) == sum(s.horizon for s in specs)
 
 

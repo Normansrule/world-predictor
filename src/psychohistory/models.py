@@ -172,8 +172,13 @@ MODELS = {
 BASELINES = ("naive", "drift", "mean")
 
 
+_LOADED: dict[str, Forecaster] = {}
+
+
 def load_model(name: str) -> Forecaster:
-    try:
-        return MODELS[name]()
-    except KeyError:
-        raise ValueError(f"Unknown model {name!r}. Choose from: {', '.join(MODELS)}") from None
+    """Load a model once per process; TimesFM checkpoints are slow to load."""
+    if name not in MODELS:
+        raise ValueError(f"Unknown model {name!r}. Choose from: {', '.join(MODELS)}")
+    if name not in _LOADED:
+        _LOADED[name] = MODELS[name]()
+    return _LOADED[name]
