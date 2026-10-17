@@ -81,6 +81,12 @@ dots are what really happened. Faint lines are its earlier guesses.
 </tr>
 </table>
 
+**🔐 The Time Vault.** The real test. Every week's predictions are sealed with a date in
+`predictions/ledger.csv` before the future happens, and opened once it arrives. If the model is
+honest, the left line settles near 80% and the right line stays below the coin flip.
+
+<p align="center"><img src="results/plots/track_record.png" alt="Time Vault: share of outcomes inside the 80% range and the odds score, as sealed predictions open" width="85%"></p>
+
 Read the full write-up in [**results/REPORT.md**](results/REPORT.md), which opens with the findings
 in plain English, or open [**results/dashboard.html**](results/dashboard.html) for the interactive
 version with the scoreboard, a play button, hover tooltips, a fan chart for every series and a
