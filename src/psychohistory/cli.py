@@ -89,6 +89,8 @@ def cmd_predict(args) -> None:
     for series_id, group in rows[rows["model"] == args.model].groupby("series_id"):
         spec = catalog.by_id(series_id)
         report.plot_fan(series[series_id], group, spec.description, args.out_dir)
+    story.plot_outlook(series, rows, args.model, args.out_dir,
+                       titles={s.id: s.description for s in specs})
 
 
 def cmd_score(args) -> None:

@@ -168,6 +168,8 @@ def _latest_section(latest: pd.DataFrame | None, model: str, out_dir: Path) -> l
     if latest is None or latest.empty or model not in set(latest["model"]):
         return lines + ["_Run `psychohistory predict` to record forecasts._", ""]
     rows = latest[latest["model"] == model]
+    if (out_dir / "plots" / "outlook.png").exists():
+        lines += ["![What the model expects next](plots/outlook.png)", ""]
     lines += [
         f"Latest forecasts recorded in the ledger (made with data up to each series' last date). "
         "Changes are relative to the last observed value; the range is the 10%-90% band; "
