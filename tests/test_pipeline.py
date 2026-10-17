@@ -351,3 +351,22 @@ def test_scorecard_shows_numbers_or_placeholders():
     svg = story.scorecard_svg(card, "timesfm-2.5", "dark", "2026-10-14")
     assert "+12%" in svg and "−3%" in svg and "about 9 days" in svg and "no edge at any distance" in svg
     assert "Updated 2026-10-14 · 20 backtest forecasts" in svg
+
+
+def test_time_vault_track_record(tmp_path):
+    from psychohistory import story
+
+    spec = catalog.by_id("sp500")
+    full = synthetic(400, freq="B")
+    rows = pd.concat([
+        ledger.predict([spec], {spec.id: full.iloc[:cut]}, DriftForecaster(), made_on=date(2024, 1, 1))
+        .assign(made_on=str(cut))
+        for cut in (300, 330, 360)
+    ])
+    scored = ledger.score(rows, {spec.id: full})
+    record = story.track_record(scored, "drift")
+    assert record["opened"].is_monotonic_increasing and record["opened"].iloc[-1] == len(scored)
+    assert record["inside80"].between(0, 1).all() and record["brier"].between(0, 1).all()
+    assert story.track_record(scored, "no-such-model").empty
+    path = story.plot_track_record(scored, "drift", tmp_path)
+    assert path is not None and path.stat().st_size > 1000

@@ -101,6 +101,7 @@ def cmd_score(args) -> None:
     scored = ledger.score(entries, series)
     args.scored.parent.mkdir(parents=True, exist_ok=True)
     scored.to_csv(args.scored, index=False)
+    story.plot_track_record(scored, args.model, args.out_dir)
     table = ledger.ledger_summary(scored)
     print(table.to_string(index=False) if not table.empty else "No predictions have reached their target date yet.")
 
@@ -161,6 +162,7 @@ def _write_report(args, results: pd.DataFrame, summary: pd.DataFrame) -> None:
     board = dashboard.write_dashboard(
         results, summary, args.model, args.out_dir, by_step, latest, entries, data_for_fans,
         paths=paths[paths["series_id"] == headline] if headline else None, headline=headline,
+        scored=pd.read_csv(args.scored) if args.scored.exists() else None,
     )
     if board:
         print(f"Dashboard written to {board}")

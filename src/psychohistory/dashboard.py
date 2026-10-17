@@ -183,6 +183,31 @@ def _replay_figure(series: pd.Series, paths: pd.DataFrame, title: str):
     return fig
 
 
+def _vault_figure(scored: pd.DataFrame, model: str):
+    """Time Vault: the running record of sealed predictions as their dates arrive."""
+    import plotly.graph_objects as go
+    from plotly.subplots import make_subplots
+
+    from .story import track_record
+
+    record = track_record(scored, model)
+    if record.empty:
+        return None
+    fig = make_subplots(rows=1, cols=2, subplot_titles=("Reality inside its 80% range", "Odds score (lower is better)"))
+    fig.add_trace(go.Scatter(x=record["target_date"], y=record["inside80"], name="Inside the range",
+                             line={"color": SERIES_COLORS[0], "width": 2}, customdata=record["opened"],
+                             hovertemplate="%{y:.0%} after %{customdata} predictions<extra></extra>"), 1, 1)
+    fig.add_trace(go.Scatter(x=record["target_date"], y=record["brier"], name="Odds score",
+                             line={"color": SERIES_COLORS[0], "width": 2}, showlegend=False,
+                             hovertemplate="%{y:.3f}<extra></extra>"), 1, 2)
+    fig.add_hline(y=0.8, line_dash="dash", line_color=SERIES_COLORS[1], annotation_text="target 80%", row=1, col=1)
+    fig.add_hline(y=0.25, line_dash="dash", line_color=SERIES_COLORS[1], annotation_text="coin flip", row=1, col=2)
+    fig.update_yaxes(tickformat=".0%", range=[0, 1.02], row=1, col=1)
+    fig = _layout(fig, f"Time Vault: {int(record['opened'].iloc[-1]):,} sealed predictions opened so far")
+    fig.update_layout(showlegend=False, hovermode="closest")
+    return fig
+
+
 def _crowd_figure():
     """Interactive toy world: drag the slider to grow the crowd and watch its average lock onto
     the shared tide (see psychohistory.simulate)."""
@@ -231,6 +256,7 @@ def write_dashboard(
     data: dict[str, pd.Series] | None = None,
     paths: pd.DataFrame | None = None,
     headline: str | None = None,
+    scored: pd.DataFrame | None = None,
 ) -> Path | None:
     try:
         import plotly  # noqa: F401
@@ -249,6 +275,10 @@ def write_dashboard(
         figures.append(_calibration_figure(results, model))
     if latest is not None and ledger is not None and data:
         figures.append(_fan_figure(latest, ledger, data, model))
+    if scored is not None:
+        vault = _vault_figure(scored, model)
+        if vault is not None:
+            figures.append(vault)
     figures.append(_crowd_figure())
 
     blocks = []

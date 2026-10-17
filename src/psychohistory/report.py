@@ -110,6 +110,14 @@ def write_report(
         "## 4. Prediction ledger (true out-of-sample test)",
         "",
     ]
+    if (out_dir / "plots" / "track_record.png").exists():
+        lines += [
+            "![Time Vault track record](plots/track_record.png)",
+            "",
+            "_Predictions are sealed with a date before the future happens and opened when it arrives. "
+            "The left line should settle near 80%; the right line should sit below the coin-flip line._",
+            "",
+        ]
     if ledger_table is not None and not ledger_table.empty:
         lines.append(_fmt(ledger_table))
     else:

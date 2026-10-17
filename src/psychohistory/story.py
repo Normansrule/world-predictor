@@ -294,3 +294,71 @@ def save_gif(fig, draw, frames, out_path: Path, fps: float) -> Path:
     out_path.parent.mkdir(parents=True, exist_ok=True)
     frames_p[0].save(out_path, save_all=True, append_images=frames_p[1:], duration=int(1000 / fps), loop=0, optimize=True)
     return out_path
+
+
+def track_record(scored: pd.DataFrame, model: str) -> pd.DataFrame:
+    """The Time Vault's running score: as each sealed prediction's date arrives, how the model's
+    record stands so far. One row per target date with cumulative
+
+    * ``inside80`` - share of outcomes inside the 80% range (honest forecaster: about 0.80)
+    * ``brier`` - average odds score for "will it be higher?" (coin flip: 0.25, lower is better)
+    * ``skill`` - error removed versus "tomorrow looks like today" (above 0 is better)"""
+    rows = scored[scored["model"] == model].copy() if scored is not None and not scored.empty else pd.DataFrame()
+    if rows.empty:
+        return pd.DataFrame(columns=["target_date", "opened", "inside80", "brier", "skill"])
+    rows["target_date"] = pd.to_datetime(rows["target_date"])
+    daily = rows.groupby("target_date").agg(
+        opened=("actual", "size"), inside=("in_band80", "sum"), brier=("brier", "sum"),
+        err=("abs_error", "sum"), naive=("naive_abs_error", "sum"),
+    ).sort_index().cumsum()
+    return pd.DataFrame({
+        "target_date": daily.index,
+        "opened": daily["opened"].to_numpy(),
+        "inside80": (daily["inside"] / daily["opened"]).to_numpy(),
+        "brier": (daily["brier"] / daily["opened"]).to_numpy(),
+        "skill": (1 - daily["err"] / daily["naive"].replace(0, np.nan)).to_numpy(),
+    })
+
+
+def plot_track_record(scored: pd.DataFrame, model: str, out_dir: Path) -> Path | None:
+    """Two panels for the README and report: is reality landing inside the 80% range about 80% of
+    the time, and are the odds better than a coin flip? Both lines start wobbly and settle as more
+    sealed predictions open."""
+    record = track_record(scored, model)
+    if record.empty:
+        return None
+    try:
+        import matplotlib
+
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+    except ImportError:
+        return None
+    from .report import _style
+
+    fig, (left, right) = plt.subplots(1, 2, figsize=(9, 3.4), dpi=120)
+    for ax in (left, right):
+        _style(ax)
+        ax.tick_params(axis="x", labelrotation=30)
+    left.axhline(0.8, color=SERIES_COLORS[1], linestyle="--", linewidth=1.2)
+    left.text(record["target_date"].iloc[-1], 0.84, "target: 80%", color=SERIES_COLORS[1], fontsize=8, va="bottom", ha="right")
+    left.plot(record["target_date"], record["inside80"], color=SERIES_COLORS[0], linewidth=2)
+    left.set_ylim(0, 1.02)
+    left.yaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
+    left.set_title("Reality inside its 80% range", color=TEXT, loc="left", fontsize=10)
+
+    right.axhline(0.25, color=SERIES_COLORS[1], linestyle="--", linewidth=1.2)
+    right.text(record["target_date"].iloc[-1], 0.275, "coin flip", color=SERIES_COLORS[1], fontsize=8, va="bottom", ha="right")
+    right.plot(record["target_date"], record["brier"], color=SERIES_COLORS[0], linewidth=2)
+    right.set_ylim(0, max(0.4, float(record["brier"].max()) * 1.1))
+    right.set_title("Odds score (lower is better)", color=TEXT, loc="left", fontsize=10)
+    fig.suptitle(
+        f"Time Vault: {int(record['opened'].iloc[-1]):,} sealed predictions opened so far",
+        color=TEXT, fontsize=11, x=0.02, ha="left",
+    )
+    fig.tight_layout()
+    path = out_dir / "plots" / "track_record.png"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(path)
+    plt.close(fig)
+    return path
