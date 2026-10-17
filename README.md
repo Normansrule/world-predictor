@@ -81,6 +81,11 @@ dots are what really happened. Faint lines are its earlier guesses.
 </tr>
 </table>
 
+**🔮 What it expects next.** The newest sealed forecast for six headline series, from stocks,
+gold and silver to world news and AI. Each panel says, in words, the chance it ends higher.
+
+<p align="center"><img src="results/plots/outlook.png" alt="Latest forecasts for the S&P 500, gold, silver, Bitcoin, world news and AI attention" width="95%"></p>
+
 **🔐 The Time Vault.** The real test. Every week's predictions are sealed with a date in
 `predictions/ledger.csv` before the future happens, and opened once it arrives. If the model is
 honest, the left line settles near 80% and the right line stays below the coin flip.

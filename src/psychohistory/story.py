@@ -362,3 +362,76 @@ def plot_track_record(scored: pd.DataFrame, model: str, out_dir: Path) -> Path |
     fig.savefig(path)
     plt.close(fig)
     return path
+
+
+# The six series on the "what it expects next" grid: two markets, two stores of value, the news
+# composite and AI attention, so all three domains appear.
+OUTLOOK_SERIES = ("sp500", "gold", "silver", "bitcoin", "news_composite", "wiki_ai")
+SHORT_TITLES = {
+    "sp500": "S&P 500", "gold": "Gold (USD/oz)", "silver": "Silver (USD/oz)", "bitcoin": "Bitcoin (USD)",
+    "news_composite": "World news attention", "wiki_ai": "Interest in AI (Wikipedia)",
+}
+
+
+def plot_outlook(
+    data: dict[str, pd.Series],
+    rows: pd.DataFrame,
+    model: str,
+    out_dir: Path,
+    series_ids=OUTLOOK_SERIES,
+    titles: dict[str, str] | None = None,
+) -> Path | None:
+    """Small multiples of the newest forecast for a few headline series: recent history, the
+    80% range, the best guess, and the chance it ends higher, written in words on each panel."""
+    if rows is None or rows.empty:
+        return None
+    rows = rows[rows["model"] == model]
+    rows = rows[rows["made_on"] == rows.groupby("series_id")["made_on"].transform("max")]
+    chosen = [s for s in series_ids if s in data and s in set(rows["series_id"])]
+    if not chosen:
+        chosen = [s for s in sorted(set(rows["series_id"])) if s in data][:6]
+    if not chosen:
+        return None
+    try:
+        import matplotlib
+
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+    except ImportError:
+        return None
+    from .report import _style
+
+    titles = titles or {}
+    cols = 3 if len(chosen) > 2 else len(chosen)
+    nrows = int(np.ceil(len(chosen) / cols))
+    fig, axes = plt.subplots(nrows, cols, figsize=(3.4 * cols, 2.6 * nrows + 0.5), dpi=120, squeeze=False)
+    for ax in axes.flat[len(chosen):]:
+        ax.set_visible(False)
+    for ax, series_id in zip(axes.flat, chosen):
+        _style(ax)
+        fan = rows[rows["series_id"] == series_id].sort_values("step")
+        dates = pd.to_datetime(fan["target_date"])
+        history = data[series_id].iloc[-max(3 * len(fan), 30):]
+        ax.plot(history.index, history.values, color=SERIES_COLORS[0], linewidth=1.6)
+        ax.fill_between(dates, fan["q10"], fan["q90"], color=SERIES_COLORS[1], alpha=0.2, linewidth=0)
+        ax.plot(dates, fan["q50"], color=SERIES_COLORS[1], linewidth=1.8)
+        ax.axvline(history.index[-1], color=GRID, linewidth=1.5, linestyle="--")
+        last = fan.iloc[-1]
+        change = last["q50"] / last["last_value"] - 1 if last["last_value"] else np.nan
+        title = SHORT_TITLES.get(series_id) or titles.get(series_id, series_id)
+        ax.set_title(title if len(title) <= 34 else title[:33] + "…", color=TEXT, loc="left", fontsize=10)
+        ax.text(0.02, 0.04, f"{last['p_up']:.0%} chance higher · best guess {change:+.1%}",
+                transform=ax.transAxes, fontsize=8, color=TEXT_SECONDARY,
+                bbox={"facecolor": SURFACE, "edgecolor": "none", "alpha": 0.85, "pad": 1.5})
+        ax.tick_params(axis="x", labelsize=7, labelrotation=30)
+        ax.tick_params(axis="y", labelsize=7)
+        ax.xaxis.set_major_locator(matplotlib.dates.AutoDateLocator(maxticks=4))
+    made_on = rows["made_on"].max()
+    fig.suptitle(f"What {model} expects next (forecast made {made_on}; blue = history, orange = 80% range)",
+                 color=TEXT, fontsize=11, x=0.01, ha="left")
+    fig.tight_layout()
+    path = out_dir / "plots" / "outlook.png"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(path)
+    plt.close(fig)
+    return path

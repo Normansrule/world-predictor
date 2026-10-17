@@ -179,6 +179,7 @@ def main() -> None:
         ("skill_by_domain.png", "The skill chart appears after the first forecast run."),
         ("skill_by_step.png", "The 'how far ahead' chart appears after the first forecast run."),
         ("track_record.png", "The Time Vault opens as the first sealed predictions come due."),
+        ("outlook.png", "The outlook for gold, silver, stocks, news and AI appears after the first forecast run."),
     ]:
         if not (plots / name).exists():
             placeholder_png(plots / name, text)

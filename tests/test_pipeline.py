@@ -183,6 +183,8 @@ def test_cli_end_to_end_from_cache(tmp_path):
     assert "## 8. What the model expects next" in report and "plots/sp500.png" in report
     assert (tmp_path / "results" / "plots" / "skill_by_domain.png").exists()
     assert (tmp_path / "results" / "plots" / "sp500.png").exists()
+    assert (tmp_path / "results" / "plots" / "outlook.png").stat().st_size > 1000
+    assert "plots/outlook.png" in report
     assert (tmp_path / "results" / "plots" / "skill_by_step.png").exists()
     assert "## 5. How far ahead can it see?" in report and "11-20" in report
     assert "## 6. Are its odds honest?" in report and "happened" in report
