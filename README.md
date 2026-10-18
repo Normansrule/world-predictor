@@ -108,7 +108,19 @@ from either (World Monitor is AGPL-3.0; World Predictor is Apache-2.0).
 ## 📊 Latest results
 
 Everything in this section is redrawn by every forecast run and committed by the weekly GitHub
-Action. Until the first run these are placeholders.
+Action. **First real run: 18 October 2026**, TimesFM 2.5 on 25 live series (5 news topics, 12 markets,
+8 technologies), each backtested over past windows against what really happened:
+
+| Area | TimesFM vs "tomorrow looks like today" | Its 80% range caught reality | Edge lasts |
+|---|---|---|---|
+| 📰 World news | **12% less error** | 79% of the time | about 28 days |
+| 📈 Markets (stocks, gold, silver, oil, Bitcoin) | about the same (+1%) | 83% of the time | no steady edge |
+| 🚀 Technology | **43% less error** | 76% of the time | about 28 days |
+
+When it gave 70% or better odds of a rise, the rise happened 84% of the time (31 forecasts).
+Big aggregates such as indices beat single stocks (10% vs −1% skill in markets), as Seldon would
+predict. Markets staying close to a random walk is the honest, expected result. Full tables are in
+[results/REPORT.md](results/REPORT.md). The Time Vault fills in as the sealed predictions come due.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="results/plots/scorecard-dark.svg">
@@ -308,36 +320,36 @@ _wiki("wiki_solid_state_battery", "Solid-state_battery", "Wikipedia views: Solid
 
 <!-- progress:start -->
 
-**17 of 27 milestones done (63%).** Drawn from [`docs/progress.json`](docs/progress.json); tests check every ticked item against the repository.
+**20 of 27 milestones done (74%).** Drawn from [`docs/progress.json`](docs/progress.json); tests check every ticked item against the repository.
 
-<details open><summary><b>📰 World news</b> · 4/6</summary>
+<details open><summary><b>📰 World news</b> · 5/6</summary>
 
 - [x] GDELT news-attention loader
 - [x] Six news topics plus a news composite
 - [x] Rolling backtest against naive, drift, mean and AutoETS
 - [x] Weekly sealed forecasts in the prediction ledger
-- [ ] First real TimesFM results published
+- [x] First real TimesFM results published
 - [ ] Event-level odds (for example, escalation of a named conflict)
 
 </details>
 
-<details open><summary><b>📈 Markets, gold and silver</b> · 4/6</summary>
+<details open><summary><b>📈 Markets, gold and silver</b> · 5/6</summary>
 
 - [x] Yahoo Finance loader (stocks, indices, gold, silver, oil, copper, Bitcoin)
 - [x] Chronos rival models and a quantile-averaged ensemble
 - [x] Chance-of-rising odds scored with the Brier score
 - [x] Outlook grid for stocks, gold, silver and Bitcoin
-- [ ] First real TimesFM results published
+- [x] First real TimesFM results published
 - [ ] Volatility forecasts (GARCH from the arch library)
 
 </details>
 
-<details open><summary><b>🚀 New technologies</b> · 3/5</summary>
+<details open><summary><b>🚀 New technologies</b> · 4/5</summary>
 
 - [x] Wikipedia attention for LLMs, AI, quantum, CRISPR, EVs, fusion, robots
 - [x] Adoption curves from Our World in Data
 - [x] Bass diffusion S-curve as a theory-driven rival
-- [ ] First real TimesFM results published
+- [x] First real TimesFM results published
 - [ ] Hype-cycle detection (attention peaks while adoption keeps rising)
 
 </details>

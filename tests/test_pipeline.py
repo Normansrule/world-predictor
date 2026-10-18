@@ -442,3 +442,51 @@ def test_source_files_are_not_gitignored():
     ignored = subprocess.run(["git", "check-ignore", "--no-index", *files], cwd=root,
                              capture_output=True, text=True).stdout.split()
     assert not ignored, f"these files would never be committed: {ignored}"
+
+
+class _Response:
+    def __init__(self, text="", payload=None, status=200):
+        self.text, self._payload, self.status_code = text, payload, status
+
+    def json(self):
+        if self._payload is None:
+            raise ValueError("Expecting value: line 1 column 1 (char 0)")
+        return self._payload
+
+
+def test_owid_reads_short_lowercase_columns(monkeypatch):
+    from psychohistory.data import owid
+
+    csv = "entity,code,year,solar_share_elec\nWorld,OWID_WRL,2020,3.2\nWorld,OWID_WRL,2021,3.7\nChad,TCD,2021,1.0\n"
+    monkeypatch.setattr(owid, "get", lambda *a, **k: _Response(text=csv))
+    series = owid.fetch("share-electricity-solar")
+    assert list(series.round(1)) == [3.2, 3.7]
+    assert series.index[0].year == 2020
+
+
+def test_gdelt_retries_when_rate_limited(monkeypatch):
+    from psychohistory.data import gdelt
+
+    payload = {"timeline": [{"data": [{"date": "20260101T000000Z", "value": 1.5}, {"date": "20260102T000000Z", "value": 2.0}]}]}
+    replies = iter([_Response("Please limit requests to one every 5 seconds"), _Response(payload=payload)])
+    monkeypatch.setattr(gdelt, "get", lambda *a, **k: next(replies))
+    monkeypatch.setattr(gdelt.time, "sleep", lambda s: None)
+    series = gdelt.fetch('"war"')
+    assert list(series) == [1.5, 2.0]
+
+
+def test_composite_survives_a_missing_member(tmp_path, monkeypatch):
+    composite_spec = catalog.by_id("news_composite")
+    members = composite_spec.params["members"]
+    for i, member in enumerate(members[1:]):
+        spec = catalog.by_id(member)
+        path = data.cache_path(spec, tmp_path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        synthetic(200, seed=i).to_frame("value").to_csv(path, index_label="date")
+
+    def unavailable(**kwargs):
+        raise ValueError("GDELT is down")
+
+    monkeypatch.setitem(data.SOURCES, "gdelt", unavailable)
+    series = data.fetch(composite_spec, tmp_path)
+    assert len(series) == 200

@@ -7,7 +7,7 @@ _Generated 2026-10-18 with model `timesfm-2.5`. Skill = 1 - MAE(model) / MAE(nai
 - timesfm-2.5 beat the simple guess "tomorrow looks like today" in 2 of 3 areas: world news (12% less error), technology (43% less error).
 - Seldon was right here: big aggregates such as indices and averages were easier to predict than single stocks or topics (28% vs 12% skill).
 - In world news, its edge lasts up to about 28 days ahead.
-- In markets, its edge lasts up to about 28 trading days ahead.
+- In markets, it had no edge at any distance ahead.
 - In technology, its edge lasts up to about 28 days ahead.
 - When it gave 70% or more odds of a rise, the rise really happened 84% of the time (31 forecasts).
 

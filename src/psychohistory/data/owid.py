@@ -18,6 +18,8 @@ GRAPHER = "https://ourworldindata.org/grapher"
 def fetch(slug: str, entity: str = "World", column: str | None = None) -> pd.Series:
     text = get(f"{GRAPHER}/{slug}.csv", params={"v": 1, "csvType": "full", "useColumnShortNames": "true"}).text
     frame = pd.read_csv(io.StringIO(text))
+    # With short column names OWID writes entity/code/year in lower case; older files used Entity.
+    frame = frame.rename(columns={c: c.capitalize() for c in frame.columns if c.lower() in ("entity", "code", "year", "day")})
     frame = frame[frame["Entity"] == entity]
     if frame.empty:
         raise ValueError(f"OWID chart {slug!r} has no rows for {entity!r}")
