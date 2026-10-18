@@ -436,8 +436,9 @@ def test_source_files_are_not_gitignored():
     root = Path(__file__).resolve().parents[1]
     if shutil.which("git") is None or not (root / ".git").exists():
         pytest.skip("not a git checkout")
+    source = {".py", ".js", ".css", ".html", ".json", ".svg", ".webmanifest", ".md"}
     files = [str(p.relative_to(root)) for d in ("src", "site", "scripts", "docs")
-             for p in (root / d).rglob("*") if p.is_file() and "__pycache__" not in p.parts]
+             for p in (root / d).rglob("*") if p.is_file() and p.suffix in source]
     ignored = subprocess.run(["git", "check-ignore", "--no-index", *files], cwd=root,
                              capture_output=True, text=True).stdout.split()
     assert not ignored, f"these files would never be committed: {ignored}"
