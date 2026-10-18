@@ -426,3 +426,18 @@ def test_progress_tracker_matches_repository():
     assert progress.render_markdown(areas) in readme, "README progress block is stale: run scripts/make_readme_art.py"
     for name in ("index.html", "app/index.html", "app/js/app.js", "app/js/charts.js", "sw.js", "manifest.webmanifest"):
         assert (root / "site" / name).exists()
+
+
+def test_source_files_are_not_gitignored():
+    """A broad ignore pattern once kept src/psychohistory/data/ out of the first push."""
+    import shutil
+    import subprocess
+
+    root = Path(__file__).resolve().parents[1]
+    if shutil.which("git") is None or not (root / ".git").exists():
+        pytest.skip("not a git checkout")
+    files = [str(p.relative_to(root)) for d in ("src", "site", "scripts", "docs")
+             for p in (root / d).rglob("*") if p.is_file() and "__pycache__" not in p.parts]
+    ignored = subprocess.run(["git", "check-ignore", "--no-index", *files], cwd=root,
+                             capture_output=True, text=True).stdout.split()
+    assert not ignored, f"these files would never be committed: {ignored}"
