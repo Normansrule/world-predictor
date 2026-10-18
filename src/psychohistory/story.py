@@ -85,16 +85,23 @@ def headlines(
     return lines
 
 
+EDGE = 0.02
+
+
 def edge_steps(by_step: pd.DataFrame | None, model: str, domain: str) -> int | None:
     """How many steps ahead the model still beats the naive guess in a domain (0 = never, None =
-    no data). Skill is smoothed over three steps so one lucky step does not count."""
+    no data). A domain whose skill averages under EDGE (2% less error) across all steps has no
+    edge, so noise around zero is not reported as foresight. Otherwise skill is smoothed over
+    three steps, so one lucky step does not count, and the last step above EDGE is the horizon."""
     if by_step is None or by_step.empty:
         return None
     part = by_step[(by_step["model"] == model) & (by_step["domain"] == domain)].sort_values("step")
     if part.empty:
         return None
+    if part["skill"].mean() < EDGE:
+        return 0
     smooth = part["skill"].rolling(3, min_periods=1, center=True).median().to_numpy()
-    positive = np.flatnonzero(smooth > 0)
+    positive = np.flatnonzero(smooth > EDGE)
     return int(part["step"].iloc[positive[-1]]) if len(positive) else 0
 
 

@@ -1,42 +1,168 @@
 {
   "_comment": "Single source of truth for the README progress tracker. `done` items must name a file that proves it (checked by tests). Redraw with: python scripts/make_readme_art.py",
   "areas": [
-    {"key": "news", "icon": "📰", "name": "World news", "items": [
-      {"title": "GDELT news-attention loader", "done": true, "evidence": "src/psychohistory/data/gdelt.py"},
-      {"title": "Six news topics plus a news composite", "done": true, "evidence": "src/psychohistory/catalog.py"},
-      {"title": "Rolling backtest against naive, drift, mean and AutoETS", "done": true, "evidence": "src/psychohistory/backtest.py"},
-      {"title": "Weekly sealed forecasts in the prediction ledger", "done": true, "evidence": ".github/workflows/predict.yml"},
-      {"title": "First real TimesFM results published", "done": false},
-      {"title": "Event-level odds (for example, escalation of a named conflict)", "done": false}
-    ]},
-    {"key": "markets", "icon": "📈", "name": "Markets, gold and silver", "items": [
-      {"title": "Yahoo Finance loader (stocks, indices, gold, silver, oil, copper, Bitcoin)", "done": true, "evidence": "src/psychohistory/data/markets.py"},
-      {"title": "Chronos rival models and a quantile-averaged ensemble", "done": true, "evidence": "src/psychohistory/models.py"},
-      {"title": "Chance-of-rising odds scored with the Brier score", "done": true, "evidence": "src/psychohistory/metrics.py"},
-      {"title": "Outlook grid for stocks, gold, silver and Bitcoin", "done": true, "evidence": "results/plots/outlook.png"},
-      {"title": "First real TimesFM results published", "done": false},
-      {"title": "Volatility forecasts (GARCH from the arch library)", "done": false}
-    ]},
-    {"key": "tech", "icon": "🚀", "name": "New technologies", "items": [
-      {"title": "Wikipedia attention for LLMs, AI, quantum, CRISPR, EVs, fusion, robots", "done": true, "evidence": "src/psychohistory/data/wikipedia.py"},
-      {"title": "Adoption curves from Our World in Data", "done": true, "evidence": "src/psychohistory/data/owid.py"},
-      {"title": "Bass diffusion S-curve as a theory-driven rival", "done": true, "evidence": "src/psychohistory/models.py"},
-      {"title": "First real TimesFM results published", "done": false},
-      {"title": "Hype-cycle detection (attention peaks while adoption keeps rising)", "done": false}
-    ]},
-    {"key": "web", "icon": "🌐", "name": "Web app (GitHub Pages)", "items": [
-      {"title": "Static app: scoreboard, replay, outlook, horizon, odds, Time Vault, crowd lab", "done": true, "evidence": "site/app/index.html"},
-      {"title": "No chart library: hand-written SVG charts, under 50 KB of code in total", "done": true, "evidence": "site/app/js/charts.js"},
-      {"title": "Light and dark themes, phone layout, installable, works offline", "done": true, "evidence": "site/sw.js"},
-      {"title": "Pages deployment after every weekly run", "done": true, "evidence": ".github/workflows/pages.yml"},
-      {"title": "Live at normansrule.github.io/world-predictor", "done": false},
-      {"title": "A detail page for every series", "done": false}
-    ]},
-    {"key": "download", "icon": "💻", "name": "Downloadable full version", "items": [
-      {"title": "`psychohistory app`: run TimesFM locally and open the same app", "done": true, "evidence": "src/psychohistory/web.py"},
-      {"title": "Release workflow: full project zip and offline app zip", "done": true, "evidence": ".github/workflows/release.yml"},
-      {"title": "First tagged release", "done": false},
-      {"title": "Desktop installer (Tauri, as World Monitor does)", "done": false}
-    ]}
+    {
+      "key": "news",
+      "icon": "📰",
+      "name": "World news",
+      "items": [
+        {
+          "title": "GDELT news-attention loader",
+          "done": true,
+          "evidence": "src/psychohistory/data/gdelt.py"
+        },
+        {
+          "title": "Six news topics plus a news composite",
+          "done": true,
+          "evidence": "src/psychohistory/catalog.py"
+        },
+        {
+          "title": "Rolling backtest against naive, drift, mean and AutoETS",
+          "done": true,
+          "evidence": "src/psychohistory/backtest.py"
+        },
+        {
+          "title": "Weekly sealed forecasts in the prediction ledger",
+          "done": true,
+          "evidence": ".github/workflows/predict.yml"
+        },
+        {
+          "title": "First real TimesFM results published",
+          "done": true,
+          "evidence": "results/REPORT.md"
+        },
+        {
+          "title": "Event-level odds (for example, escalation of a named conflict)",
+          "done": false
+        }
+      ]
+    },
+    {
+      "key": "markets",
+      "icon": "📈",
+      "name": "Markets, gold and silver",
+      "items": [
+        {
+          "title": "Yahoo Finance loader (stocks, indices, gold, silver, oil, copper, Bitcoin)",
+          "done": true,
+          "evidence": "src/psychohistory/data/markets.py"
+        },
+        {
+          "title": "Chronos rival models and a quantile-averaged ensemble",
+          "done": true,
+          "evidence": "src/psychohistory/models.py"
+        },
+        {
+          "title": "Chance-of-rising odds scored with the Brier score",
+          "done": true,
+          "evidence": "src/psychohistory/metrics.py"
+        },
+        {
+          "title": "Outlook grid for stocks, gold, silver and Bitcoin",
+          "done": true,
+          "evidence": "results/plots/outlook.png"
+        },
+        {
+          "title": "First real TimesFM results published",
+          "done": true,
+          "evidence": "results/REPORT.md"
+        },
+        {
+          "title": "Volatility forecasts (GARCH from the arch library)",
+          "done": false
+        }
+      ]
+    },
+    {
+      "key": "tech",
+      "icon": "🚀",
+      "name": "New technologies",
+      "items": [
+        {
+          "title": "Wikipedia attention for LLMs, AI, quantum, CRISPR, EVs, fusion, robots",
+          "done": true,
+          "evidence": "src/psychohistory/data/wikipedia.py"
+        },
+        {
+          "title": "Adoption curves from Our World in Data",
+          "done": true,
+          "evidence": "src/psychohistory/data/owid.py"
+        },
+        {
+          "title": "Bass diffusion S-curve as a theory-driven rival",
+          "done": true,
+          "evidence": "src/psychohistory/models.py"
+        },
+        {
+          "title": "First real TimesFM results published",
+          "done": true,
+          "evidence": "results/REPORT.md"
+        },
+        {
+          "title": "Hype-cycle detection (attention peaks while adoption keeps rising)",
+          "done": false
+        }
+      ]
+    },
+    {
+      "key": "web",
+      "icon": "🌐",
+      "name": "Web app (GitHub Pages)",
+      "items": [
+        {
+          "title": "Static app: scoreboard, replay, outlook, horizon, odds, Time Vault, crowd lab",
+          "done": true,
+          "evidence": "site/app/index.html"
+        },
+        {
+          "title": "No chart library: hand-written SVG charts, under 50 KB of code in total",
+          "done": true,
+          "evidence": "site/app/js/charts.js"
+        },
+        {
+          "title": "Light and dark themes, phone layout, installable, works offline",
+          "done": true,
+          "evidence": "site/sw.js"
+        },
+        {
+          "title": "Pages deployment after every weekly run",
+          "done": true,
+          "evidence": ".github/workflows/pages.yml"
+        },
+        {
+          "title": "Live at normansrule.github.io/world-predictor",
+          "done": false
+        },
+        {
+          "title": "A detail page for every series",
+          "done": false
+        }
+      ]
+    },
+    {
+      "key": "download",
+      "icon": "💻",
+      "name": "Downloadable full version",
+      "items": [
+        {
+          "title": "`psychohistory app`: run TimesFM locally and open the same app",
+          "done": true,
+          "evidence": "src/psychohistory/web.py"
+        },
+        {
+          "title": "Release workflow: full project zip and offline app zip",
+          "done": true,
+          "evidence": ".github/workflows/release.yml"
+        },
+        {
+          "title": "First tagged release",
+          "done": false
+        },
+        {
+          "title": "Desktop installer (Tauri, as World Monitor does)",
+          "done": false
+        }
+      ]
+    }
   ]
 }
