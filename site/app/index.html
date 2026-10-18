@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>World Predictor</title>
+  <meta name="description" content="Can a machine do Hari Seldon's psychohistory? Google's TimesFM forecasts world news, markets (stocks, gold, silver) and technology, and every forecast is scored in public.">
+  <meta name="theme-color" content="#2a78d6">
+  <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="stylesheet" href="css/app.css">
+  <script>try { const t = localStorage.getItem("wp-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
+</head>
+<body>
+<header class="top">
+  <div class="top-inner">
+    <a class="brand" href="../" title="World Predictor home">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14" fill="none" stroke="#2a78d6" stroke-width="2.5"/><path d="M4 19 C10 17 12 11 16 13 S 22 10 28 8" fill="none" stroke="#2a78d6" stroke-width="2.5" stroke-linecap="round"/><path d="M16 13 L28 4 L28 14 Z" fill="#eb6834" opacity=".35"/></svg>
+      World Predictor <small>psychohistory × TimesFM</small>
+    </a>
+    <nav class="tabs" aria-label="Sections">
+      <a href="#overview">Overview</a>
+      <a href="#replay">Replay</a>
+      <a href="#outlook">Outlook</a>
+      <a href="#horizon">How far ahead</a>
+      <a href="#odds">Honest odds</a>
+      <a href="#vault">Time Vault</a>
+      <a href="#crowd">Crowd lab</a>
+      <a href="#series">All series</a>
+      <a href="#about">About</a>
+    </nav>
+    <button class="icon-btn" id="theme" title="Switch light / dark" aria-label="Switch light or dark theme"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg></button>
+  </div>
+</header>
+
+<main>
+  <div id="demo"></div>
+
+  <section class="view" id="view-overview">
+    <h1>Can a machine do Hari Seldon's psychohistory?</h1>
+    <p class="lede">Google's open-source <b>TimesFM</b> forecasts world news, markets (stocks, gold, silver) and new
+      technologies. Every forecast is dated before the future happens and scored once it arrives.</p>
+    <div class="grid three" id="tiles"></div>
+    <div class="card plain" id="plain"></div>
+    <div class="card">
+      <h2>Did it beat a simple guess?</h2>
+      <p class="caption">Median skill per area: how much less error than "tomorrow looks like today". Above zero is better.</p>
+      <div id="skill-chart"></div><div id="skill-legend"></div>
+    </div>
+  </section>
+
+  <section class="view" id="view-replay">
+    <h1>Replay</h1>
+    <p class="lede">Each frame is a forecast made in the past. The orange range is what the model expected; the dots are what really happened.</p>
+    <div class="card">
+      <h2 id="replay-title"></h2>
+      <div class="controls">
+        <button class="btn primary" id="replay-play">▶ Play</button>
+        <input type="range" id="replay-slider" min="0" value="0" aria-label="Forecast date">
+        <span class="readout" id="replay-readout"></span>
+      </div>
+      <div id="replay-chart"></div><div id="replay-legend"></div>
+    </div>
+  </section>
+
+  <section class="view" id="view-outlook">
+    <h1>What it expects next</h1>
+    <p class="lede">The newest sealed forecast for every series: recent history, the 80% range, the best guess, and the chance it ends higher.</p>
+    <div class="controls" id="outlook-filter"></div>
+    <div class="grid outlook" id="outlook-grid"></div>
+  </section>
+
+  <section class="view" id="view-horizon">
+    <h1>How far ahead can it see?</h1>
+    <p class="lede">Skill at each step ahead. Where a line drops below zero, the model has run out of foresight: the "Seldon horizon".</p>
+    <div class="card"><div id="horizon-chart"></div><div id="horizon-legend"></div></div>
+  </section>
+
+  <section class="view" id="view-odds">
+    <h1>Are its odds honest?</h1>
+    <p class="lede">Forecasts are grouped by the chance of rising they gave. Honest odds sit on the dotted line: "70%" calls come true about 70% of the time.</p>
+    <div class="card"><div id="odds-chart"></div><div id="odds-legend"></div></div>
+  </section>
+
+  <section class="view" id="view-vault">
+    <h1>The Time Vault</h1>
+    <p class="lede">The real test. Predictions are sealed with a date before the future happens and opened when it arrives,
+      like Hari Seldon's recordings. An honest model settles near 80% on the left and stays under the coin flip on the right.</p>
+    <div class="two">
+      <div class="card"><h2>Reality inside its 80% range</h2><div id="vault-inside"></div></div>
+      <div class="card"><h2>Odds score (lower is better)</h2><div id="vault-brier"></div></div>
+    </div>
+    <p class="caption" id="vault-note"></p>
+  </section>
+
+  <section class="view" id="view-crowd">
+    <h1>Crowd lab: why crowds are predictable</h1>
+    <p class="lede">Ten thousand simulated people each have a mood: a little shared tide plus a lot of personal noise.
+      Drag the slider to grow the crowd and watch its average lock onto the tide. That is Seldon's bet in one picture.</p>
+    <div class="card">
+      <div class="controls">
+        <span>Crowd size</span>
+        <input type="range" id="crowd-slider" min="0" value="0" aria-label="Crowd size">
+        <span class="stat" id="crowd-share"></span><span class="readout" id="crowd-label"></span>
+      </div>
+      <div id="crowd-chart"></div><div id="crowd-legend"></div>
+    </div>
+  </section>
+
+  <section class="view" id="view-series">
+    <h1>Every series</h1>
+    <p class="lede">Backtest results for each series. Click a column to sort.</p>
+    <div class="card table-wrap"><table id="series-table"></table></div>
+  </section>
+
+  <section class="view" id="view-about">
+    <h1>About World Predictor</h1>
+    <div class="two">
+      <div class="card">
+        <h2>Two ways to use it</h2>
+        <p><b>On the web</b> (this page): nothing to install. GitHub Pages serves the app with the newest weekly forecasts.</p>
+        <p><b>On your computer</b>: the full version runs TimesFM yourself and opens this same app on your machine.</p>
+        <p><code>psychohistory app</code> builds and opens it at <code>http://localhost:8000</code>.</p>
+        <p><a id="repo-link" href="#">Source code and instructions on GitHub</a></p>
+      </div>
+      <div class="card">
+        <h2>How it is scored</h2>
+        <p><b>Skill</b>: 1 − error(model) ÷ error(naive). <b>80% range</b>: should catch reality 8 times in 10.
+          <b>Odds score</b> (Brier): 0 is perfect, 0.25 is a coin flip. Backtests never let a model see the future it is tested on.</p>
+        <p>Nothing here is financial advice.</p>
+      </div>
+      <div class="card">
+        <h2>Built on</h2>
+        <p><a href="https://github.com/google-research/timesfm">TimesFM</a> (Google Research) ·
+          <a href="https://github.com/amazon-science/chronos-forecasting">Chronos</a> ·
+          <a href="https://github.com/Nixtla/statsforecast">statsforecast</a>.
+          Data: <a href="https://www.gdeltproject.org/">GDELT</a>, Yahoo Finance via yfinance,
+          <a href="https://wikitech.wikimedia.org/wiki/Analytics/AQS/Pageviews">Wikimedia</a>,
+          <a href="https://ourworldindata.org/">Our World in Data</a>.
+          Web-app and download design inspired by <a href="https://github.com/koala73/worldmonitor">World Monitor</a>.</p>
+      </div>
+    </div>
+  </section>
+</main>
+<footer id="footer"></footer>
+
+<script src="data/data.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

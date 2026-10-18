@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+message: "If you use World Predictor, please cite it as below, and cite TimesFM (Das et al., 2024)."
+title: "World Predictor: testing psychohistory with TimesFM"
+type: software
+authors:
+  - name: "Normansrule"
+repository-code: "https://github.com/Normansrule/world-predictor"
+url: "https://normansrule.github.io/world-predictor/"
+license: Apache-2.0
+version: 0.1.0
+date-released: 2026-10-18
+keywords: [forecasting, timesfm, psychohistory, time-series, backtesting]
+references:
+  - type: article
+    title: "A decoder-only foundation model for time-series forecasting"
+    authors:
+      - family-names: Das
+        given-names: Abhimanyu
+      - family-names: Kong
+        given-names: Weihao
+      - family-names: Sen
+        given-names: Rajat
+      - family-names: Zhou
+        given-names: Yichen
+    conference:
+      name: "ICML 2024"
+    year: 2024
+    url: "https://arxiv.org/abs/2310.10688"

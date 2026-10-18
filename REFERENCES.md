@@ -67,3 +67,10 @@ everything that ships or downloads with this project are in [CREDITS.md](CREDITS
 | Proper scoring rules | Glenn Brier (1950); Gneiting and Raftery (2007) | Brier and pinball scores; honest odds (test 4). |
 | Superforecasting | Philip Tetlock and Dan Gardner, *Superforecasting* (2015) | Keeping a dated prediction ledger and scoring calibration over time. |
 | Forecast accuracy measures | Hyndman and Koehler (2006) | MASE, which makes gold prices and news shares comparable. |
+
+## App design basis
+
+| Project | Licence | What World Predictor takes from it |
+|---|---|---|
+| [koala73/worldmonitor](https://github.com/koala73/worldmonitor) | AGPL-3.0 | The idea of one app shipped two ways: a GitHub Pages web app and a downloadable full version. Ideas only, no code copied. |
+| [Normansrule/worldmonitor](https://github.com/Normansrule/worldmonitor) (Terra Atlas) | AGPL-3.0 | The `site/` + `site/app/` Pages layout and the tag-driven release workflow, re-implemented from scratch. |

@@ -66,7 +66,7 @@ def write_report(
     domains = domain_table(summary)
     scales = scale_table(summary)
     lines = [
-        "# World Predictions: Seldon scorecard",
+        "# World Predictor: Seldon scorecard",
         "",
         f"_Generated {date.today().isoformat()} with model `{model}`. "
         "Skill = 1 - MAE(model) / MAE(naive random walk); positive is better than naive. "

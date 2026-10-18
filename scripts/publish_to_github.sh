@@ -4,7 +4,7 @@
 set -euo pipefail
 
 OWNER="${1:-Normansrule}"
-NAME="${2:-world-predictions}"
+NAME="${2:-world-predictor}"
 URL="https://github.com/${OWNER}/${NAME}.git"
 DESCRIPTION="Seldon-style psychohistory experiments: forecasting world news, markets (stocks, gold, silver) and technology adoption with Google's open-source TimesFM."
 
@@ -13,7 +13,7 @@ cd "$(dirname "$0")/.."
 if [ ! -d .git ]; then
   git init -b main
   git add -A
-  git commit -m "World Predictions: Seldon-style forecasting with Google's TimesFM"
+  git commit -m "World Predictor: Seldon-style forecasting with Google's TimesFM"
 fi
 git branch -M main
 

@@ -1,0 +1,36 @@
+name: release
+
+# The downloadable version. Push a tag (git tag v0.2.0 && git push origin v0.2.0) and this
+# attaches two files to a GitHub Release:
+#   world-predictor-full.zip  the whole project: run TimesFM yourself, then `psychohistory app`
+#   world-predictor-app.zip   just the app with the latest data; unzip and open app/index.html
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the downloads
+        run: |
+          mkdir -p dist
+          git archive --format=zip --prefix=world-predictor/ -o dist/world-predictor-full.zip HEAD
+          mkdir -p build/world-predictor-app
+          cp -r site/. build/world-predictor-app/
+          if [ -f results/web/data.js ]; then cp results/web/data.js build/world-predictor-app/app/data/data.js; fi
+          (cd build && zip -qr ../dist/world-predictor-app.zip world-predictor-app)
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          if [ "${GITHUB_REF_TYPE}" != "tag" ]; then TAG="snapshot-$(date -u +%Y%m%d)"; fi
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --title "World Predictor $TAG" \
+            --notes "Web app: https://normansrule.github.io/world-predictor/  ·  Full version: unzip world-predictor-full.zip and follow the README's Quick start."
+          gh release upload "$TAG" dist/*.zip --clobber

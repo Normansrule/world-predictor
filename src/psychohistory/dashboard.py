@@ -295,7 +295,7 @@ def write_dashboard(
     board_html = f'<section class="board">{board}</section>'
     page = f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>World Predictions</title>
+<title>World Predictor</title>
 <style>
   :root {{ --surface: {SURFACE}; --text: {TEXT}; --muted: {TEXT_SECONDARY}; --line: {GRID}; }}
   body {{ margin: 0; background: var(--surface); color: var(--text); font-family: Inter, system-ui, sans-serif; }}
@@ -310,7 +310,7 @@ def write_dashboard(
   .plain li {{ margin: 6px 0; line-height: 1.5; }}
 </style></head>
 <body><main>
-<h1>World Predictions</h1>
+<h1>World Predictor</h1>
 <p class="lede">Can Hari Seldon's psychohistory work with a modern forecasting model? {html.escape(model)} is scored against
 simple baselines on world news attention, markets and technology. Generated {date.today().isoformat()}.
 Full tables are in REPORT.md.</p>

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import date
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -372,3 +373,56 @@ def test_time_vault_track_record(tmp_path):
     assert story.track_record(scored, "no-such-model").empty
     path = story.plot_track_record(scored, "drift", tmp_path)
     assert path is not None and path.stat().st_size > 1000
+
+
+def test_web_app_data_and_site(tmp_path):
+    import json
+
+    specs = [catalog.by_id("sp500"), catalog.by_id("gold"), catalog.by_id("wiki_ai")]
+    for i, spec in enumerate(specs):
+        path = data.cache_path(spec, tmp_path / "data")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        synthetic(500, seed=i, freq=spec.freq).to_frame("value").to_csv(path, index_label="date")
+    common = ["--data-dir", str(tmp_path / "data"), "--out-dir", str(tmp_path / "results"),
+              "--ledger", str(tmp_path / "ledger.csv"), "--scored", str(tmp_path / "scored.csv"), "--model", "drift"]
+    series_args = sum((["--series", s.id] for s in specs), [])
+    cli.main(["backtest", *common, *series_args, "--windows", "3"])
+    cli.main(["predict", *common, *series_args])
+    cli.main(["export", *common])
+    text = (tmp_path / "results" / "web" / "data.js").read_text()
+    assert text.startswith("window.WP_DATA=") and text.rstrip().endswith(";")
+    payload = json.loads(text[len("window.WP_DATA="):].rstrip().rstrip(";"))
+    assert payload["meta"]["model"] == "drift" and not payload["meta"]["demo"]
+    assert payload["outlook"][0]["id"] == "sp500" and payload["outlook"][0]["fan"]
+    assert payload["replay"]["forecasts"] and payload["series"] and payload["crowd"]["share"]["1"] < 0.5
+    cli.main(["site", *common, "--site-dir", str(tmp_path / "site")])
+    built = tmp_path / "site"
+    for rel in ("index.html", "sw.js", "manifest.webmanifest", "app/index.html", "app/js/app.js", "app/js/charts.js", "app/css/app.css"):
+        assert (built / rel).exists(), rel
+    assert (built / "app" / "data" / "data.js").read_text() == text
+
+
+def test_demo_payload_is_marked_and_complete():
+    from psychohistory import web
+
+    payload = web.demo_payload()
+    assert payload["meta"]["demo"] is True
+    for key in ("headlines", "domains", "horizon", "calibration", "series", "outlook", "vault"):
+        assert payload[key], key
+    assert payload["scorecard"]["news"]["skill"] is not None
+
+
+def test_progress_tracker_matches_repository():
+    from psychohistory import progress
+
+    root = Path(__file__).resolve().parents[1]
+    areas = progress.load()
+    for area in areas:
+        for item in area["items"]:
+            if item["done"]:
+                assert item.get("evidence"), f"{item['title']}: ticked with no evidence"
+                assert (root / item["evidence"]).exists(), f"{item['title']}: missing {item['evidence']}"
+    readme = (root / "README.md").read_text()
+    assert progress.render_markdown(areas) in readme, "README progress block is stale: run scripts/make_readme_art.py"
+    for name in ("index.html", "app/index.html", "app/js/app.js", "app/js/charts.js", "sw.js", "manifest.webmanifest"):
+        assert (root / "site" / name).exists()
