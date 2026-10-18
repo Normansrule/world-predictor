@@ -38,7 +38,7 @@
       $("tiles").innerHTML = DOMAINS.map(([d, icon, name]) => {
         const c = D.scorecard[d] || {};
         const has = c.skill !== null && c.skill !== undefined;
-        const flat = has && Math.abs(c.skill) < 0.005;
+        const flat = has && Math.abs(c.skill) < 0.02; // under 2% is noise, the same rule as the report
         const cls = !has || flat ? "none" : c.skill > 0 ? "good" : "bad";
         const big = !has ? "?" : signed(c.skill);
         const cap = !has ? "after the first forecast run" : flat ? "about the same error as the simple guess"
@@ -241,7 +241,20 @@
     document.querySelectorAll(".tabs a").forEach((a) => (a.getAttribute("href") === "#" + name ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current")));
     if (!rendered.has(name)) { views[name](); rendered.add(name); }
   }
-  window.addEventListener("hashchange", () => show(location.hash.slice(1)));
+  // Morph between views where the browser supports View Transitions; swap instantly elsewhere.
+  window.addEventListener("hashchange", () => {
+    const go = () => show(location.hash.slice(1));
+    if (document.startViewTransition && !matchMedia("(prefers-reduced-motion: reduce)").matches) document.startViewTransition(go);
+    else go();
+  });
+  // The archive-lamp light on cards follows the pointer.
+  document.addEventListener("pointermove", (ev) => {
+    const card = ev.target.closest && ev.target.closest(".card");
+    if (!card) return;
+    const r = card.getBoundingClientRect();
+    card.style.setProperty("--mx", ev.clientX - r.left + "px");
+    card.style.setProperty("--my", ev.clientY - r.top + "px");
+  }, { passive: true });
   let resizeTimer;
   window.addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { rendered.clear(); show(current); }, 200); });
   show(location.hash.slice(1) || "overview");

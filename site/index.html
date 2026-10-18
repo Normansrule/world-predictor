@@ -2,51 +2,174 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>World Predictor</title>
-  <meta name="description" content="Testing Hari Seldon's psychohistory with Google's TimesFM: forecasts of world news, markets and technology, scored in public.">
-  <meta name="theme-color" content="#2a78d6">
+  <meta name="description" content="Can a machine do Hari Seldon's psychohistory? Google's TimesFM forecasts world news, markets (stocks, gold, silver) and technology, and every forecast is sealed and scored in public.">
+  <meta name="theme-color" content="#070b14">
   <meta property="og:title" content="World Predictor">
-  <meta property="og:description" content="Can a machine do Hari Seldon's psychohistory? Forecasts of world news, markets (stocks, gold, silver) and technology, scored in public.">
-  <meta property="og:image" content="assets/banner-light.svg">
+  <meta property="og:description" content="Psychohistory, tested in public: TimesFM forecasts of news, markets and technology, sealed before the future happens and scored when it arrives.">
+  <meta property="og:image" content="assets/banner-dark.svg">
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
   <link rel="manifest" href="manifest.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
   <link rel="stylesheet" href="app/css/app.css">
-  <style>
-    .hero { max-width: 1180px; margin: 0 auto; padding: 32px 16px 8px; }
-    .hero picture img { width: 100%; height: auto; border-radius: 16px; display: block; }
-    .cta { display: flex; flex-wrap: wrap; gap: 12px; margin: 24px 0; }
-    .cta a { text-decoration: none; padding: 12px 20px; border-radius: 999px; font-weight: 600; border: 1px solid var(--line); color: var(--text); background: var(--surface); }
-    .cta a.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
-    .feature h2 { font-size: 17px; }
-    .feature p { color: var(--muted); margin: 4px 0 0; font-size: 15px; }
-  </style>
+  <link rel="stylesheet" href="assets/site.css">
+  <script>try { const t = localStorage.getItem("wp-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
 </head>
 <body>
-<div class="hero">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/banner-dark.svg">
-    <img src="assets/banner-light.svg" alt="World Predictor: a forecast fan chart drawing itself">
-  </picture>
-  <div class="cta">
-    <a class="primary" href="app/">Open the app →</a>
-    <a href="https://github.com/Normansrule/world-predictor/releases/latest">Download the full version</a>
-    <a href="https://github.com/Normansrule/world-predictor">Source on GitHub</a>
+<a class="skip" href="#main">Skip to content</a>
+<nav class="nav" aria-label="Main">
+  <div class="wrap">
+    <a class="brand" href="./" aria-label="World Predictor home">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14" fill="none" stroke="var(--blue)" stroke-width="2.2"/><path d="M4 19 C10 17 12 11 16 13 S 22 10 28 8" fill="none" stroke="var(--text)" stroke-width="2.2" stroke-linecap="round"/><path d="M16 13 L28 4 L28 14 Z" fill="var(--orange)" opacity=".5"/></svg>
+      World Predictor
+    </a>
+    <ul>
+      <li><a href="#engine">How it works</a></li>
+      <li><a href="#results">Results</a></li>
+      <li><a href="#app">The app</a></li>
+      <li><a href="#download">Download</a></li>
+      <li><a href="https://github.com/Normansrule/world-predictor">GitHub</a></li>
+    </ul>
+    <button class="icon-btn" id="theme" title="Switch light / dark" aria-label="Switch light or dark theme"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg></button>
   </div>
-</div>
-<main>
-  <div class="grid three">
-    <a class="card feature" href="app/#overview" style="text-decoration:none;color:inherit"><h2>📊 Scoreboard</h2><p>Did the AI beat "tomorrow looks like today" in world news, markets and technology?</p></a>
-    <a class="card feature" href="app/#replay" style="text-decoration:none;color:inherit"><h2>⏯ Replay</h2><p>Press play to watch past forecasts meet what really happened.</p></a>
-    <a class="card feature" href="app/#outlook" style="text-decoration:none;color:inherit"><h2>🔮 Outlook</h2><p>The newest forecast for stocks, gold, silver, Bitcoin, news and AI, with the odds in words.</p></a>
-    <a class="card feature" href="app/#vault" style="text-decoration:none;color:inherit"><h2>🔐 Time Vault</h2><p>Predictions sealed before the future happens, opened and scored when it arrives.</p></a>
-    <a class="card feature" href="app/#crowd" style="text-decoration:none;color:inherit"><h2>👥 Crowd lab</h2><p>Drag a slider and see why crowds are predictable when people are not.</p></a>
-    <a class="card feature" href="app/#about" style="text-decoration:none;color:inherit"><h2>💻 Web or download</h2><p>Use it here, or download the full version and run TimesFM on your own computer.</p></a>
-  </div>
+</nav>
+
+<main id="main">
+  <header class="hero">
+    <div class="wrap grid2">
+      <div>
+        <p class="kicker">Psychohistory, tested in public</p>
+        <h1 data-split>Can a machine see the future of <em>crowds</em>?</h1>
+        <p class="lede">Hari Seldon bet that no one can predict a person, but anyone could predict a billion of them.
+          World Predictor puts that bet to Google's open <b>TimesFM</b> model across world news, markets and new technology,
+          then seals every forecast with a date and scores it when the future arrives.</p>
+        <div class="cta-row">
+          <a class="cta primary" href="app/">Open the app <span aria-hidden="true">→</span></a>
+          <a class="cta" href="https://github.com/Normansrule/world-predictor/releases/latest">Download the full version</a>
+        </div>
+        <p class="live"><span class="dot" aria-hidden="true"></span><span id="live-text">Forecasts refresh every week on GitHub Actions</span></p>
+      </div>
+      <figure class="oracle" data-reveal>
+        <div class="frame">
+          <div class="meta"><b id="oracle-title">Newest sealed forecast</b><span id="oracle-made"></span></div>
+          <div id="oracle-chart"></div>
+          <div class="meta"><span class="odds" id="oracle-odds">–</span><span id="oracle-cap"></span></div>
+        </div>
+        <figcaption>History in white, forecast in gold, the hatched band is the 80% range. Not financial advice.</figcaption>
+      </figure>
+    </div>
+  </header>
+
+  <section class="wrap" aria-label="In numbers">
+    <div class="stats">
+      <div><b id="stat-series" data-count="">–</b><span>live series backtested</span></div>
+      <div><b id="stat-news" data-kind="pct">–</b><span>less error than a simple guess in world news</span></div>
+      <div><b id="stat-tech" data-kind="pct">–</b><span>less error in technology trends</span></div>
+      <div><b id="stat-markets" data-kind="pct">–</b><span>in markets: close to a random walk, as theory says</span></div>
+      <div><b id="stat-sealed">–</b><span>forecasts sealed this week</span></div>
+    </div>
+  </section>
+
+  <section class="block" id="engine" aria-labelledby="engine-title">
+    <div class="wrap">
+      <p class="eyebrow">How a forecast is built</p>
+      <h2 class="title" id="engine-title" data-reveal>One forecast, taken apart.</h2>
+      <p class="intro" data-reveal>Scroll, and the forecast card comes apart into the six layers it is made of, then
+        clicks back together. Every forecast on this site is built exactly this way.</p>
+    </div>
+    <div class="explode" aria-label="How a forecast is built, in six layers">
+      <div class="explode__stage wrap">
+        <!-- engine:start -->
+        <div class="explode__scene">
+          <svg class="explode__layer inner" style="--i:0" viewBox="0 0 480 280" aria-hidden="true"><rect x="1" y="1" width="478" height="278" rx="18" class="plate"/><g class="body"><g transform="translate(60 120)"><rect width="84" height="40" rx="10" fill="none" stroke="var(--muted)"/><text x="42" y="25" text-anchor="middle" font-size="13" fill="var(--text)">GDELT</text></g><g transform="translate(155 120)"><rect width="84" height="40" rx="10" fill="none" stroke="var(--muted)"/><text x="42" y="25" text-anchor="middle" font-size="13" fill="var(--text)">Yahoo</text></g><g transform="translate(250 120)"><rect width="84" height="40" rx="10" fill="none" stroke="var(--muted)"/><text x="42" y="25" text-anchor="middle" font-size="13" fill="var(--text)">Wikipedia</text></g><g transform="translate(345 120)"><rect width="84" height="40" rx="10" fill="none" stroke="var(--muted)"/><text x="42" y="25" text-anchor="middle" font-size="13" fill="var(--text)">OWID</text></g></g></svg>
+          <svg class="explode__layer" style="--i:1" viewBox="0 0 480 280" aria-hidden="true"><rect x="1" y="1" width="478" height="278" rx="18" class="plate"/><g class="body"><path d="M40.0,167.0 L46.3,159.9 L52.7,154.9 L59.0,153.0 L65.4,153.7 L71.7,155.5 L78.1,156.6 L84.4,156.0 L90.8,154.2 L97.1,152.5 L103.5,152.5 L109.8,155.0 L116.2,159.2 L122.5,163.2 L128.9,165.1 L135.2,163.6 L141.6,159.0 L147.9,152.9 L154.3,147.4 L160.6,143.9 L167.0,142.5 L173.3,142.0 L179.7,140.9 L186.0,138.1 L192.4,133.8 L198.7,129.5 L205.1,127.1 L211.4,127.7 L217.8,131.3 L224.1,136.5 L230.5,140.8 L236.8,142.7 L243.2,141.7 L249.5,138.7 L255.9,135.4 L262.2,133.4 L268.6,133.0 L274.9,133.2 L281.3,132.4 L287.6,129.2 L294.0,123.5" fill="none" stroke="var(--text)" stroke-width="2.5" stroke-linejoin="round"/></g></svg>
+          <svg class="explode__layer" style="--i:2" viewBox="0 0 480 280" aria-hidden="true"><rect x="1" y="1" width="478" height="278" rx="18" class="plate"/><g class="body"><rect x="40.0" y="40" width="80.7" height="200" rx="6" fill="var(--blue)" opacity="0.18"/><rect x="124.7" y="40" width="80.7" height="200" rx="6" fill="var(--blue)" opacity="0.1"/><rect x="209.3" y="40" width="80.7" height="200" rx="6" fill="var(--blue)" opacity="0.18"/><text x="44" y="32" font-size="12" fill="var(--muted)">patch 1 · patch 2 · patch 3</text></g></svg>
+          <svg class="explode__layer inner" style="--i:3" viewBox="0 0 480 280" aria-hidden="true"><rect x="1" y="1" width="478" height="278" rx="18" class="plate"/><g class="body"><rect x="170" y="90" width="16" height="16" rx="3" fill="var(--orange)" opacity="0.25"/><rect x="192" y="90" width="16" height="16" rx="3" fill="var(--orange)" opacity="0.67"/><rect x="214" y="90" width="16" height="16" rx="3" fill="var(--orange)" opacity="0.49"/><rect x="236" y="90" width="16" height="16" rx="3" fill="var(--orange)" opacity="0.31"/><rect x="258" y="90" width="16" height="16" rx="3" fill="var(--orange)" opacity="0.73"/><rect x="280" y="90" width="16" height="16" rx="3" fill="var(--orange)" opacity="0.55"/><rect x="302" y="90" width="16" height="16" rx="3" fill="var(--orange)" opacity="0.37"/><rect x="170" y="112" width="16" height="16" rx="3" fill="var(--orange)" opacity="0.79"/><rect x="192" y="112" width="16" height="16" rx="3" fill="var(--orange)" opacity="0.61"/><rect x="214" y="112" width="16" height="16" rx="3" fill="var(--orange)" opacity="0.43"/><rect x="236" y="112" width="16" height="16" rx="3" fill="var(--orange)" opacity="0.25"/><rect x="258" y="112" width="16" height="16" rx="3" fill="var(--orange)" opacity="0.67"/><rect x="280" y="112" width="16" height="16" rx="3" fill="var(--orange)" opacity="0.49"/><rect x="302" y="112" width="16" height="16" rx="3" fill="var(--orange)" opacity="0.31"/><rect x="170" y="134" width="16" height="16" rx="3" fill="var(--orange)" opacity="0.73"/><rect x="192" y="134" width="16" height="16" rx="3" fill="var(--orange)" opacity="0.55"/><rect x="214" y="134" width="16" height="16" rx="3" fill="var(--orange)" opacity="0.37"/><rect x="236" y="134" width="16" height="16" rx="3" fill="var(--orange)" opacity="0.79"/><rect x="258" y="134" width="16" height="16" rx="3" fill="var(--orange)" opacity="0.61"/><rect x="280" y="134" width="16" height="16" rx="3" fill="var(--orange)" opacity="0.43"/><rect x="302" y="134" width="16" height="16" rx="3" fill="var(--orange)" opacity="0.25"/><rect x="170" y="156" width="16" height="16" rx="3" fill="var(--orange)" opacity="0.67"/><rect x="192" y="156" width="16" height="16" rx="3" fill="var(--orange)" opacity="0.49"/><rect x="214" y="156" width="16" height="16" rx="3" fill="var(--orange)" opacity="0.31"/><rect x="236" y="156" width="16" height="16" rx="3" fill="var(--orange)" opacity="0.73"/><rect x="258" y="156" width="16" height="16" rx="3" fill="var(--orange)" opacity="0.55"/><rect x="280" y="156" width="16" height="16" rx="3" fill="var(--orange)" opacity="0.37"/><rect x="302" y="156" width="16" height="16" rx="3" fill="var(--orange)" opacity="0.79"/><text x="240" y="228" text-anchor="middle" font-size="14" font-weight="600" fill="var(--text)">TimesFM 2.5</text></g></svg>
+          <svg class="explode__layer" style="--i:4" viewBox="0 0 480 280" aria-hidden="true"><rect x="1" y="1" width="478" height="278" rx="18" class="plate"/><g class="body"><line x1="294.0" y1="30" x2="294.0" y2="250" stroke="var(--muted)" stroke-dasharray="3 4"/><text x="300.0" y="42" font-size="12" fill="var(--muted)">now</text><path d="M294.0,121.4 L300.3,118.9 L306.7,116.5 L313.0,114.1 L319.4,111.7 L325.7,109.2 L332.1,106.8 L338.4,104.4 L344.8,101.9 L351.1,99.5 L357.5,97.1 L363.8,94.6 L370.2,92.2 L376.5,89.8 L382.9,87.4 L389.2,84.9 L395.6,82.5 L401.9,80.1 L408.3,77.6 L414.6,75.2 L421.0,72.8 L427.3,70.3 L433.7,67.9 L440.0,65.5 L440.0,131.9 L433.7,131.6 L427.3,131.4 L421.0,131.1 L414.6,130.8 L408.3,130.6 L401.9,130.3 L395.6,130.0 L389.2,129.7 L382.9,129.5 L376.5,129.2 L370.2,128.9 L363.8,128.7 L357.5,128.4 L351.1,128.1 L344.8,127.9 L338.4,127.6 L332.1,127.3 L325.7,127.0 L319.4,126.8 L313.0,126.5 L306.7,126.2 L300.3,126.0 L294.0,125.7Z" fill="var(--band)"/><path d="M294.0,123.5 L300.3,122.5 L306.7,121.4 L313.0,120.3 L319.4,119.2 L325.7,118.1 L332.1,117.1 L338.4,116.0 L344.8,114.9 L351.1,113.8 L357.5,112.7 L363.8,111.7 L370.2,110.6 L376.5,109.5 L382.9,108.4 L389.2,107.3 L395.6,106.3 L401.9,105.2 L408.3,104.1 L414.6,103.0 L421.0,101.9 L427.3,100.9 L433.7,99.8 L440.0,98.7" fill="none" stroke="var(--orange)" stroke-width="2.5" stroke-dasharray="6 5"/></g></svg>
+          <svg class="explode__layer" style="--i:5" viewBox="0 0 480 280" aria-hidden="true"><rect x="1" y="1" width="478" height="278" rx="18" class="plate base"/><g class="body"><circle cx="300.3" cy="116.7" r="3.6" fill="var(--blue)"/><circle cx="313.0" cy="108.1" r="3.6" fill="var(--blue)"/><circle cx="325.7" cy="111.7" r="3.6" fill="var(--blue)"/><circle cx="338.4" cy="114.6" r="3.6" fill="var(--blue)"/><circle cx="351.1" cy="114.3" r="3.6" fill="var(--blue)"/><circle cx="363.8" cy="113.5" r="3.6" fill="var(--blue)"/><circle cx="376.5" cy="119.0" r="3.6" fill="var(--blue)"/><circle cx="389.2" cy="121.6" r="3.6" fill="var(--blue)"/><circle cx="401.9" cy="108.6" r="3.6" fill="var(--blue)"/><circle cx="414.6" cy="96.5" r="3.6" fill="var(--blue)"/><circle cx="427.3" cy="93.6" r="3.6" fill="var(--blue)"/><circle cx="440.0" cy="95.1" r="3.6" fill="var(--blue)"/><g transform="translate(352 26)"><rect width="100" height="30" rx="15" fill="var(--green)" opacity=".16"/><text x="50" y="20" text-anchor="middle" font-size="13" font-weight="600" fill="var(--green)">inside 80%</text></g></g></svg>
+          <p class="explode__caption"><span class="assembled">One finished forecast. Keep scrolling.</span></p>
+        </div>
+        <ol class="explode__labels">
+          <li style="--i:0"><b>Sources</b><span>GDELT news attention, Yahoo Finance prices, Wikipedia pageviews and Our World in Data.</span></li>
+          <li style="--i:1"><b>History</b><span>Years of daily or weekly values for one series: the past the model is allowed to see.</span></li>
+          <li style="--i:2"><b>Context window</b><span>TimesFM reads the history in patches of 32 steps, like words in a sentence.</span></li>
+          <li style="--i:3"><b>TimesFM 2.5</b><span>Google Research&#x27;s open forecasting model. Nothing is trained on our data.</span></li>
+          <li style="--i:4"><b>Forecast</b><span>A range for every step ahead: the middle guess and an 80% band, sealed with a date.</span></li>
+          <li style="--i:5"><b>Score</b><span>When the future arrives, reality is drawn over the fan and the forecast is scored.</span></li>
+        </ol>
+        <!-- engine:end -->
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="results" aria-labelledby="results-title">
+    <div class="wrap">
+      <p class="eyebrow">Did it beat a simple guess?</p>
+      <h2 class="title" id="results-title" data-reveal>Crowds were predictable. Markets were not.</h2>
+      <p class="intro" data-reveal>Skill is how much less error TimesFM made than "tomorrow looks like today", in backtests that
+        never let it see the future it was tested on. Right of the line is better than the guess.</p>
+      <div class="board card" id="board" aria-live="polite"></div>
+      <p class="caption">Full tables, horizons and calibration are in the <a href="app/#overview">app</a> and the
+        <a href="https://github.com/Normansrule/world-predictor/blob/main/results/REPORT.md">report</a>.</p>
+    </div>
+  </section>
+
+  <section class="block" id="app" aria-labelledby="app-title">
+    <div class="wrap">
+      <p class="eyebrow">The app</p>
+      <h2 class="title" id="app-title" data-reveal>Every forecast, replayed and scored.</h2>
+      <p class="intro" data-reveal>Replay past forecasts against what really happened, read this week's outlook in plain words,
+        and watch the Time Vault open sealed predictions as their dates arrive.</p>
+      <a class="preview" href="app/" aria-label="Open the app"><img src="assets/app-preview.png" alt="The World Predictor app showing the scoreboard for news, markets and technology" loading="lazy" width="1280" height="800"></a>
+      <div class="features" style="margin-top:40px">
+        <a class="card" href="app/#replay" data-reveal style="--d:0"><div class="glyph">⏯</div><h3>Replay</h3><p>Press play and watch past forecasts meet reality, frame by frame.</p></a>
+        <a class="card" href="app/#outlook" data-reveal style="--d:1"><div class="glyph">🔮</div><h3>Outlook</h3><p>Stocks, gold, silver, Bitcoin, news and AI: the newest forecast and its odds, in words.</p></a>
+        <a class="card" href="app/#vault" data-reveal style="--d:2"><div class="glyph">🔐</div><h3>Time Vault</h3><p>Predictions sealed before the future happens, opened and scored when it does.</p></a>
+        <a class="card" href="app/#horizon" data-reveal style="--d:0"><div class="glyph">🔭</div><h3>How far ahead</h3><p>The "Seldon horizon": how many days the model's edge lasts in each area.</p></a>
+        <a class="card" href="app/#odds" data-reveal style="--d:1"><div class="glyph">⚖️</div><h3>Honest odds</h3><p>When it says 70%, does it happen 70% of the time? The calibration test.</p></a>
+        <a class="card" href="app/#crowd" data-reveal style="--d:2"><div class="glyph">👥</div><h3>Crowd lab</h3><p>Drag a slider and see why ten thousand noisy people add up to something predictable.</p></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="download" aria-labelledby="download-title">
+    <div class="wrap">
+      <p class="eyebrow">Web or download</p>
+      <h2 class="title" id="download-title" data-reveal>The same app, two ways.</h2>
+      <p class="intro" data-reveal>Use it here with nothing to install, or download the full version and run TimesFM on your own
+        computer. Both are built from the same files, so they look and work the same.</p>
+      <div class="features">
+        <div class="card" data-reveal><div class="glyph">🌐</div><h3>On the web</h3><p>GitHub Pages serves this site with the newest weekly forecasts. It works offline after the first visit.</p></div>
+        <div class="card" data-reveal style="--d:1"><div class="glyph">💻</div><h3>On your computer</h3><p><code>psychohistory app</code> fetches fresh data, runs TimesFM and opens this same app at localhost.</p></div>
+        <a class="card" href="https://github.com/Normansrule/world-predictor#-quick-start" data-reveal style="--d:2"><div class="glyph">⚡</div><h3>Quick start</h3><p>Three commands on Ubuntu, macOS or Windows. Demo data opens in seconds.</p></a>
+      </div>
+      <div class="marquee" aria-label="Data sources and projects this is built on">
+        <div class="track">
+          <span>Google Research · TimesFM</span><span>Amazon · Chronos</span><span>Nixtla · statsforecast</span><span>GDELT Project</span><span>Yahoo Finance via yfinance</span><span>Wikimedia pageviews</span><span>Our World in Data</span><span>World Monitor</span><span>Terra Atlas</span><span>Isaac Asimov's Foundation</span><span>Peter Turchin's cliodynamics</span><span>Philip Tetlock's Superforecasting</span>
+          <span aria-hidden="true">Google Research · TimesFM</span><span aria-hidden="true">Amazon · Chronos</span><span aria-hidden="true">Nixtla · statsforecast</span><span aria-hidden="true">GDELT Project</span><span aria-hidden="true">Yahoo Finance via yfinance</span><span aria-hidden="true">Wikimedia pageviews</span><span aria-hidden="true">Our World in Data</span><span aria-hidden="true">World Monitor</span><span aria-hidden="true">Terra Atlas</span><span aria-hidden="true">Isaac Asimov's Foundation</span><span aria-hidden="true">Peter Turchin's cliodynamics</span><span aria-hidden="true">Philip Tetlock's Superforecasting</span>
+        </div>
+      </div>
+    </div>
+  </section>
 </main>
-<footer>World Predictor · Apache-2.0 · Built on Google's TimesFM · Not financial advice.</footer>
-<script>
-  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js").catch(() => {});
-</script>
+
+<footer class="site-foot">
+  <div class="wrap cols">
+    <div>
+      <h4>World Predictor</h4>
+      <p>Apache-2.0. Built on Google's TimesFM. Forecasts are an experiment, not financial advice.</p>
+      <p>Design basis: <a href="https://github.com/koala73/worldmonitor">World Monitor</a> and <a href="https://github.com/Normansrule/worldmonitor">Terra Atlas</a>.
+        Look and motion inspired by fifty sites and READMEs listed in <a href="https://github.com/Normansrule/world-predictor/blob/main/docs/DESIGN.md">DESIGN.md</a>; no code copied.</p>
+    </div>
+    <div><h4>Explore</h4><ul><li><a href="app/">Open the app</a></li><li><a href="app/#vault">Time Vault</a></li><li><a href="app/#about">About the scoring</a></li></ul></div>
+    <div><h4>Project</h4><ul><li><a href="https://github.com/Normansrule/world-predictor">Source</a></li><li><a href="https://github.com/Normansrule/world-predictor/blob/main/CREDITS.md">Credits</a></li><li><a href="https://github.com/Normansrule/world-predictor/releases/latest">Download</a></li></ul></div>
+  </div>
+</footer>
+
+<script src="app/data/data.js"></script>
+<script src="app/js/charts.js"></script>
+<script src="assets/site.js"></script>
 </body>
 </html>

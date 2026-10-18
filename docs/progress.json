@@ -130,6 +130,11 @@
           "evidence": ".github/workflows/pages.yml"
         },
         {
+          "title": "Landing page that tells the story on scroll, with the exploded forecast engine",
+          "done": true,
+          "evidence": "site/assets/site.js"
+        },
+        {
           "title": "Live at normansrule.github.io/world-predictor",
           "done": false
         },

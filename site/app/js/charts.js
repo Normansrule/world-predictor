@@ -3,6 +3,7 @@
 (function () {
   const NS = "http://www.w3.org/2000/svg";
   const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  let uid = 0;
 
   function el(tag, attrs, parent) {
     const node = document.createElementNS(NS, tag);
@@ -89,6 +90,13 @@
     const sx = (v) => m.l + ((X(v) - x0) / (x1 - x0)) * (width - m.l - m.r);
     const sy = (v) => height - m.b - ((v - y0) / (y1 - y0)) * (height - m.t - m.b);
     const svg = el("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": spec.label || "chart" }, container);
+    // Animate only the first drawing of a chart, so sliders and resizes redraw instantly.
+    const animate = spec.animate !== false && !container.dataset.drawn;
+    container.dataset.drawn = "1";
+    const hatchId = "wp-hatch-" + (++uid);
+    const pattern = el("pattern", { id: hatchId, width: 7, height: 7, patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)", class: "hatch" },
+      el("defs", {}, svg));
+    el("line", { x1: 0, y1: 0, x2: 0, y2: 7 }, pattern);
 
     const grid = el("g", { class: "grid" }, svg);
     const yf = spec.yFormat || fmt.num;
@@ -110,7 +118,8 @@
       if (!pts.length) return;
       const d = pts.map((p, i) => (i ? "L" : "M") + sx(p[0]).toFixed(1) + "," + sy(p[2]).toFixed(1)).join("")
         + pts.slice().reverse().map((p) => "L" + sx(p[0]).toFixed(1) + "," + sy(p[1]).toFixed(1)).join("") + "Z";
-      el("path", { d, fill: b.color || "var(--band)", stroke: "none" }, svg);
+      el("path", { d, fill: b.color || "var(--band)", stroke: "none", class: animate ? "fade" : undefined }, svg);
+      if (b.hatch !== false) el("path", { d, fill: `url(#${hatchId})`, stroke: "none", class: animate ? "fade" : undefined }, svg);
     });
     (spec.refs || []).forEach((r) => {
       const color = r.color || "var(--muted)";
@@ -126,8 +135,10 @@
       const pts = s.points.filter((p) => p[1] !== null && p[1] !== undefined);
       if (!pts.length) return;
       const d = pts.map((p, i) => (i ? "L" : "M") + sx(p[0]).toFixed(1) + "," + sy(p[1]).toFixed(1)).join("");
+      const draw = animate && !s.dash;
       el("path", { d, fill: "none", stroke: s.color, "stroke-width": s.width || 2, "stroke-dasharray": s.dash,
-        "stroke-linejoin": "round", "stroke-linecap": "round", opacity: s.opacity }, svg);
+        "stroke-linejoin": "round", "stroke-linecap": "round", opacity: s.opacity,
+        class: draw ? "draw" : undefined, pathLength: draw ? 1 : undefined }, svg);
     });
     (spec.dots || []).forEach((s) => {
       s.points.forEach((p) => {
@@ -171,6 +182,8 @@
     let y0 = Math.min(...vals), y1 = Math.max(...vals); const pad = (y1 - y0 || 1) * 0.12; y0 -= y0 < 0 ? pad : 0; y1 += pad;
     const sy = (v) => height - m.b - ((v - y0) / (y1 - y0)) * (height - m.t - m.b);
     const svg = el("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": spec.label || "bar chart" }, container);
+    const animate = spec.animate !== false && !container.dataset.drawn;
+    container.dataset.drawn = "1";
     const grid = el("g", { class: "grid" }, svg), yf = spec.yFormat || fmt.num;
     ticks(y0, y1, 5).forEach((v) => {
       el("line", { x1: m.l, x2: width - m.r, y1: sy(v), y2: sy(v) }, grid);
@@ -186,7 +199,8 @@
       spec.series.forEach((s, si) => {
         const v = s.values[gi]; if (v === null || v === undefined) return;
         const x = cx - (n * bw) / 2 + si * bw + 1, y = Math.min(sy(v), sy(0)), h = Math.max(1, Math.abs(sy(v) - sy(0)));
-        const rect = el("rect", { x, y, width: bw - 2, height: h, rx: 3, fill: s.color }, svg);
+        const rect = el("rect", { x, y, width: bw - 2, height: h, rx: 3, fill: s.color,
+          class: animate ? "grow" : undefined, style: `transform-origin: 0 ${sy(0)}px; --k: ${gi * n + si}` }, svg);
         rect.addEventListener("pointerenter", () => {
           tip.textContent = `${g} · ${s.name}: ${yf(v)}`; tip.style.left = ((x + bw / 2) / width) * 100 + "%";
           tip.style.top = (y / height) * 100 + "%"; tip.style.opacity = 1;

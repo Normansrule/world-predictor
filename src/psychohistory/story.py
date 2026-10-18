@@ -157,8 +157,11 @@ def scorecard_svg(card: dict[str, dict], model: str, theme: str = "light", updat
             big, colour, caption = "?", c["muted"], "after the first forecast run"
         else:
             big = f"{skill:+.0%}".replace("-", "−")
-            colour = c["blue"] if skill > 0 else c["orange"]
-            caption = "less error than the simple guess" if skill > 0 else "more error than the simple guess"
+            if abs(skill) < EDGE:  # within noise of the simple guess
+                colour, caption = c["muted"], "about the same error as the simple guess"
+            else:
+                colour = c["blue"] if skill > 0 else c["orange"]
+                caption = "less error than the simple guess" if skill > 0 else "more error than the simple guess"
         unit = STEP_UNIT[domain]
         sees = "–" if edge is None else ("no edge at any distance" if edge == 0 else f"about {edge} {unit}")
         hits = "–" if direction is None else f"{direction:.0%} of the time"

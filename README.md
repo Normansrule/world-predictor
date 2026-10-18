@@ -9,8 +9,9 @@
 Google's open-source **TimesFM** forecasts world news, markets (stocks, gold, silver) and new technologies,
 and every forecast is scored in public.
 
-[![Open the web app](https://img.shields.io/badge/Open-the_web_app-2a78d6?style=for-the-badge&logo=googlechrome&logoColor=white)](https://normansrule.github.io/world-predictor/app/)
-[![Download the full version](https://img.shields.io/badge/Download-full_version-0b0b0b?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Normansrule/world-predictor/releases/latest)
+[![Visit the site](https://img.shields.io/badge/Visit-the_site-f2b54a?style=for-the-badge&logo=googlechrome&logoColor=070b14)](https://normansrule.github.io/world-predictor/)
+[![Open the web app](https://img.shields.io/badge/Open-the_web_app-1d6f8f?style=for-the-badge&logo=googlechrome&logoColor=white)](https://normansrule.github.io/world-predictor/app/)
+[![Download the full version](https://img.shields.io/badge/Download-full_version-070b14?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Normansrule/world-predictor/releases/latest)
 [![Read the report](https://img.shields.io/badge/Read-the_report-eb6834?style=for-the-badge&logo=markdown&logoColor=white)](results/REPORT.md)
 
 [![tests](https://github.com/Normansrule/world-predictor/actions/workflows/tests.yml/badge.svg)](https://github.com/Normansrule/world-predictor/actions/workflows/tests.yml)
@@ -28,6 +29,7 @@ and every forecast is scored in public.
 [How it works](#%EF%B8%8F-how-it-works) ·
 [Quick start](#-quick-start) ·
 [Progress](#%EF%B8%8F-roadmap-and-progress) ·
+[Design](#-design) ·
 [References](#-references) ·
 [Credits](#-credits)
 
@@ -201,6 +203,15 @@ the future happens and scored once it arrives, like Seldon's recordings in the T
 
 ## ⚙️ How it works
 
+**One forecast, taken apart.** Every forecast is built from the same six layers. On the
+[website](https://normansrule.github.io/world-predictor/#engine) they come apart and click back
+together as you scroll; here they are pulled apart and labelled.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/engine-dark.svg">
+  <img src="docs/assets/engine-light.svg" alt="Exploded view of a forecast in six layers: sources, history, context window, TimesFM, forecast and score" width="100%">
+</picture>
+
 ```mermaid
 flowchart LR
   subgraph Data
@@ -320,7 +331,7 @@ _wiki("wiki_solid_state_battery", "Solid-state_battery", "Wikipedia views: Solid
 
 <!-- progress:start -->
 
-**20 of 27 milestones done (74%).** Drawn from [`docs/progress.json`](docs/progress.json); tests check every ticked item against the repository.
+**21 of 28 milestones done (75%).** Drawn from [`docs/progress.json`](docs/progress.json); tests check every ticked item against the repository.
 
 <details open><summary><b>📰 World news</b> · 5/6</summary>
 
@@ -354,12 +365,13 @@ _wiki("wiki_solid_state_battery", "Solid-state_battery", "Wikipedia views: Solid
 
 </details>
 
-<details open><summary><b>🌐 Web app (GitHub Pages)</b> · 4/6</summary>
+<details open><summary><b>🌐 Web app (GitHub Pages)</b> · 5/7</summary>
 
 - [x] Static app: scoreboard, replay, outlook, horizon, odds, Time Vault, crowd lab
 - [x] No chart library: hand-written SVG charts, under 50 KB of code in total
 - [x] Light and dark themes, phone layout, installable, works offline
 - [x] Pages deployment after every weekly run
+- [x] Landing page that tells the story on scroll, with the exploded forecast engine
 - [ ] Live at normansrule.github.io/world-predictor
 - [ ] A detail page for every series
 
@@ -408,6 +420,19 @@ screenshots by `python scripts/make_app_screenshots.py`.
 
 ---
 
+## 🎨 Design
+
+The website and app share one look, "the vault": deep ink, brass gold for forecasts and cyan for
+what really happened, with a literary serif for headings. The landing page tells the story as you
+scroll, ending with a forecast that comes apart into its six layers and reassembles, and every chart
+draws itself in, with the future hatched so it never looks like the past.
+
+It was shaped by fifty sites and READMEs, from Apple's exploded product pages and Bartosz
+Ciechanowski's *Mechanical Watch* to Stripe, Linear, The Pudding and Our World in Data. Each one, and
+the idea taken from it, is listed in [**docs/DESIGN.md**](docs/DESIGN.md). No code was copied from any
+of them: there is no chart or animation library, motion runs on CSS scroll-driven animations with a
+tiny fallback, and everything stops for readers who prefer reduced motion.
+
 ## 📚 References
 
 | Project | How World Predictor uses it |
@@ -420,6 +445,7 @@ screenshots by `python scripts/make_app_screenshots.py`.
 | [projectmesa/mesa](https://github.com/projectmesa/mesa) · Apache-2.0 | Inspiration for the toy crowd |
 | [owid/owid-grapher](https://github.com/owid/owid-grapher) · MIT | One clear question per chart, plain captions, source lines |
 | [plotly/plotly.py](https://github.com/plotly/plotly.py) · MIT | The Plotly version of the dashboard |
+| [docs/DESIGN.md](docs/DESIGN.md) | Fifty sites and READMEs behind the look and motion, each with the idea taken |
 
 [**REFERENCES.md**](REFERENCES.md) lists all 20 reference repositories (foundation models,
 forecasting frameworks, benchmarks, simulation and presentation) and the modelling theories behind
@@ -433,6 +459,7 @@ This project stands on other people's work. Full attribution, licences and terms
 - **TimesFM** by Google Research: Das, Kong, Sen, Zhou, *A decoder-only foundation model for
   time-series forecasting*, ICML 2024 ([arXiv:2310.10688](https://arxiv.org/abs/2310.10688)).
 - **World Monitor** by Elie Habib, for the web-app and download design.
+- **Fifty design references** for the look and motion, listed in [docs/DESIGN.md](docs/DESIGN.md).
 - **GDELT Project** for world news coverage data.
 - **Yahoo Finance** data via the **yfinance** library by Ran Aroussi.
 - **Wikimedia Foundation** Pageviews API.

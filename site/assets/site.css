@@ -1,0 +1,166 @@
+/* World Predictor landing page. Uses the app's tokens (app/css/app.css) and adds the
+   long-scroll story: hero, number strip, the exploded forecast engine, scoreboard and gallery.
+   Motion follows two rules: animate only transform and opacity, and stop under reduced motion. */
+
+body { overflow-x: hidden; }
+.wrap { width: min(1180px, 100% - 32px); margin: 0 auto; }
+.skip { position: absolute; left: -999px; }
+.skip:focus { left: 12px; top: 12px; z-index: 99; background: var(--orange); color: #14100a; padding: 8px 12px; border-radius: 8px; }
+
+/* Navigation: a glass bar that sharpens once you scroll. */
+.nav { position: sticky; top: 0; z-index: 30; backdrop-filter: blur(12px) saturate(1.2);
+  background: color-mix(in srgb, var(--bg) 72%, transparent); border-bottom: 1px solid transparent; transition: border-color .3s, background .3s; }
+.nav.scrolled { border-bottom-color: var(--line); background: color-mix(in srgb, var(--bg) 88%, transparent); }
+.nav .wrap { display: flex; align-items: center; gap: 18px; height: 64px; }
+.nav .brand { display: flex; align-items: center; gap: 10px; color: var(--text); text-decoration: none; }
+.nav .brand svg { width: 28px; height: 28px; }
+.nav ul { display: flex; gap: 2px; list-style: none; margin: 0 0 0 auto; padding: 0; }
+.nav ul a { color: var(--muted); text-decoration: none; padding: 8px 12px; border-radius: 999px; font-size: 15px; }
+.nav ul a:hover { color: var(--text); background: var(--surface-2); }
+@media (max-width: 860px) { .nav ul { display: none; } .nav .icon-btn { margin-left: auto; } }
+
+/* Buttons. The primary one carries a slow travelling light around its edge. */
+.cta-row { display: flex; flex-wrap: wrap; gap: 12px; }
+.cta { display: inline-flex; align-items: center; gap: 8px; padding: 13px 22px; border-radius: 12px; font-weight: 600; text-decoration: none;
+  color: var(--text); border: 1px solid var(--line); background: color-mix(in srgb, var(--surface) 70%, transparent); transition: transform .25s var(--ease), border-color .25s; }
+.cta:hover { transform: translateY(-2px); border-color: var(--muted); }
+.cta.primary { background: var(--orange); color: #14100a; border-color: transparent; position: relative; isolation: isolate; }
+.cta.primary::before { content: ""; position: absolute; inset: -2px; border-radius: 14px; padding: 2px; z-index: -1;
+  background: conic-gradient(from var(--beam, 0deg), transparent 0 72%, var(--blue) 86%, #fff 90%, transparent 95%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
+  animation: beam 4s linear infinite; }
+@property --beam { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+@keyframes beam { to { --beam: 360deg; } }
+
+/* Hero: words rise into place, the live forecast draws itself beside them. */
+.hero { position: relative; padding: clamp(48px, 9vh, 110px) 0 72px; overflow: hidden; }
+.hero::before { content: ""; position: absolute; inset: -20% -10% auto; height: 120%; z-index: -1; pointer-events: none;
+  background: radial-gradient(600px 380px at 78% 35%, var(--glow), transparent 70%),
+              radial-gradient(520px 340px at 12% 80%, color-mix(in srgb, var(--blue) 14%, transparent), transparent 70%);
+  animation: drift 24s ease-in-out infinite alternate; }
+@keyframes drift { to { transform: translate3d(-3%, 4%, 0) scale(1.05); } }
+.hero .grid2 { display: grid; grid-template-columns: 1.05fr 1fr; gap: 48px; align-items: center; }
+@media (max-width: 920px) { .hero .grid2 { grid-template-columns: 1fr; } }
+.kicker { font: 600 13px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--orange); margin: 0 0 18px; }
+.hero h1 { font: 600 clamp(42px, 6.6vw, 84px)/1 var(--display); letter-spacing: -.035em; margin: 0 0 22px; max-width: 13ch; }
+.hero h1 em { font-style: italic; color: var(--orange); }
+.hero .lede { font-size: clamp(17px, 1.6vw, 20px); color: var(--muted); max-width: 46ch; margin: 0 0 30px; }
+.live { margin-top: 28px; display: flex; gap: 10px; align-items: center; color: var(--muted); font: 13px/1.4 var(--mono); }
+.live .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex: none; animation: ping 2.2s infinite; }
+@keyframes ping { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--green) 60%, transparent); } 70%, 100% { box-shadow: 0 0 0 10px transparent; } }
+.split .w { display: inline-block; opacity: 0; transform: translateY(.45em); animation: word .9s var(--ease) forwards; animation-delay: calc(var(--n) * 70ms); }
+@keyframes word { to { opacity: 1; transform: none; } }
+
+.oracle { margin: 0; }
+.oracle .frame { background: color-mix(in srgb, var(--surface) 82%, transparent); border: 1px solid var(--line); border-radius: 22px; padding: 18px 18px 10px;
+  box-shadow: var(--shadow); backdrop-filter: blur(6px); }
+.oracle .meta { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; margin-bottom: 4px; }
+.oracle .meta b { font: 600 18px/1.2 var(--display); }
+.oracle .meta span, .oracle figcaption { font: 12px/1.4 var(--mono); color: var(--muted); }
+.oracle .odds { font: 600 44px/1 var(--display); color: var(--orange); font-variant-numeric: tabular-nums; }
+.oracle figcaption { margin-top: 10px; }
+
+/* Number strip */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); border: 1px solid var(--line); border-radius: 20px;
+  overflow: hidden; background: color-mix(in srgb, var(--surface) 70%, transparent); }
+.stats div { padding: 26px 24px; border-right: 1px solid var(--line); }
+.stats div:last-child { border-right: 0; }
+.stats b { display: block; font: 600 clamp(36px, 4vw, 50px)/1 var(--display); color: var(--text); font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+.stats b.good { color: var(--blue); } .stats b.warm { color: var(--orange); }
+.stats span { color: var(--muted); font-size: 14px; display: block; margin-top: 8px; }
+
+/* Sections */
+section.block { padding: clamp(80px, 12vh, 140px) 0 0; }
+.eyebrow { font: 600 12px/1 var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); margin: 0 0 14px; }
+h2.title { font: 600 clamp(32px, 4.6vw, 58px)/1.02 var(--display); letter-spacing: -.03em; margin: 0 0 16px; max-width: 18ch; }
+p.intro { color: var(--muted); max-width: 62ch; margin: 0 0 40px; font-size: 18px; }
+
+/* Reveal on scroll (set by site.js). */
+[data-reveal] { opacity: 0; transform: translateY(24px); transition: opacity .9s var(--ease), transform .9s var(--ease); transition-delay: calc(var(--d, 0) * 90ms); }
+[data-reveal].in { opacity: 1; transform: none; }
+
+/* The exploded engine. A tall section with a sticky stage; --spread runs 0 (assembled) to 1
+   (pulled apart) and back as you scroll. Browsers with scroll-driven animations do it in CSS
+   alone; site.js sets --spread for the rest. */
+@property --spread { syntax: "<number>"; inherits: true; initial-value: 0; }
+.explode { height: 420vh; position: relative; view-timeline: --engine block; }
+.explode__stage { position: sticky; top: 64px; height: calc(100vh - 64px); display: grid; grid-template-columns: 1.2fr 1fr; align-items: center; gap: 24px;
+  perspective: 1400px; --gap: 92px; }
+.explode__scene { position: relative; height: min(70vh, 640px); }
+.explode__layer { position: absolute; left: 50%; top: 50%; width: min(520px, 90%); height: auto; overflow: visible;
+  transform: translate(-50%, -50%) rotateX(55deg) rotateZ(-35deg);
+  translate: 0 calc((var(--i) - 2.5) * var(--gap) * var(--spread)); z-index: calc(10 - var(--i)); }
+.explode__layer .plate { fill: color-mix(in srgb, var(--surface) 55%, transparent); stroke: var(--line); stroke-width: 1.5; }
+.explode__layer .plate.base { fill: var(--surface); }
+.explode__labels { list-style: none; counter-reset: layer; margin: 0; padding: 0; display: grid; gap: 14px; }
+.explode__labels li { counter-increment: layer; display: grid; grid-template-columns: 34px 1fr; column-gap: 12px;
+  opacity: calc(.25 + .75 * var(--spread)); transform: translateX(calc((1 - var(--spread)) * 16px)); }
+.explode__labels li::before { content: counter(layer); grid-row: span 2; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+  border: 1.5px solid var(--orange); color: var(--orange); font: 700 13px/1 var(--mono); }
+.explode__labels b { font: 600 19px/1.2 var(--display); }
+.explode__labels span { color: var(--muted); font-size: 15px; }
+.explode__caption { position: absolute; left: 0; bottom: 4%; font: 12px/1.4 var(--mono); color: var(--muted); }
+.explode__caption .assembled { opacity: calc(1 - var(--spread)); }
+@supports (animation-timeline: view()) {
+  .explode__stage { animation: engine linear both; animation-timeline: --engine; animation-range: contain 0% contain 100%; }
+}
+@keyframes engine { 0%, 10% { --spread: 0; } 42%, 68% { --spread: 1; } 92%, 100% { --spread: 0; } }
+@media (max-width: 900px) {
+  .explode__stage { grid-template-columns: 1fr; grid-template-rows: 1fr auto; --gap: 44px; align-content: center; }
+  .explode__scene { height: 48vh; }
+  .explode__labels { gap: 6px; } .explode__labels span { display: none; }
+}
+
+/* Scoreboard bars */
+.board { display: grid; gap: 22px; }
+.board .row { display: grid; grid-template-columns: 180px 1fr 88px; gap: 18px; align-items: center; }
+.board .name { font: 600 18px/1.2 var(--display); }
+.board .name small { display: block; font: 12px/1.4 var(--mono); color: var(--muted); margin-top: 4px; }
+.board .track { position: relative; height: 40px; border-radius: 10px; background: var(--surface-2); overflow: hidden; }
+.board .zero { position: absolute; left: var(--z); top: 0; bottom: 0; width: 1px; background: var(--muted); opacity: .6; }
+.board .bar { position: absolute; top: 7px; bottom: 7px; border-radius: 6px; transform-origin: left; transform: scaleX(0); transition: transform 1.2s var(--ease); }
+.board.in .bar { transform: scaleX(1); }
+.board .bar.model { background: linear-gradient(90deg, var(--blue), color-mix(in srgb, var(--blue) 60%, var(--green))); }
+.board .bar.flat { background: var(--muted); }
+.board .val { font: 600 26px/1 var(--display); text-align: right; font-variant-numeric: tabular-nums; }
+@media (max-width: 640px) { .board .row { grid-template-columns: 1fr 70px; } .board .track { grid-column: 1 / -1; grid-row: 2; } }
+
+/* App preview tilts down flat as it scrolls into view. */
+.preview { perspective: 1600px; }
+.preview img { width: 100%; display: block; border-radius: 18px; border: 1px solid var(--line); box-shadow: 0 40px 120px rgba(0, 0, 0, .35);
+  transform: rotateX(var(--tilt, 18deg)) scale(var(--scale, .94)); transform-origin: 50% 100%; transition: transform .15s linear; }
+
+/* Feature cards */
+.features { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 16px; }
+.features .card { text-decoration: none; color: inherit; margin: 0; }
+.features .card:hover { transform: translateY(-3px); }
+.features h3 { font: 600 21px/1.2 var(--display); margin: 8px 0 6px; }
+.features p { color: var(--muted); margin: 0; font-size: 15px; }
+.features .glyph { font-size: 26px; }
+
+/* Marquee of sources and shoulders we stand on */
+.marquee { overflow: hidden; mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); margin-top: 28px; }
+.marquee .track { display: flex; gap: 12px; width: max-content; animation: marquee 70s linear infinite; }
+.marquee:hover .track { animation-play-state: paused; }
+.marquee span { border: 1px solid var(--line); border-radius: 999px; padding: 8px 16px; color: var(--muted); white-space: nowrap; font-size: 14px; }
+@keyframes marquee { to { transform: translateX(-50%); } }
+
+.site-foot { margin-top: clamp(80px, 12vh, 140px); border-top: 1px solid var(--line); padding: 40px 0 60px; color: var(--muted); font-size: 14px; }
+.site-foot .cols { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 32px; }
+.site-foot h4 { color: var(--text); font: 600 15px/1.2 var(--display); margin: 0 0 10px; }
+.site-foot ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+.site-foot a { color: var(--muted); }
+@media (max-width: 760px) { .site-foot .cols { grid-template-columns: 1fr; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero::before, .cta.primary::before, .marquee .track, .live .dot { animation: none; }
+  .split .w { animation: none; opacity: 1; transform: none; }
+  [data-reveal] { opacity: 1; transform: none; transition: none; }
+  .explode { height: auto; padding-bottom: 40px; }
+  .explode__stage { position: static; height: auto; animation: none; --spread: 1; padding: 40px 0; }
+  .explode__scene { height: 620px; }
+  .board .bar { transform: none; transition: none; }
+  .preview img { transform: none; }
+}
+.explode__layer.inner .body { opacity: var(--spread); }
+.explode__layer .plate:not(.base) { fill-opacity: var(--spread); stroke-opacity: calc(.15 + .85 * var(--spread)); }
