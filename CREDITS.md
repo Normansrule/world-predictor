@@ -1,6 +1,6 @@
 # Credits and attribution
 
-World Predictions is a thin experimental layer on top of other people's open work. Everything it
+World Predictor is a thin experimental layer on top of other people's open work. Everything it
 uses is listed here with its licence or terms. If you reuse this project, please keep these
 credits.
 
@@ -70,7 +70,8 @@ affiliated with or endorsed by Google.
 - pandas (BSD-3-Clause) <https://pandas.pydata.org/>
 - Matplotlib (Matplotlib licence, BSD-compatible) <https://matplotlib.org/>
 - Requests (Apache 2.0) <https://requests.readthedocs.io/>
-- Plotly for Python (MIT), used for `results/dashboard.html` <https://github.com/plotly/plotly.py>
+- Plotly for Python (MIT), used only for the offline `results/dashboard.html` <https://github.com/plotly/plotly.py>.
+  The web app in `site/` uses no chart library: its charts are hand-written SVG.
 - statsforecast by Nixtla (Apache 2.0), optional, used for the AutoETS / AutoARIMA baselines
   <https://github.com/Nixtla/statsforecast>
 - tabulate (MIT) <https://github.com/astanin/python-tabulate>
@@ -83,6 +84,11 @@ Twenty open-source repositories and the modelling theories this project draws on
 [REFERENCES.md](REFERENCES.md).
 
 ## Inspiration
+
+- **World Monitor** by koala73 (AGPL-3.0) <https://github.com/koala73/worldmonitor>, and Alek's fork
+  **Terra Atlas** <https://github.com/Normansrule/worldmonitor>. World Predictor borrows their product
+  idea: a GitHub Pages web app plus a full downloadable version, built from the same static site and
+  released from tags. No code was copied, so World Monitor's AGPL licence does not apply here.
 
 - Isaac Asimov, *Foundation* (1951) and the Foundation series, which introduced Hari Seldon and
   psychohistory. Only the idea is referenced; no text from the books is reproduced.

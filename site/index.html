@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>World Predictor</title>
+  <meta name="description" content="Testing Hari Seldon's psychohistory with Google's TimesFM: forecasts of world news, markets and technology, scored in public.">
+  <meta name="theme-color" content="#2a78d6">
+  <meta property="og:title" content="World Predictor">
+  <meta property="og:description" content="Can a machine do Hari Seldon's psychohistory? Forecasts of world news, markets (stocks, gold, silver) and technology, scored in public.">
+  <meta property="og:image" content="assets/banner-light.svg">
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="app/css/app.css">
+  <style>
+    .hero { max-width: 1180px; margin: 0 auto; padding: 32px 16px 8px; }
+    .hero picture img { width: 100%; height: auto; border-radius: 16px; display: block; }
+    .cta { display: flex; flex-wrap: wrap; gap: 12px; margin: 24px 0; }
+    .cta a { text-decoration: none; padding: 12px 20px; border-radius: 999px; font-weight: 600; border: 1px solid var(--line); color: var(--text); background: var(--surface); }
+    .cta a.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+    .feature h2 { font-size: 17px; }
+    .feature p { color: var(--muted); margin: 4px 0 0; font-size: 15px; }
+  </style>
+</head>
+<body>
+<div class="hero">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/banner-dark.svg">
+    <img src="assets/banner-light.svg" alt="World Predictor: a forecast fan chart drawing itself">
+  </picture>
+  <div class="cta">
+    <a class="primary" href="app/">Open the app →</a>
+    <a href="https://github.com/Normansrule/world-predictor/releases/latest">Download the full version</a>
+    <a href="https://github.com/Normansrule/world-predictor">Source on GitHub</a>
+  </div>
+</div>
+<main>
+  <div class="grid three">
+    <a class="card feature" href="app/#overview" style="text-decoration:none;color:inherit"><h2>📊 Scoreboard</h2><p>Did the AI beat "tomorrow looks like today" in world news, markets and technology?</p></a>
+    <a class="card feature" href="app/#replay" style="text-decoration:none;color:inherit"><h2>⏯ Replay</h2><p>Press play to watch past forecasts meet what really happened.</p></a>
+    <a class="card feature" href="app/#outlook" style="text-decoration:none;color:inherit"><h2>🔮 Outlook</h2><p>The newest forecast for stocks, gold, silver, Bitcoin, news and AI, with the odds in words.</p></a>
+    <a class="card feature" href="app/#vault" style="text-decoration:none;color:inherit"><h2>🔐 Time Vault</h2><p>Predictions sealed before the future happens, opened and scored when it arrives.</p></a>
+    <a class="card feature" href="app/#crowd" style="text-decoration:none;color:inherit"><h2>👥 Crowd lab</h2><p>Drag a slider and see why crowds are predictable when people are not.</p></a>
+    <a class="card feature" href="app/#about" style="text-decoration:none;color:inherit"><h2>💻 Web or download</h2><p>Use it here, or download the full version and run TimesFM on your own computer.</p></a>
+  </div>
+</main>
+<footer>World Predictor · Apache-2.0 · Built on Google's TimesFM · Not financial advice.</footer>
+<script>
+  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js").catch(() => {});
+</script>
+</body>
+</html>

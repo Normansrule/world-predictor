@@ -270,7 +270,7 @@ ENSEMBLE = "ensemble"
 
 # --------------------------------------------------------------------------------------------
 # Classical statistics (Nixtla statsforecast, https://github.com/Nixtla/statsforecast). Optional:
-# pip install "world-predictions[classical]". ETS and ARIMA are the workhorses that won or
+# pip install "world-predictor[classical]". ETS and ARIMA are the workhorses that won or
 # anchored the M-competitions, so a foundation model should beat them, not just the naive walk.
 # --------------------------------------------------------------------------------------------
 

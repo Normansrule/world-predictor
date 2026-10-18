@@ -6,6 +6,7 @@
   then "what really happened" dots appear. Pure SVG + CSS, so it animates on github.com.
 * how-to-read.svg - labelled anatomy of a fan chart, for readers new to forecasts.
 * seldon-crowd.gif - the toy crowd simulation (psychohistory.simulate), animated.
+* progress-*.svg and the README checklist, from docs/progress.json.
 * placeholder scoreboard (results/plots/scorecard-*.svg) and charts in results/plots/ until the first real run replaces them.
 """
 
@@ -65,7 +66,7 @@ def banner(theme: str) -> str:
         for i, (x, y) in enumerate(zip(fx, fy))
     )
     grid = "".join(f'<line x1="{x0}" x2="{x1}" y1="{y:.0f}" y2="{y:.0f}"/>' for y in np.linspace(y0, y1, 5))
-    return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 320" role="img" aria-label="World Predictions: an animated forecast fan chart">
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 320" role="img" aria-label="World Predictor: an animated forecast fan chart">
 <style>
   .bg {{ fill: {c['bg']}; }}
   .title {{ font: 700 46px Inter, system-ui, sans-serif; fill: {c['text']}; }}
@@ -88,7 +89,7 @@ def banner(theme: str) -> str:
 </style>
 <rect class="bg" width="1200" height="320" rx="16"/>
 <text class="tag" x="48" y="88">PSYCHOHISTORY  ×  GOOGLE TIMESFM</text>
-<text class="title" x="48" y="146">World Predictions</text>
+<text class="title" x="48" y="146">World Predictor</text>
 <text class="sub" x="48" y="190">Can Hari Seldon's math predict the future?</text>
 <text class="sub" x="48" y="218">Testing an AI forecaster on world news, markets</text>
 <text class="sub" x="48" y="246">(stocks, gold, silver) and new technologies.</text>
@@ -191,6 +192,18 @@ def main() -> None:
         placeholder_png(png, "The animated replay appears after the first forecast run.")
         Image.open(png).convert("P").save(replay)
         png.unlink()
+    # The web app reuses the banners, and ships demo data so it works before the first real run.
+    import shutil
+
+    from psychohistory.web import demo_payload, write_data_js
+
+    site = ROOT / "site"
+    for theme in THEMES:
+        shutil.copy(ASSETS / f"banner-{theme}.svg", site / "assets" / f"banner-{theme}.svg")
+    write_data_js(demo_payload(), site / "app" / "data" / "data.js")
+    from psychohistory.progress import write_all
+
+    write_all()  # progress bars and the README checklist, from docs/progress.json
     print(f"Wrote artwork to {ASSETS} and placeholders to {plots}")
 
 

@@ -1,4 +1,4 @@
-"""World Predictions: Seldon-style "psychohistory" experiments built on Google's TimesFM.
+"""World Predictor: Seldon-style "psychohistory" experiments built on Google's TimesFM.
 
 Hari Seldon's psychohistory (Isaac Asimov, *Foundation*) claimed that the behaviour of very
 large populations can be forecast statistically even though individuals cannot. This package

@@ -44,6 +44,8 @@ jobs:
       - name: Backtest
         if: github.event.schedule == '0 7 1 * *' || (github.event_name == 'workflow_dispatch' && inputs.backtest)
         run: psychohistory -v backtest --compare chronos-bolt --ensemble
+      - name: Refresh the web app data
+        run: psychohistory export
       - name: Commit results
         run: |
           git config user.name "github-actions[bot]"

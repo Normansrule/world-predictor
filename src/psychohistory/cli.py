@@ -1,4 +1,4 @@
-"""Command line interface: ``psychohistory run | fetch | backtest | predict | score | report | simulate``."""
+"""Command line interface: ``psychohistory run | fetch | backtest | predict | score | report | simulate | export | site | app``."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from . import backtest, catalog, dashboard, data, ledger, report, simulate, story
+from . import backtest, catalog, dashboard, data, ledger, report, simulate, story, web
 from .models import BASELINES, classical_available, load_model
 
 log = logging.getLogger("psychohistory")
@@ -118,6 +118,8 @@ def cmd_run(args) -> None:
             cmd_report(args)
     else:
         cmd_backtest(args)
+    args.demo = False
+    cmd_export(args)
 
 
 def cmd_report(args) -> None:
@@ -180,6 +182,67 @@ def cmd_simulate(args) -> None:
         print(f"Animation written to {gif}")
 
 
+def _payload(args, demo: bool = False) -> dict | None:
+    """The web app's data from local results, or None when there is nothing to show yet."""
+    if demo:
+        return web.demo_payload()
+    windows = args.out_dir / "backtest_windows.csv"
+    if not windows.exists() and not args.ledger.exists():
+        return None
+    read = lambda p: pd.read_csv(p) if p.exists() and p.stat().st_size > 1 else None  # noqa: E731
+    results, by_step, paths = read(windows), read(args.out_dir / "skill_by_step.csv"), read(args.out_dir / "backtest_paths.csv")
+    entries, scored = read(args.ledger), read(args.scored)
+    ids = set()
+    for frame in (paths, entries):
+        if frame is not None:
+            ids |= set(frame["series_id"])
+    specs = [s for s in catalog.CATALOG if s.id in ids]
+    return web.build_payload(args.model, results, by_step, paths, entries, scored, _load(specs, args.data_dir))
+
+
+def cmd_export(args) -> None:
+    """Write the web app's data file from local results (run after backtest/predict/score)."""
+    payload = _payload(args, args.demo)
+    if payload is None:
+        print("No results yet; run `psychohistory run` first (or use --demo).")
+        return
+    path = web.write_data_js(payload, args.out_dir / "web" / "data.js")
+    print(f"App data written to {path}")
+
+
+def cmd_site(args) -> None:
+    """Build the static app (the same one GitHub Pages serves) into a folder."""
+    data_js = args.out_dir / "web" / "data.js"
+    payload = web.demo_payload() if args.demo else None
+    out = web.build_site(args.site_dir, data_js=None if args.demo else data_js, payload=payload)
+    print(f"Site built in {out}/ (open {out / 'app' / 'index.html'})")
+
+
+def cmd_app(args) -> None:
+    """The full local version: refresh the app's data from your own results and open it."""
+    import functools
+    import http.server
+    import threading
+    import webbrowser
+
+    payload = _payload(args, args.demo)
+    out = web.build_site(args.site_dir, payload=payload)
+    if payload is None:
+        print("No local results yet, so the app shows demo data. Run `psychohistory run` for real forecasts.")
+    handler = functools.partial(http.server.SimpleHTTPRequestHandler, directory=str(out))
+    server = http.server.ThreadingHTTPServer(("127.0.0.1", args.port), handler)
+    url = f"http://127.0.0.1:{args.port}/app/"
+    print(f"World Predictor is running at {url}  (Ctrl+C to stop)")
+    if not args.no_browser:
+        threading.Timer(0.5, lambda: webbrowser.open(url)).start()
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        server.server_close()
+
+
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(prog="psychohistory", description=__doc__)
     parser.add_argument("-v", "--verbose", action="store_true")
@@ -230,6 +293,25 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--out-dir", type=Path, default=Path("results"))
     p.add_argument("--seed", type=int, default=0)
     p.set_defaults(func=cmd_simulate)
+
+    p = sub.add_parser("export", help="write the web app's data file (results/web/data.js) from local results")
+    common(p)
+    p.add_argument("--demo", action="store_true", help="write illustrative demo data instead")
+    p.set_defaults(func=cmd_export)
+
+    p = sub.add_parser("site", help="build the static web app (what GitHub Pages serves) into a folder")
+    common(p)
+    p.add_argument("--site-dir", type=Path, default=Path("build/site"))
+    p.add_argument("--demo", action="store_true", help="use illustrative demo data")
+    p.set_defaults(func=cmd_site)
+
+    p = sub.add_parser("app", help="open the World Predictor app on this computer with your own results")
+    common(p)
+    p.add_argument("--site-dir", type=Path, default=Path("build/site"))
+    p.add_argument("--port", type=int, default=8000)
+    p.add_argument("--demo", action="store_true", help="use illustrative demo data")
+    p.add_argument("--no-browser", action="store_true", help="do not open a browser window")
+    p.set_defaults(func=cmd_app)
 
     args = parser.parse_args(argv)
     logging.basicConfig(level=logging.INFO if args.verbose else logging.WARNING, format="%(levelname)s %(message)s")

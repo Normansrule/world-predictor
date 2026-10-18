@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 320" role="img" aria-label="World Predictions: an animated forecast fan chart">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 320" role="img" aria-label="World Predictor: an animated forecast fan chart">
 <style>
   .bg { fill: #1a1a19; }
   .title { font: 700 46px Inter, system-ui, sans-serif; fill: #f0efec; }
@@ -21,7 +21,7 @@
 </style>
 <rect class="bg" width="1200" height="320" rx="16"/>
 <text class="tag" x="48" y="88">PSYCHOHISTORY  ×  GOOGLE TIMESFM</text>
-<text class="title" x="48" y="146">World Predictions</text>
+<text class="title" x="48" y="146">World Predictor</text>
 <text class="sub" x="48" y="190">Can Hari Seldon's math predict the future?</text>
 <text class="sub" x="48" y="218">Testing an AI forecaster on world news, markets</text>
 <text class="sub" x="48" y="246">(stocks, gold, silver) and new technologies.</text>
