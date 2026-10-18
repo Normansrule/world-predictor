@@ -490,3 +490,22 @@ def test_composite_survives_a_missing_member(tmp_path, monkeypatch):
     monkeypatch.setitem(data.SOURCES, "gdelt", unavailable)
     series = data.fetch(composite_spec, tmp_path)
     assert len(series) == 200
+
+
+def test_engine_artwork_is_in_sync(tmp_path):
+    """The landing page's exploded engine and the README diagram come from one drawing."""
+    import shutil
+    import xml.dom.minidom
+
+    from psychohistory import engine_art
+
+    root = Path(__file__).resolve().parents[1]
+    copy = tmp_path / "index.html"
+    shutil.copy(root / "site" / "index.html", copy)
+    assert engine_art.update_site(copy)
+    assert copy.read_text() == (root / "site" / "index.html").read_text(), "run scripts/make_readme_art.py"
+    assert copy.read_text().count('class="explode__layer') == len(engine_art.LAYERS)
+    for theme in engine_art.THEMES:
+        svg = engine_art.readme_svg(theme)
+        xml.dom.minidom.parseString(svg)  # well-formed
+        assert svg == (root / "docs" / "assets" / f"engine-{theme}.svg").read_text()

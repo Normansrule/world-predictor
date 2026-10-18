@@ -85,6 +85,15 @@ Twenty open-source repositories and the modelling theories this project draws on
 
 ## Inspiration
 
+- **Design.** The look and motion were inspired by, and contain no code from: Apple's product pages
+  (exploded-view scrolling), Bartosz Ciechanowski's explorable explanations, Teenage Engineering,
+  Nothing, Framework, Stripe, Linear, Vercel, The Pudding, Reuters Graphics, Our World in Data,
+  Distill, Observable Plot, Metaculus, Polymarket, earth.nullschool.net, Windy, Codrops, Bramus Van
+  Damme's scroll-driven animation demos, Josh W. Comeau, MDN, GSAP ScrollTrigger and Scrollama
+  (patterns only), and the READMEs of Supabase, Excalidraw, tldraw, uv, Rich and VHS via
+  awesome-readme. All fifty are listed with links in [docs/DESIGN.md](docs/DESIGN.md).
+- **Fonts.** Fraunces, Inter and JetBrains Mono, all under the SIL Open Font Licence, served by Google Fonts.
+
 - **World Monitor** by koala73 (AGPL-3.0) <https://github.com/koala73/worldmonitor>, and Alek's fork
   **Terra Atlas** <https://github.com/Normansrule/worldmonitor>. World Predictor borrows their product
   idea: a GitHub Pages web app plus a full downloadable version, built from the same static site and

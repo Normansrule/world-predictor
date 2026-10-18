@@ -20,10 +20,10 @@ ASSETS = ROOT / "docs" / "assets"
 VIEWS = {"overview": 1500, "outlook": 1500, "replay": 1000, "crowd": 1000, "vault": 900}
 
 
-async def shoot(chromium: str | None) -> None:
+async def shoot(chromium: str | None, site: Path) -> None:
     from playwright.async_api import async_playwright
 
-    app = (ROOT / "site" / "app" / "index.html").as_uri()
+    app = (site / "app" / "index.html").resolve().as_uri()
     async with async_playwright() as p:
         browser = await p.chromium.launch(executable_path=chromium) if chromium else await p.chromium.launch()
         for scheme in ("light", "dark"):
@@ -32,10 +32,13 @@ async def shoot(chromium: str | None) -> None:
                 if scheme == "dark" and view != "overview":
                     continue
                 await page.goto(f"{app}#{view}")
-                await page.wait_for_timeout(1200)
+                await page.wait_for_timeout(2400)  # let the charts finish drawing in
                 png = await page.screenshot(clip={"x": 0, "y": 0, "width": 1280, "height": height}, full_page=True)
                 suffix = "" if scheme == "light" else "-dark"
                 Image.open(io.BytesIO(png)).convert("RGB").save(ASSETS / f"app-{view}{suffix}.png", optimize=True)
+                if scheme == "dark" and view == "overview":  # the landing page's tilt-in preview
+                    shot = Image.open(io.BytesIO(png)).convert("RGB").crop((0, 0, 1280, 800))
+                    shot.save(ROOT / "site" / "assets" / "app-preview.png", optimize=True)
             await page.close()
         # Animated replay: step the slider through every past forecast.
         page = await browser.new_page(viewport={"width": 1100, "height": 900})
@@ -58,7 +61,10 @@ async def shoot(chromium: str | None) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--chromium", help="path to a Chromium/Chrome executable")
-    asyncio.run(shoot(parser.parse_args().chromium))
+    parser.add_argument("--site", type=Path, default=ROOT / "site",
+                        help="built site to photograph, e.g. build/site after `psychohistory site` (default: site/, demo data)")
+    args = parser.parse_args()
+    asyncio.run(shoot(args.chromium, args.site))
     print(f"Wrote app screenshots to {ASSETS}")
 
 

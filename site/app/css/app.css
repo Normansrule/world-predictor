@@ -1,22 +1,30 @@
 /* World Predictor app. One stylesheet, no framework. Light and dark themes share tokens. */
+/* "Vault" palette: the night archive of the Foundation's Encyclopedia. Deep ink, a brass forecast
+   colour, and a cool cyan for what really happened. Light mode is the printed page. */
 :root {
-  --bg: #fcfcfb; --surface: #ffffff; --surface-2: #f3f2ee; --text: #0b0b0b; --muted: #52514e;
-  --line: #e4e3df; --blue: #2a78d6; --orange: #eb6834; --green: #1baf7a; --amber: #eda100;
-  --band: rgba(235, 104, 52, .2); --shadow: 0 1px 2px rgba(0,0,0,.04), 0 4px 16px rgba(0,0,0,.04);
-  --radius: 14px; --font: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --bg: #f5f2ea; --surface: #fffdf8; --surface-2: #ece7dc; --text: #12141b; --muted: #555a66;
+  --line: #ddd6c8; --blue: #1d6f8f; --orange: #c06a12; --green: #1f8a63; --amber: #b8860b; --coral: #c4473a;
+  --band: rgba(192, 106, 18, .18); --glow: rgba(192, 106, 18, .12); --shadow: 0 1px 2px rgba(20,20,30,.05), 0 8px 30px rgba(20,20,30,.06);
+  --radius: 16px;
+  --font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --display: "Fraunces", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --ease: cubic-bezier(.22, 1, .36, 1);
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #121211; --surface: #1a1a19; --surface-2: #23231f; --text: #f0efec; --muted: #b5b4ab;
-    --line: #34342f; --blue: #4a93ea; --orange: #ef7a4b; --green: #2cc28c; --amber: #f2b632;
-    --band: rgba(239, 122, 75, .24); --shadow: none; color-scheme: dark;
+    --bg: #070b14; --surface: #0e1524; --surface-2: #142036; --text: #edf1f7; --muted: #9aa9bf;
+    --line: #22314b; --blue: #6fd3e6; --orange: #f2b54a; --green: #5fd3a0; --amber: #f2b54a; --coral: #f07a63;
+    --band: rgba(242, 181, 74, .2); --glow: rgba(242, 181, 74, .16); --shadow: 0 0 0 1px rgba(111, 211, 230, .04), 0 18px 50px rgba(0, 0, 0, .35);
+    color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #121211; --surface: #1a1a19; --surface-2: #23231f; --text: #f0efec; --muted: #b5b4ab;
-  --line: #34342f; --blue: #4a93ea; --orange: #ef7a4b; --green: #2cc28c; --amber: #f2b632;
-  --band: rgba(239, 122, 75, .24); --shadow: none; color-scheme: dark;
+  --bg: #070b14; --surface: #0e1524; --surface-2: #142036; --text: #edf1f7; --muted: #9aa9bf;
+  --line: #22314b; --blue: #6fd3e6; --orange: #f2b54a; --green: #5fd3a0; --amber: #f2b54a; --coral: #f07a63;
+  --band: rgba(242, 181, 74, .2); --glow: rgba(242, 181, 74, .16); --shadow: 0 0 0 1px rgba(111, 211, 230, .04), 0 18px 50px rgba(0, 0, 0, .35);
+  color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
@@ -46,13 +54,19 @@ main { max-width: 1180px; margin: 0 auto; padding: 24px 16px 64px; }
 @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .view { animation: none; } }
 
-h1 { font-size: clamp(26px, 4vw, 40px); line-height: 1.15; margin: 0 0 8px; letter-spacing: -.01em; }
-h2 { font-size: 20px; margin: 0 0 4px; }
+h1 { font: 600 clamp(30px, 4.6vw, 48px)/1.08 var(--display); margin: 0 0 10px; letter-spacing: -.02em; font-optical-sizing: auto; }
+h2 { font: 600 21px/1.25 var(--display); margin: 0 0 4px; letter-spacing: -.01em; }
 .lede { color: var(--muted); max-width: 72ch; margin: 0 0 24px; font-size: 17px; }
 .caption { color: var(--muted); font-size: 14px; margin: 0 0 12px; max-width: 80ch; }
 .source { color: var(--muted); font-size: 12px; margin-top: 8px; }
 
-.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); margin-bottom: 20px; }
+.card { position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); margin-bottom: 20px;
+  transition: border-color .3s var(--ease), transform .3s var(--ease); }
+/* A soft light follows the pointer across a card (set by app.js), the way an archive lamp would. */
+.card::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .3s;
+  background: radial-gradient(380px circle at var(--mx, 50%) var(--my, 50%), var(--glow), transparent 65%); }
+.card:hover { border-color: color-mix(in srgb, var(--orange) 35%, var(--line)); }
+.card:hover::after { opacity: 1; }
 .grid { display: grid; gap: 16px; }
 .grid.three { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
 .grid.outlook { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
@@ -63,13 +77,13 @@ h2 { font-size: 20px; margin: 0 0 4px; }
 /* Scoreboard tiles */
 .tile { position: relative; overflow: hidden; }
 .tile .name { font-weight: 600; font-size: 17px; }
-.tile .big { font-size: 52px; font-weight: 700; line-height: 1.1; margin: 10px 0 2px; font-variant-numeric: tabular-nums; }
-.tile .big.good { color: var(--blue); } .tile .big.bad { color: var(--orange); } .tile .big.none { color: var(--muted); }
+.tile .big { font: 600 56px/1.05 var(--display); margin: 10px 0 2px; font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+.tile .big.good { color: var(--blue); } .tile .big.bad { color: var(--coral); } .tile .big.none { color: var(--muted); }
 .tile .cap { color: var(--muted); font-size: 14px; margin-bottom: 14px; }
 .tile dl { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; margin: 0; font-size: 14px; }
 .tile dt { color: var(--muted); } .tile dd { margin: 0; font-weight: 600; text-align: right; }
 
-.plain { border-left: 4px solid var(--blue); }
+.plain { border-left: 3px solid var(--orange); background: linear-gradient(90deg, var(--glow), var(--surface) 40%); }
 .plain ul { margin: 8px 0 0; padding-left: 20px; } .plain li { margin: 6px 0; }
 
 /* Controls */
@@ -79,8 +93,8 @@ h2 { font-size: 20px; margin: 0 0 4px; }
 .chip { border: 1px solid var(--line); background: transparent; border-radius: 999px; padding: 4px 12px; cursor: pointer; font-size: 14px; color: var(--muted); }
 .chip[aria-pressed="true"] { background: var(--text); color: var(--bg); border-color: var(--text); }
 input[type="range"] { flex: 1; min-width: 160px; accent-color: var(--blue); }
-.readout { font-variant-numeric: tabular-nums; color: var(--muted); font-size: 14px; }
-.stat { font-size: 40px; font-weight: 700; color: var(--blue); font-variant-numeric: tabular-nums; line-height: 1; }
+.readout { font-family: var(--mono); font-variant-numeric: tabular-nums; color: var(--muted); font-size: 13px; }
+.stat { font: 600 42px/1 var(--display); color: var(--blue); font-variant-numeric: tabular-nums; }
 
 /* Charts */
 .chart { width: 100%; position: relative; }
@@ -121,3 +135,29 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 1
   .tile .big { font-size: 44px; }
   .card { padding: 16px; }
 }
+
+/* Body type, numbers and the top bar get the archive look. */
+body { font-feature-settings: "ss01", "cv11"; }
+.brand { font: 600 19px/1 var(--display); letter-spacing: -.01em; }
+.tabs a[aria-current="page"] { background: color-mix(in srgb, var(--orange) 16%, transparent); color: var(--text);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--orange) 45%, transparent); }
+.btn.primary, .chip[aria-pressed="true"] { background: var(--orange); border-color: var(--orange); color: #14100a; }
+table, .tile dd, .mini .odds b { font-family: var(--mono); font-size: 13px; }
+main::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(900px 500px at 85% -10%, var(--glow), transparent 70%),
+              radial-gradient(700px 400px at -10% 110%, color-mix(in srgb, var(--blue) 10%, transparent), transparent 70%); }
+
+/* Charts draw themselves once, then stay still: lines trace in, forecast ranges fade in after,
+   and bars grow from zero. The future is hatched so it never looks like the past. */
+.chart .draw { stroke-dasharray: 1; stroke-dashoffset: 1; animation: wp-draw 1.4s var(--ease) forwards; }
+.chart .fade { opacity: 0; animation: wp-fade .8s .5s var(--ease) forwards; }
+.chart .grow { transform-box: view-box; transform: scaleY(0); animation: wp-grow .9s var(--ease) forwards; animation-delay: calc(var(--k, 0) * 60ms); }
+.chart .hatch line { stroke: var(--orange); stroke-width: 1; opacity: .35; }
+@keyframes wp-draw { to { stroke-dashoffset: 0; } }
+@keyframes wp-fade { to { opacity: 1; } }
+@keyframes wp-grow { to { transform: scaleY(1); } }
+@media (prefers-reduced-motion: reduce) {
+  .chart .draw, .chart .fade, .chart .grow { animation: none; stroke-dashoffset: 0; opacity: 1; transform: none; }
+  .card, .card::after { transition: none; }
+}
+@media (max-width: 1400px) { .brand small { display: none; } }

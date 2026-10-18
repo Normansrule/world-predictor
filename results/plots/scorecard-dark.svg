@@ -24,8 +24,8 @@
 <g transform="translate(420,0)">
   <rect x="0" y="62" width="350" height="208" rx="12" class="card"/>
   <text x="22" y="98" class="name">📈  Markets</text>
-  <text x="22" y="160" class="big" style="fill:#3987e5">+1%</text>
-  <text x="22" y="186" class="cap">less error than the simple guess</text>
+  <text x="22" y="160" class="big" style="fill:#c3c2b7">+1%</text>
+  <text x="22" y="186" class="cap">about the same error as the simple guess</text>
   <text x="22" y="222" class="k">Sees ahead</text><text x="328" y="222" class="v" text-anchor="end">no edge at any distance</text>
   <text x="22" y="250" class="k">Right direction</text><text x="328" y="250" class="v" text-anchor="end">52% of the time</text>
 </g>

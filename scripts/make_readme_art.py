@@ -7,6 +7,7 @@
 * how-to-read.svg - labelled anatomy of a fan chart, for readers new to forecasts.
 * seldon-crowd.gif - the toy crowd simulation (psychohistory.simulate), animated.
 * progress-*.svg and the README checklist, from docs/progress.json.
+* engine-*.svg (the exploded forecast engine) and the same layers inside site/index.html.
 * placeholder scoreboard (results/plots/scorecard-*.svg) and charts in results/plots/ until the first real run replaces them.
 """
 
@@ -204,6 +205,10 @@ def main() -> None:
     from psychohistory.progress import write_all
 
     write_all()  # progress bars and the README checklist, from docs/progress.json
+    from psychohistory import engine_art
+
+    engine_art.write_readme_art(ASSETS)  # the exploded engine, drawn once for the README ...
+    engine_art.update_site(ROOT / "site" / "index.html")  # ... and once for the landing page
     print(f"Wrote artwork to {ASSETS} and placeholders to {plots}")
 
 
