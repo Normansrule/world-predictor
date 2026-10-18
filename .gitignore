@@ -6,5 +6,4 @@ __pycache__/
 build/
 dist/
 # Raw downloaded data: re-fetched on demand, not redistributed (see CREDITS.md).
-data/
-build/
+/data/
