@@ -1,19 +1,25 @@
 {
- "run_id": "39167032840",
+ "run_id": "39245515894",
  "recorded": "Rebuilt on 2026-10-19 from this run's outputs: the run predates run_status.json. Reasons come from reading the run log on 2026-10-18; both were fixed in commit 633e744 and the next weekly run retries every series.",
  "stages": {
   "predict": {
-   "at": "2026-10-18T21:25:29Z",
+   "at": "2026-10-19T11:57:19Z",
    "ok": [
     "aapl",
+    "adoption_internet",
+    "adoption_solar",
+    "adoption_wind",
     "bitcoin",
     "copper",
     "gold",
     "msci_world",
     "nasdaq100",
+    "news_climate",
+    "news_composite",
     "news_election",
     "news_inflation",
     "news_pandemic",
+    "news_protest",
     "nvda",
     "oil_wti",
     "silver",
@@ -30,13 +36,7 @@
     "xom"
    ],
    "skipped": {
-    "news_war": "GDELT rate limit (HTTP 429) or an empty reply",
-    "news_climate": "GDELT rate limit (HTTP 429) or an empty reply",
-    "news_protest": "GDELT rate limit (HTTP 429) or an empty reply",
-    "news_composite": "composite: its GDELT members were missing",
-    "adoption_solar": "OWID renamed its CSV columns (KeyError: 'Entity')",
-    "adoption_wind": "OWID renamed its CSV columns (KeyError: 'Entity')",
-    "adoption_internet": "OWID renamed its CSV columns (KeyError: 'Entity')"
+    "news_war": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22war%22&mode=timelinevol&format=json&STARTDATETIME=20170101000000&ENDDATETIME=20261019115247&TIMELINESMOOTH=0"
    }
   },
   "backtest": {
@@ -74,6 +74,43 @@
     "adoption_solar": "OWID renamed its CSV columns (KeyError: 'Entity')",
     "adoption_wind": "OWID renamed its CSV columns (KeyError: 'Entity')",
     "adoption_internet": "OWID renamed its CSV columns (KeyError: 'Entity')"
+   }
+  },
+  "fetch": {
+   "at": "2026-10-19T11:52:47Z",
+   "ok": [
+    "aapl",
+    "adoption_internet",
+    "adoption_solar",
+    "adoption_wind",
+    "bitcoin",
+    "copper",
+    "gold",
+    "msci_world",
+    "nasdaq100",
+    "news_climate",
+    "news_composite",
+    "news_election",
+    "news_inflation",
+    "news_pandemic",
+    "nvda",
+    "oil_wti",
+    "silver",
+    "sp500",
+    "tech_composite",
+    "tsla",
+    "wiki_ai",
+    "wiki_crispr",
+    "wiki_ev",
+    "wiki_fusion",
+    "wiki_humanoid",
+    "wiki_llm",
+    "wiki_quantum",
+    "xom"
+   ],
+   "skipped": {
+    "news_protest": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%28protest+OR+protests%29&mode=timelinevol&format=json&STARTDATETIME=20170101000000&ENDDATETIME=20261019114208&TIMELINESMOOTH=0",
+    "news_war": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22war%22&mode=timelinevol&format=json&STARTDATETIME=20170101000000&ENDDATETIME=20261019113457&TIMELINESMOOTH=0"
    }
   }
  }

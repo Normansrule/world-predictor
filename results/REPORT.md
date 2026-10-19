@@ -1,6 +1,6 @@
 # World Predictor: Seldon scorecard
 
-_Generated 2026-10-18 with model `timesfm-2.5`. Skill = 1 - MAE(model) / MAE(naive random walk); positive is better than naive. Coverage80 should be close to 0.80 for an honest forecaster. Brier scores the probability of going up (0.25 = coin flip, lower is better). See docs/METHODOLOGY.md._
+_Generated 2026-10-19 with model `timesfm-2.5`. Skill = 1 - MAE(model) / MAE(naive random walk); positive is better than naive. Coverage80 should be close to 0.80 for an honest forecaster. Brier scores the probability of going up (0.25 = coin flip, lower is better). See docs/METHODOLOGY.md._
 
 ## In plain English
 
@@ -87,7 +87,20 @@ Backtest windows where most actual values fell outside the model's 80% band.
 
 _Predictions are sealed with a date before the future happens and opened when it arrives. The left line should settle near 80%; the right line should sit below the coin-flip line._
 
-_No ledger predictions have reached their target dates yet._
+| domain   | model        |   series |   predictions |   median_skill |   direction |   coverage80 |   brier |
+|:---------|:-------------|---------:|--------------:|---------------:|------------:|-------------:|--------:|
+| markets  | auto-ets     |        5 |             5 |          0.000 |       0.600 |        1.000 |   0.249 |
+| markets  | chronos-bolt |        5 |             5 |         -0.112 |       0.600 |        1.000 |   0.271 |
+| markets  | ensemble     |        5 |             5 |          0.025 |       0.600 |        1.000 |   0.243 |
+| markets  | timesfm-2.5  |        5 |             5 |          0.141 |       0.800 |        1.000 |   0.224 |
+| news     | auto-ets     |        3 |             3 |          0.007 |       0.667 |        1.000 |   0.211 |
+| news     | chronos-bolt |        3 |             3 |          0.022 |       0.667 |        0.667 |   0.316 |
+| news     | ensemble     |        3 |             3 |          0.009 |       0.667 |        0.667 |   0.295 |
+| news     | timesfm-2.5  |        3 |             3 |         -0.372 |       0.333 |        0.667 |   0.401 |
+| tech     | auto-ets     |        8 |            24 |         -0.065 |       0.417 |        0.875 |   0.250 |
+| tech     | chronos-bolt |        8 |            24 |          0.654 |       0.750 |        0.875 |   0.160 |
+| tech     | ensemble     |        8 |            24 |          0.455 |       0.750 |        0.917 |   0.156 |
+| tech     | timesfm-2.5  |        8 |            24 |          0.643 |       0.750 |        0.833 |   0.160 |
 
 ## 5. How far ahead can it see?
 
@@ -161,27 +174,33 @@ Latest forecasts recorded in the ledger (made with data up to each series' last 
 
 | series         |   last | target date   | median   | chance higher   | range (10%-90%)   |
 |:---------------|-------:|:--------------|:---------|:----------------|:------------------|
-| news_election  |  6.44  | 2026-11-15    | -20.2%   | 21%             | -38.8% to +18.2%  |
-| news_inflation |  2.001 | 2026-11-15    | +1.2%    | 52%             | -21.2% to +31.9%  |
-| news_pandemic  |  1.511 | 2026-11-15    | +5.1%    | 66%             | -10.6% to +27.4%  |
+| news_climate   |  0.83  | 2026-11-16    | +4.9%    | 59%             | -20.3% to +45.4%  |
+| news_composite |  1.173 | 2026-11-16    | -25.8%   | 5%              | -36.3% to -7.7%   |
+| news_election  |  7.01  | 2026-11-16    | -25.0%   | 18%             | -43.4% to +13.9%  |
+| news_inflation |  2.454 | 2026-11-16    | -20.4%   | 17%             | -40.1% to +7.7%   |
+| news_pandemic  |  1.64  | 2026-11-16    | -3.6%    | 38%             | -17.8% to +16.9%  |
+| news_protest   |  4.514 | 2026-11-16    | -52.7%   | 5%              | -65.0% to -23.8%  |
 
+![news_climate](plots/news_climate.png)
+![news_composite](plots/news_composite.png)
 ![news_election](plots/news_election.png)
 ![news_inflation](plots/news_inflation.png)
 ![news_pandemic](plots/news_pandemic.png)
+![news_protest](plots/news_protest.png)
 
 ### Stock and value markets
 
 | series     |      last | target date   | median   | chance higher   | range (10%-90%)   |
 |:-----------|----------:|:--------------|:---------|:----------------|:------------------|
 | aapl       |   343.46  | 2026-11-16    | +0.8%    | 56%             | -6.1% to +6.7%    |
-| bitcoin    | 80965     | 2026-11-15    | -1.2%    | 46%             | -17.0% to +15.5%  |
-| copper     |     6.574 | 2026-11-16    | +0.3%    | 52%             | -7.5% to +5.3%    |
-| gold       |  4181.1   | 2026-11-16    | +0.2%    | 52%             | -6.7% to +9.3%    |
+| bitcoin    | 82300     | 2026-11-16    | +0.0%    | 50%             | -15.2% to +16.3%  |
+| copper     |     6.576 | 2026-11-17    | +0.1%    | 51%             | -7.4% to +4.5%    |
+| gold       |  4190.1   | 2026-11-17    | -0.0%    | 50%             | -7.3% to +8.9%    |
 | msci_world |   206.34  | 2026-11-16    | +1.7%    | 73%             | -1.9% to +4.0%    |
 | nasdaq100  | 29187.6   | 2026-11-16    | +2.0%    | 64%             | -5.7% to +7.9%    |
 | nvda       |   214.13  | 2026-11-16    | -0.2%    | 49%             | -12.3% to +11.1%  |
-| oil_wti    |    99.02  | 2026-11-16    | -3.8%    | 36%             | -18.4% to +11.2%  |
-| silver     |    57.305 | 2026-11-16    | -0.3%    | 49%             | -12.7% to +17.2%  |
+| oil_wti    |    98.19  | 2026-11-17    | -4.7%    | 33%             | -18.8% to +10.5%  |
+| silver     |    57.76  | 2026-11-17    | -0.2%    | 49%             | -12.7% to +17.9%  |
 | sp500      |  7659.44  | 2026-11-16    | +1.5%    | 71%             | -2.2% to +4.0%    |
 | tsla       |   354.72  | 2026-11-16    | -0.7%    | 48%             | -18.5% to +17.6%  |
 | xom        |   178.98  | 2026-11-16    | +0.8%    | 53%             | -9.7% to +13.0%   |
@@ -201,17 +220,23 @@ Latest forecasts recorded in the ledger (made with data up to each series' last 
 
 ### New technologies
 
-| series         |      last | target date   | median   | chance higher   | range (10%-90%)   |
-|:---------------|----------:|:--------------|:---------|:----------------|:------------------|
-| tech_composite |     0.859 | 2026-11-12    | -1.2%    | 44%             | -11.2% to +13.2%  |
-| wiki_ai        | 18048     | 2026-11-12    | -10.3%   | 27%             | -28.3% to +16.1%  |
-| wiki_crispr    |  1000     | 2026-11-12    | -17.5%   | 5%              | -29.2% to -1.8%   |
-| wiki_ev        |   435     | 2026-11-12    | +0.8%    | 52%             | -13.5% to +21.6%  |
-| wiki_fusion    |   577     | 2026-11-12    | +11.5%   | 77%             | -8.0% to +41.4%   |
-| wiki_humanoid  |   276     | 2026-11-12    | +15.2%   | 82%             | -5.3% to +48.1%   |
-| wiki_llm       |  4210     | 2026-11-12    | -6.3%    | 23%             | -16.0% to +6.6%   |
-| wiki_quantum   |  2155     | 2026-11-12    | -10.6%   | 27%             | -24.7% to +17.2%  |
+| series            |      last | target date   | median   | chance higher   | range (10%-90%)   |
+|:------------------|----------:|:--------------|:---------|:----------------|:------------------|
+| adoption_internet |    73.6   | 2028-01-01    | +5.8%    | 79%             | -2.9% to +19.5%   |
+| adoption_solar    |     8.745 | 2028-01-01    | +49.5%   | 95%             | +15.3% to +94.2%  |
+| adoption_wind     |     8.539 | 2028-01-01    | +6.9%    | 73%             | -9.3% to +22.4%   |
+| tech_composite    |     0.622 | 2026-11-15    | +9.1%    | 84%             | -1.9% to +25.8%   |
+| wiki_ai           | 11974     | 2026-11-15    | -0.4%    | 49%             | -19.4% to +31.3%  |
+| wiki_crispr       |   673     | 2026-11-15    | -1.0%    | 47%             | -15.0% to +19.2%  |
+| wiki_ev           |   396     | 2026-11-15    | -3.0%    | 39%             | -17.3% to +18.2%  |
+| wiki_fusion       |   471     | 2026-11-15    | +11.6%   | 75%             | -9.4% to +45.9%   |
+| wiki_humanoid     |   233     | 2026-11-15    | +22.0%   | 90%             | -0.1% to +60.7%   |
+| wiki_llm          |  2942     | 2026-11-15    | +0.4%    | 52%             | -10.3% to +16.8%  |
+| wiki_quantum      |  1322     | 2026-11-15    | +12.0%   | 79%             | -5.2% to +47.6%   |
 
+![adoption_internet](plots/adoption_internet.png)
+![adoption_solar](plots/adoption_solar.png)
+![adoption_wind](plots/adoption_wind.png)
 ![tech_composite](plots/tech_composite.png)
 ![wiki_ai](plots/wiki_ai.png)
 ![wiki_crispr](plots/wiki_crispr.png)
