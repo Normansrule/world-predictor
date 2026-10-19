@@ -8,14 +8,23 @@ for the product itself (one static site served by GitHub Pages and shipped as a 
 [Terra Atlas](https://github.com/Normansrule/worldmonitor), whose level of polish this aims to match.
 They are AGPL-3.0; only ideas were borrowed.
 
-## The look: "the vault"
+## The look: "the observatory"
 
-The palette is the night archive of the Foundation's Encyclopedia: deep ink (`#070b14`), brass gold
-for forecasts (`#f2b54a`), cool cyan for what really happened (`#6fd3e6`), and green for a hit. Light
-mode is the printed page (`#f5f2ea`). Headings are set in [Fraunces](https://fonts.google.com/specimen/Fraunces),
-a literary serif in the spirit of Stripe Press; text in [Inter](https://rsms.me/inter/); dates and
-numbers in [JetBrains Mono](https://www.jetbrains.com/lp/mono/). All three are SIL Open Font Licence
-fonts, and every page falls back to system fonts offline.
+Midnight navy surfaces (`#060a16`) with warm-white text (`#f2ede3`), and one colour per meaning, each
+also carried by a word or a pattern so nothing depends on colour alone:
+
+| Meaning | Dark | Light | Also shown by |
+|---|---|---|---|
+| Observed values | `#f2ede3` | `#0d1424` | solid lines, the word "Observed" |
+| Forecasts | `#5fd4e6` | `#0a7c93` | diagonal hatching over the future, "Forecast, not a fact" |
+| Warnings and gaps | `#f3b13c` | `#9a5b00` | hatched cells, "!", "No output" |
+| Simulated or hypothetical | `#a98bff` | `#6a4bd1` | "◇ Simulation" label |
+| Better / worse than the simple guess | `#5fd4e6` / `#f07a63` | `#0a7c93` / `#c03d31` | the sign of the number |
+
+This replaced the first "vault" palette, whose brass forecast colour would have been mistaken for an
+amber warning. Headings are set in [Fraunces](https://fonts.google.com/specimen/Fraunces); text in
+[Inter](https://rsms.me/inter/); dates and numbers in [JetBrains Mono](https://www.jetbrains.com/lp/mono/).
+All three are SIL Open Font Licence fonts, and every page falls back to system fonts offline.
 
 ## What was built from these references
 
@@ -122,3 +131,34 @@ which is how the progress bars here are made.
 
 Links were checked on 18 October 2026. Reuters Graphics could not be loaded from the checking
 environment and is listed as its long-standing address.
+
+## The observatory brief: twenty reference projects
+
+In October 2026 Alek shared a brief asking for an "interactive observatory" in which any result can be
+followed back through the pipeline to its sources. These twenty projects were studied for that
+brief. None is a dependency and no code was copied from any of them; OWID Grapher in particular is
+study-only under its current terms. The links are as given in the brief; they could not be re-opened
+from the build environment, which blocks github.com pages.
+
+| # | Project | Idea taken | Where it shows up |
+|---|---|---|---|
+| 1 | [koala73/worldmonitor](https://github.com/koala73/worldmonitor) | Connected panels around one overview | Pipeline, chart and drawer move together in *Follow one result* |
+| 2 | [Metaculus/metaculus](https://github.com/Metaculus/metaculus) | Questions with resolution dates and scoring | Each forecast shows when it was sealed and when it opens |
+| 3 | [cambecc/earth](https://github.com/cambecc/earth) | Motion that encodes a quantity | The only moving line in the explorer marks data being handed on |
+| 4 | [keplergl/kepler.gl](https://github.com/keplergl/kepler.gl) | Layers you can switch on one at a time | Chart layers appear stage by stage |
+| 5 | [visgl/deck.gl](https://github.com/visgl/deck.gl) | GPU layers for big geographic data | Not used: no series here is tied to a place |
+| 6 | [maplibre/maplibre-gl-js](https://github.com/maplibre/maplibre-gl-js) | A plain 2D map beside any globe | Not used, for the same reason |
+| 7 | [vasturiano/globe.gl](https://github.com/vasturiano/globe.gl) | Every visual layer stands for a defined quantity | Applied as a rule: no decorative globe |
+| 8 | [xyflow/xyflow](https://github.com/xyflow/xyflow) | Clickable node-and-edge diagrams | The pipeline explorer (hand-written SVG) |
+| 9 | [owid/owid-grapher](https://github.com/owid/owid-grapher) | Sources one click from every chart | "Check it at the source" on every record; study only |
+| 10 | [grafana/grafana](https://github.com/grafana/grafana) | Keep system health apart from results | The coverage table is separate from the scores |
+| 11 | [d3/d3](https://github.com/d3/d3) | Bespoke data-bound SVG | The app's own small chart kit, `charts.js` |
+| 12 | [apache/echarts](https://github.com/apache/echarts) | Coordinated views | Clicking the chart selects the matching record and stage |
+| 13 | [observablehq/plot](https://github.com/observablehq/plot) | Layered marks, small multiples | Backtest windows drawn as dots against the 80% target |
+| 14 | [mesa/mesa](https://github.com/mesa/mesa) | Agent-based models, honestly labelled | The Crowd lab is marked as a simulation with synthetic people |
+| 15 | [bbycroft/llm-viz](https://github.com/bbycroft/llm-viz) | Guided, step-by-step computation | The walkthrough; it shows TimesFM's inputs and outputs, never invented internals |
+| 16 | [motion-canvas/motion-canvas](https://github.com/motion-canvas/motion-canvas) | Reproducible scripted walkthroughs | `docs/assets/app-trace.gif`, recorded from the app by `scripts/make_app_screenshots.py` |
+| 17 | [motiondivision/motion](https://github.com/motiondivision/motion) | Transitions that keep context | View Transitions between app sections |
+| 18 | [shadcn-ui/ui](https://github.com/shadcn-ui/ui) | Calm, consistent controls | Player buttons, selects and flags share one style |
+| 19 | [withastro/starlight](https://github.com/withastro/starlight) | Progressive detail in docs | `docs/ARCHITECTURE.md`, generated from the code |
+| 20 | [magicuidesign/magicui](https://github.com/magicuidesign/magicui) | Small accents, used sparingly | One pulsing ring on the selected point, off under reduced motion |

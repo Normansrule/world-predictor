@@ -6,7 +6,7 @@
   const $ = (id) => document.getElementById(id);
   const DOMAINS = [["news", "📰", "World news"], ["markets", "📈", "Markets"], ["tech", "🚀", "Technology"]];
   const UNIT = { news: "days", markets: "trading days", tech: "days" };
-  const COLORS = ["var(--blue)", "var(--orange)", "var(--green)", "var(--amber)"];
+  const COLORS = ["var(--forecast)", "var(--cat2)", "var(--cat3)", "var(--cat4)"];
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
   if (!D) {
@@ -29,7 +29,7 @@
       "Real TimesFM forecasts replace them after the first weekly run.</div>";
   }
   $("footer").innerHTML = `World Predictor ${esc(D.meta.version)} · model <b>${esc(model)}</b> · data generated ${esc(D.meta.generated)} · ` +
-    `<a href="${esc(D.meta.repo)}">source</a> · Apache-2.0 · Not financial advice.`;
+    `<a href="${esc(D.meta.repo)}">source</a> · Maintained by <a href="https://github.com/Normansrule">@Normansrule</a> · Apache-2.0 · Not financial advice.`;
   $("repo-link").href = D.meta.repo;
 
   // ---------- views ----------
@@ -73,13 +73,13 @@
       const draw = (i) => {
         const f = R.forecasts[i], origin = Date.parse(f.origin);
         const seen = R.history.filter((p) => Date.parse(p[0]) <= origin);
-        const ghosts = R.forecasts.slice(0, i).map((g) => ({ points: g.path.map((p) => [p[0], p[2]]), color: "var(--orange)", width: 1, opacity: 0.25 }));
+        const ghosts = R.forecasts.slice(0, i).map((g) => ({ points: g.path.map((p) => [p[0], p[2]]), color: "var(--forecast)", width: 1, opacity: 0.25 }));
         const inside = f.path.filter((p) => p[4] !== null && p[4] >= p[1] && p[4] <= p[3]).length / Math.max(1, f.path.filter((p) => p[4] !== null).length);
         plot($("replay-chart"), {
           x: "date", xDomain, label: "Replay of past forecasts",
           yDomain: padDomain(R.history.map((p) => p[1]).concat(R.forecasts.flatMap((g) => g.path.flatMap((p) => [p[1], p[3]])))),
           bands: [{ points: f.path.map((p) => [p[0], p[1], p[3]]) }],
-          lines: [{ points: seen, color: "var(--blue)", name: "seen" }, ...ghosts, { points: f.path.map((p) => [p[0], p[2]]), color: "var(--orange)", width: 2.5, name: "guess" }],
+          lines: [{ points: seen, color: "var(--observed)", name: "seen" }, ...ghosts, { points: f.path.map((p) => [p[0], p[2]]), color: "var(--forecast)", width: 2.5, name: "guess" }],
           dots: [{ points: f.path.map((p) => [p[0], p[4]]), color: "var(--text)", r: 3, name: "actual" }],
           refs: [{ x: f.origin, label: "forecast made" }],
         });
@@ -98,8 +98,8 @@
       slider.oninput = () => { stop(); draw(+slider.value); };
       draw(+slider.value || 0);
       $("replay-legend").innerHTML = "";
-      legend($("replay-legend"), [{ name: "What it could see", color: "var(--blue)" }, { name: "Its 80% range", color: "var(--orange)", kind: "band" },
-        { name: "Its best guess", color: "var(--orange)" }, { name: "What really happened", color: "var(--text)", kind: "dot" }]);
+      legend($("replay-legend"), [{ name: "What it could see", color: "var(--observed)" }, { name: "Its 80% range", color: "var(--forecast)", kind: "band" },
+        { name: "Its best guess", color: "var(--forecast)" }, { name: "What really happened", color: "var(--text)", kind: "dot" }]);
     },
 
     outlook() {
@@ -115,7 +115,7 @@
         shown.forEach((o, i) => plot($("mini-" + i), {
           x: "date", height: 170, left: 44, hover: true, label: o.title,
           bands: [{ points: o.fan.map((p) => [p[0], p[1], p[3]]) }],
-          lines: [{ points: o.history, color: "var(--blue)", width: 1.6, name: "value" }, { points: o.fan.map((p) => [p[0], p[2]]), color: "var(--orange)", name: "guess" }],
+          lines: [{ points: o.history, color: "var(--observed)", width: 1.6, name: "value" }, { points: o.fan.map((p) => [p[0], p[2]]), color: "var(--forecast)", name: "guess" }],
           refs: [{ x: o.history[o.history.length - 1][0] }],
         }));
       };
@@ -154,11 +154,11 @@
         $("vault-inside").innerHTML = $("vault-brier").innerHTML = '<div class="empty">The vault opens as the first sealed predictions come due.</div>';
         return;
       }
-      plot($("vault-inside"), { x: "date", yDomain: [0, 1], yFormat: fmt.pct, lines: [{ points: V.map((r) => [r.date, r.inside80]), color: "var(--blue)", name: "inside" }],
-        refs: [{ y: 0.8, label: "target 80%", color: "var(--orange)" }], height: 260 });
+      plot($("vault-inside"), { x: "date", yDomain: [0, 1], yFormat: fmt.pct, lines: [{ points: V.map((r) => [r.date, r.inside80]), color: "var(--accent)", name: "inside" }],
+        refs: [{ y: 0.8, label: "target 80%", color: "var(--muted)" }], height: 260 });
       plot($("vault-brier"), { x: "date", yDomain: [0, Math.max(0.4, ...V.map((r) => r.brier || 0))], yFormat: (v) => v.toFixed(2),
-        lines: [{ points: V.map((r) => [r.date, r.brier]), color: "var(--blue)", name: "score" }],
-        refs: [{ y: 0.25, label: "coin flip", color: "var(--orange)" }], height: 260 });
+        lines: [{ points: V.map((r) => [r.date, r.brier]), color: "var(--accent)", name: "score" }],
+        refs: [{ y: 0.25, label: "coin flip", color: "var(--muted)" }], height: 260 });
       const last = V[V.length - 1];
       $("vault-note").textContent = `${last.opened.toLocaleString()} sealed predictions opened so far. ` +
         `${fmt.pct(last.inside80)} landed inside the 80% range; odds score ${last.brier.toFixed(3)} (coin flip 0.250).`;
@@ -173,8 +173,8 @@
         const people = C.people.slice(0, Math.min(n, 12)).map((p) => ({ points: p.map((v, k) => [t[k], v]), color: "var(--muted)", width: 0.8, opacity: 0.25 }));
         plot($("crowd-chart"), {
           x: "num", yDomain: [-span, span], xFormat: () => "", hover: false, label: "Crowd simulation",
-          lines: [...people, { points: C.averages[String(n)].map((v, k) => [t[k], v]), color: "var(--blue)", width: 2.4 },
-            { points: C.tide.map((v, k) => [t[k], v]), color: "var(--orange)", width: 2, dash: "6 4" }],
+          lines: [...people, { points: C.averages[String(n)].map((v, k) => [t[k], v]), color: "var(--hypo)", width: 2.4 },
+            { points: C.tide.map((v, k) => [t[k], v]), color: "var(--text)", width: 2, dash: "6 4" }],
         });
         const share = C.share[String(n)];
         $("crowd-share").textContent = share > 0.99 ? ">99%" : Math.round(share * 100) + "%";
@@ -183,7 +183,7 @@
       slider.oninput = () => draw(+slider.value);
       draw(+slider.value || 0);
       $("crowd-legend").innerHTML = "";
-      legend($("crowd-legend"), [{ name: "Crowd average", color: "var(--blue)" }, { name: "Shared tide (the predictable part)", color: "var(--orange)" },
+      legend($("crowd-legend"), [{ name: "Crowd average (simulated)", color: "var(--hypo)" }, { name: "Shared tide (the predictable part)", color: "var(--text)" },
         { name: "Individual people", color: "var(--muted)" }]);
     },
 
@@ -196,12 +196,15 @@
         const sorted = rows.slice().sort((a, b) => ((a[key] ?? -1e9) > (b[key] ?? -1e9) ? 1 : -1) * dir);
         $("series-table").innerHTML = "<thead><tr>" + cols.map(([k, l]) => `<th data-k="${k}">${l}${k === key ? (dir > 0 ? " ▲" : " ▼") : ""}</th>`).join("") + "</tr></thead><tbody>" +
           sorted.map((r) => `<tr><td>${esc(r.title)}</td><td>${esc(r.domain)}</td><td>${esc(r.scale)}</td>` +
-            `<td>${fmt.pct(r.skill)}<span class="bar" style="width:${Math.min(60, Math.abs(r.skill || 0) * 300)}px;background:${(r.skill || 0) >= 0 ? "var(--blue)" : "var(--orange)"}"></span></td>` +
+            `<td>${fmt.pct(r.skill)}<span class="bar" style="width:${Math.min(60, Math.abs(r.skill || 0) * 300)}px;background:${(r.skill || 0) >= 0 ? "var(--green)" : "var(--coral)"}"></span></td>` +
             `<td>${fmt.pct(r.direction)}</td><td>${fmt.pct(r.coverage80)}</td><td>${r.brier === null ? "–" : r.brier.toFixed(3)}</td></tr>`).join("") + "</tbody>";
       };
       $("series-table").onclick = (e) => { const k = e.target.dataset && e.target.dataset.k; if (!k) return; dir = key === k ? -dir : -1; key = k; draw(); };
       draw();
     },
+
+    // The walkthrough lives in trace.js; it keeps its own state across redraws.
+    trace(arg) { if (window.WPTrace) window.WPTrace.render(D, arg); },
 
     about() {},
   };
@@ -234,12 +237,14 @@
   // ---------- routing ----------
   const rendered = new Set();
   let current = "overview";
-  function show(name) {
+  function show(route) {
+    let [name, arg] = String(route).split("/");
     if (!views[name]) name = "overview";
+    if (name !== "trace" && window.WPTrace) window.WPTrace.stop();
     current = name;
     document.querySelectorAll(".view").forEach((v) => v.classList.toggle("active", v.id === "view-" + name));
     document.querySelectorAll(".tabs a").forEach((a) => (a.getAttribute("href") === "#" + name ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current")));
-    if (!rendered.has(name)) { views[name](); rendered.add(name); }
+    if (!rendered.has(name) || arg) { views[name](arg); rendered.add(name); }
   }
   // Morph between views where the browser supports View Transitions; swap instantly elsewhere.
   window.addEventListener("hashchange", () => {

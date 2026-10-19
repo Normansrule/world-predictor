@@ -5,7 +5,7 @@
 body { overflow-x: hidden; }
 .wrap { width: min(1180px, 100% - 32px); margin: 0 auto; }
 .skip { position: absolute; left: -999px; }
-.skip:focus { left: 12px; top: 12px; z-index: 99; background: var(--orange); color: #14100a; padding: 8px 12px; border-radius: 8px; }
+.skip:focus { left: 12px; top: 12px; z-index: 99; background: var(--accent); color: var(--on-accent); padding: 8px 12px; border-radius: 8px; }
 
 /* Navigation: a glass bar that sharpens once you scroll. */
 .nav { position: sticky; top: 0; z-index: 30; backdrop-filter: blur(12px) saturate(1.2);
@@ -24,9 +24,9 @@ body { overflow-x: hidden; }
 .cta { display: inline-flex; align-items: center; gap: 8px; padding: 13px 22px; border-radius: 12px; font-weight: 600; text-decoration: none;
   color: var(--text); border: 1px solid var(--line); background: color-mix(in srgb, var(--surface) 70%, transparent); transition: transform .25s var(--ease), border-color .25s; }
 .cta:hover { transform: translateY(-2px); border-color: var(--muted); }
-.cta.primary { background: var(--orange); color: #14100a; border-color: transparent; position: relative; isolation: isolate; }
+.cta.primary { background: var(--accent); color: var(--on-accent); border-color: transparent; position: relative; isolation: isolate; }
 .cta.primary::before { content: ""; position: absolute; inset: -2px; border-radius: 14px; padding: 2px; z-index: -1;
-  background: conic-gradient(from var(--beam, 0deg), transparent 0 72%, var(--blue) 86%, #fff 90%, transparent 95%);
+  background: conic-gradient(from var(--beam, 0deg), transparent 0 72%, var(--text) 86%, #fff 90%, transparent 95%);
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
   animation: beam 4s linear infinite; }
 @property --beam { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
@@ -36,14 +36,14 @@ body { overflow-x: hidden; }
 .hero { position: relative; padding: clamp(48px, 9vh, 110px) 0 72px; overflow: hidden; }
 .hero::before { content: ""; position: absolute; inset: -20% -10% auto; height: 120%; z-index: -1; pointer-events: none;
   background: radial-gradient(600px 380px at 78% 35%, var(--glow), transparent 70%),
-              radial-gradient(520px 340px at 12% 80%, color-mix(in srgb, var(--blue) 14%, transparent), transparent 70%);
+              radial-gradient(520px 340px at 12% 80%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 70%);
   animation: drift 24s ease-in-out infinite alternate; }
 @keyframes drift { to { transform: translate3d(-3%, 4%, 0) scale(1.05); } }
 .hero .grid2 { display: grid; grid-template-columns: 1.05fr 1fr; gap: 48px; align-items: center; }
 @media (max-width: 920px) { .hero .grid2 { grid-template-columns: 1fr; } }
-.kicker { font: 600 13px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--orange); margin: 0 0 18px; }
+.kicker { font: 600 13px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin: 0 0 18px; }
 .hero h1 { font: 600 clamp(42px, 6.6vw, 84px)/1 var(--display); letter-spacing: -.035em; margin: 0 0 22px; max-width: 13ch; }
-.hero h1 em { font-style: italic; color: var(--orange); }
+.hero h1 em { font-style: italic; color: var(--accent); }
 .hero .lede { font-size: clamp(17px, 1.6vw, 20px); color: var(--muted); max-width: 46ch; margin: 0 0 30px; }
 .live { margin-top: 28px; display: flex; gap: 10px; align-items: center; color: var(--muted); font: 13px/1.4 var(--mono); }
 .live .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex: none; animation: ping 2.2s infinite; }
@@ -57,7 +57,7 @@ body { overflow-x: hidden; }
 .oracle .meta { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; margin-bottom: 4px; }
 .oracle .meta b { font: 600 18px/1.2 var(--display); }
 .oracle .meta span, .oracle figcaption { font: 12px/1.4 var(--mono); color: var(--muted); }
-.oracle .odds { font: 600 44px/1 var(--display); color: var(--orange); font-variant-numeric: tabular-nums; }
+.oracle .odds { font: 600 44px/1 var(--display); color: var(--forecast); font-variant-numeric: tabular-nums; }
 .oracle figcaption { margin-top: 10px; }
 
 /* Number strip */
@@ -66,7 +66,7 @@ body { overflow-x: hidden; }
 .stats div { padding: 26px 24px; border-right: 1px solid var(--line); }
 .stats div:last-child { border-right: 0; }
 .stats b { display: block; font: 600 clamp(36px, 4vw, 50px)/1 var(--display); color: var(--text); font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
-.stats b.good { color: var(--blue); } .stats b.warm { color: var(--orange); }
+.stats b.good { color: var(--accent); } .stats b.warm { color: var(--forecast); }
 .stats span { color: var(--muted); font-size: 14px; display: block; margin-top: 8px; }
 
 /* Sections */
@@ -96,7 +96,7 @@ p.intro { color: var(--muted); max-width: 62ch; margin: 0 0 40px; font-size: 18p
 .explode__labels li { counter-increment: layer; display: grid; grid-template-columns: 34px 1fr; column-gap: 12px;
   opacity: calc(.25 + .75 * var(--spread)); transform: translateX(calc((1 - var(--spread)) * 16px)); }
 .explode__labels li::before { content: counter(layer); grid-row: span 2; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
-  border: 1.5px solid var(--orange); color: var(--orange); font: 700 13px/1 var(--mono); }
+  border: 1.5px solid var(--accent); color: var(--accent); font: 700 13px/1 var(--mono); }
 .explode__labels b { font: 600 19px/1.2 var(--display); }
 .explode__labels span { color: var(--muted); font-size: 15px; }
 .explode__caption { position: absolute; left: 0; bottom: 4%; font: 12px/1.4 var(--mono); color: var(--muted); }
@@ -120,7 +120,7 @@ p.intro { color: var(--muted); max-width: 62ch; margin: 0 0 40px; font-size: 18p
 .board .zero { position: absolute; left: var(--z); top: 0; bottom: 0; width: 1px; background: var(--muted); opacity: .6; }
 .board .bar { position: absolute; top: 7px; bottom: 7px; border-radius: 6px; transform-origin: left; transform: scaleX(0); transition: transform 1.2s var(--ease); }
 .board.in .bar { transform: scaleX(1); }
-.board .bar.model { background: linear-gradient(90deg, var(--blue), color-mix(in srgb, var(--blue) 60%, var(--green))); }
+.board .bar.model { background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 60%, var(--green))); }
 .board .bar.flat { background: var(--muted); }
 .board .val { font: 600 26px/1 var(--display); text-align: right; font-variant-numeric: tabular-nums; }
 @media (max-width: 640px) { .board .row { grid-template-columns: 1fr 70px; } .board .track { grid-column: 1 / -1; grid-row: 2; } }

@@ -9,29 +9,33 @@
 Google's open-source **TimesFM** forecasts world news, markets (stocks, gold, silver) and new technologies,
 and every forecast is scored in public.
 
-[![Visit the site](https://img.shields.io/badge/Visit-the_site-f2b54a?style=for-the-badge&logo=googlechrome&logoColor=070b14)](https://normansrule.github.io/world-predictor/)
-[![Open the web app](https://img.shields.io/badge/Open-the_web_app-1d6f8f?style=for-the-badge&logo=googlechrome&logoColor=white)](https://normansrule.github.io/world-predictor/app/)
-[![Download the full version](https://img.shields.io/badge/Download-full_version-070b14?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Normansrule/world-predictor/releases/latest)
-[![Read the report](https://img.shields.io/badge/Read-the_report-eb6834?style=for-the-badge&logo=markdown&logoColor=white)](results/REPORT.md)
+[![Visit the site](https://img.shields.io/badge/Visit-the_site-5fd4e6?style=for-the-badge&logo=googlechrome&logoColor=060a16)](https://normansrule.github.io/world-predictor/)
+[![Open the web app](https://img.shields.io/badge/Open-the_web_app-0a7c93?style=for-the-badge&logo=googlechrome&logoColor=white)](https://normansrule.github.io/world-predictor/app/)
+[![Download the full version](https://img.shields.io/badge/Download-full_version-060a16?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Normansrule/world-predictor/releases/latest)
+[![Read the report](https://img.shields.io/badge/Read-the_report-1d2944?style=for-the-badge&logo=markdown&logoColor=white)](results/REPORT.md)
 
 [![tests](https://github.com/Normansrule/world-predictor/actions/workflows/tests.yml/badge.svg)](https://github.com/Normansrule/world-predictor/actions/workflows/tests.yml)
 [![weekly forecasts](https://github.com/Normansrule/world-predictor/actions/workflows/predict.yml/badge.svg)](https://github.com/Normansrule/world-predictor/actions/workflows/predict.yml)
 [![pages](https://github.com/Normansrule/world-predictor/actions/workflows/pages.yml/badge.svg)](https://github.com/Normansrule/world-predictor/actions/workflows/pages.yml)
-[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-2a78d6)](LICENSE)
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-0a7c93)](LICENSE)
 ![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-1baf7a)
-[![Model: TimesFM 2.5](https://img.shields.io/badge/model-TimesFM_2.5-eb6834)](https://github.com/google-research/timesfm)
+[![Model: TimesFM 2.5](https://img.shields.io/badge/model-TimesFM_2.5-0a7c93)](https://github.com/google-research/timesfm)
 ![No server](https://img.shields.io/badge/server-none-1baf7a)
 ![No API keys](https://img.shields.io/badge/API_keys-none-1baf7a)
 
 [The idea](#-the-idea-in-30-seconds) ·
 [The app](#%EF%B8%8F-the-app) ·
+[Follow one result](#-follow-one-result) ·
 [Latest results](#-latest-results) ·
 [How it works](#%EF%B8%8F-how-it-works) ·
+[Architecture](docs/ARCHITECTURE.md) ·
 [Quick start](#-quick-start) ·
 [Progress](#%EF%B8%8F-roadmap-and-progress) ·
 [Design](#-design) ·
 [References](#-references) ·
 [Credits](#-credits)
+
+<sub>Maintained by <a href="https://github.com/Normansrule">@Normansrule</a></sub>
 
 </div>
 
@@ -98,12 +102,41 @@ flowchart LR
 </tr>
 </table>
 
-<sub>Screenshots show the app's built-in demo data (made-up series, simple models), which it uses until the first real forecast run. The app labels demo data clearly.</sub>
+<sub>Screenshots show the real forecast run of 2026-10-18 (TimesFM 2.5, 25 of 30 series). Before a first run the app uses demo data and labels it as demo everywhere.</sub>
 
 The app's design follows [World Monitor](https://github.com/koala73/worldmonitor) by Elie Habib and
 its fork [Terra Atlas](https://github.com/Normansrule/worldmonitor): one static `site/` folder served by
 GitHub Pages, the same folder in a downloadable build, and no server or API keys. No code is copied
 from either (World Monitor is AGPL-3.0; World Predictor is Apache-2.0).
+
+---
+
+## 🧭 Follow one result
+
+Pick any forecast in the app and follow it back through every stage that produced it: the catalog
+entry, the public source, the context the model read, TimesFM, the sealed forecast, when it will be
+scored, and how the same model did in the backtest. Click any point on the chart to see the record
+behind it, with a link to check it at the source. Each stage links to its code and tests, pinned to
+the commit the site was built from.
+
+<p align="center"><img src="docs/assets/app-trace.gif" alt="Walkthrough of one S&P 500 forecast moving through the eight pipeline stages" width="100%"></p>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/app-trace-dark.png">
+  <img src="docs/assets/app-trace.png" alt="Follow one result: the pipeline, the S&P 500 forecast chart and the controls" width="100%">
+</picture>
+
+**What is real here, and what is not.**
+
+| Shown | Where it comes from |
+|---|---|
+| Forecasts, ranges, odds, backtest scores | The weekly GitHub Actions run, saved in `results/` and `predictions/` |
+| Which series failed and why | `results/run_status.json`, written by every run; gaps stay visible, never filled in |
+| The walkthrough | A replay of that recorded run in your browser: nothing is recomputed |
+| Crowd lab | A labelled simulation with synthetic people, not survey data |
+| Not built yet | "What if" scenarios and maps (no series here is tied to a place), so the app does not pretend to have them |
+
+Open it at [normansrule.github.io/world-predictor/app/#trace](https://normansrule.github.io/world-predictor/app/#trace).
 
 ---
 
@@ -134,7 +167,7 @@ simple guess "tomorrow looks like today" (positive is good, zero means no better
 how far into the future that edge lasts. *Right direction* is how often it called up or down
 correctly; 50% is a coin flip.
 
-**⏯ The replay.** Each frame is one past forecast: the orange fan is what the model expected, the
+**⏯ The replay.** Each frame is one past forecast: the shaded fan is what the model expected, the
 dots are what really happened.
 
 <p align="center"><img src="results/plots/replay.gif" alt="Animated replay of past forecasts against what really happened" width="85%"></p>
@@ -238,7 +271,8 @@ flowchart LR
   A --> APP[🌐 Pages app · 💻 local app]
 ```
 
-Full methods and limitations: [docs/METHODOLOGY.md](docs/METHODOLOGY.md).
+Full methods and limitations: [docs/METHODOLOGY.md](docs/METHODOLOGY.md). Every stage, its code, its
+tests and what it does when it fails: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 | Workflow | When | What it does |
 |---|---|---|
@@ -331,7 +365,7 @@ _wiki("wiki_solid_state_battery", "Solid-state_battery", "Wikipedia views: Solid
 
 <!-- progress:start -->
 
-**21 of 28 milestones done (75%).** Drawn from [`docs/progress.json`](docs/progress.json); tests check every ticked item against the repository.
+**23 of 30 milestones done (77%).** Drawn from [`docs/progress.json`](docs/progress.json); tests check every ticked item against the repository.
 
 <details open><summary><b>📰 World news</b> · 5/6</summary>
 
@@ -365,13 +399,15 @@ _wiki("wiki_solid_state_battery", "Solid-state_battery", "Wikipedia views: Solid
 
 </details>
 
-<details open><summary><b>🌐 Web app (GitHub Pages)</b> · 5/7</summary>
+<details open><summary><b>🌐 Web app (GitHub Pages)</b> · 7/9</summary>
 
 - [x] Static app: scoreboard, replay, outlook, horizon, odds, Time Vault, crowd lab
 - [x] No chart library: hand-written SVG charts, under 50 KB of code in total
 - [x] Light and dark themes, phone layout, installable, works offline
 - [x] Pages deployment after every weekly run
 - [x] Landing page that tells the story on scroll, with the exploded forecast engine
+- [x] Follow one result: trace any forecast back through the pipeline to its source
+- [x] Architecture page and pipeline explorer generated from the code
 - [ ] Live at normansrule.github.io/world-predictor
 - [ ] A detail page for every series
 
@@ -393,10 +429,12 @@ _wiki("wiki_solid_state_battery", "Solid-state_battery", "Wikipedia views: Solid
 ```
 site/                 the app: one static folder for Pages, download and local use
   index.html          landing page
-  app/                the app (index.html, js/app.js, js/charts.js, css/app.css, data/data.js)
+  app/                the app (index.html, js/app.js, js/charts.js, js/trace.js, css/app.css)
+  app/data/           data.js (this run's numbers) and pipeline.js (the stage inventory)
   sw.js               offline support; manifest.webmanifest makes it installable
 src/psychohistory/
   catalog.py          the series to forecast, by area, tagged aggregate / individual
+  inventory.py        what each pipeline stage does: feeds the app's explorer and ARCHITECTURE.md
   data/               loaders: gdelt.py, markets.py, wikipedia.py, owid.py (+ CSV cache)
   models.py           TimesFM, Chronos, AutoETS, Bass and baseline forecasters, plus the ensemble
   metrics.py          MAE, MASE, sMAPE, direction, 80% coverage, pinball loss, Brier score
@@ -410,7 +448,8 @@ src/psychohistory/
   dashboard.py        results/dashboard.html (Plotly version of the dashboard)
   cli.py              the `psychohistory` command
 tests/                offline tests (synthetic data, no downloads)
-docs/                 METHODOLOGY.md, progress.json and the README artwork in docs/assets/
+docs/                 METHODOLOGY.md, ARCHITECTURE.md, DESIGN.md, progress.json, artwork in docs/assets/
+results/run_status.json  which series got through each stage of the last run, and why not
 .github/workflows/    tests, predict (weekly), pages (web app), release (downloads)
 scripts/              make_readme_art.py, make_app_screenshots.py, publish_to_github.sh
 ```
@@ -422,10 +461,11 @@ screenshots by `python scripts/make_app_screenshots.py`.
 
 ## 🎨 Design
 
-The website and app share one look, "the vault": deep ink, brass gold for forecasts and cyan for
-what really happened, with a literary serif for headings. The landing page tells the story as you
-scroll, ending with a forecast that comes apart into its six layers and reassembles, and every chart
-draws itself in, with the future hatched so it never looks like the past.
+The website and app share one look, "the observatory": midnight navy, warm white for what was
+observed, cyan for forecasts (always hatched, so the future never looks like the past), amber for
+warnings and gaps, and violet for anything simulated. Every colour also comes with a word or a
+pattern. Headings use a literary serif. The landing page tells the story as you scroll, ending with
+a forecast that comes apart into its six layers and reassembles.
 
 It was shaped by fifty sites and READMEs, from Apple's exploded product pages and Bartosz
 Ciechanowski's *Mechanical Watch* to Stripe, Linear, The Pudding and Our World in Data. Each one, and
@@ -459,7 +499,9 @@ This project stands on other people's work. Full attribution, licences and terms
 - **TimesFM** by Google Research: Das, Kong, Sen, Zhou, *A decoder-only foundation model for
   time-series forecasting*, ICML 2024 ([arXiv:2310.10688](https://arxiv.org/abs/2310.10688)).
 - **World Monitor** by Elie Habib, for the web-app and download design.
-- **Fifty design references** for the look and motion, listed in [docs/DESIGN.md](docs/DESIGN.md).
+- **Fifty design references** for the look and motion, and **twenty reference projects** for the
+  "observatory" redesign (World Monitor, Metaculus, xyflow, Motion Canvas and others), all listed in
+  [docs/DESIGN.md](docs/DESIGN.md).
 - **GDELT Project** for world news coverage data.
 - **Yahoo Finance** data via the **yfinance** library by Ran Aroussi.
 - **Wikimedia Foundation** Pageviews API.

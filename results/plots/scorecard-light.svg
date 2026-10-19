@@ -1,14 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 310" role="img" aria-label="Scoreboard: how timesfm-2.5 did in each domain">
 <style>
-  .bg { fill: #fcfcfb; }
-  .card { fill: none; stroke: #e4e3df; stroke-width: 1.5; }
-  .title { font: 600 15px Inter, system-ui, sans-serif; fill: #52514e; letter-spacing: .06em; }
-  .name { font: 600 18px Inter, system-ui, sans-serif; fill: #0b0b0b; }
+  .bg { fill: #f4f6fb; }
+  .card { fill: none; stroke: #d6dce8; stroke-width: 1.5; }
+  .title { font: 600 15px Inter, system-ui, sans-serif; fill: #4f5a70; letter-spacing: .06em; }
+  .name { font: 600 18px Inter, system-ui, sans-serif; fill: #0d1424; }
   .big { font: 700 52px Inter, system-ui, sans-serif; }
-  .cap { font: 400 14px Inter, system-ui, sans-serif; fill: #52514e; }
-  .k { font: 400 14px Inter, system-ui, sans-serif; fill: #52514e; }
-  .v { font: 600 14px Inter, system-ui, sans-serif; fill: #0b0b0b; }
-  .foot { font: 400 12px Inter, system-ui, sans-serif; fill: #52514e; }
+  .cap { font: 400 14px Inter, system-ui, sans-serif; fill: #4f5a70; }
+  .k { font: 400 14px Inter, system-ui, sans-serif; fill: #4f5a70; }
+  .v { font: 600 14px Inter, system-ui, sans-serif; fill: #0d1424; }
+  .foot { font: 400 12px Inter, system-ui, sans-serif; fill: #4f5a70; }
 </style>
 <rect class="bg" width="1200" height="310" rx="16"/>
 <text x="40" y="42" class="title">SCOREBOARD  ·  TIMESFM-2.5  VS  "TOMORROW LOOKS LIKE TODAY"</text>
@@ -16,7 +16,7 @@
 <g transform="translate(40,0)">
   <rect x="0" y="62" width="350" height="208" rx="12" class="card"/>
   <text x="22" y="98" class="name">📰  World news</text>
-  <text x="22" y="160" class="big" style="fill:#2a78d6">+12%</text>
+  <text x="22" y="160" class="big" style="fill:#0a7c93">+12%</text>
   <text x="22" y="186" class="cap">less error than the simple guess</text>
   <text x="22" y="222" class="k">Sees ahead</text><text x="328" y="222" class="v" text-anchor="end">about 28 days</text>
   <text x="22" y="250" class="k">Right direction</text><text x="328" y="250" class="v" text-anchor="end">67% of the time</text>
@@ -24,7 +24,7 @@
 <g transform="translate(420,0)">
   <rect x="0" y="62" width="350" height="208" rx="12" class="card"/>
   <text x="22" y="98" class="name">📈  Markets</text>
-  <text x="22" y="160" class="big" style="fill:#52514e">+1%</text>
+  <text x="22" y="160" class="big" style="fill:#4f5a70">+1%</text>
   <text x="22" y="186" class="cap">about the same error as the simple guess</text>
   <text x="22" y="222" class="k">Sees ahead</text><text x="328" y="222" class="v" text-anchor="end">no edge at any distance</text>
   <text x="22" y="250" class="k">Right direction</text><text x="328" y="250" class="v" text-anchor="end">52% of the time</text>
@@ -32,7 +32,7 @@
 <g transform="translate(800,0)">
   <rect x="0" y="62" width="350" height="208" rx="12" class="card"/>
   <text x="22" y="98" class="name">🚀  Technology</text>
-  <text x="22" y="160" class="big" style="fill:#2a78d6">+43%</text>
+  <text x="22" y="160" class="big" style="fill:#0a7c93">+43%</text>
   <text x="22" y="186" class="cap">less error than the simple guess</text>
   <text x="22" y="222" class="k">Sees ahead</text><text x="328" y="222" class="v" text-anchor="end">about 28 days</text>
   <text x="22" y="250" class="k">Right direction</text><text x="328" y="250" class="v" text-anchor="end">77% of the time</text>

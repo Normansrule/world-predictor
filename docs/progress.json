@@ -135,6 +135,16 @@
           "evidence": "site/assets/site.js"
         },
         {
+          "title": "Follow one result: trace any forecast back through the pipeline to its source",
+          "done": true,
+          "evidence": "site/app/js/trace.js"
+        },
+        {
+          "title": "Architecture page and pipeline explorer generated from the code",
+          "done": true,
+          "evidence": "docs/ARCHITECTURE.md"
+        },
+        {
           "title": "Live at normansrule.github.io/world-predictor",
           "done": false
         },

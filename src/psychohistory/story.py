@@ -106,11 +106,9 @@ def edge_steps(by_step: pd.DataFrame | None, model: str, domain: str) -> int | N
 
 
 # Colours for the README scoreboard, which GitHub shows in light or dark mode.
-SVG_THEMES = {
-    "light": {"bg": "#fcfcfb", "text": "#0b0b0b", "muted": "#52514e", "grid": "#e4e3df", "blue": "#2a78d6",
-              "orange": "#eb6834", "dot": "#0b0b0b"},
-    "dark": {"bg": "#1a1a19", "text": "#f0efec", "muted": "#c3c2b7", "grid": "#383835", "blue": "#3987e5",
-             "orange": "#d95926", "dot": "#f0efec"},
+SVG_THEMES = {  # the app's palette: cyan = less error than the simple guess, coral = more
+    "light": {"bg": "#f4f6fb", "text": "#0d1424", "muted": "#4f5a70", "grid": "#d6dce8", "good": "#0a7c93", "bad": "#c03d31", "dot": "#0d1424"},
+    "dark": {"bg": "#060a16", "text": "#f2ede3", "muted": "#9aa6bc", "grid": "#1d2944", "good": "#5fd4e6", "bad": "#f07a63", "dot": "#f2ede3"},
 }
 DOMAIN_CARDS = (("news", "📰", "World news"), ("markets", "📈", "Markets"), ("tech", "🚀", "Technology"))
 
@@ -160,7 +158,7 @@ def scorecard_svg(card: dict[str, dict], model: str, theme: str = "light", updat
             if abs(skill) < EDGE:  # within noise of the simple guess
                 colour, caption = c["muted"], "about the same error as the simple guess"
             else:
-                colour = c["blue"] if skill > 0 else c["orange"]
+                colour = c["good"] if skill > 0 else c["bad"]
                 caption = "less error than the simple guess" if skill > 0 else "more error than the simple guess"
         unit = STEP_UNIT[domain]
         sees = "–" if edge is None else ("no edge at any distance" if edge == 0 else f"about {edge} {unit}")

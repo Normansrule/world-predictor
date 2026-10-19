@@ -125,7 +125,7 @@
       bands: [{ points: o.fan.map((f) => [f[0], f[1], f[3]]) }],
       lines: [
         { points: history, color: "var(--text)", width: 2.2, name: "history" },
-        { points: [[now[0], now[1]]].concat(o.fan.map((f) => [f[0], f[2]])), color: "var(--orange)", width: 2.4, name: "forecast" },
+        { points: [[now[0], now[1]]].concat(o.fan.map((f) => [f[0], f[2]])), color: "var(--forecast)", width: 2.4, name: "forecast" },
       ],
       refs: [{ x: now[0], label: "now" }],
     });

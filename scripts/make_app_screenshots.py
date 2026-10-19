@@ -1,4 +1,4 @@
-"""Screenshots of the web app for the README (docs/assets/app-*.png and app-replay.gif).
+"""Screenshots of the web app for the README (docs/assets/app-*.png, app-replay.gif and app-trace.gif).
 
     pip install playwright && playwright install chromium
     python scripts/make_app_screenshots.py            # uses site/app/data/data.js
@@ -39,6 +39,27 @@ async def shoot(chromium: str | None, site: Path) -> None:
                 if scheme == "dark" and view == "overview":  # the landing page's tilt-in preview
                     shot = Image.open(io.BytesIO(png)).convert("RGB").crop((0, 0, 1280, 800))
                     shot.save(ROOT / "site" / "assets" / "app-preview.png", optimize=True)
+            await page.close()
+        # "Follow one result": one still per theme at the sealed forecast, and the walkthrough as a GIF.
+        for scheme in ("light", "dark"):
+            page = await browser.new_page(viewport={"width": 1280, "height": 800}, color_scheme=scheme, device_scale_factor=1)
+            await page.goto(f"{app}#trace/sp500")
+            await page.wait_for_timeout(800)
+            frames = []
+            for step in range(8):
+                await page.wait_for_timeout(1700 if step == 4 else 500)
+                top = await page.locator("#view-trace .trace-bar").bounding_box()
+                grid = await page.locator("#view-trace .trace-grid").bounding_box()
+                clip = {"x": 0, "y": top["y"] - 16, "width": 1280, "height": grid["y"] + grid["height"] - top["y"] + 32}
+                shot = Image.open(io.BytesIO(await page.screenshot(clip=clip, full_page=True))).convert("RGB")
+                if step == 4:
+                    shot.save(ASSETS / f"app-trace{'' if scheme == 'light' else '-dark'}.png", optimize=True)
+                frames.append(shot.resize((shot.width * 3 // 4, shot.height * 3 // 4), Image.LANCZOS))
+                await page.keyboard.press("ArrowRight")
+            if scheme == "dark":
+                palette = frames[4].quantize(colors=255, method=Image.Quantize.MEDIANCUT)
+                frames = [f.quantize(palette=palette, dither=Image.Dither.NONE) for f in frames]
+                frames[0].save(ASSETS / "app-trace.gif", save_all=True, append_images=frames[1:], duration=1600, loop=0, optimize=True)
             await page.close()
         # Animated replay: step the slider through every past forecast.
         page = await browser.new_page(viewport={"width": 1100, "height": 900})

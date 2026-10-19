@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>World Predictor</title>
   <meta name="description" content="Can a machine do Hari Seldon's psychohistory? Google's TimesFM forecasts world news, markets (stocks, gold, silver) and technology, and every forecast is scored in public.">
-  <meta name="theme-color" content="#070b14">
+  <meta name="theme-color" content="#060a16">
   <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
   <link rel="manifest" href="../manifest.webmanifest">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,11 +17,12 @@
 <header class="top">
   <div class="top-inner">
     <a class="brand" href="../" title="World Predictor home">
-      <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14" fill="none" stroke="#2a78d6" stroke-width="2.5"/><path d="M4 19 C10 17 12 11 16 13 S 22 10 28 8" fill="none" stroke="#2a78d6" stroke-width="2.5" stroke-linecap="round"/><path d="M16 13 L28 4 L28 14 Z" fill="#eb6834" opacity=".35"/></svg>
+      <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14" fill="none" stroke="currentColor" stroke-width="2.5" opacity=".55"/><path d="M4 19 C10 17 12 11 16 13 S 22 10 28 8" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"/><path d="M16 13 L28 4 L28 14 Z" fill="var(--forecast)" opacity=".35"/></svg>
       World Predictor <small>psychohistory × TimesFM</small>
     </a>
     <nav class="tabs" aria-label="Sections">
       <a href="#overview">Overview</a>
+      <a href="#trace">Follow a result</a>
       <a href="#replay">Replay</a>
       <a href="#outlook">Outlook</a>
       <a href="#horizon">How far ahead</a>
@@ -51,9 +52,46 @@
     </div>
   </section>
 
+  <section class="view" id="view-trace">
+    <h1>Follow one result</h1>
+    <p class="lede">Pick a forecast and follow it back through every stage that made it, down to the public record it came from.
+      Press play, step through with the arrow keys, or click any point on the chart to see the record behind it.</p>
+    <div class="card trace-bar">
+      <label class="pick"><span>Series</span><select id="trace-series" aria-label="Series to follow"></select></label>
+      <div class="flags" id="trace-flags" aria-label="What kind of data this is"></div>
+      <dl class="times" id="trace-times"></dl>
+    </div>
+    <div class="trace-grid">
+      <div class="card pipe">
+        <h2>Pipeline</h2>
+        <p class="caption">The stages this result passed through. Arrows show data handed on, not cause and effect.</p>
+        <div id="trace-pipe"></div>
+      </div>
+      <div class="card trace-main">
+        <h2 id="trace-title"></h2>
+        <div id="trace-chart"></div><div id="trace-legend"></div>
+        <div class="player" role="group" aria-label="Walkthrough controls">
+          <button class="btn icon" id="tp-restart" title="Restart (Home)" aria-label="Restart">⟲</button>
+          <button class="btn icon" id="tp-back" title="Previous stage (←)" aria-label="Previous stage">‹</button>
+          <button class="btn primary" id="tp-play" aria-label="Play">▶ Play</button>
+          <button class="btn icon" id="tp-next" title="Next stage (→)" aria-label="Next stage">›</button>
+          <input type="range" id="tp-scrub" min="0" value="0" aria-label="Stage">
+          <select id="tp-speed" aria-label="Speed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select>
+        </div>
+        <p class="trace-caption" id="trace-caption" aria-live="polite"></p>
+      </div>
+    </div>
+    <aside class="card drawer" id="trace-drawer" aria-live="polite"></aside>
+    <div class="card">
+      <h2>Did every series make it through this run?</h2>
+      <p class="caption" id="cover-note"></p>
+      <div class="table-wrap"><table id="cover-table" class="cover"></table></div>
+    </div>
+  </section>
+
   <section class="view" id="view-replay">
     <h1>Replay</h1>
-    <p class="lede">Each frame is a forecast made in the past. The orange range is what the model expected; the dots are what really happened.</p>
+    <p class="lede">Each frame is a forecast made in the past. The hatched cyan range is what the model expected; the dots are what really happened.</p>
     <div class="card">
       <h2 id="replay-title"></h2>
       <div class="controls">
@@ -96,6 +134,7 @@
   </section>
 
   <section class="view" id="view-crowd">
+    <p class="flag hypo">Simulation · synthetic people, not survey data</p>
     <h1>Crowd lab: why crowds are predictable</h1>
     <p class="lede">Ten thousand simulated people each have a mood: a little shared tide plus a lot of personal noise.
       Drag the slider to grow the crowd and watch its average lock onto the tide. That is Seldon's bet in one picture.</p>
@@ -124,6 +163,7 @@
         <p><b>On your computer</b>: the full version runs TimesFM yourself and opens this same app on your machine.</p>
         <p><code>psychohistory app</code> builds and opens it at <code>http://localhost:8000</code>.</p>
         <p><a id="repo-link" href="#">Source code and instructions on GitHub</a></p>
+        <p>Maintained by <a href="https://github.com/Normansrule">@Normansrule</a>.</p>
       </div>
       <div class="card">
         <h2>How it is scored</h2>
@@ -147,7 +187,9 @@
 <footer id="footer"></footer>
 
 <script src="data/data.js"></script>
+<script src="data/pipeline.js"></script>
 <script src="js/charts.js"></script>
+<script src="js/trace.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

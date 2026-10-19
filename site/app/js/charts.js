@@ -66,6 +66,9 @@
    * spec.bands: [{points: [[x, lo, hi]], color}]          (forecast ranges)
    * spec.dots:  [{points: [[x, y]], color, r, name}]
    * spec.refs:  [{y, label, color}] or [{x, label}]       (dashed reference lines)
+ * spec.spans: [{from, to, color, label}]               (shaded stretch of the x axis)
+ * spec.marks: [{x, y, color}]                           (a ring around one selected point)
+ * spec.onPick(point): called with the nearest {x, y, name} when the chart is clicked
    * spec.x: "date" | "num"; spec.yFormat: fn; spec.yDomain / spec.xDomain: [lo, hi]
    */
   function plot(container, spec) {
@@ -113,6 +116,12 @@
     });
     if (spec.xTitle) el("text", { x: (m.l + width - m.r) / 2, y: height - 2, "text-anchor": "middle" }, svg).textContent = spec.xTitle;
 
+    (spec.spans || []).forEach((s) => {
+      const a = sx(s.from), b = sx(s.to);
+      el("rect", { x: Math.min(a, b), y: m.t, width: Math.max(1, Math.abs(b - a)), height: height - m.t - m.b,
+        fill: s.color || "var(--glow)", rx: 6, class: "span" }, svg);
+      if (s.label) el("text", { x: Math.min(a, b) + 6, y: height - m.b - 8, class: "span-label" }, svg).textContent = s.label;
+    });
     (spec.bands || []).forEach((b) => {
       const pts = b.points.filter((p) => p[1] !== null && p[2] !== null);
       if (!pts.length) return;
@@ -147,18 +156,31 @@
       });
     });
 
+    (spec.marks || []).forEach((k) => {
+      if (k.y === null || k.y === undefined) return;
+      el("circle", { cx: sx(k.x), cy: sy(k.y), r: 7, fill: "none", stroke: k.color || "var(--text)", "stroke-width": 2, class: "mark" }, svg);
+    });
+
     // Hover readout along the first line (or the dots when there are no lines).
     const hoverSrc = (spec.lines || []).concat(spec.dots || []).filter((s) => s.points.length);
+    const all = [];
+    hoverSrc.forEach((s) => s.points.forEach((p) => { if (p[1] !== null && p[1] !== undefined) all.push({ x: X(p[0]), y: p[1], s }); }));
+    const nearest = (ev) => {
+      const r = svg.getBoundingClientRect(), px = ((ev.clientX - r.left) / r.width) * width;
+      const xv = x0 + ((px - m.l) / (width - m.l - m.r)) * (x1 - x0);
+      let best = null;
+      all.forEach((a) => { if (!best || Math.abs(a.x - xv) < Math.abs(best.x - xv)) best = a; });
+      return best;
+    };
+    if (spec.onPick) {
+      svg.style.cursor = "pointer";
+      svg.addEventListener("click", (ev) => { const b = nearest(ev); if (b) spec.onPick({ x: b.x, y: b.y, name: b.s.name }); });
+    }
     if (spec.hover !== false && hoverSrc.length) {
       const tip = document.createElement("div"); tip.className = "tip"; container.appendChild(tip);
       const cross = el("line", { y1: m.t, y2: height - m.b, stroke: "var(--muted)", "stroke-width": 1, opacity: 0 }, svg);
-      const all = [];
-      hoverSrc.forEach((s) => s.points.forEach((p) => { if (p[1] !== null) all.push({ x: X(p[0]), y: p[1], s }); }));
       svg.addEventListener("pointermove", (ev) => {
-        const r = svg.getBoundingClientRect(), px = ((ev.clientX - r.left) / r.width) * width;
-        const xv = x0 + ((px - m.l) / (width - m.l - m.r)) * (x1 - x0);
-        let best = null;
-        all.forEach((a) => { if (!best || Math.abs(a.x - xv) < Math.abs(best.x - xv)) best = a; });
+        const best = nearest(ev);
         if (!best) return;
         const near = all.filter((a) => a.x === best.x);
         const label = (isDate ? fmt.date(best.x) : (spec.xFormat || fmt.num)(best.x)) + "  " +

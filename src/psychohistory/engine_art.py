@@ -31,12 +31,12 @@ LAYERS = [
 
 # CSS custom properties for the site; concrete colours for the README.
 SITE = {"ink": "var(--text)", "muted": "var(--muted)", "line": "var(--line)", "plate": "var(--surface)",
-        "forecast": "var(--orange)", "real": "var(--blue)", "good": "var(--green)", "band": "var(--band)"}
+        "forecast": "var(--forecast)", "real": "var(--observed)", "good": "var(--green)", "band": "var(--band)"}
 THEMES = {
-    "light": {"ink": "#12141b", "muted": "#555a66", "line": "#ddd6c8", "plate": "#fffdf8", "bg": "#f5f2ea",
-              "forecast": "#c06a12", "real": "#1d6f8f", "good": "#1f8a63", "band": "rgba(192,106,18,.18)"},
-    "dark": {"ink": "#edf1f7", "muted": "#9aa9bf", "line": "#22314b", "plate": "#0e1524", "bg": "#070b14",
-             "forecast": "#f2b54a", "real": "#6fd3e6", "good": "#5fd3a0", "band": "rgba(242,181,74,.2)"},
+    "light": {"ink": "#0d1424", "muted": "#4f5a70", "line": "#d6dce8", "plate": "#ffffff", "bg": "#f4f6fb",
+              "forecast": "#0a7c93", "real": "#0d1424", "good": "#187a55", "band": "rgba(10,124,147,.16)"},
+    "dark": {"ink": "#f2ede3", "muted": "#9aa6bc", "line": "#1d2944", "plate": "#0b1325", "bg": "#060a16",
+             "forecast": "#5fd4e6", "real": "#f2ede3", "good": "#5fd3a0", "band": "rgba(95,212,230,.18)"},
 }
 # CSS rotateX(55deg) rotateZ(-35deg) applied to a flat plate is this 2D affine map.
 _C, _S, _K = math.cos(math.radians(35)), math.sin(math.radians(35)), math.cos(math.radians(55))
