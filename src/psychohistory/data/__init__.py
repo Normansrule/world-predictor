@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
+from urllib.parse import quote
 
 import pandas as pd
 
@@ -24,6 +25,20 @@ DEFAULT_CACHE = Path("data")
 
 def cache_path(spec: SeriesSpec, cache_dir: Path = DEFAULT_CACHE) -> Path:
     return Path(cache_dir) / spec.domain / f"{spec.id}.csv"
+
+
+def source_url(spec: SeriesSpec) -> str | None:
+    """A public page where anyone can look at the same numbers this series is built from."""
+    p = spec.params
+    if spec.source == "gdelt":
+        return f"{gdelt.API}?query={quote(p['query'])}&mode=timelinevol&format=html"
+    if spec.source == "yahoo":
+        return f"https://finance.yahoo.com/quote/{quote(p['ticker'], safe='')}"
+    if spec.source == "wikipedia":
+        return f"https://pageviews.wmcloud.org/?project=en.wikipedia.org&pages={quote(p['article'])}"
+    if spec.source == "owid":
+        return f"{owid.GRAPHER}/{p['slug']}"
+    return None  # composites are built from the member series
 
 
 def fetch(spec: SeriesSpec, cache_dir: Path = DEFAULT_CACHE, refresh: bool = False) -> pd.Series:

@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import argparse
+import json
 import logging
-from datetime import date
+import os
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 import pandas as pd
@@ -15,14 +17,31 @@ from .models import BASELINES, classical_available, load_model
 log = logging.getLogger("psychohistory")
 
 
-def _load(specs, cache: Path, refresh: bool = False) -> dict[str, pd.Series]:
-    loaded = {}
+def _load(specs, cache: Path, refresh: bool = False, status: Path | None = None, stage: str | None = None) -> dict[str, pd.Series]:
+    loaded, skipped = {}, {}
     for spec in specs:
         try:
             loaded[spec.id] = data.fetch(spec, cache, refresh=refresh)
         except Exception as exc:  # one broken source should not stop the whole run
             log.warning("skipping %s: %s", spec.id, exc)
+            skipped[spec.id] = f"{type(exc).__name__}: {exc}"[:300]
+    if status is not None and stage:
+        record_status(status, stage, loaded, skipped)
     return loaded
+
+
+def record_status(path: Path, stage: str, loaded: dict, skipped: dict[str, str]) -> None:
+    """Note which series got through a stage and why the others did not, for the app's
+    "Follow one result" view. A skipped series is a visible gap, never silently filled in."""
+    current = json.loads(path.read_text()) if path.exists() else {}
+    current.setdefault("stages", {})[stage] = {
+        "at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "ok": sorted(loaded), "skipped": dict(sorted(skipped.items())),
+    }
+    if os.environ.get("GITHUB_RUN_ID"):
+        current["run_id"] = os.environ["GITHUB_RUN_ID"]
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(current, indent=1) + "\n")
 
 
 def ensemble_members(args) -> list[str]:
@@ -35,13 +54,13 @@ def ensemble_members(args) -> list[str]:
 
 def cmd_fetch(args) -> None:
     specs = catalog.select(args.domain, args.series)
-    loaded = _load(specs, args.data_dir, refresh=True)
+    loaded = _load(specs, args.data_dir, refresh=True, status=args.out_dir / "run_status.json", stage="fetch")
     print(f"Fetched {len(loaded)}/{len(specs)} series into {args.data_dir}/")
 
 
 def cmd_backtest(args) -> None:
     specs = catalog.select(args.domain, args.series)
-    series = _load(specs, args.data_dir)
+    series = _load(specs, args.data_dir, status=args.out_dir / "run_status.json", stage="backtest")
     names = [args.model] + [m for m in args.compare if m != args.model]
     names += [b for b in BASELINES if b not in names]
     if classical_available() and "auto-ets" not in names:
@@ -76,7 +95,7 @@ def cmd_backtest(args) -> None:
 
 def cmd_predict(args) -> None:
     specs = catalog.select(args.domain, args.series)
-    series = _load(specs, args.data_dir, refresh=args.refresh)
+    series = _load(specs, args.data_dir, refresh=args.refresh, status=args.out_dir / "run_status.json", stage="predict")
     # The model under test plus any --compare rivals, so the ledger becomes a head-to-head record.
     names = list(dict.fromkeys([args.model, *args.compare]))
     if args.ensemble:
@@ -197,7 +216,9 @@ def _payload(args, demo: bool = False) -> dict | None:
         if frame is not None:
             ids |= set(frame["series_id"])
     specs = [s for s in catalog.CATALOG if s.id in ids]
-    return web.build_payload(args.model, results, by_step, paths, entries, scored, _load(specs, args.data_dir))
+    status = args.out_dir / "run_status.json"
+    run = json.loads(status.read_text()) if status.exists() else None
+    return web.build_payload(args.model, results, by_step, paths, entries, scored, _load(specs, args.data_dir), run_status=run)
 
 
 def cmd_export(args) -> None:

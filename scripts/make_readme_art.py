@@ -8,6 +8,7 @@
 * seldon-crowd.gif - the toy crowd simulation (psychohistory.simulate), animated.
 * progress-*.svg and the README checklist, from docs/progress.json.
 * engine-*.svg (the exploded forecast engine) and the same layers inside site/index.html.
+* site/app/data/pipeline.js and docs/ARCHITECTURE.md, from the stage inventory in psychohistory.inventory.
 * placeholder scoreboard (results/plots/scorecard-*.svg) and charts in results/plots/ until the first real run replaces them.
 """
 
@@ -20,11 +21,9 @@ import numpy as np
 ROOT = Path(__file__).resolve().parent.parent
 ASSETS = ROOT / "docs" / "assets"
 
-THEMES = {
-    "light": {"bg": "#fcfcfb", "text": "#0b0b0b", "muted": "#52514e", "grid": "#e4e3df", "blue": "#2a78d6",
-              "orange": "#eb6834", "dot": "#0b0b0b"},
-    "dark": {"bg": "#1a1a19", "text": "#f0efec", "muted": "#c3c2b7", "grid": "#383835", "blue": "#3987e5",
-             "orange": "#d95926", "dot": "#f0efec"},
+THEMES = {  # the app's "observatory" palette: ink = observed, cyan = forecast
+    "light": {"bg": "#f4f6fb", "text": "#0d1424", "muted": "#4f5a70", "grid": "#d6dce8", "observed": "#0d1424", "forecast": "#0a7c93", "dot": "#0d1424"},
+    "dark": {"bg": "#060a16", "text": "#f2ede3", "muted": "#9aa6bc", "grid": "#1d2944", "observed": "#f2ede3", "forecast": "#5fd4e6", "dot": "#f2ede3"},
 }
 
 
@@ -74,10 +73,10 @@ def banner(theme: str) -> str:
   .sub {{ font: 400 19px Inter, system-ui, sans-serif; fill: {c['muted']}; }}
   .tag {{ font: 600 14px Inter, system-ui, sans-serif; fill: {c['muted']}; letter-spacing: .08em; }}
   .grid line {{ stroke: {c['grid']}; stroke-width: 1; }}
-  .history {{ fill: none; stroke: {c['blue']}; stroke-width: 3; stroke-linejoin: round;
+  .history {{ fill: none; stroke: {c['observed']}; stroke-width: 3; stroke-linejoin: round;
              stroke-dasharray: 1400; stroke-dashoffset: 1400; animation: draw 2s ease-out forwards; }}
-  .fan {{ fill: {c['orange']}; opacity: 0; animation: fade .9s ease-out 2s forwards; }}
-  .median {{ fill: none; stroke: {c['orange']}; stroke-width: 3; opacity: 0; animation: show .5s ease-out 2.4s forwards; }}
+  .fan {{ fill: {c['forecast']}; opacity: 0; animation: fade .9s ease-out 2s forwards; }}
+  .median {{ fill: none; stroke: {c['forecast']}; stroke-width: 3; opacity: 0; animation: show .5s ease-out 2.4s forwards; }}
   .dot {{ fill: {c['dot']}; opacity: 0; animation: show .3s ease-out forwards; }}
   .label {{ font: 500 13px Inter, system-ui, sans-serif; fill: {c['muted']}; opacity: 0; animation: show .6s ease-out 2.8s forwards; }}
   @keyframes draw {{ to {{ stroke-dashoffset: 0; }} }}
@@ -134,9 +133,9 @@ def how_to_read(theme: str) -> str:
 <rect width="1100" height="340" rx="12" fill="{c['bg']}"/>
 <line x1="{today:.0f}" x2="{today:.0f}" y1="{y0}" y2="{y1}" stroke="{c['grid']}" stroke-width="2" stroke-dasharray="4 4"/>
 <text x="{today:.0f}" y="{y1 + 20}" text-anchor="middle" class="m">today</text>
-<polygon points="{fan}" fill="{c['orange']}" opacity=".22"/>
-<polyline points="{pts(hx, hy)}" fill="none" stroke="{c['blue']}" stroke-width="2.5"/>
-<polyline points="{pts([hx[-1], *mx], [hy[-1], *my])}" fill="none" stroke="{c['orange']}" stroke-width="2.5"/>
+<polygon points="{fan}" fill="{c['forecast']}" opacity=".22"/>
+<polyline points="{pts(hx, hy)}" fill="none" stroke="{c['observed']}" stroke-width="2.5"/>
+<polyline points="{pts([hx[-1], *mx], [hy[-1], *my])}" fill="none" stroke="{c['forecast']}" stroke-width="2.5"/>
 {dots}
 {note(1, hx[52], hy[52] - 4, 740, 70, "The past it could see")}
 {note(2, mx[19], my[19], 740, 130, "Its best guess")}
@@ -209,6 +208,10 @@ def main() -> None:
 
     engine_art.write_readme_art(ASSETS)  # the exploded engine, drawn once for the README ...
     engine_art.update_site(ROOT / "site" / "index.html")  # ... and once for the landing page
+    from psychohistory import inventory
+
+    inventory.write_pipeline_js(ROOT / "site" / "app" / "data" / "pipeline.js")  # the app's pipeline explorer
+    (ROOT / "docs" / "ARCHITECTURE.md").write_text(inventory.architecture_md())
     print(f"Wrote artwork to {ASSETS} and placeholders to {plots}")
 
 

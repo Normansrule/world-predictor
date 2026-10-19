@@ -43,6 +43,8 @@ jobs:
           cp results/REPORT.md results/dashboard.html _site/results/ 2>/dev/null || true
           # Bump the offline cache name so returning visitors get the new version.
           sed -i "s/world-predictor-v1/world-predictor-${GITHUB_SHA::8}/" _site/sw.js
+          # Pin the app's code links to the exact commit being deployed.
+          sed -i "s/__COMMIT__/$(git rev-parse HEAD)/" _site/app/data/pipeline.js
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

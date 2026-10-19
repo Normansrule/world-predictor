@@ -395,9 +395,12 @@ def test_web_app_data_and_site(tmp_path):
     assert payload["meta"]["model"] == "drift" and not payload["meta"]["demo"]
     assert payload["outlook"][0]["id"] == "sp500" and payload["outlook"][0]["fan"]
     assert payload["replay"]["forecasts"] and payload["series"] and payload["crowd"]["share"]["1"] < 0.5
+    assert len(payload["evidence"]["sp500"]) == 3  # one record per backtest window, behind each skill number
+    assert set(payload["run"]["stages"]) == {"backtest", "predict"}
     cli.main(["site", *common, "--site-dir", str(tmp_path / "site")])
     built = tmp_path / "site"
-    for rel in ("index.html", "sw.js", "manifest.webmanifest", "app/index.html", "app/js/app.js", "app/js/charts.js", "app/css/app.css"):
+    for rel in ("index.html", "sw.js", "manifest.webmanifest", "app/index.html", "app/js/app.js", "app/js/charts.js",
+                "app/js/trace.js", "app/data/pipeline.js", "app/css/app.css"):
         assert (built / rel).exists(), rel
     assert (built / "app" / "data" / "data.js").read_text() == text
 
@@ -509,3 +512,48 @@ def test_engine_artwork_is_in_sync(tmp_path):
         svg = engine_art.readme_svg(theme)
         xml.dom.minidom.parseString(svg)  # well-formed
         assert svg == (root / "docs" / "assets" / f"engine-{theme}.svg").read_text()
+
+
+def test_skipped_series_are_recorded(tmp_path, monkeypatch):
+    """A source that fails leaves a visible, explained gap for the app instead of silently vanishing."""
+    import json
+
+    spec = catalog.by_id("aapl")
+    path = data.cache_path(spec, tmp_path / "data")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    synthetic(300, freq="B").to_frame("value").to_csv(path, index_label="date")
+
+    def rate_limited(**kwargs):
+        raise ValueError("HTTP 429 from GDELT")
+
+    monkeypatch.setitem(data.SOURCES, "gdelt", rate_limited)
+    monkeypatch.setitem(data.SOURCES, "yahoo", lambda **kwargs: synthetic(300, freq="B"))
+    cli.main(["fetch", "--data-dir", str(tmp_path / "data"), "--out-dir", str(tmp_path / "results"),
+              "--series", "aapl", "--series", "news_war"])
+    status = json.loads((tmp_path / "results" / "run_status.json").read_text())
+    fetch = status["stages"]["fetch"]
+    assert fetch["ok"] == ["aapl"]
+    assert "429" in fetch["skipped"]["news_war"] and fetch["at"].endswith("Z")
+
+
+def test_pipeline_inventory_matches_code(tmp_path):
+    """Every stage the app and docs/ARCHITECTURE.md describe points at code and tests that exist."""
+    from psychohistory import inventory
+
+    root = Path(__file__).resolve().parents[1]
+    info = inventory.payload()
+    ids = {s["id"] for s in info["stages"]}
+    assert {a for edge in info["edges"] for a in edge} <= ids
+    for stage in info["stages"]:
+        for code in stage["code"]:
+            assert (root / code["path"]).exists(), code["path"]
+            if code["symbol"]:
+                assert code["line"], f"{code['symbol']} not found in {code['path']}"
+        for test in stage["tests"]:
+            assert test["line"], f"{stage['id']}: no test named {test['name']}"
+    assert [c["id"] for c in info["catalog"]] == [s.id for s in catalog.CATALOG]
+    assert all(c["url"].startswith("https://") for c in info["catalog"] if c["source"] != "composite")
+    stale = "run scripts/make_readme_art.py"
+    built = inventory.write_pipeline_js(tmp_path / "pipeline.js").read_text()
+    assert (root / "site" / "app" / "data" / "pipeline.js").read_text() == built, stale
+    assert (root / "docs" / "ARCHITECTURE.md").read_text() == inventory.architecture_md(), stale

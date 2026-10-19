@@ -1,0 +1,80 @@
+{
+ "run_id": "39167032840",
+ "recorded": "Rebuilt on 2026-10-19 from this run's outputs: the run predates run_status.json. Reasons come from reading the run log on 2026-10-18; both were fixed in commit 633e744 and the next weekly run retries every series.",
+ "stages": {
+  "predict": {
+   "at": "2026-10-18T21:25:29Z",
+   "ok": [
+    "aapl",
+    "bitcoin",
+    "copper",
+    "gold",
+    "msci_world",
+    "nasdaq100",
+    "news_election",
+    "news_inflation",
+    "news_pandemic",
+    "nvda",
+    "oil_wti",
+    "silver",
+    "sp500",
+    "tech_composite",
+    "tsla",
+    "wiki_ai",
+    "wiki_crispr",
+    "wiki_ev",
+    "wiki_fusion",
+    "wiki_humanoid",
+    "wiki_llm",
+    "wiki_quantum",
+    "xom"
+   ],
+   "skipped": {
+    "news_war": "GDELT rate limit (HTTP 429) or an empty reply",
+    "news_climate": "GDELT rate limit (HTTP 429) or an empty reply",
+    "news_protest": "GDELT rate limit (HTTP 429) or an empty reply",
+    "news_composite": "composite: its GDELT members were missing",
+    "adoption_solar": "OWID renamed its CSV columns (KeyError: 'Entity')",
+    "adoption_wind": "OWID renamed its CSV columns (KeyError: 'Entity')",
+    "adoption_internet": "OWID renamed its CSV columns (KeyError: 'Entity')"
+   }
+  },
+  "backtest": {
+   "at": "2026-10-18T21:30:33Z",
+   "ok": [
+    "aapl",
+    "bitcoin",
+    "copper",
+    "gold",
+    "msci_world",
+    "nasdaq100",
+    "news_climate",
+    "news_election",
+    "news_inflation",
+    "news_pandemic",
+    "news_protest",
+    "nvda",
+    "oil_wti",
+    "silver",
+    "sp500",
+    "tech_composite",
+    "tsla",
+    "wiki_ai",
+    "wiki_crispr",
+    "wiki_ev",
+    "wiki_fusion",
+    "wiki_humanoid",
+    "wiki_llm",
+    "wiki_quantum",
+    "xom"
+   ],
+   "skipped": {
+    "news_war": "GDELT rate limit (HTTP 429) or an empty reply",
+    "news_composite": "composite: its GDELT members were missing",
+    "adoption_solar": "OWID renamed its CSV columns (KeyError: 'Entity')",
+    "adoption_wind": "OWID renamed its CSV columns (KeyError: 'Entity')",
+    "adoption_internet": "OWID renamed its CSV columns (KeyError: 'Entity')"
+   }
+  }
+ }
+}

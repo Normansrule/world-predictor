@@ -72,6 +72,7 @@ def build_payload(
     scored: pd.DataFrame | None,
     data: dict[str, pd.Series],
     demo: bool = False,
+    run_status: dict | None = None,
 ) -> dict:
     """Everything the app needs, as plain JSON-ready values."""
     summary = summarize(results) if results is not None and not results.empty else None
@@ -84,6 +85,7 @@ def build_payload(
         "scorecard": scorecard(summary, model, by_step, results),
         "domains": [], "horizon": [], "calibration": [], "series": [],
         "outlook": [], "replay": None, "vault": [], "crowd": crowd_payload(),
+        "run": run_status or {}, "evidence": evidence(results, model),
     }
     if summary is not None:
         table = domain_table(summary)
@@ -152,6 +154,19 @@ def build_payload(
             for r in record.itertuples()
         ]
     return payload
+
+
+def evidence(results: pd.DataFrame | None, model: str) -> dict[str, list]:
+    """Each series' backtest windows for the model under test: [origin, MASE, share inside the
+    80% range, chance of rising it gave, whether it rose]. The record behind every skill number."""
+    if results is None or results.empty:
+        return {}
+    rows = results[results["model"] == model].sort_values(["series_id", "origin"])
+    return {
+        sid: [[str(r.origin), _num(r.mase, 4), _num(r.coverage80, 4), _num(r.p_up, 4), _num(r.went_up, 1)]
+              for r in group.itertuples()]
+        for sid, group in rows.groupby("series_id")
+    }
 
 
 def _known(series_id: str) -> bool:
