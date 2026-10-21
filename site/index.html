@@ -4,81 +4,70 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>World Predictor</title>
-  <meta name="description" content="Can a machine do Hari Seldon's psychohistory? Google's TimesFM forecasts world news, markets (stocks, gold, silver) and technology, and every forecast is sealed and scored in public.">
-  <meta name="theme-color" content="#060a16">
+  <meta name="description" content="A forecasting terminal that keeps score. Google's TimesFM and Seldon, its self-correcting challenger, forecast world news, markets and technology; every forecast is sealed before the future happens and scored when it arrives. Make your own call in the Lab.">
+  <meta name="theme-color" content="#eef1f4">
   <meta property="og:title" content="World Predictor">
-  <meta property="og:description" content="Psychohistory, tested in public: TimesFM forecasts of news, markets and technology, sealed before the future happens and scored when it arrives.">
+  <meta property="og:description" content="Forecasts sealed before the future happens and scored when it arrives. TimesFM against Seldon, its self-correcting challenger, and you.">
   <meta property="og:image" content="assets/banner-dark.svg">
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600;1,6..72,500&display=swap">
   <link rel="stylesheet" href="app/css/app.css">
   <link rel="stylesheet" href="assets/site.css">
-  <script>try { const t = localStorage.getItem("wp-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
+  <script>document.documentElement.classList.add("js"); try { const t = localStorage.getItem("wp-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
-<nav class="nav" aria-label="Main">
-  <div class="wrap">
-    <a class="brand" href="./" aria-label="World Predictor home">
-      <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14" fill="none" stroke="var(--accent)" stroke-width="2.2"/><path d="M4 19 C10 17 12 11 16 13 S 22 10 28 8" fill="none" stroke="var(--text)" stroke-width="2.2" stroke-linecap="round"/><path d="M16 13 L28 4 L28 14 Z" fill="var(--forecast)" opacity=".5"/></svg>
-      World Predictor
-    </a>
-    <ul>
-      <li><a href="#engine">How it works</a></li>
-      <li><a href="#results">Results</a></li>
-      <li><a href="#app">The app</a></li>
-      <li><a href="#download">Download</a></li>
-      <li><a href="https://github.com/Normansrule/world-predictor">GitHub</a></li>
-    </ul>
-    <button class="icon-btn" id="theme" title="Switch light / dark" aria-label="Switch light or dark theme"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg></button>
-  </div>
-</nav>
+<header class="status site-bar">
+  <a class="mark" href="./" aria-label="World Predictor home">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M3.5 14.5c3-1 4.5-5 8.5-4s5.5-3 8.5-4" fill="none" stroke="var(--tfm)" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="10.4" r="2.2" fill="var(--seal)"/></svg>
+    <span>World Predictor</span>
+  </a>
+  <nav aria-label="Main">
+    <a href="#lab">The Lab</a>
+    <a href="#results">Results</a>
+    <a href="#engine">How it works</a>
+    <a href="#download">Run it</a>
+    <a href="https://github.com/Normansrule/world-predictor">GitHub</a>
+  </nav>
+  <a class="btn primary open" href="app/">Open the terminal</a>
+  <button class="icon-btn" id="theme" title="Paper or night" aria-label="Switch between the night terminal and the paper ledger">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg>
+  </button>
+</header>
+<div class="cmd site-tape"><div class="tape" id="tape" aria-label="Newest sealed forecasts: chance each series ends higher"></div></div>
 
 <main id="main">
-  <header class="hero">
-    <div class="wrap grid2">
-      <div>
-        <p class="kicker">Psychohistory, tested in public</p>
-        <h1 data-split>Can a machine see the future of <em>crowds</em>?</h1>
-        <p class="lede">Hari Seldon bet that no one can predict a person, but anyone could predict a billion of them.
-          World Predictor puts that bet to Google's open <b>TimesFM</b> model across world news, markets and new technology,
-          then seals every forecast with a date and scores it when the future arrives.</p>
-        <div class="cta-row">
-          <a class="cta primary" href="app/">Open the app <span aria-hidden="true">→</span></a>
-          <a class="cta" href="app/#trace">Follow one result</a>
-          <a class="cta" href="https://github.com/Normansrule/world-predictor/releases/latest">Download the full version</a>
-        </div>
-        <p class="live"><span class="dot" aria-hidden="true"></span><span id="live-text">Forecasts refresh every week on GitHub Actions</span></p>
+  <header class="hero wrap" id="lab">
+    <div class="hero-copy">
+      <h1>Forecasts, sealed before the future happens.</h1>
+      <p class="lede">World Predictor runs Google's <b>TimesFM</b> on world news, markets and technology, next to <b>Seldon</b>, a version
+        that corrects itself from its own track record. Every forecast is written down with a date and scored when reality arrives.
+        Try it yourself: the chart is a real past window with the ending hidden.</p>
+      <div class="cta-row">
+        <a class="btn primary big" href="app/#lab">Play the full Lab</a>
+        <a class="btn big" href="app/">Open the terminal</a>
       </div>
-      <figure class="oracle" data-reveal>
-        <div class="frame">
-          <div class="meta"><b id="oracle-title">Newest sealed forecast</b><span id="oracle-made"></span></div>
-          <div id="oracle-chart"></div>
-          <div class="meta"><span class="odds" id="oracle-odds">–</span><span id="oracle-cap"></span></div>
-        </div>
-        <figcaption>History in white, forecast in cyan, the hatched band is the 80% range. Not financial advice.</figcaption>
-      </figure>
+      <dl class="hero-facts" id="hero-facts"></dl>
     </div>
+    <div class="hero-lab" id="hero-lab" aria-label="Lab: make a blind call on a real past window"></div>
   </header>
 
-  <section class="wrap" aria-label="In numbers">
-    <div class="stats">
-      <div><b id="stat-series" data-count="">–</b><span>live series backtested</span></div>
-      <div><b id="stat-news" data-kind="pct">–</b><span>less error than a simple guess in world news</span></div>
-      <div><b id="stat-tech" data-kind="pct">–</b><span>less error in technology trends</span></div>
-      <div><b id="stat-markets" data-kind="pct">–</b><span>in markets: close to a random walk, as theory says</span></div>
-      <div><b id="stat-sealed">–</b><span>forecasts sealed this week</span></div>
-    </div>
+  <section class="block wrap" id="results" aria-labelledby="results-title">
+    <h2 class="title" id="results-title">Crowds were predictable. Markets were not.</h2>
+    <p class="intro">Skill is how much less error than "no change", the guess that tomorrow looks like today, on past windows neither model
+      was allowed to see. In range is how often reality landed inside the 80% range; the target is 80%, not 100%.</p>
+    <div class="card"><div class="table-wrap"><table class="board" id="board" aria-live="polite"></table></div></div>
+    <p class="note">Full tables, horizons and calibration are in the <a href="app/#desk">terminal</a> and the
+      <a href="https://github.com/Normansrule/world-predictor/blob/main/results/REPORT.md">report</a>.</p>
   </section>
 
   <section class="block" id="engine" aria-labelledby="engine-title">
     <div class="wrap">
-      <p class="eyebrow">How a forecast is built</p>
-      <h2 class="title" id="engine-title" data-reveal>One forecast, taken apart.</h2>
-      <p class="intro" data-reveal>Scroll, and the forecast card comes apart into the six layers it is made of, then
-        clicks back together. Every forecast on this site is built exactly this way.</p>
+      <h2 class="title" id="engine-title">One forecast, taken apart.</h2>
+      <p class="intro">Scroll, and a forecast comes apart into the six layers it is made of, then clicks back together.
+        Seldon sits between the model and the seal.</p>
     </div>
     <div class="explode" aria-label="How a forecast is built, in six layers">
       <div class="explode__stage wrap">
@@ -97,7 +86,7 @@
           <li style="--i:1"><b>History</b><span>Years of daily or weekly values for one series: the past the model is allowed to see.</span></li>
           <li style="--i:2"><b>Context window</b><span>TimesFM reads the history in patches of 32 steps, like words in a sentence.</span></li>
           <li style="--i:3"><b>TimesFM 2.5</b><span>Google Research&#x27;s open forecasting model. Nothing is trained on our data.</span></li>
-          <li style="--i:4"><b>Forecast</b><span>A range for every step ahead: the middle guess and an 80% band, sealed with a date.</span></li>
+          <li style="--i:4"><b>Forecast</b><span>A range for every step ahead from TimesFM, Seldon&#x27;s corrected range beside it, both sealed with a date.</span></li>
           <li style="--i:5"><b>Score</b><span>When the future arrives, reality is drawn over the fan and the forecast is scored.</span></li>
         </ol>
         <!-- engine:end -->
@@ -105,56 +94,56 @@
     </div>
   </section>
 
-  <section class="block" id="results" aria-labelledby="results-title">
-    <div class="wrap">
-      <p class="eyebrow">Did it beat a simple guess?</p>
-      <h2 class="title" id="results-title" data-reveal>Crowds were predictable. Markets were not.</h2>
-      <p class="intro" data-reveal>Skill is how much less error TimesFM made than "tomorrow looks like today", in backtests that
-        never let it see the future it was tested on. Right of the line is better than the guess.</p>
-      <div class="board card" id="board" aria-live="polite"></div>
-      <p class="caption">Full tables, horizons and calibration are in the <a href="app/#overview">app</a> and the
-        <a href="https://github.com/Normansrule/world-predictor/blob/main/results/REPORT.md">report</a>.</p>
-    </div>
+  <section class="block wrap" id="app" aria-labelledby="app-title">
+    <h2 class="title" id="app-title">A terminal for one question: who saw it coming?</h2>
+    <p class="intro">Every view answers it a different way. Press a number key to jump between them, or <kbd>/</kbd> to find a series.</p>
+    <a class="preview" href="app/" aria-label="Open the terminal"><img src="assets/app-preview.png" alt="The World Predictor terminal: the scoreboard of TimesFM against Seldon, by area" loading="lazy" width="1280" height="800"></a>
+    <ul class="views">
+      <li><a href="app/#lab"><kbd>2</kbd><b>Lab</b><span>Make a blind call on a real past window, seal it, and see whether you beat TimesFM and Seldon.</span></a></li>
+      <li><a href="app/#studio"><kbd>3</kbd><b>Forecast Studio</b><span>Ask the chance of any level on any date, then seal your own call on the real future and have it scored.</span></a></li>
+      <li><a href="app/#outlook"><kbd>4</kbd><b>Outlook</b><span>Every series' newest sealed forecast, with Seldon's corrected range beside TimesFM's.</span></a></li>
+      <li><a href="app/#trace"><kbd>5</kbd><b>Follow a result</b><span>One forecast traced back through every stage, to the public record it came from.</span></a></li>
+      <li><a href="app/#replay"><kbd>6</kbd><b>Replay</b><span>Past forecasts meet reality, frame by frame.</span></a></li>
+      <li><a href="app/#horizon"><kbd>7</kbd><b>How far ahead</b><span>The "Seldon horizon": how many days the model's edge lasts in each area.</span></a></li>
+      <li><a href="app/#odds"><kbd>8</kbd><b>Honest odds</b><span>When it says 70%, does it happen 70% of the time?</span></a></li>
+      <li><a href="app/#vault"><kbd>9</kbd><b>Time Vault</b><span>Sealed predictions, opened and scored as their dates arrive.</span></a></li>
+    </ul>
   </section>
 
-  <section class="block" id="app" aria-labelledby="app-title">
-    <div class="wrap">
-      <p class="eyebrow">The app</p>
-      <h2 class="title" id="app-title" data-reveal>Every forecast, replayed and scored.</h2>
-      <p class="intro" data-reveal>Replay past forecasts against what really happened, read this week's outlook in plain words,
-        and watch the Time Vault open sealed predictions as their dates arrive.</p>
-      <a class="preview" href="app/" aria-label="Open the app"><img src="assets/app-preview.png" alt="The World Predictor app showing the scoreboard for news, markets and technology" loading="lazy" width="1280" height="800"></a>
-      <div class="features" style="margin-top:40px">
-        <a class="card" href="app/#replay" data-reveal style="--d:0"><div class="glyph">⏯</div><h3>Replay</h3><p>Press play and watch past forecasts meet reality, frame by frame.</p></a>
-        <a class="card" href="app/#outlook" data-reveal style="--d:1"><div class="glyph">🔮</div><h3>Outlook</h3><p>Stocks, gold, silver, Bitcoin, news and AI: the newest forecast and its odds, in words.</p></a>
-        <a class="card" href="app/#vault" data-reveal style="--d:2"><div class="glyph">🔐</div><h3>Time Vault</h3><p>Predictions sealed before the future happens, opened and scored when it does.</p></a>
-        <a class="card" href="app/#horizon" data-reveal style="--d:0"><div class="glyph">🔭</div><h3>How far ahead</h3><p>The "Seldon horizon": how many days the model's edge lasts in each area.</p></a>
-        <a class="card" href="app/#odds" data-reveal style="--d:1"><div class="glyph">⚖️</div><h3>Honest odds</h3><p>When it says 70%, does it happen 70% of the time? The calibration test.</p></a>
-        <a class="card" href="app/#crowd" data-reveal style="--d:2"><div class="glyph">👥</div><h3>Crowd lab</h3><p>Drag a slider and see why ten thousand noisy people add up to something predictable. A labelled simulation.</p></a>
-        <a class="card" href="app/#trace" data-reveal style="--d:0"><div class="glyph">🧭</div><h3>Follow one result</h3><p>Pick a forecast and trace it back through every stage, to the public record it came from.</p></a>
-        <a class="card" href="app/#series" data-reveal style="--d:1"><div class="glyph">📋</div><h3>Every series</h3><p>All thirty series and their backtest scores in one sortable table, gaps included.</p></a>
-        <a class="card" href="https://github.com/Normansrule/world-predictor/blob/main/docs/ARCHITECTURE.md" data-reveal style="--d:2"><div class="glyph">🧩</div><h3>Architecture</h3><p>What each stage does, the code and tests behind it, and what happens when it fails.</p></a>
+  <section class="block wrap" id="download" aria-labelledby="download-title">
+    <h2 class="title" id="download-title">The same terminal, two ways.</h2>
+    <p class="intro">Use it here with nothing to install, or download the full version and run TimesFM on your own computer.
+      Both are built from the same files, so they look and work the same.</p>
+    <div class="ways">
+      <div class="card">
+        <header class="ph"><h2>On the web</h2></header>
+        <p>GitHub Pages serves this site with the newest weekly forecasts. Nothing to install, and it keeps working offline after the first visit.</p>
+        <a class="btn primary" href="app/">Open the terminal</a>
+      </div>
+      <div class="card">
+        <header class="ph"><h2>On your computer</h2></header>
+        <p>Fetch fresh data, run TimesFM on your own processor (no graphics card needed) and open this same terminal on localhost.</p>
+        <pre><code>git clone https://github.com/Normansrule/world-predictor.git
+cd world-predictor &amp;&amp; pip install -e ".[timesfm]"
+psychohistory app --demo
+psychohistory ask --csv my_series.csv --above 120</code></pre>
+        <a class="btn" href="https://github.com/Normansrule/world-predictor#quick-start">Full quick start</a>
       </div>
     </div>
-  </section>
-
-  <section class="block" id="download" aria-labelledby="download-title">
-    <div class="wrap">
-      <p class="eyebrow">Web or download</p>
-      <h2 class="title" id="download-title" data-reveal>The same app, two ways.</h2>
-      <p class="intro" data-reveal>Use it here with nothing to install, or download the full version and run TimesFM on your own
-        computer. Both are built from the same files, so they look and work the same.</p>
-      <div class="features">
-        <div class="card" data-reveal><div class="glyph">🌐</div><h3>On the web</h3><p>GitHub Pages serves this site with the newest weekly forecasts. It works offline after the first visit.</p></div>
-        <div class="card" data-reveal style="--d:1"><div class="glyph">💻</div><h3>On your computer</h3><p><code>psychohistory app</code> fetches fresh data, runs TimesFM and opens this same app at localhost.</p></div>
-        <a class="card" href="https://github.com/Normansrule/world-predictor#-quick-start" data-reveal style="--d:2"><div class="glyph">⚡</div><h3>Quick start</h3><p>Three commands on Ubuntu, macOS or Windows. Demo data opens in seconds.</p></a>
-      </div>
-      <div class="marquee" aria-label="Data sources and projects this is built on">
-        <div class="track">
-          <span>Google Research · TimesFM</span><span>Amazon · Chronos</span><span>Nixtla · statsforecast</span><span>GDELT Project</span><span>Yahoo Finance via yfinance</span><span>Wikimedia pageviews</span><span>Our World in Data</span><span>World Monitor</span><span>Terra Atlas</span><span>Isaac Asimov's Foundation</span><span>Peter Turchin's cliodynamics</span><span>Philip Tetlock's Superforecasting</span>
-          <span aria-hidden="true">Google Research · TimesFM</span><span aria-hidden="true">Amazon · Chronos</span><span aria-hidden="true">Nixtla · statsforecast</span><span aria-hidden="true">GDELT Project</span><span aria-hidden="true">Yahoo Finance via yfinance</span><span aria-hidden="true">Wikimedia pageviews</span><span aria-hidden="true">Our World in Data</span><span aria-hidden="true">World Monitor</span><span aria-hidden="true">Terra Atlas</span><span aria-hidden="true">Isaac Asimov's Foundation</span><span aria-hidden="true">Peter Turchin's cliodynamics</span><span aria-hidden="true">Philip Tetlock's Superforecasting</span>
-        </div>
-      </div>
+    <div class="credits">
+      <h3>Built on</h3>
+      <ul>
+        <li><a href="https://github.com/google-research/timesfm">TimesFM, Google Research</a></li>
+        <li><a href="https://github.com/amazon-science/chronos-forecasting">Chronos, Amazon</a></li>
+        <li><a href="https://github.com/Nixtla/statsforecast">statsforecast, Nixtla</a></li>
+        <li><a href="https://www.gdeltproject.org/">GDELT Project</a></li>
+        <li><a href="https://github.com/ranaroussi/yfinance">Yahoo Finance via yfinance</a></li>
+        <li><a href="https://wikitech.wikimedia.org/wiki/Analytics/AQS/Pageviews">Wikimedia pageviews</a></li>
+        <li><a href="https://ourworldindata.org/">Our World in Data</a></li>
+        <li><a href="https://github.com/koala73/worldmonitor">World Monitor</a></li>
+        <li><a href="https://github.com/Normansrule/worldmonitor">Terra Atlas</a></li>
+        <li><a href="https://github.com/Normansrule/world-predictor/blob/main/CREDITS.md">All credits</a></li>
+      </ul>
     </div>
   </section>
 </main>
@@ -164,17 +153,18 @@
     <div>
       <h4>World Predictor</h4>
       <p>Apache-2.0. Built on Google's TimesFM. Forecasts are an experiment, not financial advice.</p>
-      <p>Maintained by <a href="https://github.com/Normansrule">@Normansrule</a>.</p>
-      <p>Design basis: <a href="https://github.com/koala73/worldmonitor">World Monitor</a> and <a href="https://github.com/Normansrule/worldmonitor">Terra Atlas</a>.
-        Look and motion inspired by fifty sites and READMEs listed in <a href="https://github.com/Normansrule/world-predictor/blob/main/docs/DESIGN.md">DESIGN.md</a>; no code copied.</p>
+      <p>Maintained by <a href="https://github.com/Normansrule">@Normansrule</a>. Product basis:
+        <a href="https://github.com/koala73/worldmonitor">World Monitor</a> and <a href="https://github.com/Normansrule/worldmonitor">Terra Atlas</a>.
+        Design notes in <a href="https://github.com/Normansrule/world-predictor/blob/main/docs/DESIGN.md">DESIGN.md</a>.</p>
     </div>
-    <div><h4>Explore</h4><ul><li><a href="app/">Open the app</a></li><li><a href="app/#trace">Follow one result</a></li><li><a href="app/#vault">Time Vault</a></li><li><a href="app/#about">About the scoring</a></li></ul></div>
+    <div><h4>Explore</h4><ul><li><a href="app/">Open the terminal</a></li><li><a href="app/#lab">The Lab</a></li><li><a href="app/#trace">Follow a result</a></li><li><a href="app/#about">About the scoring</a></li></ul></div>
     <div><h4>Project</h4><ul><li><a href="https://github.com/Normansrule/world-predictor">Source</a></li><li><a href="https://github.com/Normansrule/world-predictor/blob/main/docs/ARCHITECTURE.md">Architecture</a></li><li><a href="https://github.com/Normansrule/world-predictor/blob/main/CREDITS.md">Credits</a></li><li><a href="https://github.com/Normansrule/world-predictor/releases/latest">Download</a></li></ul></div>
   </div>
 </footer>
 
 <script src="app/data/data.js"></script>
 <script src="app/js/charts.js"></script>
+<script src="app/js/lab.js"></script>
 <script src="assets/site.js"></script>
 </body>
 </html>

@@ -5,35 +5,36 @@
   <img src="docs/assets/banner-light.svg" alt="World Predictor: an animated forecast fan chart" width="100%">
 </picture>
 
-**Can a machine do Hari Seldon's psychohistory?**<br>
-Google's open-source **TimesFM** forecasts world news, markets (stocks, gold, silver) and new technologies,
-and every forecast is scored in public.
+**A forecasting terminal that keeps score.**<br>
+Google's open-source **TimesFM** and **Seldon**, its self-correcting challenger, forecast world news, markets and new technologies.
+Every forecast is sealed before the future happens and scored when it arrives. Then it's your turn, in the Lab.
 
-[![Visit the site](https://img.shields.io/badge/Visit-the_site-5fd4e6?style=for-the-badge&logo=googlechrome&logoColor=060a16)](https://normansrule.github.io/world-predictor/)
-[![Open the web app](https://img.shields.io/badge/Open-the_web_app-0a7c93?style=for-the-badge&logo=googlechrome&logoColor=white)](https://normansrule.github.io/world-predictor/app/)
-[![Download the full version](https://img.shields.io/badge/Download-full_version-060a16?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Normansrule/world-predictor/releases/latest)
-[![Read the report](https://img.shields.io/badge/Read-the_report-1d2944?style=for-the-badge&logo=markdown&logoColor=white)](results/REPORT.md)
+[![Play the Lab](https://img.shields.io/badge/Play-the_Lab-c4412a?style=for-the-badge&logo=googlechrome&logoColor=white)](https://normansrule.github.io/world-predictor/app/#lab)
+[![Ask TimesFM](https://img.shields.io/badge/Ask-TimesFM-0b7477?style=for-the-badge&logo=googlechrome&logoColor=white)](https://normansrule.github.io/world-predictor/app/#studio)
+[![Open the terminal](https://img.shields.io/badge/Open-the_terminal-2448c2?style=for-the-badge&logo=googlechrome&logoColor=white)](https://normansrule.github.io/world-predictor/app/)
+[![Download the full version](https://img.shields.io/badge/Download-full_version-0f1722?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Normansrule/world-predictor/releases/latest)
+[![Read the report](https://img.shields.io/badge/Read-the_report-47515f?style=for-the-badge&logo=markdown&logoColor=white)](results/REPORT.md)
 
 [![tests](https://github.com/Normansrule/world-predictor/actions/workflows/tests.yml/badge.svg)](https://github.com/Normansrule/world-predictor/actions/workflows/tests.yml)
 [![weekly forecasts](https://github.com/Normansrule/world-predictor/actions/workflows/predict.yml/badge.svg)](https://github.com/Normansrule/world-predictor/actions/workflows/predict.yml)
 [![pages](https://github.com/Normansrule/world-predictor/actions/workflows/pages.yml/badge.svg)](https://github.com/Normansrule/world-predictor/actions/workflows/pages.yml)
-[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-0a7c93)](LICENSE)
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-2448c2)](LICENSE)
 ![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-1baf7a)
-[![Model: TimesFM 2.5](https://img.shields.io/badge/model-TimesFM_2.5-0a7c93)](https://github.com/google-research/timesfm)
+[![Model: TimesFM 2.5](https://img.shields.io/badge/model-TimesFM_2.5-2448c2)](https://github.com/google-research/timesfm)
+[![Challenger: Seldon](https://img.shields.io/badge/challenger-Seldon-0b7477)](src/psychohistory/seldon.py)
 ![No server](https://img.shields.io/badge/server-none-1baf7a)
 ![No API keys](https://img.shields.io/badge/API_keys-none-1baf7a)
 
-[The idea](#-the-idea-in-30-seconds) ·
-[The app](#%EF%B8%8F-the-app) ·
-[Follow one result](#-follow-one-result) ·
-[Latest results](#-latest-results) ·
-[How it works](#%EF%B8%8F-how-it-works) ·
-[Architecture](docs/ARCHITECTURE.md) ·
-[Quick start](#-quick-start) ·
-[Progress](#%EF%B8%8F-roadmap-and-progress) ·
-[Design](#-design) ·
-[References](#-references) ·
-[Credits](#-credits)
+[Overview](#overview) ·
+[Features](#key-features) ·
+[Screenshots](#screenshots) ·
+[Results](#latest-results) ·
+[Setup](#setup-and-usage) ·
+[How it works](#how-it-works) ·
+[Structure](#project-structure) ·
+[Design](#design) ·
+[Progress](#roadmap-and-progress) ·
+[Credits](#credits)
 
 <sub>Maintained by <a href="https://github.com/Normansrule">@Normansrule</a></sub>
 
@@ -41,106 +42,111 @@ and every forecast is scored in public.
 
 ---
 
-## 🔭 The idea in 30 seconds
+## Overview
 
-In Isaac Asimov's *Foundation*, Hari Seldon cannot predict what any one person will do, but his
-*psychohistory* can predict what billions of people will do together. World Predictor asks a
-small, honest version of that question with [**TimesFM**](https://github.com/google-research/timesfm),
-Google Research's open-source forecasting model:
+In Isaac Asimov's *Foundation*, Hari Seldon can't predict what any one person will do, but his
+*psychohistory* can predict what billions of people will do together. World Predictor runs a small,
+honest version of that bet: every week it asks [**TimesFM**](https://github.com/google-research/timesfm)
+(Time Series Foundation Model, Google Research's open-source forecaster) what happens next in world
+news, markets and new technology, seals each forecast with a date, and scores it in public once the
+future shows up. Next to it runs **Seldon**, a challenger that corrects TimesFM using nothing but
+TimesFM's own track record, and in the **Lab** you can make your own blind call on a real past window
+and see whether you'd have beaten them both. It's for anyone curious how far AI (artificial intelligence) forecasting really
+reaches: people who follow markets or the news, data-science learners who want a worked, open example
+of backtesting and calibration, and forecasting nerds who'd rather see the misses than a highlight reel.
+Nothing here is financial advice, and most of the interesting results are about *where prediction fails*.
 
-> **When an AI forecasts the world, how often is it right, how far ahead can it see, and is it
-> better at crowds than at individuals?**
+| Area | What gets forecast | Data |
+|---|---|---|
+| **World events in the news** | Share of world news coverage about war, elections, inflation, climate, disease outbreaks and protests | [GDELT](https://www.gdeltproject.org/) (Global Database of Events, Language and Tone) |
+| **Markets and stores of value** | S&P 500 (Standard & Poor's 500), Nasdaq-100, MSCI World (Morgan Stanley Capital International), Apple, NVIDIA, Tesla, Exxon, **gold**, **silver**, oil, copper, Bitcoin | Yahoo Finance via [yfinance](https://github.com/ranaroussi/yfinance) |
+| **New technologies** | Attention to large language models, AI, quantum computing, CRISPR (clustered regularly interspaced short palindromic repeats) gene editing, electric vehicles, fusion and humanoid robots; adoption of solar, wind and the internet | [Wikimedia Pageviews](https://wikitech.wikimedia.org/wiki/Analytics/AQS/Pageviews), [Our World in Data](https://ourworldindata.org/) |
 
-Every week it seals new dated forecasts, waits for the future to arrive, and keeps score in public.
-Nothing here is financial advice. Most of the interesting results are about *where prediction fails*.
+## Key features
 
-| | Area | What is forecast | Data |
-|:-:|---|---|---|
-| 📰 | **World events in the news** | Share of world news coverage about war, elections, inflation, climate, outbreaks, protests | [GDELT Project](https://www.gdeltproject.org/) |
-| 📈 | **Markets and stores of value** | S&P 500, Nasdaq-100, MSCI World, Apple, NVIDIA, Tesla, Exxon, **gold**, **silver**, oil, copper, Bitcoin | Yahoo Finance via [yfinance](https://github.com/ranaroussi/yfinance) |
-| 🚀 | **New technologies** | Attention to LLMs, AI, quantum, CRISPR, EVs, fusion, humanoid robots; adoption of solar, wind, internet | [Wikimedia Pageviews](https://wikitech.wikimedia.org/wiki/Analytics/AQS/Pageviews), [Our World in Data](https://ourworldindata.org/) |
+- **The Lab.** A real past window with the ending hidden. Drag your forecast and your range, hold to
+  seal it, hold again to break the seal, and watch reality, TimesFM and Seldon draw in. You're scored on
+  the same terms they are (average miss, whether reality stayed in your range, direction), and your
+  record is kept in your browser.
+- **Forecast Studio: ask TimesFM, then go on the record.** Pick any series, date and level and read
+  the chance TimesFM and Seldon give it, straight from their newest sealed forecast, with the
+  percentiles beside it and a CSV (comma-separated values) download. Then seal your own call on the
+  real future: it's fingerprinted, kept in your browser and scored against both models once the real
+  value is in the data.
+- **TimesFM on your own data.** `psychohistory ask` runs TimesFM live on any series in the catalog or on
+  your own CSV, prints the middle and the 80% range for every step, adds Seldon's corrected range when
+  it has a track record, answers "what's the chance it ends above X?", and can seal the forecast in the
+  ledger to be scored later.
+- **Seldon, the improved TimesFM.** Before each forecast, Seldon looks only at windows that had already
+  finished and learns two things: how much of TimesFM's predicted move actually paid off on that series
+  (it keeps only that share), and how much to stretch or narrow the range so it catches reality 8 times
+  in 10. It runs in the backtest, in the weekly sealed forecasts and in the Lab, and it's allowed to lose.
+- **A terminal, not a brochure.** A status bar with the run's vital signs, a ticker of every sealed
+  forecast, a command bar (<kbd>/</kbd>) that jumps to any series, and number keys for every view.
+  A light ledger theme by default, with a softer graphite theme one key (<kbd>T</kbd>) away.
+- **Forecasts that can't be quietly edited.** Every week's predictions go into
+  [`predictions/ledger.csv`](predictions/ledger.csv) *before* the future happens and get scored when it
+  arrives. The Time Vault in the app opens them on their due dates.
+- **A fair fight.** TimesFM has to beat "tomorrow looks like today", a drift line, a seasonal mean and a
+  serious classical model (AutoETS, which fits error, trend and seasonality automatically), in rolling backtests that never let it peek at the future.
+  Amazon's Chronos can join as a rival, and an ensemble averages them all.
+- **Follow one result.** Pick any forecast and trace it back through all nine pipeline stages, Seldon
+  included, to the public record it came from, with links to the exact code and tests behind each stage.
+- **One app, two ways.** The same static `site/` folder runs on GitHub Pages with nothing to install,
+  or on your own computer with `psychohistory app`. No server, no API (application programming
+  interface) keys, no chart library, and it works offline after the first visit.
+- **Honest about gaps.** Series that failed to download or forecast stay visible as gaps with the
+  reason, demo data is labelled as demo everywhere, and the crowd simulation is marked as a simulation.
+- **Runs itself.** A weekly GitHub Actions workflow fetches data, seals new forecasts, scores old ones,
+  redraws every chart and republishes the site.
 
----
+## Screenshots
 
-## 🖥️ The app
+**The Lab.** One S&P 500 round: make the call, seal it, break the seal, see who was closest.
 
-One app, two ways to run it. They are the **same files** in [`site/`](site/): the web version is served
-by GitHub Pages with the newest weekly forecasts, and the full version runs TimesFM on your own
-computer and opens the identical app at `http://localhost:8000`.
+<p align="center"><img src="docs/assets/app-lab.gif" alt="A Lab round: dragging a forecast for the S&P 500, sealing it with a red seal, then breaking the seal as reality, TimesFM and Seldon draw in and the scores appear" width="100%"></p>
+
+The landing page, light and graphite. The Lab is the first thing you see, already loaded with a real round.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/app-overview-dark.png">
-  <img src="docs/assets/app-overview.png" alt="World Predictor app: scoreboard for world news, markets and technology, findings in plain English, and a skill chart" width="100%">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/landing-dark.png">
+  <img src="docs/assets/landing.png" alt="World Predictor landing page: the headline 'Forecasts, sealed before the future happens' beside a live Lab round on the S&P 500" width="100%">
 </picture>
 
-| | 🌐 Web app | 💻 Full version |
-|---|---|---|
-| **Open it** | [normansrule.github.io/world-predictor](https://normansrule.github.io/world-predictor/) | `psychohistory app` (see [Quick start](#-quick-start)) |
-| **Install** | Nothing. Optionally *Install app* from the browser menu | Python 3.10+, about 2 GB with PyTorch |
-| **Forecasts** | The project's weekly TimesFM run | Your own runs, any series, any model |
-| **Data** | Precomputed into one small script file | Downloaded fresh from GDELT, Yahoo, Wikimedia, OWID |
-| **Offline** | Yes, after the first visit (service worker) | Yes |
-| **Built for** | Fast first load: no chart library, under 50 KB of code | Full power: backtests, rivals, ensembles |
+**The Desk.** TimesFM against Seldon against "no change", by area, with the week's sealed forecasts below.
 
-```mermaid
-flowchart LR
-  S["site/<br/>one static app"] --> P["🌐 GitHub Pages<br/>normansrule.github.io/world-predictor"]
-  S --> L["💻 psychohistory app<br/>localhost:8000"]
-  S --> R["📦 GitHub Release<br/>full project zip + offline app zip"]
-  W["weekly predict workflow<br/>TimesFM forecasts"] -->|results/web/data.js| P
-  Y["your computer<br/>psychohistory run"] -->|build/site/app/data/data.js| L
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/app-desk-dark.png">
+  <img src="docs/assets/app-desk.png" alt="The Desk: a scoreboard comparing TimesFM and Seldon by area, a skill chart, your Lab record, findings in plain English, and this week's sealed forecasts" width="100%">
+</picture>
+
+**Forecast Studio.** Ask the chance of any level on any date, then seal your own call beside TimesFM's and Seldon's.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/app-studio-dark.png">
+  <img src="docs/assets/app-studio.png" alt="Forecast Studio: gold's sealed forecast with a level line, the odds TimesFM and Seldon give it, their percentiles, and a sealed call of your own" width="100%">
+</picture>
+
+**Follow one result.** One S&P 500 forecast walking through the pipeline, stage by stage.
+
+<p align="center"><img src="docs/assets/app-trace.gif" alt="Walkthrough of one S&P 500 forecast moving through the nine pipeline stages" width="100%"></p>
 
 <table>
 <tr>
-<td width="50%"><b>⏯ Replay</b><br><sub>Press play to watch past forecasts meet what really happened.</sub><br><img src="docs/assets/app-replay.gif" alt="Animated replay in the app"></td>
-<td width="50%"><b>🔮 Outlook</b><br><sub>The newest forecast for every series, with the odds in words.</sub><br><img src="docs/assets/app-outlook.png" alt="Outlook grid in the app"></td>
+<td width="50%"><b>Outlook</b><br><sub>Every sealed forecast in a list, with TimesFM's range and Seldon's beside it.</sub><br><img src="docs/assets/app-outlook.png" alt="Outlook: a list of series and the S&P 500's forecast with both ranges"></td>
+<td width="50%"><b>Replay</b><br><sub>Press play to watch past forecasts meet what really happened.</sub><br><img src="docs/assets/app-replay.gif" alt="Animated replay in the app"></td>
 </tr>
 <tr>
-<td width="50%"><b>👥 Crowd lab</b><br><sub>Drag a slider to grow a simulated crowd and watch it become predictable.</sub><br><img src="docs/assets/app-crowd.png" alt="Crowd lab in the app"></td>
-<td width="50%"><b>🔐 Time Vault</b><br><sub>Sealed predictions, opened and scored as their dates arrive.</sub><br><img src="docs/assets/app-vault.png" alt="Time Vault in the app"></td>
+<td width="50%"><b>Crowd lab</b><br><sub>Grow a simulated crowd and watch it become predictable.</sub><br><img src="docs/assets/app-crowd.png" alt="Crowd lab in the app"></td>
+<td width="50%"><b>Time Vault</b><br><sub>Sealed predictions, opened and scored as their dates arrive.</sub><br><img src="docs/assets/app-vault.png" alt="Time Vault in the app"></td>
 </tr>
 </table>
 
-<sub>Screenshots show the real forecast run of 2026-10-18 (TimesFM 2.5, 25 of 30 series). Before a first run the app uses demo data and labels it as demo everywhere.</sub>
-
-The app's design follows [World Monitor](https://github.com/koala73/worldmonitor) by Elie Habib and
-its fork [Terra Atlas](https://github.com/Normansrule/worldmonitor): one static `site/` folder served by
-GitHub Pages, the same folder in a downloadable build, and no server or API keys. No code is copied
-from either (World Monitor is AGPL-3.0; World Predictor is Apache-2.0).
+<sub>Screenshots show the recorded forecast run of 2026-10-19 (TimesFM 2.5), with Seldon computed from that run's saved backtest windows. Before a first run the app uses demo data and says so on every screen. Regenerate them with <code>python scripts/make_app_screenshots.py --site build/site</code>.</sub>
 
 ---
 
-## 🧭 Follow one result
-
-Pick any forecast in the app and follow it back through every stage that produced it: the catalog
-entry, the public source, the context the model read, TimesFM, the sealed forecast, when it will be
-scored, and how the same model did in the backtest. Click any point on the chart to see the record
-behind it, with a link to check it at the source. Each stage links to its code and tests, pinned to
-the commit the site was built from.
-
-<p align="center"><img src="docs/assets/app-trace.gif" alt="Walkthrough of one S&P 500 forecast moving through the eight pipeline stages" width="100%"></p>
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/app-trace-dark.png">
-  <img src="docs/assets/app-trace.png" alt="Follow one result: the pipeline, the S&P 500 forecast chart and the controls" width="100%">
-</picture>
-
-**What is real here, and what is not.**
-
-| Shown | Where it comes from |
-|---|---|
-| Forecasts, ranges, odds, backtest scores | The weekly GitHub Actions run, saved in `results/` and `predictions/` |
-| Which series failed and why | `results/run_status.json`, written by every run; gaps stay visible, never filled in |
-| The walkthrough | A replay of that recorded run in your browser: nothing is recomputed |
-| Crowd lab | A labelled simulation with synthetic people, not survey data |
-| Not built yet | "What if" scenarios and maps (no series here is tied to a place), so the app does not pretend to have them |
-
-Open it at [normansrule.github.io/world-predictor/app/#trace](https://normansrule.github.io/world-predictor/app/#trace).
-
----
-
-## 📊 Latest results
+## Latest results
 
 Everything in this section is redrawn by every forecast run and committed by the weekly GitHub
 Action. **First real run: 18 October 2026**, TimesFM 2.5 on 25 live series (5 news topics, 12 markets,
@@ -148,29 +154,32 @@ Action. **First real run: 18 October 2026**, TimesFM 2.5 on 25 live series (5 ne
 
 | Area | TimesFM vs "tomorrow looks like today" | Its 80% range caught reality | Edge lasts |
 |---|---|---|---|
-| 📰 World news | **12% less error** | 79% of the time | about 28 days |
-| 📈 Markets (stocks, gold, silver, oil, Bitcoin) | about the same (+1%) | 83% of the time | no steady edge |
-| 🚀 Technology | **43% less error** | 76% of the time | about 28 days |
+| World news | **12% less error** | 79% of the time | about 28 days |
+| Markets (stocks, gold, silver, oil, Bitcoin) | about the same (+1%) | 83% of the time | no steady edge |
+| Technology | **43% less error** | 76% of the time | about 28 days |
+
+**TimesFM against Seldon.** Scored on the same past windows, in the order they happened, Seldon
+matches TimesFM's accuracy (technology +43% for both, news +8% for both, markets +1.0% vs +1.2%) and
+brings its 80% ranges closer to the 80% they promise: 80% instead of 76% in technology, 79% instead of
+83% in markets. In world news it found nothing worth correcting and made the same calls. That's a
+modest, honest win on calibration and no win on accuracy, which is exactly what a challenger built from
+TimesFM's own record should be expected to manage. (These figures come from the Lab's scoring of the
+saved backtest windows; from the next monthly backtest, Seldon appears in the report's tables too.)
 
 When it gave 70% or better odds of a rise, the rise happened 84% of the time (31 forecasts).
-Big aggregates such as indices beat single stocks (10% vs −1% skill in markets), as Seldon would
+Big aggregates such as indices beat single stocks (10% vs −1% skill in markets), just as Seldon would
 predict. Markets staying close to a random walk is the honest, expected result. Full tables are in
-[results/REPORT.md](results/REPORT.md). The Time Vault fills in as the sealed predictions come due.
+[results/REPORT.md](results/REPORT.md), and the Time Vault fills in as sealed predictions come due.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="results/plots/scorecard-dark.svg">
   <img src="results/plots/scorecard-light.svg" alt="Scoreboard: forecast skill, how far ahead it sees, and direction hit rate for each area" width="100%">
 </picture>
 
-**How to read the scoreboard.** The big number is how much less error the model made than the
-simple guess "tomorrow looks like today" (positive is good, zero means no better). *Sees ahead* is
-how far into the future that edge lasts. *Right direction* is how often it called up or down
-correctly; 50% is a coin flip.
-
-**⏯ The replay.** Each frame is one past forecast: the shaded fan is what the model expected, the
-dots are what really happened.
-
-<p align="center"><img src="results/plots/replay.gif" alt="Animated replay of past forecasts against what really happened" width="85%"></p>
+**Reading the scoreboard.** The big number is how much less error the model made than the simple
+guess "tomorrow looks like today" (positive is good, zero means no better). *Sees ahead* is how far
+into the future that edge lasts. *Right direction* is how often it called up or down correctly; 50% is
+a coin flip.
 
 <table>
 <tr>
@@ -179,115 +188,78 @@ dots are what really happened.
 </tr>
 </table>
 
-**🔮 What it expects next.** The newest sealed forecast for six headline series, from stocks, gold
-and silver to world news and AI. Each panel says, in words, the chance it ends higher.
+**What it expects next.** The newest sealed forecast for six headline series, from stocks, gold and
+silver to world news and AI. Each panel says, in words, the chance it ends higher.
 
 <p align="center"><img src="results/plots/outlook.png" alt="Latest forecasts for the S&P 500, gold, silver, Bitcoin, world news and AI attention" width="95%"></p>
 
-**🔐 The Time Vault.** The real test. Every week's predictions are sealed with a date in
-`predictions/ledger.csv` before the future happens, and opened once it arrives. If the model is
-honest, the left line settles near 80% and the right line stays below the coin flip.
+**The Time Vault.** The real test. If the model is honest, the left line settles near 80% and the
+right line stays below the coin flip.
 
 <p align="center"><img src="results/plots/track_record.png" alt="Time Vault: share of outcomes inside the 80% range and the odds score, as sealed predictions open" width="85%"></p>
 
-The full write-up is in [**results/REPORT.md**](results/REPORT.md), which opens with the findings in
-plain English.
-
 ---
 
-## 👥 Why crowds are predictable (a toy world)
+## Setup and usage
 
-<p align="center"><img src="docs/assets/seldon-crowd.gif" alt="Animated simulation: as the crowd grows, its average locks onto the shared tide" width="90%"></p>
+### On the web
 
-Ten thousand simulated people each have a mood that is a little shared "tide" plus a lot of personal
-noise. One person is mostly noise: only about a fifth of their movement is predictable. Average a
-crowd of a thousand and the noise cancels out, so almost all of what is left is the tide. That is
-Seldon's bet in one picture, and test 2 below checks whether real indices and composites behave the
-same way. Run it yourself, no downloads needed: `psychohistory simulate`.
+Open [normansrule.github.io/world-predictor](https://normansrule.github.io/world-predictor/). That's it.
+You can also choose *Install app* from your browser menu to keep it on your desktop.
 
-## 🧭 How to read a forecast
+### The Lab
 
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/how-to-read-dark.svg">
-    <img src="docs/assets/how-to-read-light.svg" alt="A fan chart: past line, best guess, 80% range, and what really happened" width="100%">
-  </picture>
-</p>
+Open the [Lab](https://normansrule.github.io/world-predictor/app/#lab) (or press <kbd>2</kbd> in the
+terminal). Each round is a real backtest window: you see the history up to the cut, the rest is hidden.
 
-A good forecaster is not one that is always right. It is one whose **80% range catches reality about
-8 times in 10**, and whose **"70% chance" calls come true about 70% of the time**. Both are checked in
-every report and in the app.
+1. Drag the violet dot to where you think the series ends, and the ring to set how sure you are (your
+   80% range).
+2. Press and hold **Seal your call**. A red seal stamps it with the date of the cut.
+3. Hold again to **break the seal**. Reality draws in, then TimesFM (cobalt, hatched range), then Seldon
+   (verdigris, dotted range), and the scores appear.
+4. Press <kbd>N</kbd> for the next round, or pick another series or window.
 
-## 🧪 The five Seldon tests
+With the keyboard: <kbd>↑</kbd> <kbd>↓</kbd> move your call (<kbd>Shift</kbd> for bigger steps),
+<kbd>[</kbd> <kbd>]</kbd> narrow or widen your range, and hold <kbd>Space</kbd> to seal and to break the
+seal. Elsewhere in the terminal, <kbd>1</kbd>…<kbd>0</kbd> switch views, <kbd>/</kbd> finds a series and
+<kbd>T</kbd> switches between the light and graphite themes.
 
-| | Question | How it is measured |
-|:-:|---|---|
-| 1 | **Can the future be predicted at all?** | *Skill*: the share of error removed compared with "tomorrow looks like today". Zero means no better. |
-| 2 | **Are crowds easier than individuals?** (Seldon's law) | Series are tagged *aggregate* (an index, a composite, a world total) or *individual* (one company, one topic), and their skill is compared. |
-| 3 | **How far ahead can it see?** (the Seldon horizon) | Skill at every step ahead, until it falls to zero. |
-| 4 | **Are its odds honest?** | Every forecast gives a chance of ending higher; calibration and the Brier score check it. |
-| 5 | **What shocked it?** (Seldon crises) | Windows where reality left the 80% range, listed in every report. |
+### Forecast Studio
 
-**The honesty rule.** Backtests can flatter a model that was trained on the same history, so the
-project also keeps a **prediction ledger**: forecasts written to `predictions/ledger.csv` *before*
-the future happens and scored once it arrives, like Seldon's recordings in the Time Vault.
+Open the [Forecast Studio](https://normansrule.github.io/world-predictor/app/#studio) (or press
+<kbd>3</kbd>). It works on the real future, using the forecasts sealed in this week's run.
 
----
+1. Pick a series, slide to a date, and type a level (or click a preset such as +2%, or click straight
+   on the chart). **The odds** panel shows the chance TimesFM and Seldon give it of ending above that
+   level, and **Percentiles** lists their 10th, 50th and 90th percentiles for that date.
+2. Set your own value and range under **Seal your own call** and hold the seal button. Your call is
+   stored in this browser with a short fingerprint of exactly what you sealed.
+3. **Your sealed calls** counts down to each date. Once the weekly run brings in the real value, it
+   shows the outcome and who was closest: you, TimesFM or Seldon. **Export** saves your calls as JSON
+   (JavaScript Object Notation).
 
-## ⚙️ How it works
+The odds are read off the 10th, 50th and 90th percentiles by straight-line interpolation, and capped at
+5% and 95% outside that range, because the forecast says nothing sharper out there. The command line
+uses the same rule.
 
-**One forecast, taken apart.** Every forecast is built from the same six layers. On the
-[website](https://normansrule.github.io/world-predictor/#engine) they come apart and click back
-together as you scroll; here they are pulled apart and labelled.
+### Ask TimesFM from the command line
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/engine-dark.svg">
-  <img src="docs/assets/engine-light.svg" alt="Exploded view of a forecast in six layers: sources, history, context window, TimesFM, forecast and score" width="100%">
-</picture>
+The full version runs TimesFM live, on the catalog's series or on your own data:
 
-```mermaid
-flowchart LR
-  subgraph Data
-    G[📰 GDELT news] --> F
-    Y[📈 Yahoo Finance] --> F
-    W[🚀 Wikipedia views] --> F
-    O[🌱 Our World in Data] --> F
-  end
-  F[fetch + cache] --> M
-  subgraph M [Forecasters]
-    T[TimesFM 2.5]
-    C[Chronos rival]
-    E[AutoETS]
-    B[Bass S-curve]
-    N[naive · drift · mean]
-    T & C & E --> EN[ensemble]
-  end
-  M --> BT[rolling backtest<br/>no peeking at the future]
-  M --> L[prediction ledger<br/>sealed, scored later]
-  BT --> R[REPORT.md<br/>plain English + charts]
-  L --> R
-  BT --> A[web app data<br/>results/web/data.js]
-  L --> A
-  A --> APP[🌐 Pages app · 💻 local app]
+```bash
+psychohistory ask sp500 --above 7800                 # S&P 500, next 21 trading days, chance above 7,800
+psychohistory ask gold --horizon 10 --save gold.csv  # every step to a CSV
+psychohistory ask --csv my_series.csv --above 120    # your own date,value CSV
+psychohistory ask sp500 --seal                       # also seal it in the ledger, scored by `score`
 ```
 
-Full methods and limitations: [docs/METHODOLOGY.md](docs/METHODOLOGY.md). Every stage, its code, its
-tests and what it does when it fails: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+It prints the middle and 80% range for every step, and Seldon's corrected range when
+`results/backtest_paths.csv` has a track record for that series.
 
-| Workflow | When | What it does |
-|---|---|---|
-| [`predict`](.github/workflows/predict.yml) | Every Monday (backtest on the 1st) | Fetches data, seals new TimesFM forecasts, scores old ones, redraws charts and the app data, commits them |
-| [`pages`](.github/workflows/pages.yml) | After each forecast run | Publishes the web app to GitHub Pages |
-| [`release`](.github/workflows/release.yml) | When a `v*` tag is pushed | Attaches the full project zip and an offline app zip to a GitHub Release |
-| [`tests`](.github/workflows/tests.yml) | Every push | Runs the offline test suite on Python 3.10 and 3.12 |
+### Quick start
 
----
-
-## 🚀 Quick start
-
-**On the web:** open [normansrule.github.io/world-predictor](https://normansrule.github.io/world-predictor/).
-
-**On your computer (Ubuntu, from any folder):**
+On your own computer (Ubuntu shown, from any folder). No GPU (graphics processing unit) needed:
+TimesFM 2.5 has 200 million parameters and runs fine on an ordinary CPU (central processing unit).
 
 ```bash
 sudo apt update && sudo apt install -y git python3-venv python3-pip
@@ -302,12 +274,16 @@ psychohistory -v run --compare chronos-bolt --ensemble   # real forecasts (downl
 psychohistory app                                        # the app with your own results
 ```
 
-Or step by step:
+`psychohistory app` serves the app at `http://localhost:8000` and opens your browser.
+`world-predictor` works as another name for the `psychohistory` command.
+
+### Step by step
 
 ```bash
 psychohistory fetch       # download all series into data/ (cached)
 psychohistory backtest    # rolling backtest vs baselines -> results/REPORT.md and charts
 psychohistory predict     # seal new forecasts in predictions/ledger.csv
+psychohistory ask gold    # run TimesFM live on one series (or --csv yours) and print its forecast
 psychohistory score       # score sealed forecasts whose dates have arrived
 psychohistory export      # write the app's data file, results/web/data.js
 psychohistory site        # build the static app into build/site (what Pages serves)
@@ -325,26 +301,34 @@ psychohistory simulate    # the toy crowd, no downloads
 | `--skip-backtest` | For `run`: forecast and score only |
 | `--port 8080`, `--no-browser` | For `app`: where to serve it, and whether to open a browser |
 
-No GPU is needed; TimesFM 2.5 has 200M parameters and runs on CPU. `world-predictor` works as
-another name for the `psychohistory` command.
+### Web app or full version?
 
-## 🤖 Models
+| | Web app | Full version |
+|---|---|---|
+| **Open it** | [normansrule.github.io/world-predictor](https://normansrule.github.io/world-predictor/) | `psychohistory app` |
+| **Install** | Nothing | Python 3.10+, about 2 GB with PyTorch |
+| **Forecasts** | The project's weekly TimesFM run | Your own runs, any series, any model |
+| **Data** | Precomputed into one small script file | Downloaded fresh from GDELT, Yahoo, Wikimedia and Our World in Data |
+| **Offline** | Yes, after the first visit (service worker) | Yes |
+
+### Models
 
 | Name | Model | Weights licence |
 |---|---|---|
 | `timesfm-2.5` (default) | [google/timesfm-2.5-200m-pytorch](https://huggingface.co/google/timesfm-2.5-200m-pytorch) | Apache-2.0 |
 | `timesfm-3` | [google/timesfm-3.0-pytorch](https://huggingface.co/google/timesfm-3.0-pytorch) | **Non-commercial only** ([licence](https://huggingface.co/google/timesfm-3.0-pytorch/blob/main/LICENSE)) |
 | `chronos-bolt`, `chronos-2` | Amazon's rival foundation models, [amazon/chronos-bolt-small](https://huggingface.co/amazon/chronos-bolt-small) and [amazon/chronos-2](https://huggingface.co/amazon/chronos-2) (install the `rivals` extra) | See each model card |
+| `seldon` | TimesFM corrected by its own finished windows ([`seldon.py`](src/psychohistory/seldon.py)); always run alongside the main model | Apache-2.0 (this repo) |
 | `ensemble` | Average of TimesFM, its `--compare` rivals and AutoETS (add `--ensemble`) | n/a |
 | `bass` | Bass diffusion S-curve (Bass, 1969), run automatically on technology-adoption series | Apache-2.0 (this repo) |
-| `auto-ets`, `auto-arima` | Classical baselines from [statsforecast](https://github.com/Nixtla/statsforecast) (install the `classical` extra) | Apache-2.0 |
+| `auto-ets`, `auto-arima` | Classical baselines (ARIMA is autoregressive integrated moving average) from [statsforecast](https://github.com/Nixtla/statsforecast) (install the `classical` extra) | Apache-2.0 |
 | `naive`, `drift`, `mean` | Baselines in `src/psychohistory/models.py` | Apache-2.0 (this repo) |
 
 Backtests always include the simple baselines, plus `auto-ets` when statsforecast is installed, so
 TimesFM has to beat a serious classical model and not just a random walk. TimesFM 2.5 is the default
 so the whole project stays usable under Apache-2.0.
 
-## ➕ Adding your own predictions
+### Adding your own predictions
 
 Add a `SeriesSpec` to [`src/psychohistory/catalog.py`](src/psychohistory/catalog.py), for example:
 
@@ -356,7 +340,194 @@ _wiki("wiki_solid_state_battery", "Solid-state_battery", "Wikipedia views: Solid
 
 ---
 
-## 🗺️ Roadmap and progress
+## How it works
+
+**One forecast, taken apart.** Every forecast is built from the same six layers. On the
+[website](https://normansrule.github.io/world-predictor/#engine) they come apart and click back
+together as you scroll; here they are pulled apart and labelled.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/engine-dark.svg">
+  <img src="docs/assets/engine-light.svg" alt="Exploded view of a forecast in six layers: sources, history, context window, TimesFM, forecast and score" width="100%">
+</picture>
+
+```mermaid
+flowchart LR
+  subgraph Data
+    G[GDELT news] --> F
+    Y[Yahoo Finance] --> F
+    W[Wikipedia views] --> F
+    O[Our World in Data] --> F
+  end
+  F[fetch + cache] --> M
+  subgraph M [Forecasters]
+    T[TimesFM 2.5]
+    C[Chronos rival]
+    E[AutoETS]
+    B[Bass S-curve]
+    N[naive · drift · mean]
+    T & C & E --> EN[ensemble]
+  end
+  T --> S[Seldon<br/>corrected by its own record]
+  BT -. finished windows .-> S
+  S --> L
+  M --> BT[rolling backtest<br/>no peeking at the future]
+  M --> L[prediction ledger<br/>sealed, scored later]
+  BT --> R[REPORT.md<br/>plain English + charts]
+  L --> R
+  BT --> A[web app data<br/>results/web/data.js]
+  L --> A
+  A --> APP[terminal and Lab<br/>Pages · local app]
+```
+
+### The five Seldon tests
+
+| | Question | How it's measured |
+|:-:|---|---|
+| 1 | **Can the future be predicted at all?** | *Skill*: the share of error removed compared with "tomorrow looks like today". Zero means no better. |
+| 2 | **Are crowds easier than individuals?** (Seldon's law) | Series are tagged *aggregate* (an index, a composite, a world total) or *individual* (one company, one topic), and their skill is compared. |
+| 3 | **How far ahead can it see?** (the Seldon horizon) | Skill at every step ahead, until it falls to zero. |
+| 4 | **Are its odds honest?** | Every forecast gives a chance of ending higher; calibration and the Brier score check it. |
+| 5 | **What shocked it?** (Seldon crises) | Windows where reality left the 80% range, listed in every report. |
+
+**How Seldon learns, and why it can't cheat.** For every series, Seldon tries keeping 0%, 10%, … 100%
+of TimesFM's predicted move and every range width from half to three times TimesFM's, and picks what
+would have done best on the windows that had *already finished* when the new forecast is made. A smaller
+move is only used if it would have cut past error by at least 3%, so a lucky handful of windows doesn't
+move anything, and with fewer than two finished windows Seldon simply returns TimesFM. A test checks that
+changing a later window never changes an earlier Seldon forecast.
+
+**The honesty rule.** Backtests can flatter a model that was trained on the same history, so the
+project also keeps the **prediction ledger**: forecasts written down *before* the future happens and
+scored once it arrives, like Seldon's recordings in the Time Vault.
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/how-to-read-dark.svg">
+    <img src="docs/assets/how-to-read-light.svg" alt="A fan chart: past line, best guess, 80% range, and what really happened" width="100%">
+  </picture>
+</p>
+
+A good forecaster isn't one that's always right. It's one whose **80% range catches reality about
+8 times in 10**, and whose **"70% chance" calls come true about 70% of the time**.
+
+**Why crowds are predictable (a toy world).** Ten thousand simulated people each have a mood that is a
+little shared "tide" plus a lot of personal noise. One person is mostly noise; average a thousand of
+them and the noise cancels out, leaving the tide. That's Seldon's bet in one picture, and test 2 checks
+whether real indices and composites behave the same way. Try it with `psychohistory simulate`.
+
+<p align="center"><img src="docs/assets/seldon-crowd.gif" alt="Animated simulation: as the crowd grows, its average locks onto the shared tide" width="90%"></p>
+
+Full methods and limitations: [docs/METHODOLOGY.md](docs/METHODOLOGY.md). Every stage, its code, its
+tests and what it does when it fails: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
+| Workflow | When | What it does |
+|---|---|---|
+| [`predict`](.github/workflows/predict.yml) | Every Monday (backtest on the 1st) | Fetches data, seals new TimesFM forecasts, scores old ones, redraws charts and the app data, commits them |
+| [`pages`](.github/workflows/pages.yml) | After each forecast run | Publishes the web app to GitHub Pages |
+| [`release`](.github/workflows/release.yml) | When a `v*` tag is pushed | Attaches the full project zip and an offline app zip to a GitHub Release |
+| [`tests`](.github/workflows/tests.yml) | Every push | Runs the offline test suite on Python 3.10 and 3.12 |
+
+---
+
+## Project structure
+
+```
+site/                    the app: one static folder for Pages, the download and local use
+  index.html             landing page with the Lab as its hero (assets/site.css, assets/site.js)
+  app/                   the terminal (index.html, css/app.css, js/app.js, js/charts.js, js/trace.js)
+  app/js/lab.js          the Lab, shared by the terminal and the landing page
+  app/js/studio.js       the Forecast Studio: odds for any level, and your own sealed calls
+  app/data/              data.js (this run's numbers) and pipeline.js (the stage inventory)
+  sw.js                  offline support; manifest.webmanifest makes it installable
+src/psychohistory/
+  catalog.py             the series to forecast, by area, tagged aggregate or individual
+  data/                  loaders: gdelt.py, markets.py, wikipedia.py, owid.py (a CSV, comma-separated values, cache)
+  models.py              TimesFM, Chronos, AutoETS, Bass and baseline forecasters, plus the ensemble
+  metrics.py             error and calibration scores: MAE, MASE, sMAPE, direction, 80% coverage, Brier
+  seldon.py              Seldon: TimesFM corrected by its own finished windows
+  backtest.py            rolling-origin backtest and the Seldon summary tables
+  ledger.py              seal forecasts now, score them later
+  ask.py                 `psychohistory ask`: TimesFM live on one series or your own CSV
+  story.py               plain-English findings, scoreboard, replay, outlook, Time Vault
+  simulate.py            toy agent-based crowd: why aggregates are predictable
+  inventory.py           what each pipeline stage does: feeds the app's explorer and ARCHITECTURE.md
+  engine_art.py          the exploded-engine drawing, shared by the landing page and this README
+  web.py                 the app's data file (including the Lab's rounds), the demo data, and building the site
+  progress.py            this README's progress tracker, from docs/progress.json
+  report.py              results/REPORT.md and charts
+  dashboard.py           results/dashboard.html (Plotly version of the dashboard)
+  cli.py                 the `psychohistory` command
+tests/                   offline tests (synthetic data, no downloads)
+docs/                    METHODOLOGY.md, ARCHITECTURE.md, DESIGN.md, progress.json, artwork in docs/assets/
+predictions/             ledger.csv (sealed forecasts) and scored.csv
+results/                 REPORT.md, charts, and run_status.json (which series got through each stage)
+.github/workflows/       tests, predict (weekly), pages (web app), release (downloads)
+scripts/                 make_readme_art.py, make_app_screenshots.py, publish_to_github.sh
+```
+
+The metric names, in full: MAE is mean absolute error, MASE is mean absolute scaled error, and sMAPE is
+symmetric mean absolute percentage error. The banner, explainer and progress bars are drawn by
+`python scripts/make_readme_art.py`; the screenshots by `python scripts/make_app_screenshots.py --site build/site`
+after `psychohistory site`.
+
+---
+
+## Design
+
+**The concept: the Sealed Ledger.** World Predictor's whole idea is a promise: write the forecast down
+*before* the future happens, then open it and keep score. So the design is a forecasting terminal built
+around that promise, in the spirit of a professional market terminal: dense, fast, keyboard-first, and
+honest about what it doesn't know. Its one big moment is the seal itself, in the Lab.
+
+**Colour means something, and only one thing.**
+
+| Colour | Means | Always backed by |
+|---|---|---|
+| Near-black ink (light) / soft white ink (graphite) | What really happened | A solid line |
+| Cobalt | TimesFM, the model under test | A hatched range |
+| Verdigris | Seldon, the challenger | A dotted range |
+| Violet | You, in the Lab and the Forecast Studio | Your name on the line |
+| Seal red | A forecast sealed before the future | The seal and its date |
+| Green / coral red | Better / worse than "no change" | A sign (+ or −) |
+| Ochre | Warnings and gaps | Hatching and a "!" |
+
+Every text colour passes WCAG (Web Content Accessibility Guidelines) AA contrast, 4.5:1, on every
+surface in both themes. The light ledger (cool paper `#eef1f4`, white panels) is the default; graphite
+(`#171b21`, never pure black) is the darker option.
+
+**Type with jobs.** Newsreader, a newspaper serif, for headlines and the Lab's verdict; IBM Plex Sans
+for the interface; IBM Plex Mono only where characters must line up: numbers, dates, tickers and code.
+Sizes follow one scale (11, 12, 13, 14, 16, 20, 28, 40, 56) and spacing another (4, 8, 12, 16, 24,
+32, 48, 64).
+
+**Motion that carries information.** Things arrive with a strong ease-out in under 300 milliseconds;
+buttons press in slightly; reality *draws* in after the seal breaks, followed by TimesFM and then Seldon,
+so the order you see them in is the order that matters. Sealing is press-and-hold, so nothing is ever
+sealed by accident. With reduced motion turned on, every state change still happens, as a fade.
+
+**What was cut.** Gradient fills and glows, a wall of identical cards (the Outlook is now a list and a
+detail panel), emoji used as icons, pinging "live" dots, scroll-triggered reveals that hide content, and
+monospace used as decoration.
+
+**Accessible by default.** Every view works from the keyboard, including dragging your call in the Lab
+(its handles are sliders to screen readers); focus is always visible; nothing depends on colour alone;
+and the layout works from a 390-pixel phone up.
+
+The redesign followed [Impeccable](https://github.com/pbakaus/impeccable),
+[taste-skill](https://github.com/Leonxlnx/taste-skill) and
+[Emil Kowalski's design-engineering skills](https://github.com/emilkowalski/skills) as checklists, and
+was audited against them afterwards (contrast, overflow at three widths, keyboard-only play, reduced
+motion). The product idea comes from [World Monitor](https://github.com/koala73/worldmonitor) by Elie
+Habib and its fork [Terra Atlas](https://github.com/Normansrule/worldmonitor): one static `site/` folder
+served by GitHub Pages and shipped as a download, with no server or API keys. The full design notes,
+and the fifty sites and READMEs that shaped earlier versions, are in [**docs/DESIGN.md**](docs/DESIGN.md).
+No code was copied from any of them (World Monitor is AGPL-3.0, the GNU Affero General Public License;
+World Predictor is Apache-2.0).
+
+---
+
+## Roadmap and progress
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/progress-dark.svg">
@@ -365,7 +536,7 @@ _wiki("wiki_solid_state_battery", "Solid-state_battery", "Wikipedia views: Solid
 
 <!-- progress:start -->
 
-**23 of 30 milestones done (77%).** Drawn from [`docs/progress.json`](docs/progress.json); tests check every ticked item against the repository.
+**29 of 36 milestones done (81%).** Drawn from [`docs/progress.json`](docs/progress.json); tests check every ticked item against the repository.
 
 <details open><summary><b>📰 World news</b> · 5/6</summary>
 
@@ -378,10 +549,11 @@ _wiki("wiki_solid_state_battery", "Solid-state_battery", "Wikipedia views: Solid
 
 </details>
 
-<details open><summary><b>📈 Markets, gold and silver</b> · 5/6</summary>
+<details open><summary><b>📈 Markets, gold and silver</b> · 6/7</summary>
 
 - [x] Yahoo Finance loader (stocks, indices, gold, silver, oil, copper, Bitcoin)
 - [x] Chronos rival models and a quantile-averaged ensemble
+- [x] Seldon: TimesFM corrected by its own track record
 - [x] Chance-of-rising odds scored with the Brier score
 - [x] Outlook grid for stocks, gold, silver and Bitcoin
 - [x] First real TimesFM results published
@@ -399,7 +571,7 @@ _wiki("wiki_solid_state_battery", "Solid-state_battery", "Wikipedia views: Solid
 
 </details>
 
-<details open><summary><b>🌐 Web app (GitHub Pages)</b> · 7/9</summary>
+<details open><summary><b>🌐 Web app (GitHub Pages)</b> · 12/14</summary>
 
 - [x] Static app: scoreboard, replay, outlook, horizon, odds, Time Vault, crowd lab
 - [x] No chart library: hand-written SVG charts, under 50 KB of code in total
@@ -408,6 +580,11 @@ _wiki("wiki_solid_state_battery", "Solid-state_battery", "Wikipedia views: Solid
 - [x] Landing page that tells the story on scroll, with the exploded forecast engine
 - [x] Follow one result: trace any forecast back through the pipeline to its source
 - [x] Architecture page and pipeline explorer generated from the code
+- [x] The Lab: blind calls on real past windows, scored against TimesFM and Seldon
+- [x] Sealed Ledger terminal design: light and graphite themes, keyboard-first
+- [x] Forecast Studio: odds for any level and date, and your own sealed calls
+- [x] `psychohistory ask`: TimesFM live on any series or your own CSV
+- [x] Full bibliography in APA style
 - [ ] Live at normansrule.github.io/world-predictor
 - [ ] A detail page for every series
 
@@ -423,95 +600,55 @@ _wiki("wiki_solid_state_battery", "Solid-state_battery", "Wikipedia views: Solid
 </details>
 
 <!-- progress:end -->
+## References
 
-## 🗂️ Project layout
+The key sources, in APA style (American Psychological Association, 7th edition). The full
+bibliography, with every model, data source, theory and design reference, is in
+[REFERENCES.md](REFERENCES.md#bibliography-apa-7th-edition).
 
-```
-site/                 the app: one static folder for Pages, download and local use
-  index.html          landing page
-  app/                the app (index.html, js/app.js, js/charts.js, js/trace.js, css/app.css)
-  app/data/           data.js (this run's numbers) and pipeline.js (the stage inventory)
-  sw.js               offline support; manifest.webmanifest makes it installable
-src/psychohistory/
-  catalog.py          the series to forecast, by area, tagged aggregate / individual
-  inventory.py        what each pipeline stage does: feeds the app's explorer and ARCHITECTURE.md
-  data/               loaders: gdelt.py, markets.py, wikipedia.py, owid.py (+ CSV cache)
-  models.py           TimesFM, Chronos, AutoETS, Bass and baseline forecasters, plus the ensemble
-  metrics.py          MAE, MASE, sMAPE, direction, 80% coverage, pinball loss, Brier score
-  backtest.py         rolling-origin backtest and the Seldon summary tables
-  ledger.py           seal forecasts now, score them later
-  story.py            plain-English findings, scoreboard, replay, outlook, Time Vault
-  simulate.py         toy agent-based crowd: why aggregates are predictable
-  web.py              the app's data file, the demo data, and building the site
-  progress.py         this README's progress tracker, from docs/progress.json
-  report.py           results/REPORT.md and charts
-  dashboard.py        results/dashboard.html (Plotly version of the dashboard)
-  cli.py              the `psychohistory` command
-tests/                offline tests (synthetic data, no downloads)
-docs/                 METHODOLOGY.md, ARCHITECTURE.md, DESIGN.md, progress.json, artwork in docs/assets/
-results/run_status.json  which series got through each stage of the last run, and why not
-.github/workflows/    tests, predict (weekly), pages (web app), release (downloads)
-scripts/              make_readme_art.py, make_app_screenshots.py, publish_to_github.sh
-```
+- Ansari, A. F., Stella, L., Turkmen, C., Zhang, X., Mercado, P., Shen, H., Shchur, O., Rangapuram, S. S., Pineda Arango, S., Kapoor, S., Zschiegner, J., Maddix, D. C., Wang, H., Mahoney, M. W., Torkkola, K., Wilson, A. G., Bohlke-Schneider, M., & Wang, Y. (2024). Chronos: Learning the language of time series. *Transactions on Machine Learning Research*. https://arxiv.org/abs/2403.07815
+- Asimov, I. (1951). *Foundation*. Gnome Press.
+- Brier, G. W. (1950). Verification of forecasts expressed in terms of probability. *Monthly Weather Review, 78*(1), 1–3. https://doi.org/10.1175/1520-0493(1950)078<0001:VOFEIT>2.0.CO;2
+- Das, A., Kong, W., Sen, R., & Zhou, Y. (2024). A decoder-only foundation model for time-series forecasting. In *Proceedings of the 41st International Conference on Machine Learning* (Proceedings of Machine Learning Research, Vol. 235). PMLR. https://arxiv.org/abs/2310.10688
+- Garza, A., Mergenthaler Canseco, M., Challú, C., & Olivares, K. G. (2022). *StatsForecast: Lightning fast forecasting with statistical and econometric models* [Computer software]. GitHub. https://github.com/Nixtla/statsforecast
+- Gneiting, T., & Raftery, A. E. (2007). Strictly proper scoring rules, prediction, and estimation. *Journal of the American Statistical Association, 102*(477), 359–378. https://doi.org/10.1198/016214506000001437
+- Google Research. (n.d.). *timesfm* [Computer software]. GitHub. https://github.com/google-research/timesfm
+- Hyndman, R. J., & Koehler, A. B. (2006). Another look at measures of forecast accuracy. *International Journal of Forecasting, 22*(4), 679–688. https://doi.org/10.1016/j.ijforecast.2006.03.001
+- koala73. (n.d.). *worldmonitor* [Computer software]. GitHub. https://github.com/koala73/worldmonitor
+- Koenker, R., & Bassett, G., Jr. (1978). Regression quantiles. *Econometrica, 46*(1), 33–50. https://doi.org/10.2307/1913643
+- Leetaru, K., & Schrodt, P. A. (2013, April). *GDELT: Global data on events, location, and tone, 1979–2012* [Paper presentation]. International Studies Association Annual Convention, San Francisco, CA, United States.
+- Normansrule. (n.d.). *worldmonitor (Terra Atlas)* [Computer software]. GitHub. https://github.com/Normansrule/worldmonitor
+- Tashman, L. J. (2000). Out-of-sample tests of forecasting accuracy: An analysis and review. *International Journal of Forecasting, 16*(4), 437–450. https://doi.org/10.1016/S0169-2070(00)00065-0
+- Tetlock, P. E., & Gardner, D. (2015). *Superforecasting: The art and science of prediction*. Crown.
 
-The banner, explainer and progress bars are drawn by `python scripts/make_readme_art.py`; the app
-screenshots by `python scripts/make_app_screenshots.py`.
+World Monitor and its fork Terra Atlas are the basis for shipping one app two ways (ideas only, no
+code copied). The design-audit guides (Impeccable, taste-skill and Emil Kowalski's skills) and the
+fifty design references are cited in the full bibliography.
 
----
-
-## 🎨 Design
-
-The website and app share one look, "the observatory": midnight navy, warm white for what was
-observed, cyan for forecasts (always hatched, so the future never looks like the past), amber for
-warnings and gaps, and violet for anything simulated. Every colour also comes with a word or a
-pattern. Headings use a literary serif. The landing page tells the story as you scroll, ending with
-a forecast that comes apart into its six layers and reassembles.
-
-It was shaped by fifty sites and READMEs, from Apple's exploded product pages and Bartosz
-Ciechanowski's *Mechanical Watch* to Stripe, Linear, The Pudding and Our World in Data. Each one, and
-the idea taken from it, is listed in [**docs/DESIGN.md**](docs/DESIGN.md). No code was copied from any
-of them: there is no chart or animation library, motion runs on CSS scroll-driven animations with a
-tiny fallback, and everything stops for readers who prefer reduced motion.
-
-## 📚 References
-
-| Project | How World Predictor uses it |
-|---|---|
-| [google-research/timesfm](https://github.com/google-research/timesfm) · Apache-2.0 | The forecasting model under test |
-| [koala73/worldmonitor](https://github.com/koala73/worldmonitor) · AGPL-3.0 | Inspiration for the web-app and download design: one static site for Pages and a desktop build. Ideas only, no code |
-| [Normansrule/worldmonitor](https://github.com/Normansrule/worldmonitor) (Terra Atlas) | The fork whose README layout and Pages-plus-release setup this project follows |
-| [amazon-science/chronos-forecasting](https://github.com/amazon-science/chronos-forecasting) · Apache-2.0 | Rival foundation models (`--compare`) |
-| [Nixtla/statsforecast](https://github.com/Nixtla/statsforecast) · Apache-2.0 | AutoETS and AutoARIMA baselines |
-| [projectmesa/mesa](https://github.com/projectmesa/mesa) · Apache-2.0 | Inspiration for the toy crowd |
-| [owid/owid-grapher](https://github.com/owid/owid-grapher) · MIT | One clear question per chart, plain captions, source lines |
-| [plotly/plotly.py](https://github.com/plotly/plotly.py) · MIT | The Plotly version of the dashboard |
-| [docs/DESIGN.md](docs/DESIGN.md) | Fifty sites and READMEs behind the look and motion, each with the idea taken |
-
-[**REFERENCES.md**](REFERENCES.md) lists all 20 reference repositories (foundation models,
-forecasting frameworks, benchmarks, simulation and presentation) and the modelling theories behind
-each test, from cliodynamics to the efficient-market hypothesis.
-
-## 🙏 Credits
+## Credits
 
 This project stands on other people's work. Full attribution, licences and terms of use are in
 [**CREDITS.md**](CREDITS.md). In short:
 
 - **TimesFM** by Google Research: Das, Kong, Sen, Zhou, *A decoder-only foundation model for
-  time-series forecasting*, ICML 2024 ([arXiv:2310.10688](https://arxiv.org/abs/2310.10688)).
-- **World Monitor** by Elie Habib, for the web-app and download design.
+  time-series forecasting*, ICML 2024 (International Conference on Machine Learning,
+  [arXiv:2310.10688](https://arxiv.org/abs/2310.10688)).
+- **World Monitor** by Elie Habib, and Alek's fork **Terra Atlas**, for the web-app and download design.
+- **Impeccable**, **taste-skill** and **Emil Kowalski's skills** for the design audit.
 - **Fifty design references** for the look and motion, and **twenty reference projects** for the
-  "observatory" redesign (World Monitor, Metaculus, xyflow, Motion Canvas and others), all listed in
+  earlier "observatory" design (World Monitor, Metaculus, xyflow, Motion Canvas and others), all listed in
   [docs/DESIGN.md](docs/DESIGN.md).
 - **GDELT Project** for world news coverage data.
 - **Yahoo Finance** data via the **yfinance** library by Ran Aroussi.
 - **Wikimedia Foundation** Pageviews API.
-- **Our World in Data** (CC BY 4.0).
-- **Isaac Asimov**'s *Foundation* for the idea of psychohistory.
+- **Our World in Data** (CC BY 4.0, Creative Commons Attribution).
+- **Isaac Asimov**'s *Foundation* for the idea of psychohistory, and the name of the challenger.
+- **IBM Plex Sans**, **IBM Plex Mono** and **Newsreader** fonts (SIL Open Font Licence), served by Google Fonts.
 
 If you use World Predictor in your work, please cite it with [CITATION.cff](CITATION.cff) and cite
 TimesFM as shown in CREDITS.md.
 
-## ⚖️ Licence
+## Licence
 
 Code: [Apache License 2.0](LICENSE). Data and model weights keep their own licences; see
 [CREDITS.md](CREDITS.md). Nothing here is financial advice.

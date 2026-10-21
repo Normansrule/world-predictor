@@ -13,13 +13,14 @@ from __future__ import annotations
 
 from datetime import date
 from pathlib import Path
+from typing import Callable
 
 import numpy as np
 import pandas as pd
 
 from .catalog import SeriesSpec
 from .metrics import prob_above
-from .models import Forecaster
+from .models import Forecast, Forecaster
 
 LEDGER = Path("predictions/ledger.csv")
 SCORED = Path("predictions/scored.csv")
@@ -41,7 +42,10 @@ def predict(
     model: Forecaster,
     max_context: int = 1024,
     made_on: date | None = None,
+    extras: dict[str, Callable[[SeriesSpec, Forecast, float], Forecast]] | None = None,
 ) -> pd.DataFrame:
+    """Seal ``model``'s forecasts. ``extras`` maps a model name to a function that derives another
+    forecast from this one (Seldon's correction), so TimesFM runs once for both."""
     made_on = made_on or date.today()
     specs = [s for s in specs if s.id in data]
     rows = []
@@ -49,14 +53,16 @@ def predict(
     for horizon in sorted({s.horizon for s in specs}):
         group = [s for s in specs if s.horizon == horizon]
         contexts = [data[s.id].to_numpy(dtype=float)[-max_context:] for s in group]
-        for spec, forecast in zip(group, model.forecast(contexts, horizon)):
+        for spec, base in zip(group, model.forecast(contexts, horizon)):
             series = data[spec.id]
             dates = future_dates(series.index[-1], horizon, spec.freq)
-            for step, target in enumerate(dates):
+            last = float(series.iloc[-1])
+            versions = [(model.name, base)] + [(name, fn(spec, base, last)) for name, fn in (extras or {}).items()]
+            for (name, forecast), (step, target) in ((v, s) for v in versions for s in enumerate(dates)):
                 rows.append(
                     {
                         "made_on": made_on.isoformat(),
-                        "model": model.name,
+                        "model": name,
                         "series_id": spec.id,
                         "domain": spec.domain,
                         "scale": spec.scale,

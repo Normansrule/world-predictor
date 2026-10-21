@@ -8,10 +8,12 @@ data up to that day. No future information leaks into any forecast.
 from __future__ import annotations
 
 import logging
+from typing import Sequence
 
 import numpy as np
 import pandas as pd
 
+from . import seldon
 from .catalog import SeriesSpec
 from .metrics import naive_scale, score
 from .models import ENSEMBLE, Forecaster, combine, load_model
@@ -37,13 +39,16 @@ def backtest_series(
     step_rows: list[dict] | None = None,
     ensemble_of: list[str] | None = None,
     path_rows: list[dict] | None = None,
-    paths_for: str | None = None,
+    paths_for: str | Sequence[str] | None = None,
+    seldon_of: str | None = None,
 ) -> pd.DataFrame:
     """Backtest one series. If ``step_rows`` is given, per-step errors are appended to it for
     the horizon analysis (how fast does skill decay the further ahead we look?). If
     ``ensemble_of`` names models, their quantile-averaged ensemble is scored too. If
     ``path_rows`` is given, the full forecast paths of model ``paths_for`` are appended to it,
-    which is what the animated "replay" of forecasts versus reality is drawn from."""
+    which is what the animated "replay" of forecasts versus reality is drawn from. If ``seldon_of``
+    names a model, Seldon's self-calibrated version of it is scored too, learning window by window
+    only from windows that had already finished (see ``seldon.py``)."""
     y = series.to_numpy(dtype=float)
     horizon = spec.horizon
     cuts = origins(len(y), horizon, windows, min_train=max(2 * horizon, 16))
@@ -58,12 +63,17 @@ def backtest_series(
     members = [m for m in (ensemble_of or []) if m in by_model]
     if len(members) >= 2:
         by_model[ENSEMBLE] = [combine(group) for group in zip(*(by_model[m] for m in members))]
+    if seldon_of in by_model:
+        corrected = seldon.online(by_model[seldon_of], [float(c[-1]) for c in contexts],
+                                  [y[t : t + horizon] for t in cuts], [t + horizon for t in cuts], cuts)
+        by_model[seldon.NAME] = [f for f, _ in corrected]
+    wanted = {paths_for} if isinstance(paths_for, str) else set(paths_for or ())
 
     rows = []
     for name, forecasts in by_model.items():
         for t, context, forecast in zip(cuts, contexts, forecasts):
             actual = y[t : t + horizon]
-            if path_rows is not None and name == paths_for:
+            if path_rows is not None and name in wanted:
                 path_rows.extend(
                     {
                         "series_id": spec.id, "model": name, "origin": series.index[t - 1].date(),

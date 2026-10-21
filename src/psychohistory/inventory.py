@@ -83,6 +83,22 @@ STAGES = [
         "runs": "GitHub Actions on CPU, or your computer",
     },
     {
+        "id": "seldon", "name": "Seldon correction",
+        "plain": "A second, sealed forecast: TimesFM corrected by what its own past windows got wrong.",
+        "code": [("src/psychohistory/seldon.py", "learn"), ("src/psychohistory/seldon.py", "apply"),
+                 ("src/psychohistory/seldon.py", "online"), ("src/psychohistory/seldon.py", "correction_for")],
+        "input": "The TimesFM forecast and TimesFM's finished backtest windows for the same series",
+        "output": "Forecast rows with model = seldon, next to the TimesFM rows",
+        "rule": "Keep only the share of TimesFM's move that paid off before (used only if it cut past error by 3%), "
+                "then stretch the range until it would have caught reality 8 times in 10. Learns from finished windows only.",
+        "cadence": CADENCE["weekly"],
+        "failure": "With fewer than two finished windows Seldon returns TimesFM unchanged, so it never invents a correction.",
+        "tests": ["test_seldon_needs_finished_windows_before_it_changes_anything",
+                  "test_seldon_shrinks_moves_that_never_paid_off_and_widens_narrow_bands",
+                  "test_seldon_keeps_a_model_that_was_right", "test_seldon_in_the_backtest_only_learns_from_the_past"],
+        "runs": "Python, right after TimesFM",
+    },
+    {
         "id": "seal", "name": "Seal the forecast",
         "plain": "Writes the forecast down with today's date before the future happens.",
         "code": [("src/psychohistory/ledger.py", "predict"), ("src/psychohistory/ledger.py", "append"),
@@ -138,8 +154,8 @@ STAGES = [
 ]
 
 # Data flow between stages, for the explorer's arrows.
-EDGES = [("catalog", "fetch"), ("fetch", "context"), ("context", "model"), ("model", "seal"), ("seal", "score"),
-         ("score", "publish"), ("fetch", "backtest"), ("backtest", "publish")]
+EDGES = [("catalog", "fetch"), ("fetch", "context"), ("context", "model"), ("model", "seldon"), ("seldon", "seal"),
+         ("seal", "score"), ("score", "publish"), ("fetch", "backtest"), ("backtest", "seldon"), ("backtest", "publish")]
 
 FREQ = {"D": "daily", "B": "trading days", "YS": "yearly"}
 

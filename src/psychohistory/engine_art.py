@@ -25,7 +25,7 @@ LAYERS = [
     ("History", "Years of daily or weekly values for one series: the past the model is allowed to see."),
     ("Context window", "TimesFM reads the history in patches of 32 steps, like words in a sentence."),
     ("TimesFM 2.5", "Google Research's open forecasting model. Nothing is trained on our data."),
-    ("Forecast", "A range for every step ahead: the middle guess and an 80% band, sealed with a date."),
+    ("Forecast", "A range for every step ahead from TimesFM, Seldon's corrected range beside it, both sealed with a date."),
     ("Score", "When the future arrives, reality is drawn over the fan and the forecast is scored."),
 ]
 

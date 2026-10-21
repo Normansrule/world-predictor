@@ -1,4 +1,4 @@
-"""Command line interface: ``psychohistory run | fetch | backtest | predict | score | report | simulate | export | site | app``."""
+"""Command line interface: ``psychohistory run | fetch | backtest | predict | ask | score | report | simulate | export | site | app``."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from . import backtest, catalog, dashboard, data, ledger, report, simulate, story, web
+from . import ask, backtest, catalog, dashboard, data, ledger, report, seldon, simulate, story, web
 from .models import BASELINES, classical_available, load_model
 
 log = logging.getLogger("psychohistory")
@@ -74,7 +74,7 @@ def cmd_backtest(args) -> None:
             frames.append(
                 backtest.backtest_series(
                     spec, series[spec.id], models, windows=args.windows, step_rows=step_rows, ensemble_of=members,
-                    path_rows=path_rows, paths_for=args.model,
+                    path_rows=path_rows, paths_for=(args.model, seldon.NAME), seldon_of=args.model,
                 )
             )
     frames = [f for f in frames if not f.empty]
@@ -100,7 +100,12 @@ def cmd_predict(args) -> None:
     names = list(dict.fromkeys([args.model, *args.compare]))
     if args.ensemble:
         names = list(dict.fromkeys(names + ensemble_members(args)))
-    rows = pd.concat([ledger.predict(specs, series, load_model(name)) for name in names], ignore_index=True)
+    # Seldon is derived from the model under test, learning from its saved backtest paths.
+    paths_file = args.out_dir / "backtest_paths.csv"
+    paths = pd.read_csv(paths_file) if paths_file.exists() and paths_file.stat().st_size > 1 else None
+    corrector = {seldon.NAME: lambda spec, base, last: seldon.apply(base, last, seldon.correction_for(paths, spec.id, args.model))}
+    rows = pd.concat([ledger.predict(specs, series, load_model(name), extras=corrector if name == args.model else None)
+                      for name in names], ignore_index=True)
     if args.ensemble:
         rows = pd.concat([rows, ledger.ensemble_rows(rows, ensemble_members(args))], ignore_index=True)
     ledger.append(rows, args.ledger)
@@ -110,6 +115,44 @@ def cmd_predict(args) -> None:
         report.plot_fan(series[series_id], group, spec.description, args.out_dir)
     story.plot_outlook(series, rows, args.model, args.out_dir,
                        titles={s.id: s.description for s in specs})
+
+
+def cmd_ask(args) -> None:
+    """Run the model live on one series (from the catalog or your own CSV) and print its forecast."""
+    if bool(args.target) == bool(args.csv):
+        raise SystemExit("Name one catalog series (e.g. `psychohistory ask sp500`) or pass --csv FILE.")
+    if args.csv:
+        series, series_id, spec = ask.read_csv(args.csv), args.csv.stem, None
+        freq, horizon = args.freq or ask.guess_freq(series), args.horizon or 28
+    else:
+        try:
+            spec = catalog.by_id(args.target)
+        except KeyError:
+            raise SystemExit(f"No series called {args.target!r}. Known ids: " + ", ".join(s.id for s in catalog.CATALOG)) from None
+        try:
+            series = data.fetch(spec, args.data_dir, refresh=args.refresh)
+        except Exception as exc:  # no cache and no network: say so instead of a traceback
+            raise SystemExit(f"Could not load {spec.id}: {exc}. Run `psychohistory fetch` with a network connection first.") from None
+        series_id, freq, horizon = spec.id, args.freq or spec.freq, args.horizon or spec.horizon
+    paths_file = args.out_dir / "backtest_paths.csv"
+    correction = None
+    if spec is not None and paths_file.exists() and paths_file.stat().st_size > 1:
+        correction = seldon.correction_for(pd.read_csv(paths_file), spec.id, args.model)
+    model = load_model(args.model)
+    table = ask.ask(series, model, horizon, freq, correction=correction, above=args.above)
+    name = "TimesFM" if args.model.startswith("timesfm") else args.model
+    print(f"{spec.description if spec else series_id}: {len(series)} values up to {series.index[-1].date()}\n")
+    print(ask.describe(table, float(series.iloc[-1]), name, args.above))
+    if args.save:
+        args.save.parent.mkdir(parents=True, exist_ok=True)
+        table.to_csv(args.save, index=False)
+        print(f"\nSaved every step to {args.save}")
+    if args.seal:
+        if spec is None:
+            raise SystemExit("--seal needs a catalog series: the scorer re-downloads it to check the forecast.")
+        rows = ask.ledger_rows(table, series, spec.id, spec.domain, spec.scale, args.model, date.today().isoformat())
+        ledger.append(rows, args.ledger)
+        print(f"Sealed {len(rows)} rows in {args.ledger}; `psychohistory score` checks them as the dates pass.")
 
 
 def cmd_score(args) -> None:
@@ -295,6 +338,17 @@ def main(argv: list[str] | None = None) -> None:
     p = sub.add_parser("predict", help="forecast the future and record it in the prediction ledger")
     common(p)
     p.set_defaults(func=cmd_predict)
+
+    p = sub.add_parser("ask", help="run the model live on one series or your own CSV and print its forecast")
+    common(p)
+    p.add_argument("target", nargs="?", help="a catalog series id, e.g. sp500 (see src/psychohistory/catalog.py)")
+    p.add_argument("--csv", type=Path, help="your own series instead: a CSV of date,value rows")
+    p.add_argument("--horizon", type=int, help="steps ahead (default: the series' own, or 28)")
+    p.add_argument("--freq", help='step size for dating the forecast: "D" days, "B" weekdays (default: guessed)')
+    p.add_argument("--above", type=float, metavar="LEVEL", help="also give the chance of ending above LEVEL")
+    p.add_argument("--save", type=Path, metavar="FILE", help="write every step to a CSV")
+    p.add_argument("--seal", action="store_true", help="write the forecast to the prediction ledger to be scored later")
+    p.set_defaults(func=cmd_ask)
 
     p = sub.add_parser("score", help="score ledger predictions whose target dates have passed")
     common(p)

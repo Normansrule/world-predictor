@@ -198,7 +198,9 @@ def test_cli_end_to_end_from_cache(tmp_path):
         svg = (tmp_path / "results" / "plots" / f"scorecard-{theme}.svg").read_text()
         assert "Updated" in svg and "%" in svg
     assert "plotly" in board and "What the model expects next" in board and "S&P 500 index" in board
-    assert len(pd.read_csv(tmp_path / "ledger.csv")) == sum(s.horizon for s in specs)
+    sealed = pd.read_csv(tmp_path / "ledger.csv")
+    assert set(sealed["model"]) == {"drift", "seldon"}  # Seldon is sealed alongside the model under test
+    assert (sealed["model"] == "drift").sum() == sum(s.horizon for s in specs)
 
 
 def test_timesfm25_wrapper_maps_deciles(monkeypatch):
@@ -280,7 +282,7 @@ def test_compare_adds_rivals_to_backtest_and_ledger(tmp_path):
     cli.main(["backtest", *common, "--windows", "3"])
     cli.main(["predict", *common])
     assert {"drift", "mean", "naive"} <= set(pd.read_csv(tmp_path / "results" / "backtest_windows.csv")["model"])
-    assert set(pd.read_csv(tmp_path / "ledger.csv")["model"]) == {"drift", "mean"}
+    assert set(pd.read_csv(tmp_path / "ledger.csv")["model"]) == {"drift", "mean", "seldon"}
 
 
 def test_bass_recovers_an_s_curve():
@@ -397,6 +399,12 @@ def test_web_app_data_and_site(tmp_path):
     assert payload["replay"]["forecasts"] and payload["series"] and payload["crowd"]["share"]["1"] < 0.5
     assert len(payload["evidence"]["sp500"]) == 3  # one record per backtest window, behind each skill number
     assert set(payload["run"]["stages"]) == {"backtest", "predict"}
+    lab = payload["lab"]
+    assert lab["challenger"] == "seldon" and {b["model"] for b in lab["board"]} == {"drift", "seldon"}
+    first = lab["series"][0]
+    for r in first["rounds"]:
+        assert len(r["model"]) == len(r["seldon"]) == first["horizon"]
+        assert r["at"] + first["horizon"] <= len(first["history"])  # the answer is in the history, after the cut
     cli.main(["site", *common, "--site-dir", str(tmp_path / "site")])
     built = tmp_path / "site"
     for rel in ("index.html", "sw.js", "manifest.webmanifest", "app/index.html", "app/js/app.js", "app/js/charts.js",
@@ -557,3 +565,87 @@ def test_pipeline_inventory_matches_code(tmp_path):
     built = inventory.write_pipeline_js(tmp_path / "pipeline.js").read_text()
     assert (root / "site" / "app" / "data" / "pipeline.js").read_text() == built, stale
     assert (root / "docs" / "ARCHITECTURE.md").read_text() == inventory.architecture_md(), stale
+
+
+def _window(last, mid, half, actual):
+    mid = np.asarray(mid, float)
+    return __import__("psychohistory.seldon", fromlist=["Window"]).Window(last, mid - half, mid, mid + half, np.asarray(actual, float))
+
+
+def test_seldon_needs_finished_windows_before_it_changes_anything():
+    from psychohistory import seldon
+
+    assert seldon.learn([]) == seldon.Correction(1.0, 1.0, 0)
+    one = [_window(100, [110] * 5, 2, [100] * 5)]
+    assert seldon.learn(one).shrink == 1.0 and seldon.learn(one).spread == 1.0
+
+
+def test_seldon_shrinks_moves_that_never_paid_off_and_widens_narrow_bands():
+    from psychohistory import seldon
+
+    # The base model keeps calling a 10% rise on a series that goes nowhere, with a band far too narrow.
+    rng = np.random.default_rng(0)
+    windows = [_window(100, np.linspace(101, 110, 10), 0.5, 100 + rng.normal(0, 2, 10)) for _ in range(6)]
+    c = seldon.learn(windows)
+    assert c.shrink <= 0.2 and c.spread > 1.5 and c.windows == 6
+    base = Forecast(np.linspace(101, 110, 10), np.linspace(101, 110, 10)[:, None] + np.linspace(-1, 1, 9)[None, :])
+    fixed = seldon.apply(base, 100.0, c)
+    assert abs(fixed.q(0.5)[-1] - 100) < abs(base.q(0.5)[-1] - 100)
+    assert np.all(np.diff(fixed.quantiles, axis=1) >= 0)
+
+
+def test_seldon_keeps_a_model_that_was_right():
+    from psychohistory import seldon
+
+    windows = [_window(100 + 10 * k, np.linspace(101, 110, 10) + 10 * k, 3, np.linspace(101, 110, 10) + 10 * k)
+               for k in range(5)]
+    assert seldon.learn(windows).shrink == 1.0
+
+
+def test_seldon_in_the_backtest_only_learns_from_the_past():
+    from psychohistory import seldon
+
+    series = synthetic(400, seed=3)
+    spec = SeriesSpec("x", "markets", "yahoo", horizon=20)
+    results = backtest.backtest_series(spec, series, [DriftForecaster(), NaiveForecaster()], windows=6, seldon_of="drift")
+    rows = results[results["model"] == "seldon"].sort_values("origin")
+    base = results[results["model"] == "drift"].sort_values("origin")
+    assert len(rows) == 6
+    # The first two windows have nothing finished before them, so Seldon equals its base there.
+    assert np.allclose(rows["mae"].to_numpy()[:2], base["mae"].to_numpy()[:2])
+    # Changing the last window's future must not change any earlier Seldon forecast.
+    changed = series.copy()
+    changed.iloc[-20:] += 50
+    again = backtest.backtest_series(spec, changed, [DriftForecaster(), NaiveForecaster()], windows=6, seldon_of="drift")
+    again = again[again["model"] == "seldon"].sort_values("origin")
+    assert np.allclose(again["mae"].to_numpy()[:-1], rows["mae"].to_numpy()[:-1])
+    online = seldon.online([], [], [], [], [])
+    assert online == []
+
+
+def test_ask_reads_your_csv_and_answers_a_level(tmp_path, capsys):
+    path = tmp_path / "mine.csv"
+    s = synthetic(120, freq="B")
+    s.to_frame("close").to_csv(path, index_label="date")  # with a header row, which is skipped
+    cli.main(["ask", "--csv", str(path), "--model", "drift", "--horizon", "5", "--above", str(float(s.iloc[-1])),
+              "--save", str(tmp_path / "steps.csv"), "--out-dir", str(tmp_path / "results")])
+    out = capsys.readouterr().out
+    assert "80% sure it lands between" in out and "Chance it ends above" in out
+    steps = pd.read_csv(tmp_path / "steps.csv")
+    assert len(steps) == 5 and (steps["model_q10"] <= steps["model_q50"]).all() and (steps["model_q50"] <= steps["model_q90"]).all()
+    assert pd.Timestamp(steps["date"].iloc[0]).dayofweek < 5  # weekday data is dated in weekdays
+
+
+def test_ask_seals_a_catalog_series_with_seldon(tmp_path, capsys):
+    spec = catalog.by_id("sp500")
+    path = data.cache_path(spec, tmp_path / "data")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    synthetic(600, freq=spec.freq).to_frame("value").to_csv(path, index_label="date")
+    common = ["--data-dir", str(tmp_path / "data"), "--out-dir", str(tmp_path / "results"),
+              "--ledger", str(tmp_path / "ledger.csv"), "--model", "drift"]
+    cli.main(["backtest", *common, "--series", "sp500", "--windows", "4"])
+    cli.main(["ask", "sp500", *common, "--horizon", "3", "--seal"])
+    out = capsys.readouterr().out
+    assert "Seldon middle" in out and "Sealed 6 rows" in out
+    sealed = pd.read_csv(tmp_path / "ledger.csv")
+    assert set(sealed["model"]) == {"drift", "seldon"} and sealed["p_up"].between(0, 1).all()

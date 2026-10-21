@@ -3,8 +3,8 @@
 // from src/psychohistory/inventory.py). Every panel is drawn from one state object, so the
 // pipeline, chart, caption, timeline and drawer always agree on the series, stage and record.
 (function () {
-  const STEPS = ["catalog", "fetch", "context", "model", "seal", "score", "backtest", "publish"];
-  const LIVE = ["catalog", "fetch", "context", "model", "seal", "score", "publish"];
+  const STEPS = ["catalog", "fetch", "context", "model", "seldon", "seal", "score", "backtest", "publish"];
+  const LIVE = ["catalog", "fetch", "context", "model", "seldon", "seal", "score", "publish"];
   const SOURCE = { gdelt: "the GDELT Project", yahoo: "Yahoo Finance", wikipedia: "Wikimedia pageviews", owid: "Our World in Data", composite: "its member series" };
   const STALE_DAYS = { daily: 3, "trading days": 4, yearly: 800 };
   const CHECKPOINT = { "timesfm-2.5": "google/timesfm-2.5-200m-pytorch" };
@@ -52,7 +52,7 @@
     return {
       catalog: "done",
       fetch: o ? "done" : s ? "partial" : "failed",
-      context: live, model: live,
+      context: live, model: live, seldon: o ? (o.seldon ? "done" : "partial") : "unreached",
       seal: o ? "done" : s ? "failed" : "unreached",
       score: o ? (opened ? "partial" : "waiting") : "unreached",
       backtest: s ? "done" : "failed",
@@ -77,7 +77,7 @@
     $("trace-title").textContent = title(id);
     $("tp-scrub").value = state.step;
     $("tp-scrub").setAttribute("aria-valuetext", `Stage ${state.step + 1} of ${STEPS.length}: ${stageInfo(stage).name}`);
-    $("tp-play").textContent = state.playing ? "❚❚ Pause" : "▶ Play";
+    $("tp-play").innerHTML = state.playing ? WPCharts.icon("pause") + "Pause" : WPCharts.icon("play") + "Play";
     $("tp-play").setAttribute("aria-label", state.playing ? "Pause" : "Play");
     flags(id);
     times(id);
@@ -91,7 +91,7 @@
 
   function flags(id) {
     const demo = D.meta.demo, stage = STEPS[state.step];
-    const picked = state.pick, future = picked ? picked.kind === "forecast" : ["model", "seal", "score", "publish"].includes(stage);
+    const picked = state.pick, future = picked ? picked.kind === "forecast" : ["model", "seldon", "seal", "score", "publish"].includes(stage);
     const [fresh, freshCls] = freshness(id);
     const run = D.run && D.run.run_id ? ` #${esc(D.run.run_id)}` : "";
     const mode = demo ? '<span class="flag warn" title="Made-up series and simple models">Demo · synthetic data</span>'
@@ -126,7 +126,7 @@
     const box = $("trace-pipe");
     const w = 340, nh = 46, gap = 16, mainW = 208, row = nh + gap;
     const pos = {}; LIVE.forEach((sid, i) => (pos[sid] = { x: 4, y: 4 + i * row, w: mainW }));
-    pos.backtest = { x: mainW + 26, y: 4 + 3 * row, w: w - mainW - 30 };
+    pos.backtest = { x: mainW + 26, y: 4 + 2 * row, w: w - mainW - 30 };
     const H = 4 + LIVE.length * row;
     const activeIdx = state.step, active = state.focus || STEPS[activeIdx];
     const reached = new Set(STEPS.slice(0, activeIdx + 1));
@@ -141,9 +141,9 @@
     };
     const node = (sid) => {
       const p = pos[sid], s = stageInfo(sid), stt = st[sid], file = s.code[0].path.split("/").pop();
-      const cls = ["node", stt, reached.has(sid) ? "reached" : "", sid === active ? "active" : ""].join(" ");
+      const cls = ["node", sid, stt, reached.has(sid) ? "reached" : "", sid === active ? "active" : ""].join(" ");
       return `<g class="${cls}" data-stage="${sid}" tabindex="0" role="button" aria-label="${esc(s.name)}: ${WORD[stt]}" transform="translate(${p.x} ${p.y})">
-        <rect width="${p.w}" height="${nh}" rx="12"/>${stt === "failed" ? `<rect class="hatch-fill" width="${p.w}" height="${nh}" rx="12"/>` : ""}
+        <rect width="${p.w}" height="${nh}" rx="3"/>${stt === "failed" ? `<rect class="hatch-fill" width="${p.w}" height="${nh}" rx="3"/>` : ""}
         <text class="n" x="12" y="20">${esc(s.name)}</text><text class="f" x="12" y="36">${esc(sid === "backtest" ? "backtest.py" : file)}</text>
         <text class="g" x="${p.w - 12}" y="28" text-anchor="end">${GLYPH[stt]}</text></g>`;
     };
@@ -186,18 +186,24 @@
       onPick: (p) => pick(p),
     };
     if (at("context")) spec2.spans.push({ from: hist[0][0], to: last[0], label: "context (latest part)" });
-    if (at("model")) spec2.refs.push({ x: last[0], label: "now" });
-    if (at("seal")) {
+    if (at("model")) {
+      spec2.refs.push({ x: last[0], label: at("seal") ? "sealed" : "now" });
       spec2.bands.push({ points: fan.map((f) => [f[0], f[1], f[3]]) });
-      spec2.lines.push({ points: [[last[0], last[1]]].concat(fan.map((f) => [f[0], f[2]])), color: "var(--forecast)", width: 2.4, name: "forecast" });
+      spec2.lines.push({ points: [[last[0], last[1]]].concat(fan.map((f) => [f[0], f[2]])), color: "var(--tfm)", width: 2.2, name: "forecast" });
+    }
+    const S = o.seldon && o.seldon.fan && o.seldon.fan.length ? o.seldon : null;
+    if (at("seldon") && S) {
+      spec2.bands.push({ points: S.fan.map((f) => [f[0], f[1], f[3]]), color: "transparent", stroke: "var(--seldon)", hatch: false, edge: "2 3" });
+      spec2.lines.push({ points: [[last[0], last[1]]].concat(S.fan.map((f) => [f[0], f[2]])), color: "var(--seldon)", width: 2, name: "seldon" });
     }
     if (at("score")) spec2.refs.push({ x: o.target_date, label: "opens", color: "var(--warn)" });
     if (state.pick) spec2.marks.push({ x: state.pick.x, y: state.pick.y, color: state.pick.kind === "forecast" ? "var(--forecast)" : "var(--text)" });
     else if (stage === "fetch") spec2.marks.push({ x: Date.parse(last[0]), y: last[1] });
     box.classList.add("chart");
     plot(box, spec2);
-    const items = [{ name: "Observed", color: "var(--observed)" }];
-    if (at("seal")) items.push({ name: "80% range (hatched: the future)", color: "var(--forecast)", kind: "band" }, { name: "Middle guess", color: "var(--forecast)" });
+    const items = [{ name: "Observed", color: "var(--ink)" }];
+    if (at("model")) items.push({ name: "TimesFM 80% range (hatched: the future)", color: "var(--tfm)", kind: "band" }, { name: "TimesFM middle guess", color: "var(--tfm)" });
+    if (at("seldon") && S) items.push({ name: "Seldon 80% range", color: "var(--seldon)", kind: "dash" });
     legend($("trace-legend"), items);
   }
   function pad(values) {
@@ -228,6 +234,13 @@
         : "Loaded for the backtest, but not when the forecast was made.";
       case "context": return `The model may read up to 1,024 past values and nothing after ${esc(last[0])}. The shaded stretch is the most recent part of what it read.`;
       case "model": return `${esc(D.meta.model)}${CHECKPOINT[D.meta.model] ? ` (${esc(CHECKPOINT[D.meta.model])})` : ""} turns that history into a range for each of the next ${c.horizon} steps. Only what went in and came out is shown, not its inner workings.`;
+      case "seldon": {
+        if (!o.seldon) return "No Seldon correction in this run.";
+        const k = o.seldon.learned;
+        return k.windows < 2 ? `Seldon had ${k.windows} finished window${k.windows === 1 ? "" : "s"} to learn from, too few to correct anything, so its forecast is TimesFM's.`
+          : `Seldon read ${k.windows} finished backtest windows: it keeps ${Math.round(k.shrink * 100)}% of TimesFM's predicted move and scales the range ${k.spread.toFixed(2)}× (dotted).`
+            + (o.seldon.source === "derived" ? " This run's Seldon range is derived from the sealed TimesFM range." : "");
+      }
       case "seal": return `Sealed on ${esc(o.made_on)}: middle guess ${signed(o.change)} by ${esc(o.target_date)}, 80% range ${signed(o.low)} to ${signed(o.high)}, ${fmt.pct(o.p_up)} chance it ends higher.`;
       case "score": return (D.vault || []).length ? `Its steps open from ${esc(o.fan[0][0])} to ${esc(o.target_date)}; opened forecasts so far are in the Time Vault.`
         : `Not scored yet: the first step opens on ${esc(o.fan[0][0])} and the last on ${esc(o.target_date)}. Until then there is no evidence either way.`;
@@ -256,6 +269,12 @@
         const f0 = o.fan[0], fN = o.fan[o.fan.length - 1];
         return `<table class="mini-t"><tr><th>target</th><th>10%</th><th>middle</th><th>90%</th></tr>${[f0, fN].map((f) => `<tr><td>${f[0]}</td><td>${fmt.num(f[1])}</td><td>${fmt.num(f[2])}</td><td>${fmt.num(f[3])}</td></tr>`).join("")}</table>`
           + kv([["sealed", esc(o.made_on)], ["chance higher", fmt.pct(o.p_up)]]);
+      }
+      case "seldon": {
+        if (!o || !o.seldon) return "";
+        const k = o.seldon.learned, e = o.seldon.fan[o.seldon.fan.length - 1];
+        return kv([["windows learned from", k.windows], ["share of the move kept", Math.round(k.shrink * 100) + "%"], ["range scale", k.spread.toFixed(2) + "×"],
+          ["last step", `${fmt.num(e[1])} / ${fmt.num(e[2])} / ${fmt.num(e[3])}`], ["in the ledger", o.seldon.source === "sealed" ? "sealed as model seldon" : "derived for this run"]]);
       }
       case "score": return o ? kv([["first step opens", esc(o.fan[0][0])], ["last step opens", esc(o.target_date)], ["opened so far", (D.vault || []).length ? "see the Time Vault" : "none yet"]]) : "";
       case "backtest": return s ? kv([["windows", ev.length], ["skill vs simple guess", fmt.pct(s.skill)], ["inside 80% range", fmt.pct(s.coverage80)], ["right direction", fmt.pct(s.direction)], ["odds score (Brier)", s.brier === null ? "–" : s.brier.toFixed(3)]]) + '<div id="trace-evidence"></div>' : "";

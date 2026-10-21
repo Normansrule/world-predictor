@@ -55,12 +55,12 @@ def headlines(
         agg, ind = scales["aggregate"], scales["individual"]
         if agg > ind:
             lines.append(
-                f"Seldon was right here: big aggregates such as indices and averages were easier to predict "
+                f"Hari Seldon's bet held here: big aggregates such as indices and averages were easier to predict "
                 f"than single stocks or topics ({agg:.0%} vs {ind:.0%} skill)."
             )
         else:
             lines.append(
-                f"Seldon's law did not hold here: aggregates were not easier to predict than individual "
+                f"Hari Seldon's bet did not hold here: aggregates were not easier to predict than individual "
                 f"series ({agg:.0%} vs {ind:.0%} skill)."
             )
 

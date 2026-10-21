@@ -22,8 +22,8 @@ ROOT = Path(__file__).resolve().parent.parent
 ASSETS = ROOT / "docs" / "assets"
 
 THEMES = {  # the app's "observatory" palette: ink = observed, cyan = forecast
-    "light": {"bg": "#f4f6fb", "text": "#0d1424", "muted": "#4f5a70", "grid": "#d6dce8", "observed": "#0d1424", "forecast": "#0a7c93", "dot": "#0d1424"},
-    "dark": {"bg": "#060a16", "text": "#f2ede3", "muted": "#9aa6bc", "grid": "#1d2944", "observed": "#f2ede3", "forecast": "#5fd4e6", "dot": "#f2ede3"},
+    "light": {"bg": "#eef1f4", "text": "#0f1722", "muted": "#47515f", "grid": "#dde2e8", "observed": "#0f1722", "forecast": "#2448c2", "dot": "#0f1722"},
+    "dark": {"bg": "#171b21", "text": "#e9edf2", "muted": "#aab3bf", "grid": "#323943", "observed": "#e9edf2", "forecast": "#8ea8ff", "dot": "#e9edf2"},
 }
 
 
@@ -69,16 +69,16 @@ def banner(theme: str) -> str:
     return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 320" role="img" aria-label="World Predictor: an animated forecast fan chart">
 <style>
   .bg {{ fill: {c['bg']}; }}
-  .title {{ font: 700 46px Inter, system-ui, sans-serif; fill: {c['text']}; }}
-  .sub {{ font: 400 19px Inter, system-ui, sans-serif; fill: {c['muted']}; }}
-  .tag {{ font: 600 14px Inter, system-ui, sans-serif; fill: {c['muted']}; letter-spacing: .08em; }}
+  .title {{ font: 600 48px Newsreader, Georgia, 'Times New Roman', serif; fill: {c['text']}; }}
+  .sub {{ font: 400 19px 'IBM Plex Sans', system-ui, sans-serif; fill: {c['muted']}; }}
+  .tag {{ font: 600 14px 'IBM Plex Sans', system-ui, sans-serif; fill: {c['muted']}; letter-spacing: .08em; }}
   .grid line {{ stroke: {c['grid']}; stroke-width: 1; }}
   .history {{ fill: none; stroke: {c['observed']}; stroke-width: 3; stroke-linejoin: round;
              stroke-dasharray: 1400; stroke-dashoffset: 1400; animation: draw 2s ease-out forwards; }}
   .fan {{ fill: {c['forecast']}; opacity: 0; animation: fade .9s ease-out 2s forwards; }}
   .median {{ fill: none; stroke: {c['forecast']}; stroke-width: 3; opacity: 0; animation: show .5s ease-out 2.4s forwards; }}
   .dot {{ fill: {c['dot']}; opacity: 0; animation: show .3s ease-out forwards; }}
-  .label {{ font: 500 13px Inter, system-ui, sans-serif; fill: {c['muted']}; opacity: 0; animation: show .6s ease-out 2.8s forwards; }}
+  .label {{ font: 500 13px 'IBM Plex Sans', system-ui, sans-serif; fill: {c['muted']}; opacity: 0; animation: show .6s ease-out 2.8s forwards; }}
   @keyframes draw {{ to {{ stroke-dashoffset: 0; }} }}
   @keyframes fade {{ to {{ opacity: .22; }} }}
   @keyframes show {{ to {{ opacity: 1; }} }}
@@ -126,9 +126,9 @@ def how_to_read(theme: str) -> str:
 
     return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 340" role="img" aria-label="How to read a forecast fan chart">
 <style>
-  .t {{ font: 500 14px Inter, system-ui, sans-serif; fill: {c['text']}; }}
-  .n {{ font: 700 12px Inter, system-ui, sans-serif; fill: {c['bg']}; }}
-  .m {{ font: 400 12px Inter, system-ui, sans-serif; fill: {c['muted']}; }}
+  .t {{ font: 500 14px 'IBM Plex Sans', system-ui, sans-serif; fill: {c['text']}; }}
+  .n {{ font: 700 12px 'IBM Plex Sans', system-ui, sans-serif; fill: {c['bg']}; }}
+  .m {{ font: 400 12px 'IBM Plex Sans', system-ui, sans-serif; fill: {c['muted']}; }}
 </style>
 <rect width="1100" height="340" rx="12" fill="{c['bg']}"/>
 <line x1="{today:.0f}" x2="{today:.0f}" y1="{y0}" y2="{y1}" stroke="{c['grid']}" stroke-width="2" stroke-dasharray="4 4"/>

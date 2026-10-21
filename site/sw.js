@@ -1,8 +1,8 @@
 // World Predictor service worker: the app works offline after one visit.
 // App files are served cache-first; the data file is network-first so new forecasts show up.
-const CACHE = "world-predictor-v1";
+const CACHE = "world-predictor-v3";
 const SHELL = ["./", "index.html", "manifest.webmanifest", "assets/icon.svg", "assets/banner-light.svg", "assets/banner-dark.svg",
-  "app/", "app/index.html", "app/css/app.css", "app/js/charts.js", "app/js/trace.js", "app/js/app.js",
+  "app/", "app/index.html", "app/css/app.css", "app/js/charts.js", "app/js/trace.js", "app/js/lab.js", "app/js/studio.js", "app/js/app.js",
   "app/data/data.js", "app/data/pipeline.js"];
 
 self.addEventListener("install", (e) => e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting())));

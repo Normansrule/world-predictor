@@ -12,6 +12,7 @@ flowchart LR
   fetch[Fetch and cache]
   context[Context window]
   model[TimesFM 2.5]
+  seldon[Seldon correction]
   seal[Seal the forecast]
   score[Open the vault]
   backtest[Backtest]
@@ -19,10 +20,12 @@ flowchart LR
   catalog --> fetch
   fetch --> context
   context --> model
-  model --> seal
+  model --> seldon
+  seldon --> seal
   seal --> score
   score --> publish
   fetch --> backtest
+  backtest --> seldon
   backtest --> publish
 ```
 
@@ -57,7 +60,7 @@ Downloads each series from its public source and keeps a dated copy on disk.
 | **When** | Every Monday 06:00 UTC (.github/workflows/predict.yml), or on demand |
 | **If it fails** | A source that fails is skipped and the run carries on; the reason is written to results/run_status.json. GDELT calls are paced 6 s apart and back off on HTTP 429. A composite needs at least two members. |
 | **Runs in** | GitHub Actions (predict workflow) or your computer |
-| **Tests** | [`test_gdelt_retries_when_rate_limited`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L470), [`test_owid_reads_short_lowercase_columns`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L460), [`test_composite_survives_a_missing_member`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L481), [`test_composite_scales_members_to_their_mean`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L126), [`test_skipped_series_are_recorded`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L517) |
+| **Tests** | [`test_gdelt_retries_when_rate_limited`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L478), [`test_owid_reads_short_lowercase_columns`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L468), [`test_composite_survives_a_missing_member`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L489), [`test_composite_scales_members_to_their_mean`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L126), [`test_skipped_series_are_recorded`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L525) |
 | **Status** | Implemented |
 
 ## 3. Context window
@@ -66,7 +69,7 @@ Cuts the history down to the part the model is allowed to read: the past only.
 
 | | |
 |---|---|
-| **Code** | [`src/psychohistory/ledger.py` · predict](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/ledger.py#L38)<br>[`src/psychohistory/backtest.py` · MAX_CONTEXT](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/backtest.py#L21) |
+| **Code** | [`src/psychohistory/ledger.py` · predict](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/ledger.py#L39)<br>[`src/psychohistory/backtest.py` · MAX_CONTEXT](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/backtest.py#L23) |
 | **Takes** | The full cached series |
 | **Gives** | The last 1,024 values or fewer |
 | **Rule** | Live forecasts read everything up to the newest value; backtests read only up to each past origin. |
@@ -89,16 +92,32 @@ Google Research's pretrained forecasting model reads the context and returns a r
 | **When** | Every forecast |
 | **If it fails** | Stops with an install hint if TimesFM is missing. Nothing is shown about its internal reasoning: only inputs and outputs. |
 | **Runs in** | GitHub Actions on CPU, or your computer |
-| **Tests** | [`test_timesfm25_wrapper_maps_deciles`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L204), [`test_load_model_is_cached`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L120) |
+| **Tests** | [`test_timesfm25_wrapper_maps_deciles`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L206), [`test_load_model_is_cached`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L120) |
 | **Status** | Implemented |
 
-## 5. Seal the forecast
+## 5. Seldon correction
+
+A second, sealed forecast: TimesFM corrected by what its own past windows got wrong.
+
+| | |
+|---|---|
+| **Code** | [`src/psychohistory/seldon.py` · learn](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/seldon.py#L62)<br>[`src/psychohistory/seldon.py` · apply](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/seldon.py#L96)<br>[`src/psychohistory/seldon.py` · online](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/seldon.py#L112)<br>[`src/psychohistory/seldon.py` · correction_for](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/seldon.py#L142) |
+| **Takes** | The TimesFM forecast and TimesFM's finished backtest windows for the same series |
+| **Gives** | Forecast rows with model = seldon, next to the TimesFM rows |
+| **Rule** | Keep only the share of TimesFM's move that paid off before (used only if it cut past error by 3%), then stretch the range until it would have caught reality 8 times in 10. Learns from finished windows only. |
+| **When** | Every Monday 06:00 UTC (.github/workflows/predict.yml), or on demand |
+| **If it fails** | With fewer than two finished windows Seldon returns TimesFM unchanged, so it never invents a correction. |
+| **Runs in** | Python, right after TimesFM |
+| **Tests** | [`test_seldon_needs_finished_windows_before_it_changes_anything`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L575), [`test_seldon_shrinks_moves_that_never_paid_off_and_widens_narrow_bands`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L583), [`test_seldon_keeps_a_model_that_was_right`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L597), [`test_seldon_in_the_backtest_only_learns_from_the_past`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L605) |
+| **Status** | Implemented |
+
+## 6. Seal the forecast
 
 Writes the forecast down with today's date before the future happens.
 
 | | |
 |---|---|
-| **Code** | [`src/psychohistory/ledger.py` · predict](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/ledger.py#L38)<br>[`src/psychohistory/ledger.py` · append](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/ledger.py#L89)<br>[`src/psychohistory/metrics.py` · prob_above](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/metrics.py#L23) |
+| **Code** | [`src/psychohistory/ledger.py` · predict](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/ledger.py#L39)<br>[`src/psychohistory/ledger.py` · append](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/ledger.py#L95)<br>[`src/psychohistory/metrics.py` · prob_above](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/metrics.py#L23) |
 | **Takes** | Forecast and the newest observed value |
 | **Gives** | Rows in predictions/ledger.csv: made_on, last_date, last_value, step, target_date, q10, q50, q90, p_up |
 | **Rule** | The chance of ending higher is read off the deciles by interpolation, capped at 5% and 95%. |
@@ -108,29 +127,29 @@ Writes the forecast down with today's date before the future happens.
 | **Tests** | [`test_ledger_predict_then_score`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L134), [`test_prob_above_reads_the_deciles`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L43), [`test_latest_picks_newest_run_and_final_step`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L147) |
 | **Status** | Implemented |
 
-## 6. Open the vault
+## 7. Open the vault
 
 When a target date arrives, puts what really happened next to what was sealed.
 
 | | |
 |---|---|
-| **Code** | [`src/psychohistory/ledger.py` · score](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/ledger.py#L100)<br>[`src/psychohistory/story.py` · track_record](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/story.py#L307) |
+| **Code** | [`src/psychohistory/ledger.py` · score](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/ledger.py#L106)<br>[`src/psychohistory/story.py` · track_record](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/story.py#L307) |
 | **Takes** | Ledger rows and the newest data |
 | **Gives** | predictions/scored.csv: actual, abs_error, in_band80, direction_correct, brier |
 | **Rule** | A row is scored only once its target date is in the data. Brier compares the chance it gave with what happened. |
 | **When** | Every Monday 06:00 UTC (.github/workflows/predict.yml), or on demand |
 | **If it fails** | Rows whose date has not arrived, or whose value is missing, wait unscored. |
 | **Runs in** | GitHub Actions |
-| **Tests** | [`test_ledger_predict_then_score`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L134), [`test_time_vault_track_record`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L359) |
+| **Tests** | [`test_ledger_predict_then_score`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L134), [`test_time_vault_track_record`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L361) |
 | **Status** | Implemented |
 
-## 7. Backtest
+## 8. Backtest
 
 Replays the past: forecasts from old dates, scored against what followed, next to simple guesses.
 
 | | |
 |---|---|
-| **Code** | [`src/psychohistory/backtest.py` · backtest_series](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/backtest.py#L31)<br>[`src/psychohistory/backtest.py` · origins](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/backtest.py#L24)<br>[`src/psychohistory/backtest.py` · summarize](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/backtest.py#L95)<br>[`src/psychohistory/metrics.py` · score](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/metrics.py#L37) |
+| **Code** | [`src/psychohistory/backtest.py` · backtest_series](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/backtest.py#L33)<br>[`src/psychohistory/backtest.py` · origins](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/backtest.py#L26)<br>[`src/psychohistory/backtest.py` · summarize](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/backtest.py#L105)<br>[`src/psychohistory/metrics.py` · score](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/metrics.py#L37) |
 | **Takes** | Cached series and the models |
 | **Gives** | results/backtest_windows.csv, backtest_summary.csv, skill_by_step.csv, backtest_paths.csv |
 | **Rule** | 12 origins spaced one horizon apart. Skill = 1 - MAE(model) / MAE(naive). Under 2% either way counts as no edge. |
@@ -140,20 +159,20 @@ Replays the past: forecasts from old dates, scored against what followed, next t
 | **Tests** | [`test_backtest_never_sees_the_future`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L73), [`test_drift_beats_naive_on_a_trend`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L84), [`test_skill_by_step_shows_drift_advantage_growing_with_horizon`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L93), [`test_perfect_forecast_scores_zero_error`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L35), [`test_brier_rewards_confident_correct_calls`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L53) |
 | **Status** | Implemented |
 
-## 8. Publish to the app
+## 9. Publish to the app
 
 Packs the results into one file the web app reads, and GitHub Pages serves it.
 
 | | |
 |---|---|
-| **Code** | [`src/psychohistory/web.py` · build_payload](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/web.py#L66)<br>[`src/psychohistory/web.py` · write_data_js](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/web.py#L186)<br>[`src/psychohistory/story.py` · EDGE](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/story.py#L88)<br>[`.github/workflows/pages.yml`](https://github.com/Normansrule/world-predictor/blob/main/.github/workflows/pages.yml) |
+| **Code** | [`src/psychohistory/web.py` · build_payload](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/web.py#L66)<br>[`src/psychohistory/web.py` · write_data_js](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/web.py#L274)<br>[`src/psychohistory/story.py` · EDGE](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/story.py#L88)<br>[`.github/workflows/pages.yml`](https://github.com/Normansrule/world-predictor/blob/main/.github/workflows/pages.yml) |
 | **Takes** | Results, ledger, scores and run status |
 | **Gives** | results/web/data.js (window.WP_DATA), copied to app/data/data.js on Pages |
 | **Rule** | Only numbers produced by a run are shown; demo data is marked as demo everywhere it appears. |
 | **When** | After every predict run, and on every push to main |
 | **If it fails** | With no results yet the app shows labelled demo data instead. |
 | **Runs in** | GitHub Actions, then GitHub Pages |
-| **Tests** | [`test_web_app_data_and_site`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L378), [`test_demo_payload_is_marked_and_complete`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L408), [`test_scorecard_shows_numbers_or_placeholders`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L347) |
+| **Tests** | [`test_web_app_data_and_site`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L380), [`test_demo_payload_is_marked_and_complete`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L416), [`test_scorecard_shows_numbers_or_placeholders`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L349) |
 | **Status** | Implemented |
 
 ## Not built

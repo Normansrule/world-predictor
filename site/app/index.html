@@ -2,194 +2,283 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>World Predictor</title>
-  <meta name="description" content="Can a machine do Hari Seldon's psychohistory? Google's TimesFM forecasts world news, markets (stocks, gold, silver) and technology, and every forecast is scored in public.">
-  <meta name="theme-color" content="#060a16">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>World Predictor · Terminal</title>
+  <meta name="description" content="A forecasting terminal: Google's TimesFM and Seldon, its self-correcting challenger, forecast world news, markets and technology. Every forecast is sealed before the future happens and scored when it arrives. Make your own call in the Lab.">
+  <meta name="theme-color" content="#eef1f4">
   <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
   <link rel="manifest" href="../manifest.webmanifest">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap">
   <link rel="stylesheet" href="css/app.css">
-  <script>try { const t = localStorage.getItem("wp-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
+  <script>document.documentElement.classList.add("js"); try { const t = localStorage.getItem("wp-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
 </head>
-<body>
-<header class="top">
-  <div class="top-inner">
-    <a class="brand" href="../" title="World Predictor home">
-      <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14" fill="none" stroke="currentColor" stroke-width="2.5" opacity=".55"/><path d="M4 19 C10 17 12 11 16 13 S 22 10 28 8" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"/><path d="M16 13 L28 4 L28 14 Z" fill="var(--forecast)" opacity=".35"/></svg>
-      World Predictor <small>psychohistory × TimesFM</small>
-    </a>
-    <nav class="tabs" aria-label="Sections">
-      <a href="#overview">Overview</a>
-      <a href="#trace">Follow a result</a>
-      <a href="#replay">Replay</a>
-      <a href="#outlook">Outlook</a>
-      <a href="#horizon">How far ahead</a>
-      <a href="#odds">Honest odds</a>
-      <a href="#vault">Time Vault</a>
-      <a href="#crowd">Crowd lab</a>
-      <a href="#series">All series</a>
-      <a href="#about">About</a>
-    </nav>
-    <button class="icon-btn" id="theme" title="Switch light / dark" aria-label="Switch light or dark theme"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg></button>
-  </div>
+<body class="term">
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="status" aria-label="Run status">
+  <a class="mark" href="../" title="World Predictor home">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M3.5 14.5c3-1 4.5-5 8.5-4s5.5-3 8.5-4" fill="none" stroke="var(--tfm)" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="10.4" r="2.2" fill="var(--seal)"/></svg>
+    <span>World Predictor</span>
+  </a>
+  <dl class="readouts" id="readouts"></dl>
+  <button class="icon-btn" id="theme" title="Light or graphite (T)" aria-label="Switch between the light ledger and the graphite theme">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg>
+  </button>
 </header>
 
-<main>
-  <div id="demo"></div>
+<div class="cmd" role="search">
+  <label class="cmd-field">
+    <span class="prompt" aria-hidden="true">&gt;</span>
+    <input id="cmd" type="text" autocomplete="off" spellcheck="false" placeholder="Go to a series or view" aria-label="Go to a series or view" aria-controls="cmd-list" aria-expanded="false" role="combobox" aria-autocomplete="list">
+    <kbd>/</kbd>
+  </label>
+  <ul class="cmd-list" id="cmd-list" role="listbox" hidden></ul>
+  <div class="tape" id="tape" aria-label="Newest sealed forecasts: chance each series ends higher"></div>
+</div>
 
-  <section class="view" id="view-overview">
-    <h1>Can a machine do Hari Seldon's psychohistory?</h1>
-    <p class="lede">Google's open-source <b>TimesFM</b> forecasts world news, markets (stocks, gold, silver) and new
-      technologies. Every forecast is dated before the future happens and scored once it arrives.</p>
-    <div class="grid three" id="tiles"></div>
-    <div class="card plain" id="plain"></div>
-    <div class="card">
-      <h2>Did it beat a simple guess?</h2>
-      <p class="caption">Median skill per area: how much less error than "tomorrow looks like today". Above zero is better.</p>
-      <div id="skill-chart"></div><div id="skill-legend"></div>
-    </div>
-  </section>
+<div class="shell">
+  <nav class="rail" aria-label="Views">
+    <a href="#desk"><kbd>1</kbd>Desk</a>
+    <a href="#lab"><kbd>2</kbd>Lab</a>
+    <a href="#studio"><kbd>3</kbd>Forecast Studio</a>
+    <a href="#outlook"><kbd>4</kbd>Outlook</a>
+    <a href="#trace"><kbd>5</kbd>Follow a result</a>
+    <a href="#replay"><kbd>6</kbd>Replay</a>
+    <a href="#horizon"><kbd>7</kbd>How far ahead</a>
+    <a href="#odds"><kbd>8</kbd>Honest odds</a>
+    <a href="#vault"><kbd>9</kbd>Time Vault</a>
+    <a href="#series"><kbd>0</kbd>All series</a>
+    <a href="#crowd"><kbd class="nokey" aria-hidden="true">0</kbd>Crowd lab</a>
+    <a href="#about"><kbd>?</kbd>About</a>
+  </nav>
 
-  <section class="view" id="view-trace">
-    <h1>Follow one result</h1>
-    <p class="lede">Pick a forecast and follow it back through every stage that made it, down to the public record it came from.
-      Press play, step through with the arrow keys, or click any point on the chart to see the record behind it.</p>
-    <div class="card trace-bar">
-      <label class="pick"><span>Series</span><select id="trace-series" aria-label="Series to follow"></select></label>
-      <div class="flags" id="trace-flags" aria-label="What kind of data this is"></div>
-      <dl class="times" id="trace-times"></dl>
-    </div>
-    <div class="trace-grid">
-      <div class="card pipe">
-        <h2>Pipeline</h2>
-        <p class="caption">The stages this result passed through. Arrows show data handed on, not cause and effect.</p>
-        <div id="trace-pipe"></div>
+  <main id="main" tabindex="-1">
+    <div id="demo"></div>
+
+    <section class="view" id="view-desk" aria-labelledby="desk-h">
+      <div class="vhead">
+        <h1 id="desk-h">Is anyone better than "no change"?</h1>
+        <p class="lede">TimesFM, Google's forecasting model, against Seldon, its self-correcting challenger, and the simplest guess there is:
+          tomorrow looks like today. Scored on past windows neither model was allowed to see.</p>
       </div>
-      <div class="card trace-main">
-        <h2 id="trace-title"></h2>
-        <div id="trace-chart"></div><div id="trace-legend"></div>
-        <div class="player" role="group" aria-label="Walkthrough controls">
-          <button class="btn icon" id="tp-restart" title="Restart (Home)" aria-label="Restart">⟲</button>
-          <button class="btn icon" id="tp-back" title="Previous stage (←)" aria-label="Previous stage">‹</button>
-          <button class="btn primary" id="tp-play" aria-label="Play">▶ Play</button>
-          <button class="btn icon" id="tp-next" title="Next stage (→)" aria-label="Next stage">›</button>
-          <input type="range" id="tp-scrub" min="0" value="0" aria-label="Stage">
-          <select id="tp-speed" aria-label="Speed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select>
+      <div class="desk">
+        <div class="card span3" id="board-card">
+          <header class="ph"><h2>Scoreboard</h2><span class="pm" id="board-meta"></span></header>
+          <div class="table-wrap"><table class="board" id="board"></table></div>
+          <p class="note" id="board-note"></p>
         </div>
-        <p class="trace-caption" id="trace-caption" aria-live="polite"></p>
+        <div class="card span2">
+          <header class="ph"><h2>Skill by area</h2><span class="pm">less error than "no change"; above zero is better</span></header>
+          <div id="skill-chart"></div><div id="skill-legend"></div>
+        </div>
+        <div class="stack">
+          <div class="card" id="lab-teaser">
+            <header class="ph"><h2>Your record</h2><a class="pm" href="#lab">Open the Lab</a></header>
+            <div id="you-record"></div>
+          </div>
+          <div class="card" id="plain">
+            <header class="ph"><h2>In plain English</h2></header>
+            <div id="plain-body"></div>
+          </div>
+        </div>
+        <div class="card span3">
+          <header class="ph"><h2>Sealed this week</h2><a class="pm" href="#outlook">All forecasts</a></header>
+          <div class="table-wrap"><table class="sealed" id="sealed"></table></div>
+        </div>
       </div>
-    </div>
-    <aside class="card drawer" id="trace-drawer" aria-live="polite"></aside>
-    <div class="card">
-      <h2>Did every series make it through this run?</h2>
-      <p class="caption" id="cover-note"></p>
-      <div class="table-wrap"><table id="cover-table" class="cover"></table></div>
-    </div>
-  </section>
+    </section>
 
-  <section class="view" id="view-replay">
-    <h1>Replay</h1>
-    <p class="lede">Each frame is a forecast made in the past. The hatched cyan range is what the model expected; the dots are what really happened.</p>
-    <div class="card">
-      <h2 id="replay-title"></h2>
-      <div class="controls">
-        <button class="btn primary" id="replay-play">▶ Play</button>
-        <input type="range" id="replay-slider" min="0" value="0" aria-label="Forecast date">
-        <span class="readout" id="replay-readout"></span>
+    <section class="view" id="view-lab" aria-labelledby="lab-h">
+      <div class="vhead">
+        <h1 id="lab-h">The Lab</h1>
+        <p class="lede">A real past window with the ending hidden. Drag your forecast, seal it, then break the seal and see how you did
+          against TimesFM and Seldon. They made their calls from the same history you see.</p>
       </div>
-      <div id="replay-chart"></div><div id="replay-legend"></div>
-    </div>
-  </section>
+      <div id="lab-root"></div>
+    </section>
 
-  <section class="view" id="view-outlook">
-    <h1>What it expects next</h1>
-    <p class="lede">The newest sealed forecast for every series: recent history, the 80% range, the best guess, and the chance it ends higher.</p>
-    <div class="controls" id="outlook-filter"></div>
-    <div class="grid outlook" id="outlook-grid"></div>
-  </section>
-
-  <section class="view" id="view-horizon">
-    <h1>How far ahead can it see?</h1>
-    <p class="lede">Skill at each step ahead. Where a line drops below zero, the model has run out of foresight: the "Seldon horizon".</p>
-    <div class="card"><div id="horizon-chart"></div><div id="horizon-legend"></div></div>
-  </section>
-
-  <section class="view" id="view-odds">
-    <h1>Are its odds honest?</h1>
-    <p class="lede">Forecasts are grouped by the chance of rising they gave. Honest odds sit on the dotted line: "70%" calls come true about 70% of the time.</p>
-    <div class="card"><div id="odds-chart"></div><div id="odds-legend"></div></div>
-  </section>
-
-  <section class="view" id="view-vault">
-    <h1>The Time Vault</h1>
-    <p class="lede">The real test. Predictions are sealed with a date before the future happens and opened when it arrives,
-      like Hari Seldon's recordings. An honest model settles near 80% on the left and stays under the coin flip on the right.</p>
-    <div class="two">
-      <div class="card"><h2>Reality inside its 80% range</h2><div id="vault-inside"></div></div>
-      <div class="card"><h2>Odds score (lower is better)</h2><div id="vault-brier"></div></div>
-    </div>
-    <p class="caption" id="vault-note"></p>
-  </section>
-
-  <section class="view" id="view-crowd">
-    <p class="flag hypo">Simulation · synthetic people, not survey data</p>
-    <h1>Crowd lab: why crowds are predictable</h1>
-    <p class="lede">Ten thousand simulated people each have a mood: a little shared tide plus a lot of personal noise.
-      Drag the slider to grow the crowd and watch its average lock onto the tide. That is Seldon's bet in one picture.</p>
-    <div class="card">
-      <div class="controls">
-        <span>Crowd size</span>
-        <input type="range" id="crowd-slider" min="0" value="0" aria-label="Crowd size">
-        <span class="stat" id="crowd-share"></span><span class="readout" id="crowd-label"></span>
+    <section class="view" id="view-studio" aria-labelledby="studio-h">
+      <div class="vhead">
+        <h1 id="studio-h">Ask TimesFM anything about next month</h1>
+        <p class="lede">Pick a series, a date and a level, and read the chance TimesFM and Seldon give it from their newest sealed forecast.
+          Then seal your own call beside theirs: it is scored against both when the real value arrives.</p>
       </div>
-      <div id="crowd-chart"></div><div id="crowd-legend"></div>
-    </div>
-  </section>
+      <div id="studio-root"></div>
+    </section>
 
-  <section class="view" id="view-series">
-    <h1>Every series</h1>
-    <p class="lede">Backtest results for each series. Click a column to sort.</p>
-    <div class="card table-wrap"><table id="series-table"></table></div>
-  </section>
+    <section class="view" id="view-outlook" aria-labelledby="outlook-h">
+      <div class="vhead">
+        <h1 id="outlook-h">What they expect next</h1>
+        <p class="lede">The newest sealed forecast for every series, with Seldon's corrected range beside it. Pick a row, or use the arrow keys.</p>
+      </div>
+      <div class="chips" id="outlook-filter" role="group" aria-label="Area"></div>
+      <div class="outlook">
+        <div class="card list-card"><div class="table-wrap"><table class="olist" id="olist"></table></div></div>
+        <div class="card detail" id="odetail" aria-live="polite"></div>
+      </div>
+    </section>
 
-  <section class="view" id="view-about">
-    <h1>About World Predictor</h1>
-    <div class="two">
+    <section class="view" id="view-trace" aria-labelledby="trace-h">
+      <div class="vhead">
+        <h1 id="trace-h">Follow one result</h1>
+        <p class="lede">Pick a forecast and follow it back through every stage that made it, down to the public record it came from.
+          Press play, step with the arrow keys, or click a point on the chart to see the record behind it.</p>
+      </div>
+      <div class="card trace-bar">
+        <label class="pick"><span>Series</span><select id="trace-series" aria-label="Series to follow"></select></label>
+        <div class="flags" id="trace-flags" aria-label="What kind of data this is"></div>
+        <dl class="times" id="trace-times"></dl>
+      </div>
+      <div class="trace-grid">
+        <div class="card pipe">
+          <header class="ph"><h2>Pipeline</h2><span class="pm">arrows: data handed on</span></header>
+          <div id="trace-pipe"></div>
+        </div>
+        <div class="card trace-main">
+          <header class="ph"><h2 id="trace-title"></h2></header>
+          <div id="trace-chart"></div><div id="trace-legend"></div>
+          <div class="player" role="group" aria-label="Walkthrough controls">
+            <button class="btn icon" id="tp-restart" title="Restart (Home)" aria-label="Restart"></button>
+            <button class="btn icon" id="tp-back" title="Previous stage (←)" aria-label="Previous stage"></button>
+            <button class="btn primary" id="tp-play" aria-label="Play">Play</button>
+            <button class="btn icon" id="tp-next" title="Next stage (→)" aria-label="Next stage"></button>
+            <input type="range" id="tp-scrub" min="0" value="0" aria-label="Stage">
+            <select id="tp-speed" aria-label="Speed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select>
+          </div>
+          <p class="trace-caption" id="trace-caption" aria-live="polite"></p>
+        </div>
+      </div>
+      <aside class="card drawer" id="trace-drawer" aria-live="polite"></aside>
       <div class="card">
-        <h2>Two ways to use it</h2>
-        <p><b>On the web</b> (this page): nothing to install. GitHub Pages serves the app with the newest weekly forecasts.</p>
-        <p><b>On your computer</b>: the full version runs TimesFM yourself and opens this same app on your machine.</p>
-        <p><code>psychohistory app</code> builds and opens it at <code>http://localhost:8000</code>.</p>
-        <p><a id="repo-link" href="#">Source code and instructions on GitHub</a></p>
-        <p>Maintained by <a href="https://github.com/Normansrule">@Normansrule</a>.</p>
+        <header class="ph"><h2>Did every series make it through this run?</h2></header>
+        <p class="note" id="cover-note"></p>
+        <div class="table-wrap"><table id="cover-table" class="cover"></table></div>
+      </div>
+    </section>
+
+    <section class="view" id="view-replay" aria-labelledby="replay-h">
+      <div class="vhead">
+        <h1 id="replay-h">Replay</h1>
+        <p class="lede">Each frame is a forecast TimesFM made in the past. The hatched amber range is what it expected; the dots are what really happened.</p>
       </div>
       <div class="card">
-        <h2>How it is scored</h2>
-        <p><b>Skill</b>: 1 − error(model) ÷ error(naive). <b>80% range</b>: should catch reality 8 times in 10.
-          <b>Odds score</b> (Brier): 0 is perfect, 0.25 is a coin flip. Backtests never let a model see the future it is tested on.</p>
-        <p>Nothing here is financial advice.</p>
+        <header class="ph"><h2 id="replay-title"></h2><span class="pm" id="replay-readout"></span></header>
+        <div class="controls">
+          <button class="btn primary" id="replay-play">Play</button>
+          <input type="range" id="replay-slider" min="0" value="0" aria-label="Forecast date">
+        </div>
+        <div id="replay-chart"></div><div id="replay-legend"></div>
+      </div>
+    </section>
+
+    <section class="view" id="view-horizon" aria-labelledby="horizon-h">
+      <div class="vhead">
+        <h1 id="horizon-h">How far ahead can it see?</h1>
+        <p class="lede">Skill at each step ahead. Where a line drops below zero, the model has run out of foresight: the "Seldon horizon".</p>
+      </div>
+      <div class="card"><header class="ph"><h2>Skill by steps ahead</h2><span class="pm" id="horizon-meta"></span></header><div id="horizon-chart"></div></div>
+    </section>
+
+    <section class="view" id="view-odds" aria-labelledby="odds-h">
+      <div class="vhead">
+        <h1 id="odds-h">Are its odds honest?</h1>
+        <p class="lede">Forecasts grouped by the chance of rising they gave. Honest odds sit on the dotted line: "70%" calls come true about 70% of the time.</p>
+      </div>
+      <div class="card"><header class="ph"><h2>Calibration</h2><span class="pm">chance it gave vs how often it happened</span></header><div id="odds-chart"></div><div id="odds-legend"></div></div>
+    </section>
+
+    <section class="view" id="view-vault" aria-labelledby="vault-h">
+      <div class="vhead">
+        <h1 id="vault-h">The Time Vault</h1>
+        <p class="lede">The real test. Predictions are sealed with a date before the future happens and opened when it arrives.
+          An honest model settles near 80% on the left and stays under the coin flip on the right.</p>
+      </div>
+      <div class="two">
+        <div class="card"><header class="ph"><h2>Reality inside its 80% range</h2></header><div id="vault-inside"></div></div>
+        <div class="card"><header class="ph"><h2>Odds score</h2><span class="pm">Brier, lower is better</span></header><div id="vault-brier"></div></div>
+      </div>
+      <p class="note" id="vault-note"></p>
+    </section>
+
+    <section class="view" id="view-crowd" aria-labelledby="crowd-h">
+      <div class="vhead">
+        <p class="flag hypo">Simulation · synthetic people, not survey data</p>
+        <h1 id="crowd-h">Why crowds are predictable</h1>
+        <p class="lede">Ten thousand simulated people each have a mood: a little shared tide plus a lot of personal noise.
+          Grow the crowd and watch its average lock onto the tide. That is Seldon's bet in one picture.</p>
       </div>
       <div class="card">
-        <h2>Built on</h2>
-        <p><a href="https://github.com/google-research/timesfm">TimesFM</a> (Google Research) ·
-          <a href="https://github.com/amazon-science/chronos-forecasting">Chronos</a> ·
-          <a href="https://github.com/Nixtla/statsforecast">statsforecast</a>.
-          Data: <a href="https://www.gdeltproject.org/">GDELT</a>, Yahoo Finance via yfinance,
-          <a href="https://wikitech.wikimedia.org/wiki/Analytics/AQS/Pageviews">Wikimedia</a>,
-          <a href="https://ourworldindata.org/">Our World in Data</a>.
-          Web-app and download design inspired by <a href="https://github.com/koala73/worldmonitor">World Monitor</a>.</p>
+        <header class="ph"><h2>Crowd size</h2><span class="pm" id="crowd-label"></span></header>
+        <div class="controls">
+          <input type="range" id="crowd-slider" min="0" value="0" aria-label="Crowd size">
+          <span class="stat" id="crowd-share"></span><span class="note">predictable</span>
+        </div>
+        <div id="crowd-chart"></div><div id="crowd-legend"></div>
       </div>
-    </div>
-  </section>
-</main>
-<footer id="footer"></footer>
+    </section>
+
+    <section class="view" id="view-series" aria-labelledby="series-h">
+      <div class="vhead">
+        <h1 id="series-h">Every series</h1>
+        <p class="lede">Backtest results for each series. Sort by any column.</p>
+      </div>
+      <div class="card table-wrap"><table id="series-table" class="dense"></table></div>
+    </section>
+
+    <section class="view" id="view-about" aria-labelledby="about-h">
+      <div class="vhead"><h1 id="about-h">About this terminal</h1></div>
+      <div class="two">
+        <div class="card prose">
+          <header class="ph"><h2>Two ways to use it</h2></header>
+          <p><b>On the web</b> (this page): nothing to install. GitHub Pages serves the app with the newest weekly forecasts.</p>
+          <p><b>On your computer</b>: the full version runs TimesFM itself and opens this same app. <code>psychohistory app</code> builds it and opens <code>http://localhost:8000</code>.</p>
+          <p><a id="repo-link" href="https://github.com/Normansrule/world-predictor">Source code and instructions on GitHub</a>. Maintained by <a href="https://github.com/Normansrule">@Normansrule</a>.</p>
+        </div>
+        <div class="card prose">
+          <header class="ph"><h2>How it is scored</h2></header>
+          <p><b>Skill</b> is 1 − error(model) ÷ error("no change"). <b>80% range</b>: it should catch reality 8 times in 10.
+            <b>Odds score</b> (Brier): 0 is perfect, 0.25 is a coin flip. Backtests never let a model see the future it is tested on.</p>
+          <p><b>Seldon</b> is TimesFM corrected by its own track record: it keeps only the share of TimesFM's predicted move that paid off in earlier windows,
+            and stretches the range until it would have caught reality 8 times in 10. It learns from finished windows only and is allowed to lose.</p>
+          <p>Nothing here is financial advice.</p>
+        </div>
+        <div class="card prose">
+          <header class="ph"><h2>Keys</h2></header>
+          <dl class="keys">
+            <dt><kbd>1</kbd>…<kbd>0</kbd></dt><dd>Switch view</dd>
+            <dt><kbd>/</kbd></dt><dd>Go to a series or view</dd>
+            <dt><kbd>T</kbd></dt><dd>Light ledger or graphite</dd>
+            <dt><kbd>↑</kbd> <kbd>↓</kbd></dt><dd>Move your call in the Lab (with <kbd>Shift</kbd>: faster)</dd>
+            <dt><kbd>[</kbd> <kbd>]</kbd></dt><dd>Narrow or widen your range</dd>
+            <dt>hold <kbd>Space</kbd></dt><dd>Seal your call, then break the seal</dd>
+            <dt><kbd>N</kbd></dt><dd>Next Lab round</dd>
+          </dl>
+        </div>
+        <div class="card prose">
+          <header class="ph"><h2>Built on</h2></header>
+          <p><a href="https://github.com/google-research/timesfm">TimesFM</a> (Google Research) ·
+            <a href="https://github.com/amazon-science/chronos-forecasting">Chronos</a> ·
+            <a href="https://github.com/Nixtla/statsforecast">statsforecast</a>.
+            Data: <a href="https://www.gdeltproject.org/">GDELT</a>, Yahoo Finance via yfinance,
+            <a href="https://wikitech.wikimedia.org/wiki/Analytics/AQS/Pageviews">Wikimedia</a>,
+            <a href="https://ourworldindata.org/">Our World in Data</a>.
+            Web app and download model from <a href="https://github.com/koala73/worldmonitor">World Monitor</a> and
+            <a href="https://github.com/Normansrule/worldmonitor">Terra Atlas</a>.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+<footer class="foot" id="footer"></footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script src="data/data.js"></script>
 <script src="data/pipeline.js"></script>
 <script src="js/charts.js"></script>
 <script src="js/trace.js"></script>
+<script src="js/lab.js"></script>
+<script src="js/studio.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

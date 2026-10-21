@@ -92,7 +92,12 @@ Twenty open-source repositories and the modelling theories this project draws on
   Damme's scroll-driven animation demos, Josh W. Comeau, MDN, GSAP ScrollTrigger and Scrollama
   (patterns only), and the READMEs of Supabase, Excalidraw, tldraw, uv, Rich and VHS via
   awesome-readme. All fifty are listed with links in [docs/DESIGN.md](docs/DESIGN.md).
-- **Fonts.** Fraunces, Inter and JetBrains Mono, all under the SIL Open Font Licence, served by Google Fonts.
+- **Design.** The "Sealed Ledger" terminal redesign (October 2026) used three design-engineering guides
+  as checklists, with no code taken from them: [Impeccable](https://github.com/pbakaus/impeccable) by
+  Paul Bakaus (Apache-2.0), [taste-skill](https://github.com/Leonxlnx/taste-skill) (MIT) and
+  [Emil Kowalski's skills](https://github.com/emilkowalski/skills) (MIT). The concept, colours, type and
+  how it was audited are in [docs/DESIGN.md](docs/DESIGN.md).
+- **Fonts.** Newsreader, IBM Plex Sans and IBM Plex Mono, all under the SIL Open Font Licence, served by Google Fonts.
 
 - **World Monitor** by koala73 (AGPL-3.0) <https://github.com/koala73/worldmonitor>, and Alek's fork
   **Terra Atlas** <https://github.com/Normansrule/worldmonitor>. World Predictor borrows their product
@@ -100,11 +105,15 @@ Twenty open-source repositories and the modelling theories this project draws on
   released from tags. No code was copied, so World Monitor's AGPL licence does not apply here.
 
 - Isaac Asimov, *Foundation* (1951) and the Foundation series, which introduced Hari Seldon and
-  psychohistory. Only the idea is referenced; no text from the books is reproduced.
+  psychohistory. Only the idea is referenced; no text from the books is reproduced. The challenger
+  model, Seldon, is named after him.
 
 ## Methods
 
-- MASE: Rob J. Hyndman and Anne B. Koehler, "Another look at measures of forecast accuracy",
-  *International Journal of Forecasting* 22(4), 2006.
-- Pinball (quantile) loss and interval coverage follow standard probabilistic forecasting practice,
-  as in Gneiting and Raftery, "Strictly proper scoring rules, prediction, and estimation", *JASA* 2007.
+Cited in APA style (7th edition); the full bibliography is in [REFERENCES.md](REFERENCES.md#bibliography-apa-7th-edition).
+
+- Mean absolute scaled error (MASE): Hyndman, R. J., & Koehler, A. B. (2006). Another look at measures of forecast accuracy. *International Journal of Forecasting, 22*(4), 679–688. https://doi.org/10.1016/j.ijforecast.2006.03.001
+- Pinball (quantile) loss: Koenker, R., & Bassett, G., Jr. (1978). Regression quantiles. *Econometrica, 46*(1), 33–50. https://doi.org/10.2307/1913643
+- Proper scoring and interval coverage: Gneiting, T., & Raftery, A. E. (2007). Strictly proper scoring rules, prediction, and estimation. *Journal of the American Statistical Association, 102*(477), 359–378. https://doi.org/10.1198/016214506000001437
+- Brier score for the odds: Brier, G. W. (1950). Verification of forecasts expressed in terms of probability. *Monthly Weather Review, 78*(1), 1–3. https://doi.org/10.1175/1520-0493(1950)078<0001:VOFEIT>2.0.CO;2
+- Rolling-origin backtests: Tashman, L. J. (2000). Out-of-sample tests of forecasting accuracy: An analysis and review. *International Journal of Forecasting, 16*(4), 437–450. https://doi.org/10.1016/S0169-2070(00)00065-0

@@ -1,52 +1,129 @@
 # Design
 
-World Predictor's look and motion were shaped by fifty sites, repositories and write-ups, listed below
-with the one idea taken from each. **No code was copied from any of them**: every effect is written
-from scratch in plain HTML, CSS and JavaScript, with no chart or animation library. The design basis
-for the product itself (one static site served by GitHub Pages and shipped as a download) is
-[World Monitor](https://github.com/koala73/worldmonitor) by Elie Habib and its fork
-[Terra Atlas](https://github.com/Normansrule/worldmonitor), whose level of polish this aims to match.
-They are AGPL-3.0; only ideas were borrowed.
+## The concept: the Sealed Ledger
 
-## The look: "the observatory"
+World Predictor makes one promise: every forecast is written down *before* the future happens, then
+opened and scored when it arrives. The design is built around that promise. It is a forecasting
+terminal in the spirit of a professional market terminal (dense, fast, keyboard-first) whose one
+dramatic moment is the seal itself: in the Lab you make a call, seal it, and break the seal to see how
+you did against TimesFM and Seldon.
 
-Midnight navy surfaces (`#060a16`) with warm-white text (`#f2ede3`), and one colour per meaning, each
-also carried by a word or a pattern so nothing depends on colour alone:
+Three ideas were proposed for this redesign: the **Sealed Ledger** (records, seals, a terminal), an
+**observatory** (instruments pointed at the future) and a **weather desk** (forecast fans as fronts).
+Alek chose the Sealed Ledger, with the brief: look professional, like an advanced terminal, and show
+off what the models can predict, with a lab where you make predictions and see how they compare with
+TimesFM and the project's own improved version (Seldon).
 
-| Meaning | Dark | Light | Also shown by |
+### Colour: one meaning each
+
+The light ledger is the default: cool paper and white panels, with near-black ink. Graphite, a
+softened dark theme for long sessions (never pure black), is one key (<kbd>T</kbd>) away. After the
+first review Alek asked for something lighter, more professional and with more distinctive colours,
+keeping the violet, red and green markers, so the model colours moved from amber and sky blue to
+cobalt and verdigris. Each colour carries one meaning, and each meaning is also carried by something
+that isn't colour.
+
+| Meaning | Light | Graphite | Also shown by |
 |---|---|---|---|
-| Observed values | `#f2ede3` | `#0d1424` | solid lines, the word "Observed" |
-| Forecasts | `#5fd4e6` | `#0a7c93` | diagonal hatching over the future, "Forecast, not a fact" |
-| Warnings and gaps | `#f3b13c` | `#9a5b00` | hatched cells, "!", "No output" |
-| Simulated or hypothetical | `#a98bff` | `#6a4bd1` | "◇ Simulation" label |
-| Better / worse than the simple guess | `#5fd4e6` / `#f07a63` | `#0a7c93` / `#c03d31` | the sign of the number |
+| What really happened | `#0f1722` | `#e9edf2` | a solid line, the label "Reality" |
+| TimesFM, the model under test (cobalt) | `#2448c2` | `#8ea8ff` | a hatched range |
+| Seldon, the challenger (verdigris) | `#0b7477` | `#45c4be` | a dotted range |
+| You, in the Lab and the Forecast Studio | `#6a43c2` | `#b9a0ff` | your name at the end of the line |
+| The seal | `#b0301a` | `#c4412a` | the stamp and its date |
+| Better / worse than "no change" | `#17734a` / `#b4232c` | `#5bc792` / `#ff8578` | the sign of the number |
+| Warnings and gaps (ochre) | `#8a5f00` | `#e3c15e` | hatching and "!" |
+| Simulated | `#8a3b72` | `#d6a4c9` | the "◇ Simulation" label |
 
-This replaced the first "vault" palette, whose brass forecast colour would have been mistaken for an
-amber warning. Headings are set in [Fraunces](https://fonts.google.com/specimen/Fraunces); text in
-[Inter](https://rsms.me/inter/); dates and numbers in [JetBrains Mono](https://www.jetbrains.com/lp/mono/).
-All three are SIL Open Font Licence fonts, and every page falls back to system fonts offline.
+Surfaces are cool paper (`#eef1f4`, panels `#ffffff`) or graphite (`#171b21`, panels `#1e232b`).
+Every text colour reaches 4.5:1 contrast on every surface in both themes (checked by script during
+the audit), and so does the text on the cobalt, seal and "sealed" buttons. Seal red is only ever a
+fill behind light text, never text on its own.
 
-## What was built from these references
+### Type
 
-| Effect | Where | Inspired by |
-|---|---|---|
-| Six-layer exploded forecast engine that comes apart and reassembles as you scroll | Landing page (`#engine`), README | Apple product pages, IYO, Ciechanowski, Teenage Engineering (1–10) |
-| Scroll-driven animation in CSS alone (`animation-timeline: view()`), with a 20-line fallback | `site/assets/site.css`, `site.js` | Bramus, Josh W. Comeau, MDN, GSAP ScrollTrigger, Scrollama (33–39) |
-| Headline words rise in turn; slow drifting glow behind the hero | Landing hero | Stripe, Lusion, Codrops (11, 17, 22) |
-| Primary button with a light travelling round its edge | Landing hero | Linear, Vercel (13, 14) |
-| The live forecast in the hero draws itself, the future is hatched | Landing hero, every app chart | Reuters Graphics, Windy (24, 32) |
-| Number strip that counts up as it enters view | Landing page | Vercel, Motion (14, 40) |
-| Scoreboard bars that grow from zero | Landing `#results`, app overview | uv's single benchmark chart (46) |
-| App screenshot that tilts flat as you scroll to it | Landing `#app` | Linear (13) |
-| Card light that follows the pointer | Landing and app | Linear, Vercel (13, 14) |
-| Morphing between app views | App tabs | MDN View Transition API (36) |
-| Prediction cards with big odds and a sparkline | App outlook | Polymarket, Metaculus (29, 30) |
-| Light and dark images, Mermaid, folded tables | README | tldraw, Supabase, GitHub Docs (43, 45, 50) |
+- **Newsreader** (display serif): page titles, the landing headline and the Lab's verdict. It's a
+  newspaper face, which suits a ledger of public predictions.
+- **IBM Plex Sans**: the interface. Panel headers are small uppercase labels, because in a terminal
+  they *are* the labels of the panels, not decoration above a headline.
+- **IBM Plex Mono**: only where characters must line up: numbers in tables, dates, tickers, axis ticks
+  and code.
 
-Everything stops under `prefers-reduced-motion`, only `transform` and `opacity` are animated, and the
-exploded engine becomes a static diagram (the same artwork as the README's) for readers who prefer less motion.
+Type scale: 11, 12, 13, 14, 16, 20, 28, 40, 56 pixels. Spacing scale: 4, 8, 12, 16, 24, 32, 48, 64.
+
+### Layout
+
+- **Status bar**: what this terminal is showing (recorded run or demo, model, challenger, series, how
+  many forecasts are sealed, when the next run is).
+- **Command bar and tape**: <kbd>/</kbd> opens a search over every view and series; the tape lists
+  every sealed forecast and its chance of ending higher, and each item opens it in the Outlook.
+- **Forecast Studio**: the second centrepiece. Where the Lab tests you on the past, the Studio works on
+  the real future: ask the chance of any level on any date, read the percentiles, then seal your own
+  call next to TimesFM's and Seldon's. The level is a dashed line you can set by clicking the chart,
+  and your call is a violet dot with its range, the same marks the Lab uses.
+- **Function rail**: every view with its number key. On a phone it becomes a scrolling tab strip.
+- **Panels**: 1px borders, a 4px radius, a header strip with a title on the left and context on the
+  right. No resting shadows except on things that float.
+
+### Motion
+
+- Strong ease-out (`cubic-bezier(.23, 1, .32, 1)`) for things arriving, ease-in-out
+  (`cubic-bezier(.77, 0, .175, 1)`) for lines drawing in. Anything people do often finishes in under
+  300ms; buttons press to `scale(.97)`; hover effects only run on devices that can hover.
+- **The seal.** Sealing and breaking the seal are press-and-hold (about half a second, with a ring
+  filling around the button), so nothing is sealed by accident and the moment feels physical. The
+  stamp lands with a small overshoot; when the seal breaks it spins away.
+- **The reveal is ordered by importance.** Reality draws first, then TimesFM, then Seldon, then the
+  scores. You see them in the order that answers "who saw it coming?".
+- **Reduced motion keeps every state change** as a fade and drops all travel; the exploded forecast on
+  the landing page becomes a still diagram.
+
+### States
+
+- **Empty**: every panel says what will appear there and what makes it appear (the first backtest, the
+  first forecast run), in a dashed box with a bold first line.
+- **Demo**: a hatched yellow banner on every screen and "Demo · synthetic" in the status bar.
+- **Gaps and failures**: kept visible with the reason, in "Follow one result" and its coverage table.
+- **No data file**: a single message with the command that builds it.
+
+### Accessibility
+
+Every view works from the keyboard. In the Lab the two handles are sliders to screen readers (with the
+value read out as a number and a percentage), arrow keys move them, and holding <kbd>Space</kbd> seals.
+Assistive technology that clicks without pressing seals at once. Focus is always visible, nothing
+depends on colour alone, and nothing overflows horizontally from a 390-pixel phone up.
+
+### What was cut
+
+Gradient fills and glows, a grid of identical forecast cards (now a list and a detail panel), emoji as
+icons, pinging "live" dots, a scrolling credits marquee, word-by-word blur-in headlines, scroll-triggered
+reveals that hide content until it's scrolled to, and monospace used as a costume.
+
+## How it was checked
+
+The redesign used [Impeccable](https://github.com/pbakaus/impeccable) (Paul Bakaus, Apache-2.0),
+[taste-skill](https://github.com/Leonxlnx/taste-skill) (MIT) and
+[Emil Kowalski's design-engineering skills](https://github.com/emilkowalski/skills) (MIT) as checklists;
+no code was taken from them. After building, it was audited in a headless browser: text contrast in
+both themes, horizontal overflow on all twelve views and the landing page at 390, 768 and 1440 pixels
+wide in both themes, a Lab round played with the keyboard only, the tab order, reduced motion, and the
+demo data. The fixes it led to (a darker seal red for contrast, the level line drawn in grey rather than seal red, a shorter Lab chart on
+phones, labels nudged apart when lines end close together) are in the same change.
+
+## Basis and references
+
+The product itself (one static site served by GitHub Pages and shipped as a download) follows
+[World Monitor](https://github.com/koala73/worldmonitor) by Elie Habib and its fork
+[Terra Atlas](https://github.com/Normansrule/worldmonitor). They are AGPL-3.0; only ideas were borrowed.
+
+Earlier versions of the site (the "observatory" look) were shaped by the fifty sites, repositories and
+write-ups below, each with the one idea taken from it. Two of their effects carry on in the terminal:
+the exploded forecast on the landing page (1–10, 33–39) and the app preview that tilts flat as you
+scroll to it (13). **No code was copied from any of them.**
 
 ## The fifty references
+
+APA-style citations for every one of these (and the twenty repositories after them) are in
+[REFERENCES.md](../REFERENCES.md#design-and-presentation).
 
 ## A. Exploded-view and scroll-assembled product pages (the effect Alek asked for)
 

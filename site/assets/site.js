@@ -1,77 +1,66 @@
-// World Predictor landing page: fills the story with real numbers from app/data/data.js and runs
-// the scroll effects. Plain JavaScript, no libraries; everything still reads without it.
+// World Predictor landing page: fills the page with real numbers from app/data/data.js, mounts the
+// Lab in the hero and runs the scroll effects. Plain JavaScript, no libraries; everything still reads without it.
 (function () {
   const D = window.WP_DATA;
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const $ = (s, root = document) => root.querySelector(s);
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const pct = (v) => (v === null || v === undefined ? "–" : Math.round(v * 100) + "%");
-  const signed = (v) => (Math.abs(v) < 0.005 ? "0%" : (v > 0 ? "+" : "−") + Math.abs(Math.round(v * 100)) + "%");
+  const signed = (v) => (v === null || v === undefined ? "–" : Math.abs(v) < 0.0005 ? "0.0%" : (v > 0 ? "+" : "−") + Math.abs(v * 100).toFixed(1) + "%");
+  const cls = (v) => (v === null || v === undefined || Math.abs(v) < 0.02 ? "dim" : v > 0 ? "pos" : "neg");
 
-  // Theme toggle shared with the app.
+  // Theme toggle shared with the terminal.
   const toggle = $("#theme");
   if (toggle) toggle.addEventListener("click", () => {
     const root = document.documentElement;
-    const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+    const dark = root.dataset.theme === "dark";
     root.dataset.theme = dark ? "light" : "dark";
     try { localStorage.setItem("wp-theme", root.dataset.theme); } catch (e) {}
   });
 
-  // Nav sharpens after the first scroll.
-  const nav = $(".nav");
-  const onScroll = () => nav && nav.classList.toggle("scrolled", scrollY > 8);
-  addEventListener("scroll", onScroll, { passive: true }); onScroll();
-
-  // Split the headline into words that rise in turn.
-  document.querySelectorAll("[data-split]").forEach((h) => {
-    let n = 0;
-    const walk = (node) => [...node.childNodes].forEach((c) => {
-      if (c.nodeType === 3) {
-        const frag = document.createDocumentFragment();
-        c.textContent.split(/(\s+)/).forEach((part) => {
-          if (!part.trim()) { frag.appendChild(document.createTextNode(part)); return; }
-          const w = document.createElement("span"); w.className = "w"; w.style.setProperty("--n", n++); w.textContent = part; frag.appendChild(w);
-        });
-        c.replaceWith(frag);
-      } else walk(c);
-    });
-    walk(h); h.classList.add("split");
-  });
-
   if (D) {
-    const sc = D.scorecard || {};
-    const live = $("#live-text");
-    if (live) live.textContent = `${D.meta.demo ? "Demo data" : "Last forecast run"} ${D.meta.generated} · ${D.series.length} series · ${D.meta.model}`;
-    const set = (id, value, cls) => { const el = $(id); if (el) { el.dataset.count = value; if (cls) el.classList.add(cls); } };
-    set("#stat-series", D.series.length);
-    set("#stat-news", sc.news && sc.news.skill, "good");
-    set("#stat-tech", sc.tech && sc.tech.skill, "good");
-    set("#stat-markets", sc.markets && sc.markets.skill);
-    set("#stat-sealed", D.outlook.length, "warm");
-    hero(D);
-    board(D);
+    const model = D.meta.model, name = /^timesfm/.test(model) ? "TimesFM" : model, sc = D.scorecard || {};
+    // Tape: every sealed forecast, the chance it ends higher.
+    $("#tape").innerHTML = D.outlook.map((o) => {
+      const p = o.p_up, c = p === null ? "flat" : p > 0.55 ? "up" : p < 0.45 ? "down" : "flat";
+      return `<a href="app/#outlook/${esc(o.id)}" title="${esc(o.title)}"><b>${esc(o.id.replace(/_composite$/, "").replace(/_/g, " ").toUpperCase().slice(0, 12))}</b>` +
+        `<span class="${c}">${c === "up" ? "▲" : c === "down" ? "▼" : "■"} ${pct(p)}</span></a>`;
+    }).join("");
+    $("#hero-facts").innerHTML = [
+      [String(D.series.length), "series backtested", D.meta.demo ? "demo data" : "news, markets, technology"],
+      [techSkill(D, model, sc), `${name} in technology`, 'less error than "no change"'],
+      [String(D.outlook.length), "sealed this week", `scored from ${D.outlook[0] ? D.outlook[0].fan[0][0] : "–"}`],
+    ].map(([v, k, s]) => `<div><dt>${k}</dt><dd>${esc(v)}<small>${esc(s)}</small></dd></div>`).join("");
+    if (window.WPLab) window.WPLab.render($("#hero-lab"), D, { compact: true, start: "sp500" });
+    board(D, model, name);
   }
 
-  // Count numbers up when they come into view (Web Animations-free: one rAF loop per number).
-  function countUp(el) {
-    const raw = el.dataset.count; if (raw === undefined || raw === "") return;
-    const v = Number(raw), isPct = el.dataset.kind === "pct";
-    const show = (x) => (el.textContent = isPct ? signed(x) : Math.round(x).toLocaleString());
-    if (reduce) return show(v);
-    const t0 = performance.now(), dur = 1400;
-    const step = (t) => { const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 4); show(v * e); if (k < 1) requestAnimationFrame(step); };
-    requestAnimationFrame(step);
+  // The same number the scoreboard shows, so the hero and the table never disagree.
+  function techSkill(D, model, sc) {
+    const r = pick(D, "tech", model);
+    const v = r ? r.skill : sc.tech ? sc.tech.skill : null;
+    return v === null || v === undefined ? "–" : signed(v);
   }
 
-  // Reveal sections, count numbers and grow bars as they enter.
-  const io = new IntersectionObserver((entries) => entries.forEach((e) => {
-    if (!e.isIntersecting) return;
-    e.target.classList.add("in");
-    e.target.querySelectorAll("[data-count]").forEach(countUp);
-    io.unobserve(e.target);
-  }), { threshold: 0.2 });
-  document.querySelectorAll("[data-reveal], .stats, .board").forEach((el) => io.observe(el));
+  // One row per area and model: the backtest when it already scored Seldon, else the Lab's board.
+  function pick(D, d, m) {
+    if (D.domains.some((r) => r.model === "seldon") || !D.lab) { const r = D.domains.find((x) => x.domain === d && x.model === m); return r && { skill: r.skill, inside: r.coverage80 }; }
+    return (D.lab.board || []).find((x) => x.domain === d && x.model === m);
+  }
 
-  // The exploded engine: browsers without scroll-driven animations get --spread from here.
+  // Scoreboard: TimesFM and Seldon against "no change", one row per area.
+  function board(D, model, name) {
+    const host = $("#board"); if (!host) return;
+    const areas = [["news", "World news", "GDELT attention"], ["markets", "Markets", "stocks, gold, silver, oil"], ["tech", "Technology", "Wikipedia and adoption"]].filter(([d]) => pick(D, d, model));
+    if (!areas.length) { host.innerHTML = '<tr><td><div class="empty"><b>No backtest yet.</b>The scoreboard fills in after the first forecast run.</div></td></tr>'; return; }
+    const cell = (r, k) => (!r || r[k] === null || r[k] === undefined ? "–" : k === "skill" ? `<span class="${cls(r.skill)}">${signed(r.skill)}</span>` : pct(r[k]));
+    host.innerHTML = `<thead><tr><th>Area</th><th class="m"><span class="who" style="--c:var(--tfm)">${esc(name)} skill</span></th><th><span class="who" style="--c:var(--seldon)">Seldon skill</span></th>
+      <th class="m">In range · ${esc(name)}</th><th>In range · Seldon</th></tr></thead><tbody>` +
+      areas.map(([d, n, sub]) => { const a = pick(D, d, model), b = pick(D, d, "seldon");
+        return `<tr><td class="area">${n}<small>${sub}</small></td><td class="m">${cell(a, "skill")}</td><td>${cell(b, "skill")}</td><td class="m">${cell(a, "inside")}</td><td>${cell(b, "inside")}</td></tr>`; }).join("") + "</tbody>";
+  }
+
+  // The exploded forecast: browsers without scroll-driven animations get --spread from here.
   const engine = $(".explode");
   if (engine && !reduce && !(window.CSS && CSS.supports("animation-timeline: view()"))) {
     const stage = $(".explode__stage", engine);
@@ -80,72 +69,27 @@
     const update = () => {
       const r = engine.getBoundingClientRect();
       const p = Math.min(1, Math.max(0, -r.top / Math.max(1, r.height - innerHeight)));
-      const s = shape(p), eased = s * s * (3 - 2 * s);
-      stage.style.setProperty("--spread", eased.toFixed(3));
+      const s = shape(p);
+      stage.style.setProperty("--spread", (s * s * (3 - 2 * s)).toFixed(3));
       ticking = false;
     };
     addEventListener("scroll", () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
     update();
   }
 
-  // App preview tilts flat as it scrolls into the middle of the screen.
+  // The terminal preview tilts flat as it reaches the middle of the screen.
   const preview = $(".preview img");
   if (preview && !reduce) {
     let ticking = false;
     const tilt = () => {
       const r = preview.getBoundingClientRect();
       const k = Math.min(1, Math.max(0, (innerHeight - r.top) / (innerHeight * 0.75)));
-      preview.style.setProperty("--tilt", (18 * (1 - k)).toFixed(2) + "deg");
-      preview.style.setProperty("--scale", (0.94 + 0.06 * k).toFixed(3));
+      preview.style.setProperty("--tilt", (14 * (1 - k)).toFixed(2) + "deg");
+      preview.style.setProperty("--scale", (0.95 + 0.05 * k).toFixed(3));
       ticking = false;
     };
     addEventListener("scroll", () => { if (!ticking) { ticking = true; requestAnimationFrame(tilt); } }, { passive: true });
     tilt();
-  }
-
-  // Lamp light on cards.
-  document.addEventListener("pointermove", (ev) => {
-    const card = ev.target.closest && ev.target.closest(".card"); if (!card) return;
-    const r = card.getBoundingClientRect();
-    card.style.setProperty("--mx", ev.clientX - r.left + "px"); card.style.setProperty("--my", ev.clientY - r.top + "px");
-  }, { passive: true });
-
-  // The hero oracle: the newest sealed forecast for the first headline series, drawn with the app's chart kit.
-  function hero(D) {
-    const box = $("#oracle-chart"); if (!box || !window.WPCharts || !D.outlook.length) return;
-    const o = D.outlook[0];
-    $("#oracle-title").textContent = o.title;
-    $("#oracle-made").textContent = `sealed ${o.made_on} · scored ${o.target_date}`;
-    $("#oracle-odds").textContent = pct(o.p_up);
-    $("#oracle-cap").textContent = `chance it ends higher by ${o.target_date}. Middle guess ${signed(o.change)}, 80% range ${signed(o.low)} to ${signed(o.high)}.`;
-    const history = o.history.slice(-60);
-    const now = history[history.length - 1];
-    WPCharts.plot(box, {
-      x: "date", height: 300, left: 52, label: `${o.title}: history and forecast`,
-      bands: [{ points: o.fan.map((f) => [f[0], f[1], f[3]]) }],
-      lines: [
-        { points: history, color: "var(--text)", width: 2.2, name: "history" },
-        { points: [[now[0], now[1]]].concat(o.fan.map((f) => [f[0], f[2]])), color: "var(--forecast)", width: 2.4, name: "forecast" },
-      ],
-      refs: [{ x: now[0], label: "now" }],
-    });
-  }
-
-  // Scoreboard: TimesFM's skill against the simple guess, one bar per area, zero in the middle.
-  function board(D) {
-    const host = $("#board"); if (!host) return;
-    const areas = [["news", "World news", "GDELT attention"], ["markets", "Markets", "stocks, gold, silver, oil"], ["tech", "Technology", "Wikipedia and adoption"]];
-    const rows = areas.map(([d, name, sub]) => {
-      const s = D.scorecard[d] && D.scorecard[d].skill;
-      if (s === null || s === undefined) return "";
-      const lo = -0.5, hi = 0.5, x = (v) => ((Math.max(lo, Math.min(hi, v)) - lo) / (hi - lo)) * 100;
-      const left = Math.min(x(0), x(s)), width = Math.abs(x(s) - x(0));
-      const flat = Math.abs(s) < 0.02;
-      return `<div class="row"><div class="name">${name}<small>${sub}</small></div>
-        <div class="track" style="--z:${x(0)}%"><span class="zero"></span><span class="bar ${flat ? "flat" : "model"}" style="left:${left}%;width:${Math.max(0.6, width)}%"></span></div>
-        <div class="val" data-count="${s}" data-kind="pct">${signed(s)}</div></div>`;
-    });
-    host.innerHTML = rows.join("");
   }
 
   if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js").catch(() => {});

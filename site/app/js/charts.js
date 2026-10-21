@@ -47,7 +47,7 @@
 
   const fmt = {
     pct: (v) => (v === null || v === undefined ? "–" : (v * 100).toFixed(Math.abs(v) < 0.1 ? 1 : 0) + "%"),
-    signedPct: (v) => (v === null || v === undefined ? "–" : (v >= 0 ? "+" : "−") + Math.abs(v * 100).toFixed(1) + "%"),
+    signedPct: (v) => (v === null || v === undefined ? "–" : Math.abs(v) < 0.0005 ? "0.0%" : (v > 0 ? "+" : "−") + Math.abs(v * 100).toFixed(1) + "%"),
     num: (v) => {
       if (v === null || v === undefined) return "–";
       const a = Math.abs(v);
@@ -62,8 +62,11 @@
 
   /**
    * plot(container, spec): an XY chart.
-   * spec.lines: [{points: [[x, y]], color, width, dash, name}]
-   * spec.bands: [{points: [[x, lo, hi]], color}]          (forecast ranges)
+   * spec.lines: [{points: [[x, y]], color, width, dash, name, label, draw, delay}]
+   *   label: written at the line's last point (direct labelling instead of a legend)
+   *   draw / delay: trace this line in now, after ``delay`` seconds, even on a redraw
+   * spec.bands: [{points: [[x, lo, hi]], color, stroke, edge, fade, delay}]   (forecast ranges)
+   *   stroke: colour of the hatching; edge: dash pattern for an outline of the range
    * spec.dots:  [{points: [[x, y]], color, r, name}]
    * spec.refs:  [{y, label, color}] or [{x, label}]       (dashed reference lines)
  * spec.spans: [{from, to, color, label}]               (shaded stretch of the x axis)
@@ -94,18 +97,22 @@
     const sy = (v) => height - m.b - ((v - y0) / (y1 - y0)) * (height - m.t - m.b);
     const svg = el("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": spec.label || "chart" }, container);
     // Animate only the first drawing of a chart, so sliders and resizes redraw instantly.
-    const animate = spec.animate !== false && !container.dataset.drawn;
+    const animate = spec.animate === true || (spec.animate !== false && !container.dataset.drawn);
     container.dataset.drawn = "1";
-    const hatchId = "wp-hatch-" + (++uid);
-    const pattern = el("pattern", { id: hatchId, width: 7, height: 7, patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)", class: "hatch" },
-      el("defs", {}, svg));
-    el("line", { x1: 0, y1: 0, x2: 0, y2: 7 }, pattern);
+    const defs = el("defs", {}, svg);
+    const hatch = (color) => {
+      const id = "wp-hatch-" + (++uid);
+      const pattern = el("pattern", { id, width: 6, height: 6, patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)", class: "hatch" }, defs);
+      el("line", { x1: 0, y1: 0, x2: 0, y2: 6, stroke: color }, pattern);
+      return id;
+    };
+    const delayed = (s) => (s.delay !== undefined ? `--delay:${s.delay}s` : undefined);
 
     const grid = el("g", { class: "grid" }, svg);
     const yf = spec.yFormat || fmt.num;
     ticks(y0, y1, spec.yTicks || 5).forEach((v) => {
       if (v < y0 || v > y1) return;
-      el("line", { x1: m.l, x2: width - m.r, y1: sy(v), y2: sy(v) }, grid);
+      el("line", { x1: m.l, x2: width - m.r, y1: sy(v), y2: sy(v), class: v === 0 && y0 < 0 ? "zero" : undefined }, grid);
       el("text", { x: m.l - 8, y: sy(v) + 4, "text-anchor": "end" }, svg).textContent = yf(v);
     });
     const xt = isDate ? dateTicks(x0, x1, Math.max(2, Math.floor(width / 110)))
@@ -127,8 +134,13 @@
       if (!pts.length) return;
       const d = pts.map((p, i) => (i ? "L" : "M") + sx(p[0]).toFixed(1) + "," + sy(p[2]).toFixed(1)).join("")
         + pts.slice().reverse().map((p) => "L" + sx(p[0]).toFixed(1) + "," + sy(p[1]).toFixed(1)).join("") + "Z";
-      el("path", { d, fill: b.color || "var(--band)", stroke: "none", class: animate ? "fade" : undefined }, svg);
-      if (b.hatch !== false) el("path", { d, fill: `url(#${hatchId})`, stroke: "none", class: animate ? "fade" : undefined }, svg);
+      const cls = b.fade || (animate && b.fade !== false) ? "fade" : undefined, style = delayed(b);
+      el("path", { d, fill: b.color || "var(--band)", stroke: "none", class: cls, style }, svg);
+      if (b.hatch !== false) el("path", { d, fill: `url(#${hatch(b.stroke || "var(--tfm)")})`, stroke: "none", class: cls, style }, svg);
+      if (b.edge) {
+        const edge = (k) => pts.map((p, i) => (i ? "L" : "M") + sx(p[0]).toFixed(1) + "," + sy(p[k]).toFixed(1)).join("");
+        [1, 2].forEach((k) => el("path", { d: edge(k), fill: "none", stroke: b.stroke, "stroke-width": 1.2, "stroke-dasharray": b.edge, class: cls, style }, svg));
+      }
     });
     (spec.refs || []).forEach((r) => {
       const color = r.color || "var(--muted)";
@@ -140,19 +152,32 @@
         if (r.label) el("text", { x: sx(r.x) + 4, y: m.t + 10, style: `fill:${color}` }, svg).textContent = r.label;
       }
     });
+    const endLabels = [];
     (spec.lines || []).forEach((s) => {
       const pts = s.points.filter((p) => p[1] !== null && p[1] !== undefined);
       if (!pts.length) return;
       const d = pts.map((p, i) => (i ? "L" : "M") + sx(p[0]).toFixed(1) + "," + sy(p[1]).toFixed(1)).join("");
-      const draw = animate && !s.dash;
+      const draw = s.draw || (animate && !s.dash && s.draw !== false);
       el("path", { d, fill: "none", stroke: s.color, "stroke-width": s.width || 2, "stroke-dasharray": s.dash,
         "stroke-linejoin": "round", "stroke-linecap": "round", opacity: s.opacity,
-        class: draw ? "draw" : undefined, pathLength: draw ? 1 : undefined }, svg);
+        class: draw ? "draw" : undefined, pathLength: draw ? 1 : undefined, style: delayed(s) }, svg);
+      if (s.label) {
+        const p = pts[pts.length - 1];
+        endLabels.push(el("text", { x: sx(p[0]) + 6, y: sy(p[1]) + 4, class: "end" + (draw ? " fade" : ""), style: `fill:${s.color};${delayed(s) || ""}` }, svg));
+        endLabels[endLabels.length - 1].textContent = s.label;
+      }
     });
+    // Direct labels that would overlap are nudged apart, keeping their order.
+    endLabels.sort((a, b) => a.getAttribute("y") - b.getAttribute("y"));
+    for (let i = 1; i < endLabels.length; i++) {
+      const prev = +endLabels[i - 1].getAttribute("y");
+      if (+endLabels[i].getAttribute("y") < prev + 14) endLabels[i].setAttribute("y", prev + 14);
+    }
     (spec.dots || []).forEach((s) => {
       s.points.forEach((p) => {
         if (p[1] === null || p[1] === undefined) return;
-        el("circle", { cx: sx(p[0]), cy: sy(p[1]), r: s.r || 3, fill: s.color, stroke: s.stroke, "stroke-width": s.stroke ? 2 : undefined }, svg);
+        el("circle", { cx: sx(p[0]), cy: sy(p[1]), r: s.r || 3, fill: s.color, stroke: s.stroke, "stroke-width": s.stroke ? 2 : undefined,
+          class: s.fade ? "fade" : undefined, style: delayed(s) }, svg);
       });
     });
 
@@ -178,7 +203,7 @@
     }
     if (spec.hover !== false && hoverSrc.length) {
       const tip = document.createElement("div"); tip.className = "tip"; container.appendChild(tip);
-      const cross = el("line", { y1: m.t, y2: height - m.b, stroke: "var(--muted)", "stroke-width": 1, opacity: 0 }, svg);
+      const cross = el("line", { y1: m.t, y2: height - m.b, stroke: "var(--ink-2)", "stroke-width": 1, "stroke-dasharray": "2 3", opacity: 0 }, svg);
       svg.addEventListener("pointermove", (ev) => {
         const best = nearest(ev);
         if (!best) return;
@@ -192,7 +217,8 @@
       });
       svg.addEventListener("pointerleave", () => { tip.style.opacity = 0; cross.setAttribute("opacity", 0); });
     }
-    return { svg, sx, sy };
+    const inv = (py) => y0 + ((height - m.b - py) / (height - m.t - m.b)) * (y1 - y0);
+    return { svg, sx, sy, inv, m, width, height, y0, y1 };
   }
 
   /** bars(container, {groups: [label], series: [{name, color, values: [v per group]}], yFormat}) */
@@ -211,7 +237,7 @@
       el("line", { x1: m.l, x2: width - m.r, y1: sy(v), y2: sy(v) }, grid);
       el("text", { x: m.l - 8, y: sy(v) + 4, "text-anchor": "end" }, svg).textContent = yf(v);
     });
-    el("line", { x1: m.l, x2: width - m.r, y1: sy(0), y2: sy(0), stroke: "var(--muted)" }, svg);
+    el("line", { x1: m.l, x2: width - m.r, y1: sy(0), y2: sy(0), stroke: "var(--ink-2)" }, svg);
     const gw = (width - m.l - m.r) / spec.groups.length, n = spec.series.length;
     const bw = Math.min(42, (gw * 0.72) / n);
     const tip = document.createElement("div"); tip.className = "tip"; container.appendChild(tip);
@@ -221,7 +247,7 @@
       spec.series.forEach((s, si) => {
         const v = s.values[gi]; if (v === null || v === undefined) return;
         const x = cx - (n * bw) / 2 + si * bw + 1, y = Math.min(sy(v), sy(0)), h = Math.max(1, Math.abs(sy(v) - sy(0)));
-        const rect = el("rect", { x, y, width: bw - 2, height: h, rx: 3, fill: s.color,
+        const rect = el("rect", { x, y, width: bw - 2, height: h, rx: 1, fill: s.color,
           class: animate ? "grow" : undefined, style: `transform-origin: 0 ${sy(0)}px; --k: ${gi * n + si}` }, svg);
         rect.addEventListener("pointerenter", () => {
           tip.textContent = `${g} · ${s.name}: ${yf(v)}`; tip.style.left = ((x + bw / 2) / width) * 100 + "%";
@@ -241,5 +267,16 @@
     container.appendChild(box);
   }
 
-  window.WPCharts = { plot, bars, legend, fmt, css };
+  // One small icon set, drawn in a single 2px stroke so every control matches.
+  const ICONS = {
+    play: '<path d="M7 4.5v15l12-7.5z" fill="currentColor" stroke="none"/>',
+    pause: '<path d="M8 5v14M16 5v14"/>',
+    restart: '<path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4.5h4.5"/>',
+    prev: '<path d="M15 5l-7 7 7 7"/>',
+    next: '<path d="M9 5l7 7-7 7"/>',
+    shuffle: '<path d="M4 7h3.5c4 0 5 10 9 10H20"/><path d="M4 17h3.5c1.6 0 2.7-1.6 3.6-3.5"/><path d="M13 9.5c.9-1.4 2-2.5 3.5-2.5H20"/><path d="M17.5 4.5 20 7l-2.5 2.5"/><path d="M17.5 14.5 20 17l-2.5 2.5"/>',
+  };
+  const icon = (name) => `<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[name]}</svg>`;
+
+  window.WPCharts = { plot, bars, legend, fmt, css, icon };
 })();

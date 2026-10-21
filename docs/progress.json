@@ -53,6 +53,11 @@
           "evidence": "src/psychohistory/models.py"
         },
         {
+          "title": "Seldon: TimesFM corrected by its own track record",
+          "done": true,
+          "evidence": "src/psychohistory/seldon.py"
+        },
+        {
           "title": "Chance-of-rising odds scored with the Brier score",
           "done": true,
           "evidence": "src/psychohistory/metrics.py"
@@ -143,6 +148,31 @@
           "title": "Architecture page and pipeline explorer generated from the code",
           "done": true,
           "evidence": "docs/ARCHITECTURE.md"
+        },
+        {
+          "title": "The Lab: blind calls on real past windows, scored against TimesFM and Seldon",
+          "done": true,
+          "evidence": "site/app/js/lab.js"
+        },
+        {
+          "title": "Sealed Ledger terminal design: light and graphite themes, keyboard-first",
+          "done": true,
+          "evidence": "site/app/css/app.css"
+        },
+        {
+          "title": "Forecast Studio: odds for any level and date, and your own sealed calls",
+          "done": true,
+          "evidence": "site/app/js/studio.js"
+        },
+        {
+          "title": "`psychohistory ask`: TimesFM live on any series or your own CSV",
+          "done": true,
+          "evidence": "src/psychohistory/ask.py"
+        },
+        {
+          "title": "Full bibliography in APA style",
+          "done": true,
+          "evidence": "REFERENCES.md"
         },
         {
           "title": "Live at normansrule.github.io/world-predictor",
