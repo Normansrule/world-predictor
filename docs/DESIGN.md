@@ -16,28 +16,32 @@ TimesFM and the project's own improved version (Seldon).
 
 ### Colour: one meaning each
 
-The light ledger is the default: cool paper and white panels, with near-black ink. Graphite, a
-softened dark theme for long sessions (never pure black), is one key (<kbd>T</kbd>) away. After the
-first review Alek asked for something lighter, more professional and with more distinctive colours,
-keeping the violet, red and green markers, so the model colours moved from amber and sky blue to
-cobalt and verdigris. Each colour carries one meaning, and each meaning is also carried by something
-that isn't colour.
+Slate is the default: a mid-tone between the first, near-black terminal and the bright light
+version that followed it. Alek found the first too dark and the second too bright and too white,
+and asked for more colour and less empty space, keeping the violet, red and green markers. A soft
+light theme (grey paper, not white) is one key (<kbd>T</kbd>) away. Each colour carries one meaning,
+and each meaning is also carried by something that isn't colour.
 
-| Meaning | Light | Graphite | Also shown by |
+| Meaning | Slate | Light | Also shown by |
 |---|---|---|---|
-| What really happened | `#0f1722` | `#e9edf2` | a solid line, the label "Reality" |
-| TimesFM, the model under test (cobalt) | `#2448c2` | `#8ea8ff` | a hatched range |
-| Seldon, the challenger (verdigris) | `#0b7477` | `#45c4be` | a dotted range |
-| You, in the Lab and the Forecast Studio | `#6a43c2` | `#b9a0ff` | your name at the end of the line |
-| The seal | `#b0301a` | `#c4412a` | the stamp and its date |
-| Better / worse than "no change" | `#17734a` / `#b4232c` | `#5bc792` / `#ff8578` | the sign of the number |
-| Warnings and gaps (ochre) | `#8a5f00` | `#e3c15e` | hatching and "!" |
-| Simulated | `#8a3b72` | `#d6a4c9` | the "◇ Simulation" label |
+| What really happened | `#edf1f5` | `#111922` | a solid line, the label "Reality" |
+| TimesFM, the model under test (periwinkle) | `#9db4ff` | `#2343b5` | a hatched range |
+| Seldon, the challenger (teal) | `#4ed6c8` | `#08615f` | a dotted range |
+| You, in the Lab and the Forecast Studio | `#c4a8ff` | `#5a37ad` | your name at the end of the line |
+| The seal | `#c43d27` | `#a92d18` | the stamp and its date |
+| Better / worse than "no change" | `#6fd99f` / `#ff8a7f` | `#14623f` / `#a01f28` | the sign of the number |
+| World news, markets, technology | `#ff9f6b`, `#ffd166`, `#e39cf2` | `#9c4413`, `#6e4c00`, `#7f3393` | the area's name beside the colour |
+| Warnings and gaps | `#ffd166` | `#6e4c00` | hatching and "!" |
+| Simulated | `#e6a7d6` | `#77315f` | the "◇ Simulation" label |
 
-Surfaces are cool paper (`#eef1f4`, panels `#ffffff`) or graphite (`#171b21`, panels `#1e232b`).
-Every text colour reaches 4.5:1 contrast on every surface in both themes (checked by script during
-the audit), and so does the text on the cobalt, seal and "sealed" buttons. Seal red is only ever a
-fill behind light text, never text on its own.
+Surfaces are slate (`#262d36`, panels `#2e3640`, panel headers `#374150`) or grey paper
+(`#dfe4ea`, panels `#e9edf2`). Every text colour reaches 4.5:1 contrast on every surface in both
+themes (checked by script during the audit), and so does the text on the TimesFM, seal and "sealed"
+buttons. Seal red is only ever a fill behind light text, never text on its own.
+
+**Space.** Panels sit 12 pixels apart with 12–14 pixels of padding, view titles are 24–30 pixels,
+and each view opens with one short sentence. The landing page's sections are about half as far
+apart as before.
 
 ### Type
 
@@ -48,7 +52,7 @@ fill behind light text, never text on its own.
 - **IBM Plex Mono**: only where characters must line up: numbers in tables, dates, tickers, axis ticks
   and code.
 
-Type scale: 11, 12, 13, 14, 16, 20, 28, 40, 56 pixels. Spacing scale: 4, 8, 12, 16, 24, 32, 48, 64.
+Type scale: 11, 12, 13, 14, 16, 20, 28, 40, 54 pixels. Spacing scale: 4, 8, 12, 16, 24, 32, 48.
 
 ### Layout
 

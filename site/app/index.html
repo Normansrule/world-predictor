@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>World Predictor · Terminal</title>
   <meta name="description" content="A forecasting terminal: Google's TimesFM and Seldon, its self-correcting challenger, forecast world news, markets and technology. Every forecast is sealed before the future happens and scored when it arrives. Make your own call in the Lab.">
-  <meta name="theme-color" content="#eef1f4">
+  <meta name="theme-color" content="#262d36">
   <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
   <link rel="manifest" href="../manifest.webmanifest">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,7 +22,7 @@
     <span>World Predictor</span>
   </a>
   <dl class="readouts" id="readouts"></dl>
-  <button class="icon-btn" id="theme" title="Light or graphite (T)" aria-label="Switch between the light ledger and the graphite theme">
+  <button class="icon-btn" id="theme" title="Slate or light (T)" aria-label="Switch between the slate and light themes">
     <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg>
   </button>
 </header>
@@ -59,8 +59,7 @@
     <section class="view" id="view-desk" aria-labelledby="desk-h">
       <div class="vhead">
         <h1 id="desk-h">Is anyone better than "no change"?</h1>
-        <p class="lede">TimesFM, Google's forecasting model, against Seldon, its self-correcting challenger, and the simplest guess there is:
-          tomorrow looks like today. Scored on past windows neither model was allowed to see.</p>
+        <p class="lede">TimesFM and its self-correcting challenger, Seldon, scored against "tomorrow looks like today" on windows neither model saw.</p>
       </div>
       <div class="desk">
         <div class="card span3" id="board-card">
@@ -92,17 +91,15 @@
     <section class="view" id="view-lab" aria-labelledby="lab-h">
       <div class="vhead">
         <h1 id="lab-h">The Lab</h1>
-        <p class="lede">A real past window with the ending hidden. Drag your forecast, seal it, then break the seal and see how you did
-          against TimesFM and Seldon. They made their calls from the same history you see.</p>
+        <p class="lede">A real past window, ending hidden. Make your call, seal it, break the seal.</p>
       </div>
       <div id="lab-root"></div>
     </section>
 
     <section class="view" id="view-studio" aria-labelledby="studio-h">
       <div class="vhead">
-        <h1 id="studio-h">Ask TimesFM anything about next month</h1>
-        <p class="lede">Pick a series, a date and a level, and read the chance TimesFM and Seldon give it from their newest sealed forecast.
-          Then seal your own call beside theirs: it is scored against both when the real value arrives.</p>
+        <h1 id="studio-h">Forecast Studio</h1>
+        <p class="lede">Pick a series, date and level to get the odds from this week's sealed forecast, then seal your own call.</p>
       </div>
       <div id="studio-root"></div>
     </section>
@@ -110,7 +107,7 @@
     <section class="view" id="view-outlook" aria-labelledby="outlook-h">
       <div class="vhead">
         <h1 id="outlook-h">What they expect next</h1>
-        <p class="lede">The newest sealed forecast for every series, with Seldon's corrected range beside it. Pick a row, or use the arrow keys.</p>
+        <p class="lede">This week's sealed forecast for every series, with Seldon's range beside TimesFM's.</p>
       </div>
       <div class="chips" id="outlook-filter" role="group" aria-label="Area"></div>
       <div class="outlook">
@@ -122,8 +119,7 @@
     <section class="view" id="view-trace" aria-labelledby="trace-h">
       <div class="vhead">
         <h1 id="trace-h">Follow one result</h1>
-        <p class="lede">Pick a forecast and follow it back through every stage that made it, down to the public record it came from.
-          Press play, step with the arrow keys, or click a point on the chart to see the record behind it.</p>
+        <p class="lede">One forecast, traced back through every stage to its public source. Play, or step with the arrow keys.</p>
       </div>
       <div class="card trace-bar">
         <label class="pick"><span>Series</span><select id="trace-series" aria-label="Series to follow"></select></label>
@@ -160,7 +156,7 @@
     <section class="view" id="view-replay" aria-labelledby="replay-h">
       <div class="vhead">
         <h1 id="replay-h">Replay</h1>
-        <p class="lede">Each frame is a forecast TimesFM made in the past. The hatched amber range is what it expected; the dots are what really happened.</p>
+        <p class="lede">Past forecasts meeting reality: the hatched range is what TimesFM expected, the dots what happened.</p>
       </div>
       <div class="card">
         <header class="ph"><h2 id="replay-title"></h2><span class="pm" id="replay-readout"></span></header>
@@ -183,7 +179,7 @@
     <section class="view" id="view-odds" aria-labelledby="odds-h">
       <div class="vhead">
         <h1 id="odds-h">Are its odds honest?</h1>
-        <p class="lede">Forecasts grouped by the chance of rising they gave. Honest odds sit on the dotted line: "70%" calls come true about 70% of the time.</p>
+        <p class="lede">Honest odds sit on the dotted line: "70%" calls should come true about 70% of the time.</p>
       </div>
       <div class="card"><header class="ph"><h2>Calibration</h2><span class="pm">chance it gave vs how often it happened</span></header><div id="odds-chart"></div><div id="odds-legend"></div></div>
     </section>
@@ -191,8 +187,7 @@
     <section class="view" id="view-vault" aria-labelledby="vault-h">
       <div class="vhead">
         <h1 id="vault-h">The Time Vault</h1>
-        <p class="lede">The real test. Predictions are sealed with a date before the future happens and opened when it arrives.
-          An honest model settles near 80% on the left and stays under the coin flip on the right.</p>
+        <p class="lede">Predictions sealed before the future happened, opened and scored as their dates arrive.</p>
       </div>
       <div class="two">
         <div class="card"><header class="ph"><h2>Reality inside its 80% range</h2></header><div id="vault-inside"></div></div>
@@ -205,8 +200,7 @@
       <div class="vhead">
         <p class="flag hypo">Simulation · synthetic people, not survey data</p>
         <h1 id="crowd-h">Why crowds are predictable</h1>
-        <p class="lede">Ten thousand simulated people each have a mood: a little shared tide plus a lot of personal noise.
-          Grow the crowd and watch its average lock onto the tide. That is Seldon's bet in one picture.</p>
+        <p class="lede">Simulated people: a small shared tide plus a lot of personal noise. Grow the crowd and the noise cancels out.</p>
       </div>
       <div class="card">
         <header class="ph"><h2>Crowd size</h2><span class="pm" id="crowd-label"></span></header>
@@ -248,7 +242,7 @@
           <dl class="keys">
             <dt><kbd>1</kbd>…<kbd>0</kbd></dt><dd>Switch view</dd>
             <dt><kbd>/</kbd></dt><dd>Go to a series or view</dd>
-            <dt><kbd>T</kbd></dt><dd>Light ledger or graphite</dd>
+            <dt><kbd>T</kbd></dt><dd>Slate or light theme</dd>
             <dt><kbd>↑</kbd> <kbd>↓</kbd></dt><dd>Move your call in the Lab (with <kbd>Shift</kbd>: faster)</dd>
             <dt><kbd>[</kbd> <kbd>]</kbd></dt><dd>Narrow or widen your range</dd>
             <dt>hold <kbd>Space</kbd></dt><dd>Seal your call, then break the seal</dd>

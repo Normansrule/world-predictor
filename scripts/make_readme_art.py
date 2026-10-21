@@ -22,8 +22,8 @@ ROOT = Path(__file__).resolve().parent.parent
 ASSETS = ROOT / "docs" / "assets"
 
 THEMES = {  # the app's "observatory" palette: ink = observed, cyan = forecast
-    "light": {"bg": "#eef1f4", "text": "#0f1722", "muted": "#47515f", "grid": "#dde2e8", "observed": "#0f1722", "forecast": "#2448c2", "dot": "#0f1722"},
-    "dark": {"bg": "#171b21", "text": "#e9edf2", "muted": "#aab3bf", "grid": "#323943", "observed": "#e9edf2", "forecast": "#8ea8ff", "dot": "#e9edf2"},
+    "light": {"bg": "#dfe4ea", "text": "#111922", "muted": "#3e4855", "grid": "#c6ced8", "observed": "#111922", "forecast": "#2343b5", "dot": "#111922"},
+    "dark": {"bg": "#262d36", "text": "#edf1f5", "muted": "#b8c2ce", "grid": "#3f4a58", "observed": "#edf1f5", "forecast": "#9db4ff", "dot": "#edf1f5"},
 }
 
 

@@ -6,6 +6,9 @@
   const $ = (id) => document.getElementById(id);
   const AREAS = [["news", "World news", "GDELT attention"], ["markets", "Markets", "stocks, gold, silver, oil"], ["tech", "Technology", "Wikipedia and adoption"]];
   const AREA = Object.fromEntries(AREAS.map(([d, n]) => [d, n]));
+  // Each area has its own colour, always next to its name.
+  const hue = (d) => (AREA[d] ? `var(--${d})` : "var(--ink-3)");
+  const tag = (d) => `<span class="tag" style="--c:${hue(d)}">${esc(AREA[d] || d)}</span>`;
   const UNIT = { news: "days", markets: "trading days", tech: "days" };
   const VIEWS = ["desk", "lab", "studio", "outlook", "trace", "replay", "horizon", "odds", "vault", "crowd", "series", "about"];
   const KEYS = { 1: "desk", 2: "lab", 3: "studio", 4: "outlook", 5: "trace", 6: "replay", 7: "horizon", 8: "odds", 9: "vault", 0: "series", "?": "about" };
@@ -40,7 +43,7 @@
     const p = o.p_up, cls = p === null ? "flat" : p > 0.55 ? "up" : p < 0.45 ? "down" : "flat";
     const arrow = cls === "up" ? "▲" : cls === "down" ? "▼" : "■";
     const last = o.history[o.history.length - 1][1];
-    return `<a href="#outlook/${esc(o.id)}" title="${esc(o.title)}: ${fmt.pct(p)} chance it ends higher by ${esc(o.target_date)}"><b>${esc(ticker(o))}</b>${fmt.num(last)}<span class="${cls}">${arrow} ${fmt.pct(p)}</span></a>`;
+    return `<a href="#outlook/${esc(o.id)}" style="--c:${hue(o.domain)}" title="${esc(o.title)}: ${fmt.pct(p)} chance it ends higher by ${esc(o.target_date)}"><b>${esc(ticker(o))}</b>${fmt.num(last)}<span class="${cls}">${arrow} ${fmt.pct(p)}</span></a>`;
   }).join("");
   function ticker(o) { return o.id.replace(/_composite$/, "").replace(/_/g, " ").toUpperCase().slice(0, 12); }
   if (D.meta.demo) {
@@ -54,10 +57,10 @@
   // ---------- theme ----------
   function toggleTheme() {
     const root = document.documentElement;
-    const dark = root.dataset.theme === "dark";
-    root.dataset.theme = dark ? "light" : "dark";
+    const light = root.dataset.theme === "light";
+    root.dataset.theme = light ? "slate" : "light";
     try { localStorage.setItem("wp-theme", root.dataset.theme); } catch (e) {}
-    toast(dark ? "Light ledger" : "Graphite");
+    toast(light ? "Slate" : "Light");
   }
   $("theme").addEventListener("click", toggleTheme);
   let toastTimer;
@@ -93,7 +96,7 @@
             const a = pick(d, model), b = pick(d, "seldon");
             const lead = b && a && b.skill !== null && a.skill !== null ? (b.skill > a.skill + 0.001 ? "s" : a.skill > b.skill + 0.001 ? "m" : "") : "";
             const clead = b && a ? (near(b) < near(a) - 0.005 ? "s" : near(a) < near(b) - 0.005 ? "m" : "") : "";
-            return `<tr><td class="area">${name}<small>${sub}</small></td>
+            return `<tr><td class="area" style="--c:${hue(d)}">${name}<small>${sub}</small></td>
               <td class="m${lead === "m" ? " lead" : ""}" style="--c:var(--tfm)">${skill(a)}</td><td class="${lead === "s" ? "lead" : ""}" style="--c:var(--seldon)">${skill(b)}</td>
               <td class="m${clead === "m" ? " lead" : ""}" style="--c:var(--tfm)">${cov(a)}</td><td class="${clead === "s" ? "lead" : ""}" style="--c:var(--seldon)">${cov(b)}</td>
               <td class="m">${fmt.pct(a && a.direction)}</td><td>${a ? a.series : "–"}</td></tr>`;
@@ -128,7 +131,7 @@
       $("sealed").innerHTML = rows.length ? `<thead><tr><th>Series</th><th>Area</th><th>Last</th><th>${esc(modelName)} middle</th><th>Seldon middle</th><th>Chance higher</th><th>Opens</th></tr></thead><tbody>` +
         rows.map((o) => {
           const s = o.seldon && o.seldon.fan && o.seldon.fan.length ? o.seldon.fan[o.seldon.fan.length - 1][2] / o.history[o.history.length - 1][1] - 1 : null;
-          return `<tr><td><a href="#outlook/${esc(o.id)}">${esc(o.title)}</a></td><td class="dim">${esc(AREA[o.domain] || o.domain)}</td><td>${fmt.num(o.history[o.history.length - 1][1])}</td>
+          return `<tr><td><a href="#outlook/${esc(o.id)}">${esc(o.title)}</a></td><td>${tag(o.domain)}</td><td>${fmt.num(o.history[o.history.length - 1][1])}</td>
           <td>${fmt.signedPct(o.change)}</td><td>${s === null ? "–" : fmt.signedPct(s)}</td>
           <td class="p"><span class="pbar" style="--p:${Math.round((o.p_up || 0) * 100)}%;--c:${o.p_up > 0.55 ? "var(--up)" : o.p_up < 0.45 ? "var(--down)" : "var(--ink-3)"}"><i></i>${fmt.pct(o.p_up)}</span></td><td>${esc(o.target_date)}</td></tr>`;
         }).join("") + "</tbody>"
@@ -145,11 +148,11 @@
       const st = views.outlook.st || (views.outlook.st = { filter: "all", id: items[0].id });
       if (arg && items.some((o) => o.id === arg)) { st.id = arg; st.filter = "all"; }
       const chips = [["all", "All"], ...AREAS.filter(([d]) => items.some((o) => o.domain === d)).map(([d, n]) => [d, n])];
-      $("outlook-filter").innerHTML = chips.map(([k, l]) => `<button class="chip" data-k="${k}" aria-pressed="${k === st.filter}">${l}</button>`).join("");
+      $("outlook-filter").innerHTML = chips.map(([k, l]) => `<button class="chip" data-k="${k}" style="--c:${k === "all" ? "var(--tfm)" : hue(k)}" aria-pressed="${k === st.filter}">${l}</button>`).join("");
       $("outlook-filter").onclick = (e) => { const b = e.target.closest("button"); if (!b) return; st.filter = b.dataset.k; const first = shown()[0]; if (first && !shown().some((o) => o.id === st.id)) st.id = first.id; views.outlook(); };
       const shown = () => items.filter((o) => st.filter === "all" || o.domain === st.filter);
       $("olist").innerHTML = `<thead><tr><th>Series</th><th>Higher</th><th>Middle</th></tr></thead><tbody>` + shown().map((o) =>
-        `<tr data-id="${esc(o.id)}" tabindex="0" aria-selected="${o.id === st.id}"><td>${esc(o.title)}<small>${esc(ticker(o))} · ${esc(o.target_date)}</small></td>
+        `<tr data-id="${esc(o.id)}" style="--c:${hue(o.domain)}" tabindex="0" aria-selected="${o.id === st.id}"><td>${esc(o.title)}<small>${esc(ticker(o))} · ${esc(o.target_date)}</small></td>
           <td class="${o.p_up > 0.55 ? "pos" : o.p_up < 0.45 ? "neg" : "dim"}">${fmt.pct(o.p_up)}</td><td>${fmt.signedPct(o.change)}</td></tr>`).join("") + "</tbody>";
       const choose = (id, focus) => {
         st.id = id; history.replaceState(null, "", "#outlook/" + id);
@@ -214,7 +217,7 @@
     horizon() {
       const DASH = { news: undefined, markets: "6 4", tech: "2 3" };
       const lines = AREAS.filter(([d]) => D.horizon.some((r) => r.domain === d)).map(([d, name]) => ({
-        name, label: name, color: d === "markets" ? "var(--ink-2)" : "var(--ink)", dash: DASH[d], width: 1.8,
+        name, label: name, color: hue(d), dash: DASH[d], width: 2,
         points: D.horizon.filter((r) => r.domain === d).map((r) => [r.step, r.skill]),
       }));
       if (!lines.length) { $("horizon-chart").innerHTML = '<div class="empty"><b>No backtest yet.</b>Appears after the first backtest.</div>'; return; }
@@ -223,7 +226,7 @@
     },
 
     odds() {
-      const STYLE = { news: { color: "var(--ink)" }, markets: { color: "var(--panel)", stroke: "var(--ink)" }, tech: { color: "var(--tfm)" } };
+      const STYLE = { news: { color: "var(--news)" }, markets: { color: "var(--markets)" }, tech: { color: "var(--tech)" } };
       const dots = AREAS.filter(([d]) => D.calibration.some((r) => r.domain === d)).map(([d, name]) => ({
         name, r: 5.5, ...STYLE[d], stroke: STYLE[d].stroke || "var(--panel)", points: D.calibration.filter((r) => r.domain === d).map((r) => [r.said, r.happened]),
       }));
@@ -233,7 +236,7 @@
         lines: [{ points: [[0, 0], [1, 1]], color: "var(--ink-2)", width: 1, dash: "2 4", name: "honest" }],
         xTitle: "Chance of rising it gave", label: "Calibration",
       });
-      $("odds-legend").innerHTML = ""; legend($("odds-legend"), dots.map((d) => ({ name: d.name, color: d.stroke === "var(--ink)" ? "var(--ink-2)" : d.color, kind: "dot" })).concat([{ name: "Honest odds", color: "var(--ink-2)", kind: "dash" }]));
+      $("odds-legend").innerHTML = ""; legend($("odds-legend"), dots.map((d) => ({ name: d.name, color: d.color, kind: "dot" })).concat([{ name: "Honest odds", color: "var(--ink-2)", kind: "dash" }]));
     },
 
     vault() {
@@ -284,7 +287,7 @@
       const draw = () => {
         const sorted = rows.slice().sort((a, b) => ((a[st.key] ?? -1e9) > (b[st.key] ?? -1e9) ? 1 : -1) * st.dir);
         $("series-table").innerHTML = "<thead><tr>" + cols.map(([k, l]) => `<th aria-sort="${k === st.key ? (st.dir > 0 ? "ascending" : "descending") : "none"}"><button data-k="${k}">${l}${k === st.key ? (st.dir > 0 ? " ▲" : " ▼") : ""}</button></th>`).join("") + "</tr></thead><tbody>" +
-          sorted.map((r) => `<tr><td>${esc(r.title)}</td><td>${esc(AREA[r.domain] || r.domain)}</td><td>${esc(r.scale)}</td>` +
+          sorted.map((r) => `<tr><td>${esc(r.title)}</td><td>${tag(r.domain)}</td><td>${esc(r.scale)}</td>` +
             `<td><span class="${skillCls(r.skill)}">${fmt.pct(r.skill)}</span><span class="bar" style="width:${Math.min(60, Math.abs(r.skill || 0) * 240)}px;background:${(r.skill || 0) >= 0 ? "var(--up)" : "var(--down)"}"></span></td>` +
             `<td>${fmt.pct(r.direction)}</td><td>${fmt.pct(r.coverage80)}</td><td>${r.brier === null ? "–" : r.brier.toFixed(3)}</td></tr>`).join("") + "</tbody>";
       };

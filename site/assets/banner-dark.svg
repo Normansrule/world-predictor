@@ -1,16 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 320" role="img" aria-label="World Predictor: an animated forecast fan chart">
 <style>
-  .bg { fill: #171b21; }
-  .title { font: 600 48px Newsreader, Georgia, 'Times New Roman', serif; fill: #e9edf2; }
-  .sub { font: 400 19px 'IBM Plex Sans', system-ui, sans-serif; fill: #aab3bf; }
-  .tag { font: 600 14px 'IBM Plex Sans', system-ui, sans-serif; fill: #aab3bf; letter-spacing: .08em; }
-  .grid line { stroke: #323943; stroke-width: 1; }
-  .history { fill: none; stroke: #e9edf2; stroke-width: 3; stroke-linejoin: round;
+  .bg { fill: #262d36; }
+  .title { font: 600 48px Newsreader, Georgia, 'Times New Roman', serif; fill: #edf1f5; }
+  .sub { font: 400 19px 'IBM Plex Sans', system-ui, sans-serif; fill: #b8c2ce; }
+  .tag { font: 600 14px 'IBM Plex Sans', system-ui, sans-serif; fill: #b8c2ce; letter-spacing: .08em; }
+  .grid line { stroke: #3f4a58; stroke-width: 1; }
+  .history { fill: none; stroke: #edf1f5; stroke-width: 3; stroke-linejoin: round;
              stroke-dasharray: 1400; stroke-dashoffset: 1400; animation: draw 2s ease-out forwards; }
-  .fan { fill: #8ea8ff; opacity: 0; animation: fade .9s ease-out 2s forwards; }
-  .median { fill: none; stroke: #8ea8ff; stroke-width: 3; opacity: 0; animation: show .5s ease-out 2.4s forwards; }
-  .dot { fill: #e9edf2; opacity: 0; animation: show .3s ease-out forwards; }
-  .label { font: 500 13px 'IBM Plex Sans', system-ui, sans-serif; fill: #aab3bf; opacity: 0; animation: show .6s ease-out 2.8s forwards; }
+  .fan { fill: #9db4ff; opacity: 0; animation: fade .9s ease-out 2s forwards; }
+  .median { fill: none; stroke: #9db4ff; stroke-width: 3; opacity: 0; animation: show .5s ease-out 2.4s forwards; }
+  .dot { fill: #edf1f5; opacity: 0; animation: show .3s ease-out forwards; }
+  .label { font: 500 13px 'IBM Plex Sans', system-ui, sans-serif; fill: #b8c2ce; opacity: 0; animation: show .6s ease-out 2.8s forwards; }
   @keyframes draw { to { stroke-dashoffset: 0; } }
   @keyframes fade { to { opacity: .22; } }
   @keyframes show { to { opacity: 1; } }

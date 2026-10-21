@@ -10,18 +10,18 @@ Google's open-source **TimesFM** and **Seldon**, its self-correcting challenger,
 Every forecast is sealed before the future happens and scored when it arrives. Then it's your turn, in the Lab.
 
 [![Play the Lab](https://img.shields.io/badge/Play-the_Lab-c4412a?style=for-the-badge&logo=googlechrome&logoColor=white)](https://normansrule.github.io/world-predictor/app/#lab)
-[![Ask TimesFM](https://img.shields.io/badge/Ask-TimesFM-0b7477?style=for-the-badge&logo=googlechrome&logoColor=white)](https://normansrule.github.io/world-predictor/app/#studio)
-[![Open the terminal](https://img.shields.io/badge/Open-the_terminal-2448c2?style=for-the-badge&logo=googlechrome&logoColor=white)](https://normansrule.github.io/world-predictor/app/)
-[![Download the full version](https://img.shields.io/badge/Download-full_version-0f1722?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Normansrule/world-predictor/releases/latest)
+[![Ask TimesFM](https://img.shields.io/badge/Ask-TimesFM-08615f?style=for-the-badge&logo=googlechrome&logoColor=white)](https://normansrule.github.io/world-predictor/app/#studio)
+[![Open the terminal](https://img.shields.io/badge/Open-the_terminal-2343b5?style=for-the-badge&logo=googlechrome&logoColor=white)](https://normansrule.github.io/world-predictor/app/)
+[![Download the full version](https://img.shields.io/badge/Download-full_version-262d36?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Normansrule/world-predictor/releases/latest)
 [![Read the report](https://img.shields.io/badge/Read-the_report-47515f?style=for-the-badge&logo=markdown&logoColor=white)](results/REPORT.md)
 
 [![tests](https://github.com/Normansrule/world-predictor/actions/workflows/tests.yml/badge.svg)](https://github.com/Normansrule/world-predictor/actions/workflows/tests.yml)
 [![weekly forecasts](https://github.com/Normansrule/world-predictor/actions/workflows/predict.yml/badge.svg)](https://github.com/Normansrule/world-predictor/actions/workflows/predict.yml)
 [![pages](https://github.com/Normansrule/world-predictor/actions/workflows/pages.yml/badge.svg)](https://github.com/Normansrule/world-predictor/actions/workflows/pages.yml)
-[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-2448c2)](LICENSE)
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-2343b5)](LICENSE)
 ![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-1baf7a)
-[![Model: TimesFM 2.5](https://img.shields.io/badge/model-TimesFM_2.5-2448c2)](https://github.com/google-research/timesfm)
-[![Challenger: Seldon](https://img.shields.io/badge/challenger-Seldon-0b7477)](src/psychohistory/seldon.py)
+[![Model: TimesFM 2.5](https://img.shields.io/badge/model-TimesFM_2.5-2343b5)](https://github.com/google-research/timesfm)
+[![Challenger: Seldon](https://img.shields.io/badge/challenger-Seldon-08615f)](src/psychohistory/seldon.py)
 ![No server](https://img.shields.io/badge/server-none-1baf7a)
 ![No API keys](https://img.shields.io/badge/API_keys-none-1baf7a)
 
@@ -83,7 +83,8 @@ Nothing here is financial advice, and most of the interesting results are about 
   in 10. It runs in the backtest, in the weekly sealed forecasts and in the Lab, and it's allowed to lose.
 - **A terminal, not a brochure.** A status bar with the run's vital signs, a ticker of every sealed
   forecast, a command bar (<kbd>/</kbd>) that jumps to any series, and number keys for every view.
-  A light ledger theme by default, with a softer graphite theme one key (<kbd>T</kbd>) away.
+  A calm slate theme by default, with a soft light theme one key (<kbd>T</kbd>) away, and each area
+  (world news, markets, technology) in its own colour.
 - **Forecasts that can't be quietly edited.** Every week's predictions go into
   [`predictions/ledger.csv`](predictions/ledger.csv) *before* the future happens and get scored when it
   arrives. The Time Vault in the app opens them on their due dates.
@@ -106,7 +107,7 @@ Nothing here is financial advice, and most of the interesting results are about 
 
 <p align="center"><img src="docs/assets/app-lab.gif" alt="A Lab round: dragging a forecast for the S&P 500, sealing it with a red seal, then breaking the seal as reality, TimesFM and Seldon draw in and the scores appear" width="100%"></p>
 
-The landing page, light and graphite. The Lab is the first thing you see, already loaded with a real round.
+The landing page, slate and light. The Lab is the first thing you see, already loaded with a real round.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/landing-dark.png">
@@ -215,14 +216,14 @@ terminal). Each round is a real backtest window: you see the history up to the c
 1. Drag the violet dot to where you think the series ends, and the ring to set how sure you are (your
    80% range).
 2. Press and hold **Seal your call**. A red seal stamps it with the date of the cut.
-3. Hold again to **break the seal**. Reality draws in, then TimesFM (cobalt, hatched range), then Seldon
-   (verdigris, dotted range), and the scores appear.
+3. Hold again to **break the seal**. Reality draws in, then TimesFM (periwinkle, hatched range), then Seldon
+   (teal, dotted range), and the scores appear.
 4. Press <kbd>N</kbd> for the next round, or pick another series or window.
 
 With the keyboard: <kbd>↑</kbd> <kbd>↓</kbd> move your call (<kbd>Shift</kbd> for bigger steps),
 <kbd>[</kbd> <kbd>]</kbd> narrow or widen your range, and hold <kbd>Space</kbd> to seal and to break the
 seal. Elsewhere in the terminal, <kbd>1</kbd>…<kbd>0</kbd> switch views, <kbd>/</kbd> finds a series and
-<kbd>T</kbd> switches between the light and graphite themes.
+<kbd>T</kbd> switches between the slate and light themes.
 
 ### Forecast Studio
 
@@ -237,6 +238,8 @@ Open the [Forecast Studio](https://normansrule.github.io/world-predictor/app/#st
 3. **Your sealed calls** counts down to each date. Once the weekly run brings in the real value, it
    shows the outcome and who was closest: you, TimesFM or Seldon. **Export** saves your calls as JSON
    (JavaScript Object Notation).
+4. **Odds board** ranks every series by the chance of ending above a move you pick (higher, +2%, +5%
+   and so on) by its last forecast date, TimesFM beside Seldon. Click a row to open it above.
 
 The odds are read off the 10th, 50th and 90th percentiles by straight-line interpolation, and capped at
 5% and 95% outside that range, because the forecast says nothing sharper out there. The command line
@@ -484,22 +487,24 @@ honest about what it doesn't know. Its one big moment is the seal itself, in the
 
 | Colour | Means | Always backed by |
 |---|---|---|
-| Near-black ink (light) / soft white ink (graphite) | What really happened | A solid line |
-| Cobalt | TimesFM, the model under test | A hatched range |
-| Verdigris | Seldon, the challenger | A dotted range |
+| Soft white ink (slate) / near-black ink (light) | What really happened | A solid line |
+| Periwinkle | TimesFM, the model under test | A hatched range |
+| Teal | Seldon, the challenger | A dotted range |
 | Violet | You, in the Lab and the Forecast Studio | Your name on the line |
 | Seal red | A forecast sealed before the future | The seal and its date |
 | Green / coral red | Better / worse than "no change" | A sign (+ or −) |
-| Ochre | Warnings and gaps | Hatching and a "!" |
+| Orange, gold, orchid | World news, markets, technology | The area's name beside it |
+| Gold | Warnings and gaps | Hatching and a "!" |
 
 Every text colour passes WCAG (Web Content Accessibility Guidelines) AA contrast, 4.5:1, on every
-surface in both themes. The light ledger (cool paper `#eef1f4`, white panels) is the default; graphite
-(`#171b21`, never pure black) is the darker option.
+surface in both themes. Slate (`#262d36`, panels `#2e3640`), a mid-tone that is neither glaring nor
+pitch-dark, is the default; the soft light theme uses grey paper (`#dfe4ea`) rather than white.
+Spacing is kept tight, terminal-style: 12-pixel gaps between panels and short, one-line introductions.
 
 **Type with jobs.** Newsreader, a newspaper serif, for headlines and the Lab's verdict; IBM Plex Sans
 for the interface; IBM Plex Mono only where characters must line up: numbers, dates, tickers and code.
-Sizes follow one scale (11, 12, 13, 14, 16, 20, 28, 40, 56) and spacing another (4, 8, 12, 16, 24,
-32, 48, 64).
+Sizes follow one scale (11, 12, 13, 14, 16, 20, 28, 40, 54) and spacing another (4, 8, 12, 16, 24,
+32, 48).
 
 **Motion that carries information.** Things arrive with a strong ease-out in under 300 milliseconds;
 buttons press in slightly; reality *draws* in after the seal breaks, followed by TimesFM and then Seldon,
@@ -581,8 +586,8 @@ World Predictor is Apache-2.0).
 - [x] Follow one result: trace any forecast back through the pipeline to its source
 - [x] Architecture page and pipeline explorer generated from the code
 - [x] The Lab: blind calls on real past windows, scored against TimesFM and Seldon
-- [x] Sealed Ledger terminal design: light and graphite themes, keyboard-first
-- [x] Forecast Studio: odds for any level and date, and your own sealed calls
+- [x] Sealed Ledger terminal design: slate and light themes, keyboard-first
+- [x] Forecast Studio: odds for any level, an odds board, and your own sealed calls
 - [x] `psychohistory ask`: TimesFM live on any series or your own CSV
 - [x] Full bibliography in APA style
 - [ ] Live at normansrule.github.io/world-predictor

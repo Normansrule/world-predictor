@@ -6,6 +6,7 @@
   const HOLD_MS = 480;
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const DAY = 864e5;
+  const AREA_NAMES = { news: "World news", markets: "Markets", tech: "Technology" };
 
   // The chance of ending above x, read off the 10th, 50th and 90th percentiles by linear interpolation.
   // Beyond them the forecast says nothing precise, so the tails are capped at 5% and 95%
@@ -57,7 +58,7 @@
       host.innerHTML = '<div class="card"><div class="empty"><b>Nothing sealed yet.</b>The studio opens after the first run of <code>psychohistory predict</code>.</div></div>';
       return;
     }
-    const st = render.st || (render.st = { id: items[0].id, step: null, level: null, you: null, width: null });
+    const st = render.st || (render.st = { id: items[0].id, step: null, level: null, you: null, width: null, move: 0 });
     if (opts.start && items.some((o) => o.id === opts.start)) { st.id = opts.start; st.step = st.level = st.you = st.width = null; }
 
     host.innerHTML = `
@@ -97,6 +98,11 @@
         </div>
       </div>
       <div class="card">
+        <header class="ph"><h2>Odds board</h2><span class="pm">every series, by its last forecast date</span></header>
+        <div class="chips" id="st-board-move" role="group" aria-label="Move to ask about"></div>
+        <div class="table-wrap"><table class="board-odds" id="st-board"></table></div>
+      </div>
+      <div class="card">
         <header class="ph"><h2>Your sealed calls</h2><span class="pm"><button class="linkish" id="st-export" type="button">Export</button> · <button class="linkish" id="st-clear" type="button">Clear</button></span></header>
         <div class="table-wrap"><table class="calls" id="st-calls"></table></div>
       </div>`;
@@ -127,6 +133,13 @@
       save([]); paintCalls();
     };
     holdable($("st-seal"), sealCall);
+    $("st-board-move").onclick = (e) => { const b = e.target.closest("button"); if (b) { st.move = +b.dataset.k; paintBoard(); } };
+    $("st-board").onclick = (e) => {
+      const tr = e.target.closest("tr[data-id]"); if (!tr) return;
+      setSeries(tr.dataset.id); const o = cur(), last = o.history[o.history.length - 1][1];
+      st.level = round(last * (1 + (st.move || 0)), last); $("st-series").value = st.id; paint();
+      host.scrollIntoView({ block: "start", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    };
 
     function round(v, scale) { const a = Math.abs(scale); const d = a >= 1000 ? 0 : a >= 10 ? 1 : a >= 1 ? 2 : 4; return +v.toFixed(d); }
 
@@ -177,6 +190,7 @@
 
       if (redrawChart) chart(o, last, S); else chart(o, last, S, false);
       paintCalls();
+      paintBoard();
     }
 
     function chart(o, last, S, animate) {
@@ -230,6 +244,25 @@
       setTimeout(() => { btn.classList.remove("done"); btn.lastChild.textContent = " Hold to seal"; btn.style.setProperty("--hold", 0); }, 1400);
       paintCalls(call);
       if (opts.onSeal) opts.onSeal(call);
+    }
+
+    // Odds board: for one move (say +2%), every series' chance of ending above it, best first.
+    function paintBoard() {
+      const move = st.move ?? 0;
+      $("st-board-move").innerHTML = [[-0.05, "Above −5%"], [0, "Higher"], [0.02, "Above +2%"], [0.05, "Above +5%"], [0.1, "Above +10%"]]
+        .map(([k, l]) => `<button class="chip" data-k="${k}" aria-pressed="${Math.abs(move - k) < 1e-9}">${l}</button>`).join("");
+      const rows = items.map((o) => {
+        const last = o.history[o.history.length - 1][1], f = o.fan[o.fan.length - 1], lvl = last * (1 + move);
+        const S = o.seldon && o.seldon.fan && o.seldon.fan.length ? o.seldon.fan[o.seldon.fan.length - 1] : null;
+        return { o, lvl, pT: pAbove(f[1], f[2], f[3], lvl), pS: S ? pAbove(S[1], S[2], S[3], lvl) : null };
+      }).sort((a, b) => b.pT - a.pT);
+      const bar = (p, c) => p === null ? "–" : `<span class="pbar" style="--p:${Math.round(p * 100)}%;--c:${c}"><i></i>${fmt.pct(p)}</span>`;
+      $("st-board").innerHTML = `<thead><tr><th>Series</th><th>Area</th><th>Level</th><th>By</th><th>${modelName}</th><th>Seldon</th></tr></thead><tbody>` +
+        rows.map((r) => `<tr data-id="${esc(r.o.id)}" tabindex="0"${r.o.id === st.id ? ' aria-selected="true"' : ""}><td>${esc(r.o.title)}</td>
+          <td><span class="tag" style="--c:var(--${esc(r.o.domain)})">${esc(AREA_NAMES[r.o.domain] || r.o.domain)}</span></td>
+          <td>${fmt.num(r.lvl)}</td><td>${esc(r.o.fan[r.o.fan.length - 1][0])}</td>
+          <td class="p">${bar(r.pT, "var(--tfm)")}</td><td class="p">${bar(r.pS, "var(--seldon)")}</td></tr>`).join("") + "</tbody>";
+      $("st-board").onkeydown = (e) => { if (e.key === "Enter") { const tr = e.target.closest("tr[data-id]"); if (tr) tr.click(); } };
     }
 
     function paintCalls(fresh) {

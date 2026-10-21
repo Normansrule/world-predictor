@@ -13,8 +13,8 @@
   const toggle = $("#theme");
   if (toggle) toggle.addEventListener("click", () => {
     const root = document.documentElement;
-    const dark = root.dataset.theme === "dark";
-    root.dataset.theme = dark ? "light" : "dark";
+    const light = root.dataset.theme === "light";
+    root.dataset.theme = light ? "slate" : "light";
     try { localStorage.setItem("wp-theme", root.dataset.theme); } catch (e) {}
   });
 
@@ -23,7 +23,7 @@
     // Tape: every sealed forecast, the chance it ends higher.
     $("#tape").innerHTML = D.outlook.map((o) => {
       const p = o.p_up, c = p === null ? "flat" : p > 0.55 ? "up" : p < 0.45 ? "down" : "flat";
-      return `<a href="app/#outlook/${esc(o.id)}" title="${esc(o.title)}"><b>${esc(o.id.replace(/_composite$/, "").replace(/_/g, " ").toUpperCase().slice(0, 12))}</b>` +
+      return `<a href="app/#outlook/${esc(o.id)}" style="--c:var(--${esc(o.domain)})" title="${esc(o.title)}"><b>${esc(o.id.replace(/_composite$/, "").replace(/_/g, " ").toUpperCase().slice(0, 12))}</b>` +
         `<span class="${c}">${c === "up" ? "▲" : c === "down" ? "▼" : "■"} ${pct(p)}</span></a>`;
     }).join("");
     $("#hero-facts").innerHTML = [

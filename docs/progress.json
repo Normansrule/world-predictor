@@ -155,12 +155,12 @@
           "evidence": "site/app/js/lab.js"
         },
         {
-          "title": "Sealed Ledger terminal design: light and graphite themes, keyboard-first",
+          "title": "Sealed Ledger terminal design: slate and light themes, keyboard-first",
           "done": true,
           "evidence": "site/app/css/app.css"
         },
         {
-          "title": "Forecast Studio: odds for any level and date, and your own sealed calls",
+          "title": "Forecast Studio: odds for any level, an odds board, and your own sealed calls",
           "done": true,
           "evidence": "site/app/js/studio.js"
         },
