@@ -58,6 +58,15 @@
       <th class="m">In range · ${esc(name)}</th><th>In range · Seldon</th></tr></thead><tbody>` +
       areas.map(([d, n, sub]) => { const a = pick(D, d, model), b = pick(D, d, "seldon");
         return `<tr><td class="area">${n}<small>${sub}</small></td><td class="m">${cell(a, "skill")}</td><td>${cell(b, "skill")}</td><td class="m">${cell(a, "inside")}</td><td>${cell(b, "inside")}</td></tr>`; }).join("") + "</tbody>";
+    // The duel in one line: Seldon, our own forecaster, against TimesFM on the same windows.
+    const all = (D.duel || []).find((r) => r.domain === "all"), line = $("#duel-line");
+    if (all && line) {
+      line.hidden = false;
+      line.innerHTML = `<span class="who" style="--c:var(--seldon)">Seldon</span> ` + (all.wins > all.losses
+        ? `beat ${esc(name)} on <b>${all.wins} of ${all.series}</b> series.` : all.losses > all.wins
+        ? `lost to ${esc(name)} on <b>${all.losses} of ${all.series}</b> series.` : `tied ${esc(name)}: ${all.wins} series each.`)
+        + ` Seldon is our own forecaster: five laws of crowd behaviour, no neural network.`;
+    }
   }
 
   // The exploded forecast: browsers without scroll-driven animations get --spread from here.

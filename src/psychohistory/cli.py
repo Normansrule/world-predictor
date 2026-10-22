@@ -12,7 +12,7 @@ from pathlib import Path
 import pandas as pd
 
 from . import ask, backtest, catalog, dashboard, data, ledger, report, seldon, simulate, story, web
-from .models import BASELINES, classical_available, load_model
+from .models import BASELINES, CHALLENGER, classical_available, load_model
 
 log = logging.getLogger("psychohistory")
 
@@ -62,7 +62,7 @@ def cmd_backtest(args) -> None:
     specs = catalog.select(args.domain, args.series)
     series = _load(specs, args.data_dir, status=args.out_dir / "run_status.json", stage="backtest")
     names = [args.model] + [m for m in args.compare if m != args.model]
-    names += [b for b in BASELINES if b not in names]
+    names += [m for m in (CHALLENGER, *BASELINES) if m not in names]  # Seldon faces every model on the same windows
     if classical_available() and "auto-ets" not in names:
         names.append("auto-ets")  # the strongest classical baseline, when statsforecast is installed
     models = [load_model(name) for name in names]
@@ -74,7 +74,7 @@ def cmd_backtest(args) -> None:
             frames.append(
                 backtest.backtest_series(
                     spec, series[spec.id], models, windows=args.windows, step_rows=step_rows, ensemble_of=members,
-                    path_rows=path_rows, paths_for=(args.model, seldon.NAME), seldon_of=args.model,
+                    path_rows=path_rows, paths_for=(args.model, seldon.NAME),
                 )
             )
     frames = [f for f in frames if not f.empty]
@@ -96,16 +96,11 @@ def cmd_backtest(args) -> None:
 def cmd_predict(args) -> None:
     specs = catalog.select(args.domain, args.series)
     series = _load(specs, args.data_dir, refresh=args.refresh, status=args.out_dir / "run_status.json", stage="predict")
-    # The model under test plus any --compare rivals, so the ledger becomes a head-to-head record.
-    names = list(dict.fromkeys([args.model, *args.compare]))
+    # The model under test, Seldon and any --compare rivals, so the ledger becomes a head-to-head record.
+    names = list(dict.fromkeys([args.model, CHALLENGER, *args.compare]))
     if args.ensemble:
         names = list(dict.fromkeys(names + ensemble_members(args)))
-    # Seldon is derived from the model under test, learning from its saved backtest paths.
-    paths_file = args.out_dir / "backtest_paths.csv"
-    paths = pd.read_csv(paths_file) if paths_file.exists() and paths_file.stat().st_size > 1 else None
-    corrector = {seldon.NAME: lambda spec, base, last: seldon.apply(base, last, seldon.correction_for(paths, spec.id, args.model))}
-    rows = pd.concat([ledger.predict(specs, series, load_model(name), extras=corrector if name == args.model else None)
-                      for name in names], ignore_index=True)
+    rows = pd.concat([ledger.predict(specs, series, load_model(name)) for name in names], ignore_index=True)
     if args.ensemble:
         rows = pd.concat([rows, ledger.ensemble_rows(rows, ensemble_members(args))], ignore_index=True)
     ledger.append(rows, args.ledger)
@@ -134,15 +129,14 @@ def cmd_ask(args) -> None:
         except Exception as exc:  # no cache and no network: say so instead of a traceback
             raise SystemExit(f"Could not load {spec.id}: {exc}. Run `psychohistory fetch` with a network connection first.") from None
         series_id, freq, horizon = spec.id, args.freq or spec.freq, args.horizon or spec.horizon
-    paths_file = args.out_dir / "backtest_paths.csv"
-    correction = None
-    if spec is not None and paths_file.exists() and paths_file.stat().st_size > 1:
-        correction = seldon.correction_for(pd.read_csv(paths_file), spec.id, args.model)
     model = load_model(args.model)
-    table = ask.ask(series, model, horizon, freq, correction=correction, above=args.above)
+    rival = None if args.model == CHALLENGER else load_model(CHALLENGER)
+    table = ask.ask(series, model, horizon, freq, challenger=rival, above=args.above)
     name = "TimesFM" if args.model.startswith("timesfm") else args.model
     print(f"{spec.description if spec else series_id}: {len(series)} values up to {series.index[-1].date()}\n")
     print(ask.describe(table, float(series.iloc[-1]), name, args.above))
+    if rival is not None and rival.councils:
+        print("\n" + seldon.explain(rival.councils[0]))
     if args.save:
         args.save.parent.mkdir(parents=True, exist_ok=True)
         table.to_csv(args.save, index=False)
@@ -329,7 +323,7 @@ def main(argv: list[str] | None = None) -> None:
     def common(p):
         p.add_argument("--domain", action="append", choices=catalog.DOMAINS, help="limit to a domain (repeatable)")
         p.add_argument("--series", action="append", help="limit to a series id (repeatable)")
-        p.add_argument("--model", default="timesfm-2.5", help="model under test: timesfm-2.5 (default), timesfm-3, chronos-bolt, chronos-2, auto-ets, auto-arima, naive, drift, mean")
+        p.add_argument("--model", default="timesfm-2.5", help="model under test: timesfm-2.5 (default), timesfm-3, chronos-bolt, chronos-2, seldon, auto-ets, auto-arima, naive, drift, mean")
         p.add_argument("--compare", action="append", default=[], metavar="MODEL",
                        help="rival model to run alongside, e.g. --compare chronos-bolt (repeatable)")
         p.add_argument("--ensemble", action="store_true",

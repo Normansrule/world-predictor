@@ -13,10 +13,9 @@ from typing import Sequence
 import numpy as np
 import pandas as pd
 
-from . import seldon
 from .catalog import SeriesSpec
 from .metrics import naive_scale, score
-from .models import ENSEMBLE, Forecaster, combine, load_model
+from .models import CHALLENGER, ENSEMBLE, Forecaster, combine, load_model
 
 log = logging.getLogger(__name__)
 
@@ -40,15 +39,12 @@ def backtest_series(
     ensemble_of: list[str] | None = None,
     path_rows: list[dict] | None = None,
     paths_for: str | Sequence[str] | None = None,
-    seldon_of: str | None = None,
 ) -> pd.DataFrame:
     """Backtest one series. If ``step_rows`` is given, per-step errors are appended to it for
     the horizon analysis (how fast does skill decay the further ahead we look?). If
     ``ensemble_of`` names models, their quantile-averaged ensemble is scored too. If
     ``path_rows`` is given, the full forecast paths of model ``paths_for`` are appended to it,
-    which is what the animated "replay" of forecasts versus reality is drawn from. If ``seldon_of``
-    names a model, Seldon's self-calibrated version of it is scored too, learning window by window
-    only from windows that had already finished (see ``seldon.py``)."""
+    which is what the animated "replay" of forecasts versus reality is drawn from."""
     y = series.to_numpy(dtype=float)
     horizon = spec.horizon
     cuts = origins(len(y), horizon, windows, min_train=max(2 * horizon, 16))
@@ -63,10 +59,6 @@ def backtest_series(
     members = [m for m in (ensemble_of or []) if m in by_model]
     if len(members) >= 2:
         by_model[ENSEMBLE] = [combine(group) for group in zip(*(by_model[m] for m in members))]
-    if seldon_of in by_model:
-        corrected = seldon.online(by_model[seldon_of], [float(c[-1]) for c in contexts],
-                                  [y[t : t + horizon] for t in cuts], [t + horizon for t in cuts], cuts)
-        by_model[seldon.NAME] = [f for f, _ in corrected]
     wanted = {paths_for} if isinstance(paths_for, str) else set(paths_for or ())
 
     rows = []
@@ -116,6 +108,38 @@ def summarize(results: pd.DataFrame, baseline: str = "naive") -> pd.DataFrame:
     per_series["skill"] = 1 - per_series["mae"] / per_series["baseline_mae"]
     per_series["prob_skill"] = 1 - per_series["pinball"] / per_series["baseline_pinball"]
     return per_series.drop(columns=["baseline_mae", "baseline_pinball"])
+
+
+def head_to_head(results: pd.DataFrame, model: str, challenger: str = CHALLENGER) -> pd.DataFrame:
+    """The duel: ``model`` (TimesFM) against ``challenger`` (Seldon), one row per domain plus "all".
+
+    Only series both of them forecast count, on exactly the same windows. A series is won by
+    whichever had the lower average error there (``wins`` / ``losses`` are the challenger's);
+    ``skill`` and ``prob_skill`` are medians against the naive baseline, as in the scoreboard,
+    and ``coverage80`` is the share of reality inside each 80% range (0.80 is honest). The
+    ``winner`` of a row is whoever won more of its series."""
+    columns = ["domain", "series", "wins", "losses", "model_skill", "challenger_skill", "model_prob_skill",
+               "challenger_prob_skill", "model_coverage80", "challenger_coverage80", "winner"]
+    if results is None or results.empty or not {model, challenger} <= set(results["model"]):
+        return pd.DataFrame(columns=columns)
+    summary = summarize(results)
+    both = summary[summary["model"].isin([model, challenger])]
+    wide = both.pivot_table(index=["series_id", "domain"], columns="model",
+                            values=["mae", "skill", "prob_skill", "coverage80"]).dropna()
+    rows = []
+    for domain, part in [*wide.groupby(level="domain"), ("all", wide)]:
+        wins = int((part[("mae", challenger)] < part[("mae", model)]).sum())
+        losses = int((part[("mae", challenger)] > part[("mae", model)]).sum())
+        rows.append({
+            "domain": domain, "series": len(part), "wins": wins, "losses": losses,
+            "model_skill": part[("skill", model)].median(), "challenger_skill": part[("skill", challenger)].median(),
+            "model_prob_skill": part[("prob_skill", model)].median(),
+            "challenger_prob_skill": part[("prob_skill", challenger)].median(),
+            "model_coverage80": part[("coverage80", model)].mean(),
+            "challenger_coverage80": part[("coverage80", challenger)].mean(),
+            "winner": challenger if wins > losses else model if losses > wins else "tie",
+        })
+    return pd.DataFrame(rows, columns=columns)
 
 
 def crises(results: pd.DataFrame, model: str, threshold: float = 0.5, top: int = 15) -> pd.DataFrame:

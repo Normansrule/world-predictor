@@ -1,4 +1,4 @@
-"""Forecasting models: Google's TimesFM plus simple baselines to measure it against.
+"""Forecasting models: Google's TimesFM, our own Seldon, and simple baselines to measure them against.
 
 Every model returns a :class:`Forecast` per input series with a point forecast and the
 deciles 0.1 ... 0.9, so models can be scored identically (accuracy *and* calibration).
@@ -322,7 +322,12 @@ MODELS = {
     "mean": MeanForecaster,
     "auto-ets": lambda: StatsForecastForecaster("ets"),
     "auto-arima": lambda: StatsForecastForecaster("arima"),
+    "seldon": lambda: __import__("psychohistory.seldon", fromlist=["SeldonForecaster"]).SeldonForecaster(),
 }
+
+# Our own psychohistory forecaster (seldon.py). It runs beside the model under test everywhere:
+# backtest, sealed ledger, `ask` and the app, so every TimesFM number has a Seldon number next to it.
+CHALLENGER = "seldon"
 
 BASELINES = ("naive", "drift", "mean")
 

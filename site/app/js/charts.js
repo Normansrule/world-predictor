@@ -278,5 +278,23 @@
   };
   const icon = (name) => `<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[name]}</svg>`;
 
-  window.WPCharts = { plot, bars, legend, fmt, css, icon };
+  // Seldon's council (src/psychohistory/seldon.py): which laws it trusted for one forecast.
+  const LAW_TEXT = { inertia: "inertia", drift: "drift", momentum: "momentum", reversion: "reversion" };
+  function council(c) {
+    if (!c) return "Seldon is our own forecaster: four laws of crowd behaviour voting by how well each predicted this series before, plus its weekly rhythm.";
+    if (!c.replays) return "Seldon had too little history to replay here, so every law got an equal vote.";
+    const votes = Object.entries(c.weights).sort((a, b) => b[1] - a[1]).map(([k, w]) => `${LAW_TEXT[k] || k} ${Math.round(w * 100)}%`).join(", ");
+    const mood = c.vol < 0.95 ? "calmer than usual, so its range is narrower" : c.vol > 1.05 ? "wilder than usual, so its range is wider" : "about as calm as usual";
+    const rhythm = c.cycle ? `, with the weekly rhythm laid on top` : "";
+    return `Seldon replayed ${c.replays} earlier dates of this series and split its vote: ${votes}${rhythm}. Right now the series is ${mood} (${c.vol.toFixed(2)}×).`;
+  }
+  function councilBar(c) {
+    if (!c || !c.weights) return "";
+    const parts = Object.entries(c.weights).sort((a, b) => b[1] - a[1]);
+    return `<span class="council" role="img" aria-label="${esc(council(c))}">` + parts.map(([k, w], i) =>
+      `<i style="--w:${(w * 100).toFixed(1)}%;--o:${(1 - i * 0.17).toFixed(2)}" title="${esc(LAW_TEXT[k] || k)} ${Math.round(w * 100)}%"><b>${esc(LAW_TEXT[k] || k)}</b></i>`).join("") + "</span>";
+  }
+  function esc(s) { return String(s).replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch])); }
+
+  window.WPCharts = { plot, bars, legend, fmt, css, icon, council, councilBar };
 })();

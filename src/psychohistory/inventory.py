@@ -83,20 +83,21 @@ STAGES = [
         "runs": "GitHub Actions on CPU, or your computer",
     },
     {
-        "id": "seldon", "name": "Seldon correction",
-        "plain": "A second, sealed forecast: TimesFM corrected by what its own past windows got wrong.",
-        "code": [("src/psychohistory/seldon.py", "learn"), ("src/psychohistory/seldon.py", "apply"),
-                 ("src/psychohistory/seldon.py", "online"), ("src/psychohistory/seldon.py", "correction_for")],
-        "input": "The TimesFM forecast and TimesFM's finished backtest windows for the same series",
-        "output": "Forecast rows with model = seldon, next to the TimesFM rows",
-        "rule": "Keep only the share of TimesFM's move that paid off before (used only if it cut past error by 3%), "
-                "then stretch the range until it would have caught reality 8 times in 10. Learns from finished windows only.",
+        "id": "seldon", "name": "Seldon, our own forecaster",
+        "plain": "The challenger: four simple laws of crowd behaviour plus a weekly rhythm, each law voting by how well it predicted this series before.",
+        "code": [("src/psychohistory/seldon.py", "predict"), ("src/psychohistory/seldon.py", "convene"),
+                 ("src/psychohistory/seldon.py", "find_cycle"), ("src/psychohistory/seldon.py", "SeldonForecaster")],
+        "input": "The same context arrays and horizon TimesFM gets",
+        "output": "Forecast rows with model = seldon, sealed and scored next to the TimesFM rows",
+        "rule": "Inertia, drift, momentum and reversion each forecast the series with its weekly rhythm taken out; 16 replays "
+                "of the series' own past set their votes (1 / error^4) and the 80% range, and the rhythm is laid back on top. "
+                "Learns only from data before the forecast date.",
         "cadence": CADENCE["weekly"],
-        "failure": "With fewer than two finished windows Seldon returns TimesFM unchanged, so it never invents a correction.",
-        "tests": ["test_seldon_needs_finished_windows_before_it_changes_anything",
-                  "test_seldon_shrinks_moves_that_never_paid_off_and_widens_narrow_bands",
-                  "test_seldon_keeps_a_model_that_was_right", "test_seldon_in_the_backtest_only_learns_from_the_past"],
-        "runs": "Python, right after TimesFM",
+        "failure": "With too little history to replay, every law gets an equal vote and the range is a random walk's.",
+        "tests": ["test_seldon_follows_a_weekly_rhythm_and_a_trend", "test_seldon_never_peeks_past_the_forecast_date",
+                  "test_seldon_range_is_honest_on_a_random_walk", "test_seldon_handles_short_and_negative_series",
+                  "test_head_to_head_counts_series_won_on_the_same_windows"],
+        "runs": "Python (numpy only), beside TimesFM",
     },
     {
         "id": "seal", "name": "Seal the forecast",
@@ -155,8 +156,8 @@ STAGES = [
 ]
 
 # Data flow between stages, for the explorer's arrows.
-EDGES = [("catalog", "fetch"), ("fetch", "context"), ("context", "model"), ("model", "seldon"), ("seldon", "seal"),
-         ("seal", "score"), ("score", "publish"), ("fetch", "backtest"), ("backtest", "seldon"), ("backtest", "publish")]
+EDGES = [("catalog", "fetch"), ("fetch", "context"), ("context", "model"), ("context", "seldon"), ("model", "seal"),
+         ("seldon", "seal"), ("seal", "score"), ("score", "publish"), ("fetch", "backtest"), ("backtest", "publish")]
 
 FREQ = {"D": "daily", "B": "trading days", "YS": "yearly"}
 

@@ -51,6 +51,33 @@ calibration comparison is fair.
   Brier = (probability - outcome)^2, averaged. 0.25 is a coin flip; lower is better.
 - **Pinball**: average quantile loss over the nine deciles, scaled like MASE. Lower is better.
 
+## Seldon, the challenger
+
+Seldon (`src/psychohistory/seldon.py`) is this project's own forecaster, run on the same windows and
+scored by the same code as TimesFM. It uses nothing but the series' own past:
+
+1. **Transform.** Positive series are forecast on a log scale; others as they are.
+2. **Rhythm.** If the day-to-day changes have an autocorrelation above 0.15 at lag 7 (or 5 for
+   weekday-only data), the average deviation from a centred moving average at each phase is taken out
+   before the laws run and added back to their forecasts.
+3. **Laws.** Inertia (last value), drift (whole-history average step), momentum (slope over the last
+   max(4h, 20) steps, damped by 0.9 per step) and reversion (AR(1) pull toward the mean of the last
+   max(3h, 30) values).
+4. **Replays.** Up to 16 earlier forecast dates, half a horizon apart, each with at least 24 values
+   before it and its whole window before the forecast date. Each law's error is its MAE over the window
+   divided by the in-sample mean absolute step.
+5. **Votes.** weight ∝ 1 / error⁴, then 80% of that plus 20% equal shares.
+6. **Range.** The council's replayed residuals are divided by step^g, where g (0.2 to 1) is fitted to how
+   the mean absolute residual grows with the step; their deciles, re-centred on the median, become the
+   range shape. It is multiplied by step^g, by sqrt(recent / replayed volatility) clipped to 0.6-1.8,
+   and by 1.1 because a few replays understate the tails. With too little history it falls back to a
+   random-walk range from the day-to-day changes.
+
+Settings were chosen on M4 daily series 0-499 and checked on series 500-1,999
+(`scripts/seldon_m4_check.py`). **The duel** (`backtest.head_to_head`) counts, per domain, the series on
+which Seldon's mean absolute error over the same windows was lower than TimesFM's, alongside both
+models' median skill, median range skill (pinball) and mean 80% coverage.
+
 ## The Seldon hypotheses
 
 1. *Predictability*: median skill above 0 in a domain.

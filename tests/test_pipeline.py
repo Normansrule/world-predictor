@@ -573,60 +573,73 @@ def test_pipeline_inventory_matches_code(tmp_path):
     assert (root / "docs" / "ARCHITECTURE.md").read_text() == inventory.architecture_md(), stale
 
 
-def _window(last, mid, half, actual):
-    mid = np.asarray(mid, float)
-    return __import__("psychohistory.seldon", fromlist=["Window"]).Window(last, mid - half, mid, mid + half, np.asarray(actual, float))
-
-
-def test_seldon_needs_finished_windows_before_it_changes_anything():
+def test_seldon_follows_a_weekly_rhythm_and_a_trend():
     from psychohistory import seldon
 
-    assert seldon.learn([]) == seldon.Correction(1.0, 1.0, 0)
-    one = [_window(100, [110] * 5, 2, [100] * 5)]
-    assert seldon.learn(one).shrink == 1.0 and seldon.learn(one).spread == 1.0
+    t = np.arange(400)
+    rhythm = 50 + 0.05 * t + 6 * np.sin(2 * np.pi * t / 7)  # attention with a weekly cycle and slow growth
+    forecast, council = seldon.predict(rhythm[:-14], 14)
+    assert council.cycle == 7 and council.replays == seldon.REPLAYS
+    assert set(council.weights) == set(seldon.LAWS)
+    naive_error = np.mean(np.abs(rhythm[-15] - rhythm[-14:]))
+    assert np.mean(np.abs(forecast.point - rhythm[-14:])) < 0.3 * naive_error
+    assert abs(sum(council.weights.values()) - 1) < 1e-9
+    assert np.all(np.diff(forecast.quantiles, axis=1) >= 0)
 
 
-def test_seldon_shrinks_moves_that_never_paid_off_and_widens_narrow_bands():
-    from psychohistory import seldon
-
-    # The base model keeps calling a 10% rise on a series that goes nowhere, with a band far too narrow.
-    rng = np.random.default_rng(0)
-    windows = [_window(100, np.linspace(101, 110, 10), 0.5, 100 + rng.normal(0, 2, 10)) for _ in range(6)]
-    c = seldon.learn(windows)
-    assert c.shrink <= 0.2 and c.spread > 1.5 and c.windows == 6
-    base = Forecast(np.linspace(101, 110, 10), np.linspace(101, 110, 10)[:, None] + np.linspace(-1, 1, 9)[None, :])
-    fixed = seldon.apply(base, 100.0, c)
-    assert abs(fixed.q(0.5)[-1] - 100) < abs(base.q(0.5)[-1] - 100)
-    assert np.all(np.diff(fixed.quantiles, axis=1) >= 0)
-
-
-def test_seldon_keeps_a_model_that_was_right():
-    from psychohistory import seldon
-
-    windows = [_window(100 + 10 * k, np.linspace(101, 110, 10) + 10 * k, 3, np.linspace(101, 110, 10) + 10 * k)
-               for k in range(5)]
-    assert seldon.learn(windows).shrink == 1.0
-
-
-def test_seldon_in_the_backtest_only_learns_from_the_past():
+def test_seldon_never_peeks_past_the_forecast_date():
     from psychohistory import seldon
 
     series = synthetic(400, seed=3)
     spec = SeriesSpec("x", "markets", "yahoo", horizon=20)
-    results = backtest.backtest_series(spec, series, [DriftForecaster(), NaiveForecaster()], windows=6, seldon_of="drift")
+    model = seldon.SeldonForecaster()
+    results = backtest.backtest_series(spec, series, [model, NaiveForecaster()], windows=6)
     rows = results[results["model"] == "seldon"].sort_values("origin")
-    base = results[results["model"] == "drift"].sort_values("origin")
     assert len(rows) == 6
-    # The first two windows have nothing finished before them, so Seldon equals its base there.
-    assert np.allclose(rows["mae"].to_numpy()[:2], base["mae"].to_numpy()[:2])
     # Changing the last window's future must not change any earlier Seldon forecast.
     changed = series.copy()
     changed.iloc[-20:] += 50
-    again = backtest.backtest_series(spec, changed, [DriftForecaster(), NaiveForecaster()], windows=6, seldon_of="drift")
+    again = backtest.backtest_series(spec, changed, [model, NaiveForecaster()], windows=6)
     again = again[again["model"] == "seldon"].sort_values("origin")
     assert np.allclose(again["mae"].to_numpy()[:-1], rows["mae"].to_numpy()[:-1])
-    online = seldon.online([], [], [], [], [])
-    assert online == []
+    # Every replay ends before the forecast date.
+    assert all(t + 20 <= 300 for t in seldon.replay_dates(300, 20))
+
+
+def test_seldon_range_is_honest_on_a_random_walk():
+    from psychohistory import seldon
+
+    rng = np.random.default_rng(7)
+    inside = []
+    for _ in range(60):
+        walk = 100 * np.exp(np.cumsum(rng.normal(0, 0.01, 520)))
+        forecast, _ = seldon.predict(walk[:-20], 20)
+        inside.append(np.mean((walk[-20:] >= forecast.q(0.1)) & (walk[-20:] <= forecast.q(0.9))))
+    assert 0.65 <= np.mean(inside) <= 0.95  # an 80% range should catch reality about 8 times in 10
+
+
+def test_seldon_handles_short_and_negative_series():
+    from psychohistory import seldon
+
+    for y in (np.array([5.0]), np.array([1.0, 2.0]), np.linspace(-3, 3, 40), np.r_[np.zeros(30), np.nan, 1.0]):
+        forecast, council = seldon.predict(y, 6)
+        assert forecast.quantiles.shape == (6, 9) and np.all(np.isfinite(forecast.quantiles))
+        assert seldon.explain(council)
+    assert not seldon.predict(np.linspace(-3, 3, 40), 6)[1].log  # negative values are not logged
+
+
+def test_head_to_head_counts_series_won_on_the_same_windows():
+    rows = []
+    for k, (domain, edge) in enumerate([("news", 0.5), ("news", 0.8), ("markets", 1.2)]):
+        for model, mae in (("timesfm-2.5", 1.0), ("seldon", edge), ("naive", 1.5)):
+            rows.append({"series_id": f"s{k}", "domain": domain, "scale": "individual", "model": model, "origin": "2026-01-01",
+                         "mae": mae, "mase": mae, "smape": 0.1, "direction": 0.5, "coverage80": 0.8,
+                         "pinball": mae, "brier": 0.2})
+    duel = backtest.head_to_head(pd.DataFrame(rows), "timesfm-2.5").set_index("domain")
+    assert duel.loc["news", "wins"] == 2 and duel.loc["news", "winner"] == "seldon"
+    assert duel.loc["markets", "losses"] == 1 and duel.loc["markets", "winner"] == "timesfm-2.5"
+    assert duel.loc["all", "series"] == 3 and duel.loc["all", "winner"] == "seldon"
+    assert backtest.head_to_head(pd.DataFrame(rows).query("model != 'seldon'"), "timesfm-2.5").empty
 
 
 def test_ask_reads_your_csv_and_answers_a_level(tmp_path, capsys):

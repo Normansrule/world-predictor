@@ -1,8 +1,8 @@
 """``psychohistory ask``: run a model live on one series and read the answer off its forecast.
 
 Works on any series in the catalog (from the local data cache) or on your own CSV of dates and
-values. Prints the middle and the 80% range for every step ahead, Seldon's corrected range when
-backtest paths exist for that series, and the chance of ending above a level you name. With
+values. Prints the middle and the 80% range for every step ahead, Seldon's own forecast beside it
+(see ``seldon.py``), and the chance of ending above a level you name. With
 ``--seal`` the forecast is also written to the prediction ledger, so ``psychohistory score``
 checks it once the dates pass.
 """
@@ -39,15 +39,14 @@ def guess_freq(series: pd.Series) -> str:
 
 
 def ask(series: pd.Series, model: Forecaster, horizon: int, freq: str,
-        correction: seldon.Correction | None = None, above: float | None = None,
+        challenger: Forecaster | None = None, above: float | None = None,
         max_context: int = 1024) -> pd.DataFrame:
-    """One row per step ahead: the model's q10 / q50 / q90, Seldon's (when a correction is given)
+    """One row per step ahead: the model's q10 / q50 / q90, the challenger's (Seldon, when given)
     and, with ``above``, each one's chance of ending above that level."""
-    last = float(series.iloc[-1])
-    base: Forecast = model.forecast([series.to_numpy(dtype=float)[-max_context:]], horizon)[0]
-    versions = {"model": base}
-    if correction is not None:
-        versions["seldon"] = seldon.apply(base, last, correction)
+    context = [series.to_numpy(dtype=float)[-max_context:]]
+    versions: dict[str, Forecast] = {"model": model.forecast(context, horizon)[0]}
+    if challenger is not None:
+        versions["seldon"] = challenger.forecast(context, horizon)[0]
     rows = []
     for step, target in enumerate(future_dates(series.index[-1], horizon, freq)):
         row = {"step": step + 1, "date": target.date().isoformat()}

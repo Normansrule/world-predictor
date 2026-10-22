@@ -1,146 +1,294 @@
-"""Seldon: TimesFM that learns from its own track record.
+"""Seldon: our own psychohistory forecaster, built to compete with TimesFM head to head.
 
-TimesFM is a general model: it has never seen how well its own forecasts did on a given series.
-Seldon wraps it with two corrections, each learned only from forecast windows that had already
-finished before the new forecast is made (so it never peeks at the future):
+TimesFM is a 200-million-parameter neural network trained on billions of time points. Seldon is
+the opposite bet, the one Hari Seldon made in *Foundation*: a handful of simple laws of mass
+behaviour, each weighed by how well it has predicted this very crowd before. No neural network,
+no pretraining, nothing but the series' own past. It runs in milliseconds with numpy alone.
 
-1. **Shrink toward "no change".** Where TimesFM's predicted moves have not paid off before (most
-   markets), its median is pulled back toward the last value; where they have (technology
-   attention), it is left alone. ``shrink`` is the share of TimesFM's move that is kept.
-2. **Recalibrate the range.** The band around the median is stretched or narrowed until it would
-   have caught reality about 8 times in 10 in the earlier windows. ``spread`` is that factor.
+**The laws.** Each one is a complete forecast on its own:
 
-Both are chosen on a small grid, separately for every series. A shrink is only used when it
-would have cut the earlier error by at least ``MARGIN``, so noise in a handful of windows does not
-move the forecast. With fewer than ``MIN_WINDOWS`` finished windows there is nothing to learn from
-yet and Seldon returns TimesFM unchanged.
+* **Inertia** - a crowd keeps doing what it is doing: tomorrow looks like today.
+* **Drift** - the long arc: whatever course the crowd has held across its whole history continues.
+* **Momentum** - a crowd that is moving keeps moving, but the push fades (a damped trend).
+* **Reversion** - excitement wears off: a series pulled away from its recent normal drifts back.
+* **Rhythm** - crowds keep calendars: the weekly rhythm of news and attention repeats. When a
+  series has one, Seldon takes it out first, lets the four laws above vote on what is left, and
+  lays the rhythm back on top of their forecast.
 
-It is a challenger, scored on exactly the same windows as TimesFM, and it is allowed to lose.
+**The council.** Before every forecast Seldon replays the series' own recent past: it stands at
+``REPLAYS`` earlier dates, lets each law forecast the same number of steps ahead, and checks what
+really happened. Each law's vote is then weighted by the inverse square of its past error (the
+Bates-Granger combination), shrunk a little toward equal votes so one lucky replay does not
+decide everything. Everything it learns comes from data before the forecast date: it never peeks.
 
-The same functions run in three places: the backtest (one window after another, in order), the
-weekly sealed forecasts (learning from the saved backtest paths), and the web app's Lab export.
+**The range.** The same replays say how wrong the council has been at each distance ahead. Seldon's
+80% range is those errors (their spread grows with a fitted power of the steps ahead), stretched
+or narrowed by how volatile the series is right now compared with the replayed period. A calm
+market gets a narrow range, a crisis a wide one.
+
+Prices, pageviews and news volumes are positive and move in proportions, so Seldon works on their
+logarithm and converts back at the end. Series that can be zero or negative stay as they are.
+
+It is scored on exactly the same backtest windows, metrics and sealed ledger as TimesFM, and it is
+allowed to lose: the point is to find out whether a few laws of crowd behaviour can match a
+foundation model.
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Sequence
 
 import numpy as np
-import pandas as pd
 
 from .models import QUANTILES, Forecast
 
 NAME = "seldon"
-MIN_WINDOWS = 2
-MARGIN = 0.03  # a shrink must have cut past error by 3% to be used
-SHRINK_GRID = np.round(np.linspace(0.0, 1.0, 11), 2)
-SPREAD_GRID = np.round(np.linspace(0.5, 3.0, 26), 2)
-TARGET = 0.8  # share of reality the 80% range should catch
-_MID = QUANTILES.index(0.5)
+LAWS = ("inertia", "drift", "momentum", "reversion")  # the laws that vote; the weekly rhythm is laid on top
+REPLAYS = 16  # earlier dates the council replays before every forecast
+MIN_TRAIN = 24  # points a replay needs before its date
+POWER = 4  # votes go as 1 / error ** POWER: Bates-Granger inverse-variance weights (2), sharpened
+EQUAL_SHARE = 0.2  # share of each vote that stays equal, whatever the replays said
+DAMPING = 0.9  # per-step fade of momentum
+CYCLES = (7, 5)  # weekly rhythm for daily data, and for weekday-only data
+MIN_CYCLE_STRENGTH = 0.15  # autocorrelation a rhythm needs before it is used
+VOL_CLIP = (0.6, 1.8)  # how far the current volatility may stretch the replayed range
+STRETCH = 1.1  # replays are a small sample, so the range they imply is widened by this much
+_Q = np.asarray(QUANTILES)
+_Z = np.array([-1.2816, -0.8416, -0.5244, -0.2533, 0.0, 0.2533, 0.5244, 0.8416, 1.2816])
 
 
 @dataclass
-class Window:
-    """One finished forecast window of the base model: the value at the origin, its deciles
-    (or just q10 / q50 / q90) for each step, and what really happened."""
+class Council:
+    """What Seldon learned for one forecast: each law's vote, how its range was set, and on what."""
 
-    last: float
-    q10: np.ndarray
-    q50: np.ndarray
-    q90: np.ndarray
-    actual: np.ndarray
+    weights: dict[str, float] = field(default_factory=dict)
+    errors: dict[str, float] = field(default_factory=dict)  # each law's replayed error, scaled like MASE
+    replays: int = 0
+    log: bool = False
+    cycle: int = 0  # length of the weekly rhythm laid on top (7 or 5 steps), 0 if none
+    growth: float = 0.5  # range grows like (steps ahead) ** growth
+    vol_ratio: float = 1.0  # current volatility / volatility in the replayed period
 
-
-@dataclass
-class Correction:
-    shrink: float = 1.0
-    spread: float = 1.0
-    windows: int = 0
+    def leader(self) -> str:
+        return max(self.weights, key=self.weights.get) if self.weights else "inertia"
 
 
-def learn(windows: Sequence[Window]) -> Correction:
-    """Pick the shrink and spread that would have done best on these finished windows."""
-    windows = [w for w in windows if len(w.actual) and np.isfinite(w.last)]
-    if len(windows) < MIN_WINDOWS:
-        return Correction(windows=len(windows))
-    # Shrink: minimise mean absolute error of last + shrink * (median - last).
-    errors = [
-        np.mean([np.mean(np.abs(w.last + s * (w.q50[: len(w.actual)] - w.last) - w.actual)) / _scale(w) for w in windows])
-        for s in SHRINK_GRID
-    ]
-    best_i = int(np.argmin(errors))
-    shrink = float(SHRINK_GRID[best_i]) if errors[best_i] <= errors[-1] * (1 - MARGIN) else 1.0
-    # Spread: the factor whose stretched 80% range comes closest to catching reality 80% of the time;
-    # ties go to the narrower range, which is the more useful forecast.
-    best, spread = np.inf, 1.0
-    for f in SPREAD_GRID:
-        inside = []
-        for w in windows:
-            h = len(w.actual)
-            mid = w.last + shrink * (w.q50[:h] - w.last)
-            lo = mid + f * (w.q10[:h] - w.q50[:h])
-            hi = mid + f * (w.q90[:h] - w.q50[:h])
-            inside.append(np.mean((w.actual >= lo) & (w.actual <= hi)))
-        gap = abs(float(np.mean(inside)) - TARGET)
-        if gap < best - 1e-9:
-            best, spread = gap, float(f)
-    return Correction(shrink, spread, len(windows))
+# --------------------------------------------------------------------------------------------
+# The laws. Each takes the (possibly logged, de-rhythmed) history z and returns a path of `h` steps.
+# --------------------------------------------------------------------------------------------
 
 
-def _scale(w: Window) -> float:
-    """Normalise errors so a series with big numbers does not dominate the choice."""
-    return max(float(np.abs(w.last)), 1e-9)
+def _inertia(z: np.ndarray, h: int) -> np.ndarray:
+    return np.full(h, z[-1])
 
 
-def apply(forecast: Forecast, last: float, c: Correction) -> Forecast:
-    """Seldon's forecast: the base forecast with the learned correction applied to every decile."""
-    mid = forecast.quantiles[:, _MID]
-    new_mid = last + c.shrink * (mid - last)
-    quantiles = new_mid[:, None] + c.spread * (forecast.quantiles - mid[:, None])
-    point = last + c.shrink * (forecast.point - last)
-    return Forecast(point, np.sort(quantiles, axis=1))
+def _drift(z: np.ndarray, h: int) -> np.ndarray:
+    slope = (z[-1] - z[0]) / (len(z) - 1) if len(z) > 1 else 0.0
+    return z[-1] + slope * np.arange(1, h + 1)
 
 
-def apply_bands(last: float, q10, q50, q90, c: Correction) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """The same correction on a saved q10 / q50 / q90 path (what the backtest paths keep)."""
-    q10, q50, q90 = (np.asarray(a, dtype=float) for a in (q10, q50, q90))
-    mid = last + c.shrink * (q50 - last)
-    return mid + c.spread * (q10 - q50), mid, mid + c.spread * (q90 - q50)
+def _momentum(z: np.ndarray, h: int) -> np.ndarray:
+    # Slope over a lookback of a few horizons, so a single jump does not count as a trend.
+    look = int(min(len(z) - 1, max(4 * h, 20)))
+    slope = (z[-1] - z[-1 - look]) / look if look > 0 else 0.0
+    fade = np.cumsum(DAMPING ** np.arange(1, h + 1))
+    return z[-1] + slope * fade
 
 
-def online(base: Sequence[Forecast], lasts: Sequence[float], actuals: Sequence[np.ndarray],
-           ends: Sequence[int], starts: Sequence[int]) -> list[tuple[Forecast, Correction]]:
-    """Walk the backtest windows in time order. Window k may learn only from windows whose
-    actual values were all known by its origin (``ends[j] <= starts[k]``)."""
-    out = []
-    for k, forecast in enumerate(base):
-        done = [
-            Window(lasts[j], base[j].q(0.1), base[j].q(0.5), base[j].q(0.9), actuals[j])
-            for j in range(len(base)) if ends[j] <= starts[k] and j != k
-        ]
-        c = learn(done)
-        out.append((apply(forecast, lasts[k], c), c))
-    return out
+def _reversion(z: np.ndarray, h: int) -> np.ndarray:
+    # Ornstein-Uhlenbeck toward the recent normal; the pull is the AR(1) coefficient of the gaps.
+    look = int(min(len(z), max(3 * h, 30)))
+    recent = z[-look:]
+    normal = float(np.mean(recent))
+    gap = recent - normal
+    denom = float(gap[:-1] @ gap[:-1])
+    rho = float(gap[1:] @ gap[:-1]) / denom if denom > 0 else 0.0
+    rho = float(np.clip(rho, 0.0, 0.995))
+    return normal + (z[-1] - normal) * rho ** np.arange(1, h + 1)
 
 
-def windows_from_paths(paths: pd.DataFrame, series_id: str, model: str, before: str | None = None) -> list[Window]:
-    """Finished windows of ``model`` for one series from ``results/backtest_paths.csv``. The value
-    at each origin is the last actual of the window before it (the windows are back to back);
-    the first window has no known origin value and is skipped."""
-    rows = paths[(paths["series_id"] == series_id) & (paths["model"] == model)]
-    if before is not None:
-        rows = rows[rows["date"].astype(str) <= str(before)]
-    groups = [g.sort_values("step") for _, g in rows.groupby("origin", sort=True)]
-    out = []
-    for prev, cur in zip(groups, groups[1:]):
-        out.append(Window(float(prev["actual"].iloc[-1]), cur["q10"].to_numpy(float), cur["q50"].to_numpy(float),
-                          cur["q90"].to_numpy(float), cur["actual"].to_numpy(float)))
-    return out
+_LAW = {"inertia": _inertia, "drift": _drift, "momentum": _momentum, "reversion": _reversion}
 
 
-def correction_for(paths: pd.DataFrame | None, series_id: str, model: str) -> Correction:
-    """The correction for a new, live forecast: learned from every finished backtest window."""
-    if paths is None or paths.empty:
-        return Correction()
-    return learn(windows_from_paths(paths, series_id, model))
+def _profile(z: np.ndarray, cycle: int, cycles_used: int = 8) -> np.ndarray:
+    """Average deviation from a centred moving average at each phase of the rhythm."""
+    tail = z[-cycle * min(cycles_used, len(z) // cycle):]
+    offset = len(z) - len(tail)
+    smooth = np.convolve(tail, np.ones(cycle) / cycle, mode="same")
+    half = cycle // 2
+    dev = (tail - smooth)[half: len(tail) - half]
+    phase = (offset + half + np.arange(len(dev))) % cycle
+    profile = np.array([dev[phase == p].mean() if np.any(phase == p) else 0.0 for p in range(cycle)])
+    return profile - profile.mean()
+
+
+def find_cycle(z: np.ndarray) -> int:
+    """The rhythm (7 or 5 steps) with the strongest autocorrelation in the day-to-day changes,
+    or 0 when neither is strong enough to trust."""
+    d = np.diff(z)
+    best, strength = 0, MIN_CYCLE_STRENGTH
+    for p in CYCLES:
+        if len(d) < 4 * p:
+            continue
+        a, b = d[p:] - d[p:].mean(), d[:-p] - d[:-p].mean()
+        denom = float(np.sqrt((a @ a) * (b @ b)))
+        r = float(a @ b) / denom if denom > 0 else 0.0
+        if r > strength:
+            best, strength = p, r
+    return best
+
+
+# --------------------------------------------------------------------------------------------
+# The council: replay the past, weigh the laws, set the range.
+# --------------------------------------------------------------------------------------------
+
+
+def _scale(z: np.ndarray) -> float:
+    d = np.abs(np.diff(z))
+    s = float(np.mean(d)) if len(d) else 0.0
+    return s if s > 0 else 1.0
+
+
+def replay_dates(n: int, h: int) -> list[int]:
+    """Up to REPLAYS earlier forecast dates whose whole window is already known, spaced half a
+    horizon apart. Index t means "forecast from z[:t], check against z[t:t+h]"."""
+    gap = max(1, h // 2)
+    return sorted(t for t in (n - h - i * gap for i in range(REPLAYS)) if t >= MIN_TRAIN)
+
+
+def _paths(z: np.ndarray, h: int, cycle: int, laws: Sequence[str]) -> np.ndarray:
+    """Every law's path, shape (laws, h). With a rhythm, the laws see the series with the rhythm
+    taken out (learned from z alone), and the rhythm is added back to each path."""
+    if not cycle or len(z) < 3 * cycle:
+        return np.stack([_LAW[name](z, h) for name in laws])
+    profile = _profile(z, cycle)
+    flat = z - profile[np.arange(len(z)) % cycle]
+    ahead = profile[(len(z) + np.arange(h)) % cycle]
+    return np.stack([_LAW[name](flat, h) + ahead for name in laws])
+
+
+def convene(z: np.ndarray, h: int) -> tuple[Council, np.ndarray, list[str]]:
+    """Weigh the laws on the series' own past and collect the council's replayed errors.
+
+    Returns the council, the replayed residuals (actual - council) with shape (replays, h) in z
+    units, and the laws that voted."""
+    cycle = find_cycle(z)
+    laws = list(LAWS)
+    dates = replay_dates(len(z), h)
+    council = Council(cycle=cycle, replays=len(dates))
+    if not dates:
+        council.weights = {name: 1 / len(laws) for name in laws}
+        return council, np.empty((0, h)), laws
+    errors = np.zeros(len(laws))
+    paths, actuals = [], []
+    for t in dates:
+        past, actual = z[:t], z[t: t + h]
+        p = _paths(past, h, cycle, laws)
+        errors += np.mean(np.abs(p - actual), axis=1) / _scale(past)
+        paths.append(p)
+        actuals.append(actual)
+    errors /= len(dates)
+    votes = 1 / np.maximum(errors, 1e-9) ** POWER
+    weights = (1 - EQUAL_SHARE) * votes / votes.sum() + EQUAL_SHARE / len(laws)
+    council.weights = {name: float(w) for name, w in zip(laws, weights)}
+    council.errors = {name: float(e) for name, e in zip(laws, errors)}
+    residuals = np.stack([a - weights @ p for p, a in zip(paths, actuals)])
+    return council, residuals, laws
+
+
+def _growth(residuals: np.ndarray) -> float:
+    """Fit how the replayed error grows with the steps ahead: |error| ~ step ** growth."""
+    h = residuals.shape[1]
+    if h < 3 or len(residuals) < 2:
+        return 0.5
+    mean_abs = np.mean(np.abs(residuals), axis=0)
+    ok = mean_abs > 0
+    if ok.sum() < 3:
+        return 0.5
+    slope = float(np.polyfit(np.log(np.arange(1, h + 1)[ok]), np.log(mean_abs[ok]), 1)[0])
+    return float(np.clip(slope, 0.2, 1.0))
+
+
+def _range(z: np.ndarray, h: int, residuals: np.ndarray, council: Council) -> np.ndarray:
+    """Offsets from the council's path for each decile at each step, shape (h, 9)."""
+    steps = np.arange(1, h + 1, dtype=float)
+    if len(residuals) >= 2:
+        council.growth = _growth(residuals)
+        unit = (residuals / steps[None, :] ** council.growth).ravel()  # errors as if one step ahead
+        shape = np.quantile(unit, _Q) - np.quantile(unit, 0.5)
+        # Volatility now versus volatility across the replayed stretch.
+        span = min(len(z) - 1, len(residuals) * max(1, h // 2) + h)
+        # The recent window is two horizons long and the ratio is square-rooted: a short burst of
+        # calm or panic moves the range, but does not dominate it.
+        recent_n = min(len(z) - 1, max(2 * h, 20))
+        recent = float(np.std(np.diff(z[-(recent_n + 1):]))) if recent_n >= 2 else 0.0
+        before = float(np.std(np.diff(z[-(span + 1):]))) if span >= 2 else 0.0
+        ratio = np.sqrt(recent / before) if before > 0 and recent > 0 else 1.0
+        council.vol_ratio = float(np.clip(ratio, *VOL_CLIP))
+    else:
+        # Too little history to replay: the spread of day-to-day changes, growing like a random walk.
+        d = np.diff(z)
+        sd = float(np.std(d)) if len(d) > 1 else abs(float(z[-1])) * 0.01 + 1e-9
+        shape = sd * _Z
+    return STRETCH * council.vol_ratio * steps[:, None] ** council.growth * shape[None, :]
+
+
+def predict(context: np.ndarray, horizon: int) -> tuple[Forecast, Council]:
+    """Seldon's forecast for one series, and the council that made it."""
+    y = np.asarray(context, dtype=np.float64)
+    y = y[np.isfinite(y)]
+    if len(y) == 0:
+        raise ValueError("Seldon needs at least one value")
+    use_log = bool(np.all(y > 0)) and len(y) > 1
+    z = np.log(y) if use_log else y
+    if len(z) < 3:
+        council = Council(weights={"inertia": 1.0}, log=use_log)
+        mid = np.full(horizon, z[-1])
+        spread = _range(z, horizon, np.empty((0, horizon)), council)
+    else:
+        council, residuals, laws = convene(z, horizon)
+        council.log = use_log
+        w = np.array([council.weights[name] for name in laws])
+        mid = w @ _paths(z, horizon, council.cycle, laws)
+        spread = _range(z, horizon, residuals, council)
+    quantiles = np.sort(mid[:, None] + spread, axis=1)
+    point = mid.copy()
+    if use_log:
+        quantiles, point = np.exp(quantiles), np.exp(point)
+    return Forecast(point, quantiles), council
+
+
+class SeldonForecaster:
+    """Seldon as a model like any other: same inputs and outputs as TimesFM, scored the same way.
+    ``councils`` keeps how each of the last batch of forecasts was made."""
+
+    name = NAME
+
+    def __init__(self) -> None:
+        self.councils: list[Council] = []
+
+    def forecast(self, contexts: Sequence[np.ndarray], horizon: int) -> list[Forecast]:
+        out, self.councils = [], []
+        for context in contexts:
+            forecast, council = predict(context, horizon)
+            out.append(forecast)
+            self.councils.append(council)
+        return out
+
+
+def explain(council: Council) -> str:
+    """One sentence on how Seldon reached a forecast."""
+    if not council.replays:
+        return "Seldon had too little history to replay, so every law got an equal vote."
+    votes = ", ".join(f"{name} {w:.0%}" for name, w in sorted(council.weights.items(), key=lambda kv: -kv[1]))
+    mood = "calmer" if council.vol_ratio < 0.95 else "wilder" if council.vol_ratio > 1.05 else "about as calm"
+    rhythm = f", with a {council.cycle}-step weekly rhythm laid on top" if council.cycle else ""
+    return (f"Seldon replayed {council.replays} earlier dates and split its vote: {votes}{rhythm}. "
+            f"The series is {mood} than usual right now, so its range is scaled {council.vol_ratio:.2f}x.")
+
+
+def council_json(council: Council) -> dict:
+    """The council in the shape the web app reads."""
+    return {"weights": {k: round(v, 3) for k, v in council.weights.items()}, "replays": council.replays,
+            "cycle": council.cycle, "vol": round(council.vol_ratio, 3)}

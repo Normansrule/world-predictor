@@ -6,7 +6,7 @@
 </picture>
 
 **A forecasting terminal that keeps score.**<br>
-Google's open-source **TimesFM** and **Seldon**, its self-correcting challenger, forecast world news, markets and new technologies.
+Google's open-source **TimesFM** against **Seldon**, our own psychohistory forecaster, on world news, markets and new technologies.
 Every forecast is sealed before the future happens and scored when it arrives. Then it's your turn, in the Lab.
 
 [![Play the Lab](https://img.shields.io/badge/Play-the_Lab-c4412a?style=for-the-badge&logo=googlechrome&logoColor=white)](https://normansrule.github.io/world-predictor/app/#lab)
@@ -29,6 +29,7 @@ Every forecast is sealed before the future happens and scored when it arrives. T
 [Features](#key-features) ·
 [Screenshots](#screenshots) ·
 [Results](#latest-results) ·
+[Seldon vs TimesFM](#seldon-vs-timesfm) ·
 [Setup](#setup-and-usage) ·
 [How it works](#how-it-works) ·
 [Structure](#project-structure) ·
@@ -49,9 +50,11 @@ In Isaac Asimov's *Foundation*, Hari Seldon can't predict what any one person wi
 honest version of that bet: every week it asks [**TimesFM**](https://github.com/google-research/timesfm)
 (Time Series Foundation Model, Google Research's open-source forecaster) what happens next in world
 news, markets and new technology, seals each forecast with a date, and scores it in public once the
-future shows up. Next to it runs **Seldon**, a challenger that corrects TimesFM using nothing but
-TimesFM's own track record, and in the **Lab** you can make your own blind call on a real past window
-and see whether you'd have beaten them both. It's for anyone curious how far AI (artificial intelligence) forecasting really
+future shows up. Against it runs **Seldon**, this project's own forecaster: no neural network, just a
+few laws of crowd behaviour that vote on every forecast according to how well each has predicted that
+series before. Both are scored by the same code on the same windows, so the question "can a handful of
+psychohistory rules match a 200-million-parameter foundation model?" gets a real answer. In the
+**Lab** you can make your own blind call on a real past window and see whether you'd have beaten them both. It's for anyone curious how far AI (artificial intelligence) forecasting really
 reaches: people who follow markets or the news, data-science learners who want a worked, open example
 of backtesting and calibration, and forecasting nerds who'd rather see the misses than a highlight reel.
 Nothing here is financial advice, and most of the interesting results are about *where prediction fails*.
@@ -74,8 +77,8 @@ Nothing here is financial advice, and most of the interesting results are about 
   real future: it's fingerprinted, kept in your browser and scored against both models once the real
   value is in the data.
 - **TimesFM on your own data.** `psychohistory ask` runs TimesFM live on any series in the catalog or on
-  your own CSV, prints the middle and the 80% range for every step, adds Seldon's corrected range when
-  it has a track record, answers "what's the chance it ends above X?", and can seal the forecast in the
+  your own CSV, prints the middle and the 80% range for every step, puts Seldon's own forecast beside
+  it with the votes behind it, answers "what's the chance it ends above X?", and can seal the forecast in the
   ledger to be scored later.
 - **A page for every series.** Every past window TimesFM was tested on, drawn over what really
   happened, with a slider and a table that say for each one what the middle guess said, how far reality
@@ -85,10 +88,12 @@ Nothing here is financial advice, and most of the interesting results are about 
   real value and the verdict. A value that was sealed after its date but before the source published it
   (Wikipedia and GDELT run a day or two behind) is marked as such, not passed off as a forecast of the
   future. `psychohistory record gold` prints the same record in the terminal.
-- **Seldon, the improved TimesFM.** Before each forecast, Seldon looks only at windows that had already
-  finished and learns two things: how much of TimesFM's predicted move actually paid off on that series
-  (it keeps only that share), and how much to stretch or narrow the range so it catches reality 8 times
-  in 10. It runs in the backtest, in the weekly sealed forecasts and in the Lab, and it's allowed to lose.
+- **Seldon, our own algorithm, against TimesFM.** Four laws of crowd behaviour (inertia, long-run drift,
+  fading momentum, reversion to normal) plus the weekly rhythm of news and attention. Before every
+  forecast Seldon replays the series' own past, gives each law a vote by how well it did, and sets its
+  80% range from its own past misses, scaled by how calm or wild the series is right now. It runs in
+  milliseconds on numpy alone, beside TimesFM in the backtest, the weekly sealed forecasts, `ask` and
+  the app, and every scoreboard says who won. [How it works](#seldon-vs-timesfm).
 - **A landing page that moves like a product launch.** A living field of possible futures behind the
   headline, the headline arriving word by word, a pinned scroll story of one real forecast, the record
   counted up in big numbers, a tape that glides, and light that follows the pointer across panels.
@@ -169,7 +174,7 @@ The landing page, slate and light. The Lab is the first thing you see, already l
 </tr>
 </table>
 
-<sub>Screenshots show the recorded forecast run of 2026-10-19 (TimesFM 2.5), with Seldon computed from that run's saved backtest windows. Before a first run the app uses demo data and says so on every screen. Regenerate them with <code>python scripts/make_app_screenshots.py --site build/site</code>.</sub>
+<sub>Screenshots show the recorded forecast run of 2026-10-19 (TimesFM 2.5), with Seldon run afterwards on the same windows by <code>scripts/seldon_first_look.py</code>. Before a first run the app uses demo data and says so on every screen. Regenerate them with <code>python scripts/make_app_screenshots.py --site build/site</code>.</sub>
 
 ---
 
@@ -185,13 +190,32 @@ Action. **First real run: 18 October 2026**, TimesFM 2.5 on 25 live series (5 ne
 | Markets (stocks, gold, silver, oil, Bitcoin) | about the same (+1%) | 83% of the time | no steady edge |
 | Technology | **43% less error** | 76% of the time | about 28 days |
 
-**TimesFM against Seldon.** Scored on the same past windows, in the order they happened, Seldon
-matches TimesFM's accuracy (technology +43% for both, news +8% for both, markets +1.0% vs +1.2%) and
-brings its 80% ranges closer to the 80% they promise: 80% instead of 76% in technology, 79% instead of
-83% in markets. In world news it found nothing worth correcting and made the same calls. That's a
-modest, honest win on calibration and no win on accuracy, which is exactly what a challenger built from
-TimesFM's own record should be expected to manage. (These figures come from the Lab's scoring of the
-saved backtest windows; from the next monthly backtest, Seldon appears in the report's tables too.)
+**TimesFM against Seldon: the first look.** Seldon, our own forecaster, was run on the same
+25 series and the same past windows as TimesFM, each time from only the values before the window.
+TimesFM won clearly:
+
+| Area | Series | Seldon won | TimesFM won | Skill: TimesFM / Seldon | In its 80% range: TimesFM / Seldon |
+|---|---|---|---|---|---|
+| World news | 5 | 2 | 3 | +8.1% / **+8.3%** | 79% / 83% |
+| Markets | 12 | 3 | 9 | **+1.2%** / −1.6% | 83% / **80%** |
+| Technology | 8 | 0 | 8 | **+42.8%** / +20.1% | **76%** / 84% |
+| **All** | 25 | **5** | **20** | **+7.9%** / +7.0% | 80% / 82% |
+
+Seldon tied TimesFM on world news and kept its ranges honest everywhere, but it could not touch
+TimesFM on Wikipedia attention, where the foundation model's pattern knowledge is worth twice
+Seldon's simple rules, and in markets its laws added noise to what is close to a random walk. Read
+this as a first look, not the final word: the run's raw data is not stored, so these windows were
+rebuilt from the saved backtest values, which gave Seldon at most the few hundred days before each
+window while TimesFM read up to 1,024, and the weekly rhythm step was added to Seldon after an earlier
+pass over these same windows showed it missing the weekly pattern in Wikipedia views. The official
+head-to-head comes from the next full backtest, which runs both on identical data and adds a
+"Seldon vs TimesFM: the duel" table to [results/REPORT.md](results/REPORT.md). Rebuild this table with
+`python scripts/seldon_first_look.py`.
+
+On public data neither model was tuned on, the 1,500 held-out daily series of the M4 competition,
+Seldon had the best range score of the four methods tried (pinball loss 1.144, against 1.146 for a
+drift line, 1.167 for "no change" and 1.170 for AutoETS) and beat "no change" on 62% of series
+(`python scripts/seldon_m4_check.py`). TimesFM was not run on M4 here.
 
 When it gave 70% or better odds of a rise, the rise happened 84% of the time (31 forecasts).
 Big aggregates such as indices beat single stocks (10% vs −1% skill in markets), just as Seldon would
@@ -307,8 +331,8 @@ psychohistory ask --csv my_series.csv --above 120    # your own date,value CSV
 psychohistory ask sp500 --seal                       # also seal it in the ledger, scored by `score`
 ```
 
-It prints the middle and 80% range for every step, and Seldon's corrected range when
-`results/backtest_paths.csv` has a track record for that series.
+It prints the middle and 80% range for every step, Seldon's own forecast beside it, and how
+Seldon's laws split their votes for that series.
 
 ### Quick start
 
@@ -373,7 +397,7 @@ psychohistory simulate    # the toy crowd, no downloads
 | `timesfm-2.5` (default) | [google/timesfm-2.5-200m-pytorch](https://huggingface.co/google/timesfm-2.5-200m-pytorch) | Apache-2.0 |
 | `timesfm-3` | [google/timesfm-3.0-pytorch](https://huggingface.co/google/timesfm-3.0-pytorch) | **Non-commercial only** ([licence](https://huggingface.co/google/timesfm-3.0-pytorch/blob/main/LICENSE)) |
 | `chronos-bolt`, `chronos-2` | Amazon's rival foundation models, [amazon/chronos-bolt-small](https://huggingface.co/amazon/chronos-bolt-small) and [amazon/chronos-2](https://huggingface.co/amazon/chronos-2) (install the `rivals` extra) | See each model card |
-| `seldon` | TimesFM corrected by its own finished windows ([`seldon.py`](src/psychohistory/seldon.py)); always run alongside the main model | Apache-2.0 (this repo) |
+| `seldon` | Our own psychohistory forecaster: four crowd laws and a weekly rhythm, weighted by their record on each series ([`seldon.py`](src/psychohistory/seldon.py)); numpy only, always run alongside the main model | Apache-2.0 (this repo) |
 | `ensemble` | Average of TimesFM, its `--compare` rivals and AutoETS (add `--ensemble`) | n/a |
 | `bass` | Bass diffusion S-curve (Bass, 1969), run automatically on technology-adoption series | Apache-2.0 (this repo) |
 | `auto-ets`, `auto-arima` | Classical baselines (ARIMA is autoregressive integrated moving average) from [statsforecast](https://github.com/Nixtla/statsforecast) (install the `classical` extra) | Apache-2.0 |
@@ -421,11 +445,9 @@ flowchart LR
     E[AutoETS]
     B[Bass S-curve]
     N[naive · drift · mean]
+    S[Seldon<br/>our own crowd laws]
     T & C & E --> EN[ensemble]
   end
-  T --> S[Seldon<br/>corrected by its own record]
-  BT -. finished windows .-> S
-  S --> L
   M --> BT[rolling backtest<br/>no peeking at the future]
   M --> L[prediction ledger<br/>sealed, scored later]
   BT --> R[REPORT.md<br/>plain English + charts]
@@ -445,12 +467,32 @@ flowchart LR
 | 4 | **Are its odds honest?** | Every forecast gives a chance of ending higher; calibration and the Brier score check it. |
 | 5 | **What shocked it?** (Seldon crises) | Windows where reality left the 80% range, listed in every report. |
 
-**How Seldon learns, and why it can't cheat.** For every series, Seldon tries keeping 0%, 10%, … 100%
-of TimesFM's predicted move and every range width from half to three times TimesFM's, and picks what
-would have done best on the windows that had *already finished* when the new forecast is made. A smaller
-move is only used if it would have cut past error by at least 3%, so a lucky handful of windows doesn't
-move anything, and with fewer than two finished windows Seldon simply returns TimesFM. A test checks that
-changing a later window never changes an earlier Seldon forecast.
+### Seldon vs TimesFM
+
+TimesFM is a 200-million-parameter neural network pretrained on billions of time points. **Seldon**
+([`seldon.py`](src/psychohistory/seldon.py)) is the opposite bet, the one Hari Seldon made: a crowd
+follows a few simple laws, and the trick is knowing which law rules which crowd.
+
+| Law | The crowd behaviour | Forecast |
+|---|---|---|
+| **Inertia** | Tomorrow looks like today | The last value |
+| **Drift** | The long arc holds | The whole history's average step, carried on |
+| **Momentum** | A move keeps going, then fades | The recent trend, damped 10% per step (Gardner & McKenzie, 1985) |
+| **Reversion** | Excitement wears off | A pull back to the recent normal (Ornstein-Uhlenbeck) |
+| **Rhythm** | Crowds keep calendars | The weekly pattern, taken out first and laid back on top |
+
+1. **Replay the past.** Before every forecast Seldon stands at 16 earlier dates of the same series,
+   lets each law forecast the same number of steps ahead, and checks what really happened.
+2. **Vote.** Each law's vote is 1 ÷ (its past error)⁴, a sharpened version of the Bates-Granger
+   combination (Bates & Granger, 1969), with a fifth of every vote kept equal so a lucky streak can't
+   take over.
+3. **Set the range.** The 80% range is the council's own past misses, growing with the steps ahead at
+   the rate the replays show, and stretched or narrowed by how volatile the series is right now.
+4. **Never peek.** Every replay ends before the forecast date; a test changes a later window and checks
+   no earlier Seldon forecast moves. Prices and attention are forecast on a log scale.
+
+Seldon is scored by exactly the same code as TimesFM, on the same windows, sealed in the same ledger,
+and the app's scoreboard, the Lab and every outlook show both. It is allowed to lose.
 
 **The honesty rule.** Backtests can flatter a model that was trained on the same history, so the
 project also keeps the **prediction ledger**: forecasts written down *before* the future happens and
@@ -501,8 +543,8 @@ src/psychohistory/
   data/                  loaders: gdelt.py, markets.py, wikipedia.py, owid.py (a CSV, comma-separated values, cache)
   models.py              TimesFM, Chronos, AutoETS, Bass and baseline forecasters, plus the ensemble
   metrics.py             error and calibration scores: MAE, MASE, sMAPE, direction, 80% coverage, Brier
-  seldon.py              Seldon: TimesFM corrected by its own finished windows
-  backtest.py            rolling-origin backtest and the Seldon summary tables
+  seldon.py              Seldon: our own forecaster, crowd laws weighted by their record, no neural network
+  backtest.py            rolling-origin backtest, the Seldon summary tables and the TimesFM-vs-Seldon duel
   ledger.py              seal forecasts now, score them later
   ask.py                 `psychohistory ask`: TimesFM live on one series or your own CSV
   story.py               plain-English findings, scoreboard, replay, outlook, Time Vault, `record`
@@ -519,7 +561,7 @@ docs/                    METHODOLOGY.md, ARCHITECTURE.md, DESIGN.md, progress.js
 predictions/             ledger.csv (sealed forecasts) and scored.csv
 results/                 REPORT.md, charts, and run_status.json (which series got through each stage)
 .github/workflows/       tests, predict (weekly), pages (web app), release (downloads)
-scripts/                 make_readme_art.py, make_app_screenshots.py, publish_to_github.sh
+scripts/                 make_readme_art.py, make_app_screenshots.py, seldon_first_look.py, seldon_m4_check.py, publish_to_github.sh
 ```
 
 The metric names, in full: MAE is mean absolute error, MASE is mean absolute scaled error, and sMAPE is
@@ -609,7 +651,7 @@ World Predictor is Apache-2.0).
 
 <!-- progress:start -->
 
-**33 of 39 milestones done (85%).** Drawn from [`docs/progress.json`](docs/progress.json); tests check every ticked item against the repository.
+**33 of 40 milestones done (82%).** Drawn from [`docs/progress.json`](docs/progress.json); tests check every ticked item against the repository.
 
 <details open><summary><b>📰 World news</b> · 5/6</summary>
 
@@ -622,11 +664,12 @@ World Predictor is Apache-2.0).
 
 </details>
 
-<details open><summary><b>📈 Markets, gold and silver</b> · 6/7</summary>
+<details open><summary><b>📈 Markets, gold and silver</b> · 6/8</summary>
 
 - [x] Yahoo Finance loader (stocks, indices, gold, silver, oil, copper, Bitcoin)
 - [x] Chronos rival models and a quantile-averaged ensemble
-- [x] Seldon: TimesFM corrected by its own track record
+- [x] Seldon: our own psychohistory forecaster, run head to head with TimesFM
+- [ ] Official Seldon vs TimesFM duel from a full backtest
 - [x] Chance-of-rising odds scored with the Brier score
 - [x] Outlook grid for stocks, gold, silver and Bitcoin
 - [x] First real TimesFM results published

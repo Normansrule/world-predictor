@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from .backtest import calibration, crises, domain_table, horizon_table, scale_table
+from .backtest import calibration, crises, domain_table, head_to_head, horizon_table, scale_table
 
 log = logging.getLogger(__name__)
 
@@ -87,6 +87,7 @@ def write_report(
             "the dark dots are what really happened._",
             "",
         ]
+    lines += _duel_section(results, model)
     lines += ["## 1. Can the future be predicted?", ""]
     if (out_dir / "plots" / "skill_by_domain.png").exists():
         lines += ["![Skill by domain](plots/skill_by_domain.png)", ""]
@@ -129,6 +130,34 @@ def write_report(
     path = out_dir / "REPORT.md"
     path.write_text("\n".join(lines))
     return path
+
+
+def _duel_section(results: pd.DataFrame, model: str) -> list[str]:
+    """Seldon, our own forecaster, against the model under test on the same windows."""
+    duel = head_to_head(results, model)
+    if duel.empty:
+        return []
+    pct = lambda x: "–" if pd.isna(x) else f"{x:+.0%}"  # noqa: E731
+    rows = ["| Area | Series | Seldon won | TimesFM won | Skill: TimesFM / Seldon | Range skill: TimesFM / Seldon "
+            "| In 80% range: TimesFM / Seldon | Winner |", "|---|---|---|---|---|---|---|---|"]
+    for r in duel.itertuples():
+        name = "**All areas**" if r.domain == "all" else DOMAIN_TITLES.get(r.domain, r.domain)
+        winner = "Seldon" if r.winner == "seldon" else "tie" if r.winner == "tie" else model
+        rows.append(f"| {name} | {r.series} | {r.wins} | {r.losses} | {pct(r.model_skill)} / {pct(r.challenger_skill)} "
+                    f"| {pct(r.model_prob_skill)} / {pct(r.challenger_prob_skill)} "
+                    f"| {r.model_coverage80:.0%} / {r.challenger_coverage80:.0%} | {winner} |")
+    return [
+        f"## Seldon vs {model}: the duel",
+        "",
+        "Seldon is this project's own forecaster (`src/psychohistory/seldon.py`): five simple laws of crowd behaviour "
+        "(inertia, drift, momentum, reversion, a weekly rhythm), each voting by how well it predicted the same series "
+        "before. It forecasts the same windows as TimesFM and is scored by the same code. A series is won by whichever "
+        "had the lower average error there. Skill is against \"no change\" (positive is better); range skill scores the "
+        "whole 80% range (pinball loss).",
+        "",
+        *rows,
+        "",
+    ]
 
 
 def _horizon_section(by_step: pd.DataFrame | None, model: str, out_dir: Path) -> list[str]:

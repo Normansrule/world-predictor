@@ -62,6 +62,10 @@ everything that ships or downloads with this project are in [CREDITS.md](CREDITS
 | Efficient-market hypothesis | Eugene Fama, "Efficient Capital Markets" (1970) | Why the naive random walk is the right market baseline, and why beating it is hard. |
 | Fat tails and black swans | Benoit Mandelbrot (1963); Nassim Taleb, *The Black Swan* (2007) | Test 5, Seldon crises: shocks that fall outside forecast bands. |
 | Chaos and limits to predictability | Edward Lorenz, "Deterministic Nonperiodic Flow" (1963) | Test 3, the Seldon horizon: skill should decay as the forecast reaches further ahead. |
+| Forecast combination | Bates and Granger, "The Combination of Forecasts" (1969) | **Built in**: Seldon weighs its laws by their past error, a sharpened Bates-Granger combination. |
+| Damped trend | Gardner and McKenzie, "Forecasting Trends in Time Series" (1985) | Seldon's momentum law: a trend that fades a little every step. |
+| Mean reversion | Uhlenbeck and Ornstein, "On the Theory of the Brownian Motion" (1930) | Seldon's reversion law: an excited series is pulled back toward its recent normal. |
+| Forecasting competitions | Makridakis, Spiliotis and Assimakopoulos, "The M4 Competition" (2020) | The held-out public data Seldon is checked on (`scripts/seldon_m4_check.py`). |
 | Bass diffusion model | Frank Bass, "A New Product Growth Model" (1969) | **Built in** as the `bass` model: an S-curve fitted to each technology-adoption series and run against TimesFM. |
 | Gartner hype cycle | Gartner (1995) | Why attention to a technology (Wikipedia views) spikes and fades even while adoption keeps rising. |
 | Proper scoring rules | Glenn Brier (1950); Gneiting and Raftery (2007) | Brier and pinball scores; honest odds (test 4). |
@@ -87,11 +91,13 @@ date", with the day they were retrieved; several undated works by one author are
 - Ansari, A. F., Stella, L., Turkmen, C., Zhang, X., Mercado, P., Shen, H., Shchur, O., Rangapuram, S. S., Pineda Arango, S., Kapoor, S., Zschiegner, J., Maddix, D. C., Wang, H., Mahoney, M. W., Torkkola, K., Wilson, A. G., Bohlke-Schneider, M., & Wang, Y. (2024). Chronos: Learning the language of time series. *Transactions on Machine Learning Research*. https://arxiv.org/abs/2403.07815
 - Asimov, I. (1951). *Foundation*. Gnome Press.
 - Bass, F. M. (1969). A new product growth for model consumer durables. *Management Science, 15*(5), 215–227. https://doi.org/10.1287/mnsc.15.5.215
+- Bates, J. M., & Granger, C. W. J. (1969). The combination of forecasts. *Operational Research Quarterly, 20*(4), 451–468. https://doi.org/10.1057/jors.1969.103
 - Bernoulli, J. (1713). *Ars conjectandi*. Thurnisiorum.
 - Brier, G. W. (1950). Verification of forecasts expressed in terms of probability. *Monthly Weather Review, 78*(1), 1–3. https://doi.org/10.1175/1520-0493(1950)078<0001:VOFEIT>2.0.CO;2
 - Das, A., Kong, W., Sen, R., & Zhou, Y. (2024). A decoder-only foundation model for time-series forecasting. In *Proceedings of the 41st International Conference on Machine Learning* (Proceedings of Machine Learning Research, Vol. 235). PMLR. https://arxiv.org/abs/2310.10688
 - Fama, E. F. (1970). Efficient capital markets: A review of theory and empirical work. *The Journal of Finance, 25*(2), 383–417. https://doi.org/10.2307/2325486
 - Fenn, J., & Raskino, M. (2008). *Mastering the hype cycle: How to choose the right innovation at the right time*. Harvard Business Press.
+- Gardner, E. S., Jr., & McKenzie, E. (1985). Forecasting trends in time series. *Management Science, 31*(10), 1237–1246. https://doi.org/10.1287/mnsc.31.10.1237
 - Gneiting, T., & Raftery, A. E. (2007). Strictly proper scoring rules, prediction, and estimation. *Journal of the American Statistical Association, 102*(477), 359–378. https://doi.org/10.1198/016214506000001437
 - Hyndman, R. J., & Khandakar, Y. (2008). Automatic time series forecasting: The forecast package for R. *Journal of Statistical Software, 27*(3), 1–22. https://doi.org/10.18637/jss.v027.i03
 - Hyndman, R. J., & Koehler, A. B. (2006). Another look at measures of forecast accuracy. *International Journal of Forecasting, 22*(4), 679–688. https://doi.org/10.1016/j.ijforecast.2006.03.001
@@ -99,11 +105,13 @@ date", with the day they were retrieved; several undated works by one author are
 - Koenker, R., & Bassett, G., Jr. (1978). Regression quantiles. *Econometrica, 46*(1), 33–50. https://doi.org/10.2307/1913643
 - Leetaru, K., & Schrodt, P. A. (2013, April). *GDELT: Global data on events, location, and tone, 1979–2012* [Paper presentation]. International Studies Association Annual Convention, San Francisco, CA, United States.
 - Lorenz, E. N. (1963). Deterministic nonperiodic flow. *Journal of the Atmospheric Sciences, 20*(2), 130–141. https://doi.org/10.1175/1520-0469(1963)020<0130:DNF>2.0.CO;2
+- Makridakis, S., Spiliotis, E., & Assimakopoulos, V. (2020). The M4 Competition: 100,000 time series and 61 forecasting methods. *International Journal of Forecasting, 36*(1), 54–74. https://doi.org/10.1016/j.ijforecast.2019.04.014
 - Mandelbrot, B. (1963). The variation of certain speculative prices. *The Journal of Business, 36*(4), 394–419. https://doi.org/10.1086/294632
 - Taleb, N. N. (2007). *The black swan: The impact of the highly improbable*. Random House.
 - Tashman, L. J. (2000). Out-of-sample tests of forecasting accuracy: An analysis and review. *International Journal of Forecasting, 16*(4), 437–450. https://doi.org/10.1016/S0169-2070(00)00065-0
 - Tetlock, P. E., & Gardner, D. (2015). *Superforecasting: The art and science of prediction*. Crown.
 - Turchin, P. (2003). *Historical dynamics: Why states rise and fall*. Princeton University Press.
+- Uhlenbeck, G. E., & Ornstein, L. S. (1930). On the theory of the Brownian motion. *Physical Review, 36*(5), 823–841. https://doi.org/10.1103/PhysRev.36.823
 
 ### Models, software and data
 
@@ -119,6 +127,7 @@ date", with the day they were retrieved; several undated works by one author are
 - koala73. (n.d.). *worldmonitor* [Computer software]. GitHub. https://github.com/koala73/worldmonitor
 - Kowalski, E. (n.d.). *skills* [Computer software]. GitHub. https://github.com/emilkowalski/skills
 - Leonxlnx. (n.d.). *taste-skill* [Computer software]. GitHub. https://github.com/Leonxlnx/taste-skill
+- Mcompetitions. (n.d.). *M4-methods* [Data set and computer software]. GitHub. https://github.com/Mcompetitions/M4-methods
 - Meta. (n.d.). *prophet* [Computer software]. GitHub. https://github.com/facebook/prophet
 - MOMENT contributors. (n.d.). *moment* [Computer software]. GitHub. https://github.com/moment-timeseries-foundation-model/moment
 - Nixtla. (n.d.-a). *neuralforecast* [Computer software]. GitHub. https://github.com/Nixtla/neuralforecast

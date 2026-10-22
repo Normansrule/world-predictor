@@ -235,11 +235,9 @@
       case "context": return `The model may read up to 1,024 past values and nothing after ${esc(last[0])}. The shaded stretch is the most recent part of what it read.`;
       case "model": return `${esc(D.meta.model)}${CHECKPOINT[D.meta.model] ? ` (${esc(CHECKPOINT[D.meta.model])})` : ""} turns that history into a range for each of the next ${c.horizon} steps. Only what went in and came out is shown, not its inner workings.`;
       case "seldon": {
-        if (!o.seldon) return "No Seldon correction in this run.";
-        const k = o.seldon.learned;
-        return k.windows < 2 ? `Seldon had ${k.windows} finished window${k.windows === 1 ? "" : "s"} to learn from, too few to correct anything, so its forecast is TimesFM's.`
-          : `Seldon read ${k.windows} finished backtest windows: it keeps ${Math.round(k.shrink * 100)}% of TimesFM's predicted move and scales the range ${k.spread.toFixed(2)}× (dotted).`
-            + (o.seldon.source === "derived" ? " This run's Seldon range is derived from the sealed TimesFM range." : "");
+        if (!o.seldon) return "No Seldon forecast in this run.";
+        return `Seldon, our own forecaster, reads the same history and makes its own range (dotted). ${esc(WPCharts.council(o.seldon.council))}`
+            + (o.seldon.source === "computed" ? " This run predates Seldon's sealed forecasts, so its range was computed afterwards from the same data." : "");
       }
       case "seal": return `Sealed on ${esc(o.made_on)}: middle guess ${signed(o.change)} by ${esc(o.target_date)}, 80% range ${signed(o.low)} to ${signed(o.high)}, ${fmt.pct(o.p_up)} chance it ends higher.`;
       case "score": return (D.vault || []).length ? `Its steps open from ${esc(o.fan[0][0])} to ${esc(o.target_date)}; opened forecasts so far are in the Time Vault.`
@@ -272,9 +270,10 @@
       }
       case "seldon": {
         if (!o || !o.seldon) return "";
-        const k = o.seldon.learned, e = o.seldon.fan[o.seldon.fan.length - 1];
-        return kv([["windows learned from", k.windows], ["share of the move kept", Math.round(k.shrink * 100) + "%"], ["range scale", k.spread.toFixed(2) + "×"],
-          ["last step", `${fmt.num(e[1])} / ${fmt.num(e[2])} / ${fmt.num(e[3])}`], ["in the ledger", o.seldon.source === "sealed" ? "sealed as model seldon" : "derived for this run"]]);
+        const k = o.seldon.council || { weights: {}, replays: 0, vol: 1 }, e = o.seldon.fan[o.seldon.fan.length - 1];
+        const top = Object.entries(k.weights).sort((a, b) => b[1] - a[1])[0];
+        return kv([["past dates replayed", k.replays], ["strongest law", top ? `${esc(top[0])} ${Math.round(top[1] * 100)}%` : "–"], ["range scale now", k.vol.toFixed(2) + "×"],
+          ["last step", `${fmt.num(e[1])} / ${fmt.num(e[2])} / ${fmt.num(e[3])}`], ["in the ledger", o.seldon.source === "sealed" ? "sealed as model seldon" : "computed for this run"]]) + WPCharts.councilBar(k);
       }
       case "score": return o ? kv([["first step opens", esc(o.fan[0][0])], ["last step opens", esc(o.target_date)], ["opened so far", (D.vault || []).length ? "see the Time Vault" : "none yet"]]) : "";
       case "backtest": return s ? kv([["windows", ev.length], ["skill vs simple guess", fmt.pct(s.skill)], ["inside 80% range", fmt.pct(s.coverage80)], ["right direction", fmt.pct(s.direction)], ["odds score (Brier)", s.brier === null ? "–" : s.brier.toFixed(3)]]) + '<div id="trace-evidence"></div>' : "";

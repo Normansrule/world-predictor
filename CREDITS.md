@@ -106,7 +106,10 @@ Twenty open-source repositories and the modelling theories this project draws on
 
 - Isaac Asimov, *Foundation* (1951) and the Foundation series, which introduced Hari Seldon and
   psychohistory. Only the idea is referenced; no text from the books is reproduced. The challenger
-  model, Seldon, is named after him.
+  model, Seldon, is named after him: this project's own forecaster, built on forecast combination
+  (Bates & Granger, 1969), the damped trend (Gardner & McKenzie, 1985) and mean reversion
+  (Uhlenbeck & Ornstein, 1930), and checked on the M4 competition's public daily series
+  (Makridakis et al., 2020; data from <https://github.com/Mcompetitions/M4-methods>, not redistributed here).
 
 ## Methods
 

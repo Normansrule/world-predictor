@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>World Predictor · Terminal</title>
-  <meta name="description" content="A forecasting terminal: Google's TimesFM and Seldon, its self-correcting challenger, forecast world news, markets and technology. Every forecast is sealed before the future happens and scored when it arrives. Make your own call in the Lab.">
+  <meta name="description" content="A forecasting terminal: Google's TimesFM and Seldon, our own psychohistory forecaster, forecast world news, markets and technology. Every forecast is sealed before the future happens and scored when it arrives. Make your own call in the Lab.">
   <meta name="theme-color" content="#262d36">
   <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
   <link rel="manifest" href="../manifest.webmanifest">
@@ -59,13 +59,14 @@
     <section class="view" id="view-desk" aria-labelledby="desk-h">
       <div class="vhead">
         <h1 id="desk-h">Is anyone better than "no change"?</h1>
-        <p class="lede">TimesFM and its self-correcting challenger, Seldon, scored against "tomorrow looks like today" on windows neither model saw.</p>
+        <p class="lede">Google's TimesFM against Seldon, our own forecaster built from five laws of crowd behaviour. Both scored against "tomorrow looks like today" on windows neither model saw.</p>
       </div>
       <div class="desk">
         <div class="card span3" id="board-card">
           <header class="ph"><h2>Scoreboard</h2><span class="pm" id="board-meta"></span></header>
           <div class="table-wrap"><table class="board" id="board"></table></div>
           <p class="note" id="board-note"></p>
+          <div class="duel" id="duel"></div>
         </div>
         <div class="card span2">
           <header class="ph"><h2>Skill by area</h2><span class="pm">less error than "no change"; above zero is better</span></header>
@@ -242,8 +243,9 @@
           <header class="ph"><h2>How it is scored</h2></header>
           <p><b>Skill</b> is 1 − error(model) ÷ error("no change"). <b>80% range</b>: it should catch reality 8 times in 10.
             <b>Odds score</b> (Brier): 0 is perfect, 0.25 is a coin flip. Backtests never let a model see the future it is tested on.</p>
-          <p><b>Seldon</b> is TimesFM corrected by its own track record: it keeps only the share of TimesFM's predicted move that paid off in earlier windows,
-            and stretches the range until it would have caught reality 8 times in 10. It learns from finished windows only and is allowed to lose.</p>
+          <p><b>Seldon</b> is our own forecaster, built to compete with TimesFM: five laws of crowd behaviour (inertia, drift, momentum, reversion, a weekly rhythm),
+            each voting by how well it predicted the same series before, with a range set by its own past misses. No neural network. It learns only from data before
+            each forecast, is scored by the same code on the same windows, and is allowed to lose.</p>
           <p>Nothing here is financial advice.</p>
         </div>
         <div class="card prose">

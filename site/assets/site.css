@@ -214,3 +214,7 @@ p.intro { color: var(--ink-2); max-width: 64ch; margin: 0 0 20px; font-size: 15p
 .story__chart g { transition: opacity .5s var(--ease); }
 .story__chart circle { transition: opacity .3s var(--ease); }
 @media (prefers-reduced-motion: reduce) { .story__chart g, .story__chart circle { transition: none; } }
+
+/* The duel in one line under the scoreboard. */
+.duel-line { margin: 14px 0 0; font-size: 15px; }
+.duel-line .who { font-weight: 600; margin-right: 2px; }

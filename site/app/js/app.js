@@ -2,7 +2,7 @@
 // and draws every view with the small SVG kit in charts.js. Views render on first visit and redraw on resize.
 (function () {
   const D = window.WP_DATA;
-  const { plot, bars, legend, fmt, icon } = window.WPCharts;
+  const { plot, bars, legend, fmt, icon, council, councilBar } = window.WPCharts;
   const $ = (id) => document.getElementById(id);
   const AREAS = [["news", "World news", "GDELT attention"], ["markets", "Markets", "stocks, gold, silver, oil"], ["tech", "Technology", "Wikipedia and adoption"]];
   const AREA = Object.fromEntries(AREAS.map(([d, n]) => [d, n]));
@@ -34,7 +34,7 @@
     [D.meta.demo ? "demo" : "live", "Data", D.meta.demo ? "Demo · synthetic" : "Recorded run"],
     ["", "Generated", D.meta.generated],
     ["", "Model", model],
-    ["", "Challenger", lab ? "seldon" : "–"],
+    ["", "Challenger", "seldon"],
     ["", "Series", String(D.series.length)],
     ["", "Sealed", String(sealed)],
     ["", "Next run", "Mon 06:00 UTC"],
@@ -73,7 +73,8 @@
   const views = {
     desk() {
       // Scoreboard: TimesFM and Seldon against "no change", per area. A backtest run since Seldon
-      // was added carries its own rows; until then the Lab's scoring of the same windows stands in.
+      // joined carries its own rows; for older runs the Lab's scoring stands in: Seldon run at export
+      // on the same past windows, from the data up to each window's start.
       const fromRun = D.domains.some((r) => r.model === "seldon");
       const pick = (d, m) => {
         if (fromRun || !lab) { const r = D.domains.find((x) => x.domain === d && x.model === m); return r && { skill: r.skill, inside: r.coverage80, direction: r.direction, series: r.series }; }
@@ -103,8 +104,9 @@
           }).join("") + "</tbody>";
         $("board-meta").textContent = fromRun ? "backtest, every series" : "past windows, every series";
         $("board-note").innerHTML = `Skill is how much less error than "no change" (median across series; within ±2% counts as no edge). In range is how often reality landed inside the 80% range: the target is 80%, not 100%.
-          An underline marks the better of the two. ${fromRun ? "" : "Seldon's numbers come from the same backtest windows, scored in the order they happened."}`;
+          An underline marks the better of the two. ${fromRun ? "" : "This run predates Seldon's place in the backtest, so its numbers are Seldon run afterwards on the same past windows, from only the data before each one. It has no pretraining to leak the answer, but the next backtest makes it official."}`;
       }
+      duel();
       record();
       $("plain-body").innerHTML = D.headlines.length ? "<ul>" + D.headlines.map((h) => `<li>${esc(h)}</li>`).join("") + "</ul>"
         : '<p class="note" style="margin:0">The findings appear after the first forecast run.</p>';
@@ -341,6 +343,30 @@
     $("vault-lag").hidden = !shown.some((r) => r[11]);
   }
 
+  // The duel: who won more series, TimesFM or Seldon, on exactly the same backtest windows.
+  function duel() {
+    const rows = D.duel || [], host = $("duel");
+    if (!host) return;
+    if (!rows.length) {
+      host.innerHTML = `<div class="duel-head"><span class="who" style="--c:var(--tfm)">${esc(modelName)}</span><b>vs</b><span class="who" style="--c:var(--seldon)">Seldon</span></div>
+        <p class="note" style="margin:0">${esc(council(null))} The head-to-head count appears after the next backtest.</p>`;
+      return;
+    }
+    const all = rows.find((r) => r.domain === "all"), areas = rows.filter((r) => r.domain !== "all");
+    const name = (w) => (w === "seldon" ? "Seldon" : w === "tie" ? "Tie" : modelName);
+    const verdict = all.wins > all.losses ? `Seldon beat ${modelName} on ${all.wins} of ${all.series} series.`
+      : all.losses > all.wins ? `${modelName} beat Seldon on ${all.losses} of ${all.series} series.` : `Dead heat: ${all.wins} series each.`;
+    host.innerHTML = `<div class="duel-head"><span class="who" style="--c:var(--tfm)">${esc(modelName)}</span><b>vs</b><span class="who" style="--c:var(--seldon)">Seldon</span>
+        <p class="duel-verdict">${esc(verdict)}</p></div>
+      <div class="duel-areas">${areas.map((r) => {
+        const a = AREAS.find(([d]) => d === r.domain), share = r.series ? r.wins / r.series : 0;
+        return `<div class="duel-area" style="--c:${hue(r.domain)}"><span>${a ? a[1] : esc(r.domain)}</span>
+          <span class="duel-bar" style="--s:${(share * 100).toFixed(1)}%" title="Seldon won ${r.wins}, ${esc(modelName)} won ${r.losses}"><i></i></span>
+          <small>Seldon ${r.wins} · ${esc(modelName)} ${r.losses}</small><b class="${r.winner === "seldon" ? "s" : r.winner === "tie" ? "" : "m"}">${esc(name(r.winner))}</b></div>`;
+      }).join("")}</div>
+      <p class="note" style="margin:10px 0 0">A series goes to whichever had the lower average error on the same windows. Seldon is our own forecaster: five laws of crowd behaviour (inertia, drift, momentum, reversion, a weekly rhythm), no neural network.</p>`;
+  }
+
   function record() {
     const t = window.WPLab ? window.WPLab.tally() : null;
     const calls = window.WPStudio ? window.WPStudio.calls() : [];
@@ -369,7 +395,7 @@
         <div><dt>Seldon 80% range</dt><dd>${S ? `${fmt.signedPct(rel(sEnd[1]))} to ${fmt.signedPct(rel(sEnd[3]))}` : "–"}</dd></div>
       </dl>
       <div id="ochart"></div><div id="olegend"></div>
-      <p class="note">${esc(o.description || "")}${S ? " " + seldonNote(S) : ""}</p>
+      <p class="note">${esc((o.description || "").replace(/([^.])$/, "$1."))}${S ? " " + esc(seldonNote(S)) : ""}</p>${S ? councilBar(S.council) : ""}
       <div class="actions"><a class="btn" href="#studio/${esc(o.id)}">Ask about a level or seal your own call</a>
         <a class="btn" href="#series/${esc(o.id)}">Its track record</a></div>`;
     const hist = o.history.slice(-Math.max(60, 3 * o.fan.length));
@@ -386,10 +412,7 @@
       ...(S ? [{ name: "Seldon 80% range", color: "var(--seldon)", kind: "dash" }] : [])]);
   }
   function seldonNote(S) {
-    const c = S.learned;
-    const how = c.windows < 2 ? "Seldon had too few finished windows to learn from, so it matches TimesFM here."
-      : `Seldon keeps ${Math.round(c.shrink * 100)}% of TimesFM's move and scales its range ${c.spread.toFixed(2)}×, learned from ${c.windows} finished windows.`;
-    return how + (S.source === "derived" ? " This run's Seldon range is TimesFM's sealed range with that correction applied; from the next weekly run Seldon is sealed in the ledger on its own." : "");
+    return council(S.council) + (S.source === "computed" ? " This run predates Seldon's sealed forecasts, so its range was computed afterwards from the same data TimesFM had; from the next weekly run Seldon is sealed in the ledger on its own." : "");
   }
 
   function padDomain(values) {

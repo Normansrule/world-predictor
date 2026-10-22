@@ -251,6 +251,25 @@ table.sealed td.p { min-width: 120px; }
 .pbar i::after { content: ""; position: absolute; inset: 0 auto 0 0; width: var(--p); background: var(--c); }
 .pbar i::before { content: ""; position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: var(--ink-3); z-index: 1; }
 
+/* ---------- Seldon: the duel and the council ---------- */
+.duel { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
+.duel-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; }
+.duel-head > b { color: var(--ink-3); font-weight: 500; }
+.duel-verdict { flex: 1 1 260px; margin: 0; font-weight: 600; text-align: right; }
+.duel-areas { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 12px; }
+.duel-area { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; align-items: center; padding: 10px 12px; border: 1px solid var(--line); border-left: 3px solid var(--c); background: var(--panel-2); }
+.duel-area > span:first-child { font-weight: 600; }
+.duel-area small { color: var(--ink-2); }
+.duel-area > b { grid-row: 1; grid-column: 2; font-size: 12px; }
+.duel-area > b.s { color: var(--seldon); } .duel-area > b.m { color: var(--tfm); }
+.duel-bar { grid-column: 1 / -1; height: 6px; background: var(--tfm); position: relative; opacity: .9; }
+.duel-bar i { position: absolute; inset: 0 auto 0 0; width: var(--s); background: var(--seldon); }
+.duel-bar::after { content: ""; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: var(--ink); }
+.council { display: flex; width: 100%; height: 22px; margin: 10px 0 0; overflow: hidden; border: 1px solid var(--line); }
+.council i { width: var(--w); background: color-mix(in srgb, var(--seldon) calc(var(--o) * 100%), var(--panel-2)); display: flex; align-items: center; min-width: 0; }
+.council b { font: 500 10.5px/1 var(--mono, ui-monospace, monospace); color: var(--panel); padding: 0 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.verdict-sub .council { margin-top: 12px; }
+
 /* ---------- Outlook ---------- */
 .outlook { display: grid; grid-template-columns: minmax(300px, 420px) minmax(0, 1fr); gap: 12px; align-items: start; }
 @media (max-width: 960px) { .outlook { grid-template-columns: 1fr; } }

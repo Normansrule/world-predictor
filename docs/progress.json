@@ -53,9 +53,13 @@
           "evidence": "src/psychohistory/models.py"
         },
         {
-          "title": "Seldon: TimesFM corrected by its own track record",
+          "title": "Seldon: our own psychohistory forecaster, run head to head with TimesFM",
           "done": true,
           "evidence": "src/psychohistory/seldon.py"
+        },
+        {
+          "title": "Official Seldon vs TimesFM duel from a full backtest",
+          "done": false
         },
         {
           "title": "Chance-of-rising odds scored with the Brier score",

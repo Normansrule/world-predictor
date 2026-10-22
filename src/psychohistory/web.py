@@ -22,7 +22,7 @@ import numpy as np
 import pandas as pd
 
 from . import __version__, catalog, seldon
-from .backtest import calibration, domain_table, summarize
+from .backtest import MAX_CONTEXT, calibration, domain_table, head_to_head, summarize
 from .ledger import latest as ledger_latest
 from .simulate import CROWD_SIZES, crowd_predictability, simulate_crowd
 from .story import OUTLOOK_SERIES, SHORT_TITLES, headlines, pick_headline_series, scorecard, track_record
@@ -86,9 +86,13 @@ def build_payload(
         "domains": [], "horizon": [], "calibration": [], "series": [],
         "outlook": [], "replay": None, "vault": [], "crowd": crowd_payload(),
         "run": run_status or {}, "evidence": evidence(results, model),
-        "lab": lab_payload(paths, model),
+        "lab": lab_payload(paths, model, data), "duel": duel_payload(results, model),
         "track": track_payload(paths, model), "opened": opened_payload(scored, model),
     }
+    if not payload["duel"] and payload["lab"]:
+        payload["duel"] = payload["lab"].pop("duel", [])  # a run from before Seldon joined the backtest
+    elif payload["lab"]:
+        payload["lab"].pop("duel", None)
     if summary is not None:
         table = domain_table(summary)
         payload["domains"] = [
@@ -147,7 +151,7 @@ def build_payload(
                 "low": _num(item.low_change, 5), "high": _num(item.high_change, 5),
                 "history": _history(data[item.series_id], max(3 * len(fan), 60)),
                 "fan": [[r.target_date, _num(r.q10), _num(r.q50), _num(r.q90)] for r in fan.itertuples()],
-                "seldon": _seldon_outlook(ledger, paths, model, item.series_id, fan),
+                "seldon": _seldon_outlook(ledger, data[item.series_id], item.series_id, fan),
             })
     if scored is not None and not scored.empty:
         record = track_record(scored, model)
@@ -159,21 +163,40 @@ def build_payload(
     return payload
 
 
-def _seldon_outlook(ledger: pd.DataFrame, paths: pd.DataFrame | None, model: str, series_id: str, fan: pd.DataFrame) -> dict:
-    """Seldon's newest forecast for one outlook series. Sealed runs since Seldon was added carry
-    their own ``seldon`` ledger rows; for older runs the same correction is applied to the sealed
-    TimesFM range here, learned from the same backtest windows ``predict`` would use."""
-    made_on = fan["made_on"].iloc[0]
+def _seldon_at(series: pd.Series, at, horizon: int) -> tuple:
+    """Seldon's forecast from the data up to and including ``at``, exactly as the backtest and
+    ``predict`` make it (the same context length), and the council behind it."""
+    context = series[series.index <= pd.Timestamp(at)].to_numpy(dtype=float)[-MAX_CONTEXT:]
+    return seldon.predict(context, horizon)
+
+
+def _seldon_outlook(ledger: pd.DataFrame, series: pd.Series, series_id: str, fan: pd.DataFrame) -> dict:
+    """Seldon's newest forecast for one outlook series. Runs since Seldon joined the ledger carry
+    their own sealed ``seldon`` rows; for older runs Seldon is run here on the same data TimesFM
+    had on its sealing day, and marked ``computed`` (made later, so not sealed in advance)."""
+    made_on, last_date = fan["made_on"].iloc[0], fan["last_date"].iloc[0]
+    forecast, council = _seldon_at(series, last_date, len(fan))
     sealed = ledger[(ledger["model"] == seldon.NAME) & (ledger["series_id"] == series_id) & (ledger["made_on"] == made_on)]
-    c = seldon.correction_for(paths, series_id, model)
     if not sealed.empty:
         rows, source = sealed.sort_values("step"), "sealed"
         q10, q50, q90 = (rows[k].to_numpy(float) for k in ("q10", "q50", "q90"))
     else:
-        rows, source = fan, "derived"
-        q10, q50, q90 = seldon.apply_bands(float(fan["last_value"].iloc[0]), fan["q10"], fan["q50"], fan["q90"], c)
-    return {"source": source, "learned": {"shrink": c.shrink, "spread": c.spread, "windows": c.windows},
+        rows, source = fan, "computed"
+        q10, q50, q90 = forecast.q(0.1), forecast.q(0.5), forecast.q(0.9)
+    return {"source": source, "council": seldon.council_json(council),
             "fan": [[d, _num(a), _num(b), _num(e)] for d, a, b, e in zip(rows["target_date"], q10, q50, q90)]}
+
+
+def duel_payload(results: pd.DataFrame | None, model: str) -> list[dict]:
+    """The model under test against Seldon per domain (see ``backtest.head_to_head``)."""
+    if results is None or results.empty:
+        return []
+    table = head_to_head(results, model)
+    return [{"domain": r.domain, "series": int(r.series), "wins": int(r.wins), "losses": int(r.losses),
+             "skill": [_num(r.model_skill, 4), _num(r.challenger_skill, 4)],
+             "prob_skill": [_num(r.model_prob_skill, 4), _num(r.challenger_prob_skill, 4)],
+             "coverage80": [_num(r.model_coverage80, 4), _num(r.challenger_coverage80, 4)], "winner": r.winner}
+            for r in table.itertuples()]
 
 
 LAB_ROUNDS = 3  # past windows per series offered in the Lab
@@ -187,52 +210,63 @@ def _sig(x, digits: int = 4):
     return float(f"{x:.{digits}g}")
 
 
-def lab_payload(paths: pd.DataFrame | None, model: str) -> dict | None:
+def lab_payload(paths: pd.DataFrame | None, model: str, data: dict[str, pd.Series] | None = None) -> dict | None:
     """The Lab: past forecast windows where a visitor can make a blind call, then compare it with
-    the model under test and Seldon, its self-calibrating challenger (see ``seldon.py``).
+    the model under test and Seldon, our own forecaster (see ``seldon.py``).
 
-    Everything comes from the backtest paths. The windows sit back to back, so the actual values
-    of earlier windows are the history a visitor sees before each round. Seldon's band for each
-    round is learned only from windows that had finished before that round's origin. ``board``
-    scores both models on every window that has at least one finished window before it."""
+    The windows come from the backtest paths and sit back to back, so the actual values of earlier
+    windows are the history a visitor sees before each round. Seldon's band for each round is its
+    backtest path for that window, or, for runs from before Seldon joined the backtest, Seldon run
+    here on the data up to that window's origin, exactly as the backtest would have. ``board``
+    scores both on every window after the first."""
     if paths is None or paths.empty:
         return None
     rows = paths[paths["model"] == model]
     if rows.empty:
         return None
+    data = data or {}
+    mine = paths[paths["model"] == seldon.NAME]
     out, scores = [], []
     for series_id, part in rows.groupby("series_id"):
         groups = [g.sort_values("step") for _, g in part.groupby("origin", sort=True)]
         if len(groups) < 2:
             continue
         domain = catalog.by_id(series_id).domain if _known(series_id) else "other"
-        windows = seldon.windows_from_paths(paths, series_id, model)  # windows[k] is groups[k + 1]
         rounds_from = max(1, len(groups) - LAB_ROUNDS)
         h = len(groups[-1])
         start = max(0, rounds_from - 1)  # history: one window before the first round
         history = [[_date(r.date), _sig(r.actual)] for g in groups[start:] for r in g.itertuples()]
         rounds = []
         for k in range(1, len(groups)):
-            g, w = groups[k], windows[k - 1]
-            c = seldon.learn(windows[: k - 1])
-            lo, mid, hi = seldon.apply_bands(w.last, w.q10, w.q50, w.q90, c)
-            a = w.actual
-            for name, (l, m, u) in ((model, (w.q10, w.q50, w.q90)), (seldon.NAME, (lo, mid, hi))):
+            g, origin = groups[k], groups[k]["origin"].iloc[0]
+            last = float(groups[k - 1]["actual"].iloc[-1])  # windows are back to back
+            q10, q50, q90, a = (g[c].to_numpy(float) for c in ("q10", "q50", "q90", "actual"))
+            council = None
+            if series_id in data:
+                forecast, c = _seldon_at(data[series_id], origin, len(g))
+                lo, mid, hi, council = forecast.q(0.1), forecast.q(0.5), forecast.q(0.9), seldon.council_json(c)
+            else:
+                path = mine[(mine["series_id"] == series_id) & (mine["origin"] == origin)].sort_values("step")
+                if len(path) != len(g):
+                    continue
+                lo, mid, hi = (path[c].to_numpy(float) for c in ("q10", "q50", "q90"))
+            for name, (l, m, u) in ((model, (q10, q50, q90)), (seldon.NAME, (lo, mid, hi))):
                 scores.append({"series_id": series_id, "domain": domain, "model": name,
-                               "mae": float(np.mean(np.abs(m - a))), "naive": float(np.mean(np.abs(w.last - a))),
+                               "mae": float(np.mean(np.abs(m - a))), "naive": float(np.mean(np.abs(last - a))),
                                "inside": float(np.mean((a >= l) & (a <= u))),
                                # "no change" makes no directional call, so it is not scored on direction
-                               "direction": float(np.sign(m[-1] - w.last) == np.sign(a[-1] - w.last))
-                               if np.sign(m[-1] - w.last) != 0 and np.sign(a[-1] - w.last) != 0 else np.nan})
+                               "direction": float(np.sign(m[-1] - last) == np.sign(a[-1] - last))
+                               if np.sign(m[-1] - last) != 0 and np.sign(a[-1] - last) != 0 else np.nan})
             if k >= rounds_from:
                 rounds.append({
-                    "origin": str(g["origin"].iloc[0]), "at": sum(len(x) for x in groups[start:k]),
-                    "model": [[_sig(x), _sig(y), _sig(z)] for x, y, z in zip(w.q10, w.q50, w.q90)],
+                    "origin": str(origin), "at": sum(len(x) for x in groups[start:k]),
+                    "model": [[_sig(x), _sig(y), _sig(z)] for x, y, z in zip(q10, q50, q90)],
                     "seldon": [[_sig(x), _sig(y), _sig(z)] for x, y, z in zip(lo, mid, hi)],
-                    "learned": {"shrink": c.shrink, "spread": c.spread, "windows": c.windows},
+                    "council": council,
                 })
-        out.append({"id": series_id, "domain": domain, "title": _title(series_id), "horizon": h,
-                    "history": history, "rounds": rounds})
+        if rounds:
+            out.append({"id": series_id, "domain": domain, "title": _title(series_id), "horizon": h,
+                        "history": history, "rounds": rounds})
     board = []
     if scores:
         frame = pd.DataFrame(scores)
@@ -242,7 +276,29 @@ def lab_payload(paths: pd.DataFrame | None, model: str) -> dict | None:
                                                      direction=("direction", "mean"), series=("skill", "size"))
         board = [{"domain": d, "model": m, "skill": _num(r.skill, 4), "inside": _num(r.inside, 4),
                   "direction": _num(r.direction, 4), "series": int(r.series)} for (d, m), r in table.iterrows()]
-    return {"model": model, "challenger": seldon.NAME, "series": out, "board": board}
+    return {"model": model, "challenger": seldon.NAME, "series": out, "board": board, "duel": _lab_duel(scores, model)}
+
+
+def _lab_duel(scores: list[dict], model: str) -> list[dict]:
+    """The duel from the Lab's windows, in ``duel_payload``'s shape (the Lab keeps only the 10th,
+    50th and 90th percentiles, so there is no range skill here)."""
+    if not scores:
+        return []
+    per = pd.DataFrame(scores).groupby(["domain", "series_id", "model"]).mean(numeric_only=True)
+    per["skill"] = 1 - per["mae"] / per["naive"].replace(0, np.nan)
+    wide = per[["mae", "skill", "inside"]].unstack("model").dropna()
+    if wide.empty or seldon.NAME not in wide["mae"] or model not in wide["mae"]:
+        return []
+    out = []
+    for domain, part in [*wide.groupby(level="domain"), ("all", wide)]:
+        wins = int((part[("mae", seldon.NAME)] < part[("mae", model)]).sum())
+        losses = int((part[("mae", seldon.NAME)] > part[("mae", model)]).sum())
+        out.append({"domain": domain, "series": len(part), "wins": wins, "losses": losses,
+                    "skill": [_num(part[("skill", model)].median(), 4), _num(part[("skill", seldon.NAME)].median(), 4)],
+                    "prob_skill": [None, None],
+                    "coverage80": [_num(part[("inside", model)].mean(), 4), _num(part[("inside", seldon.NAME)].mean(), 4)],
+                    "winner": seldon.NAME if wins > losses else model if losses > wins else "tie", "source": "lab"})
+    return out
 
 
 def track_payload(paths: pd.DataFrame | None, model: str) -> dict[str, dict]:
@@ -368,18 +424,20 @@ def demo_payload(seed: int = 0) -> dict:
         walk = np.cumsum(rng.normal(0.02 * (k % 3), 1.0, n))
         season = 3 * np.sin(2 * np.pi * t / (7 if spec.domain != "markets" else 63))
         data[spec.id] = pd.Series(level + walk + season, index=index, name=spec.id)
-    models = [load_model(name) for name in ("drift", *BASELINES)]
+    models = [load_model(name) for name in ("drift", "seldon", *BASELINES)]
     models = list({m.name: m for m in models}.values())
     step_rows, path_rows, frames = [], [], []
     for spec in specs:
         frames.append(backtest_series(spec, data[spec.id], models, windows=8, step_rows=step_rows,
-                                      path_rows=path_rows, paths_for=("drift", "seldon"), seldon_of="drift"))
+                                      path_rows=path_rows, paths_for=("drift", "seldon")))
     results = pd.concat(frames, ignore_index=True)
     by_step = skill_by_step(pd.DataFrame(step_rows))
     drift = load_model("drift")
     sealed = []
     for cut in range(420, 690, 10):  # predictions "sealed" in the past, opened since
-        sealed.append(predict(specs, {s: v.iloc[:cut] for s, v in data.items()}, drift).assign(made_on=f"demo-{cut}"))
+        past = {s: v.iloc[:cut] for s, v in data.items()}
+        for m in (drift, load_model("seldon")):
+            sealed.append(predict(specs, past, m).assign(made_on=f"demo-{cut}"))
     scored = score(pd.concat(sealed, ignore_index=True), data)
-    ledger = predict(specs, data, drift)
+    ledger = pd.concat([predict(specs, data, drift), predict(specs, data, load_model("seldon"))], ignore_index=True)
     return build_payload("drift", results, by_step, pd.DataFrame(path_rows), ledger, scored, data, demo=True)

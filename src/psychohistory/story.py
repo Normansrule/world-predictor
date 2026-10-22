@@ -13,7 +13,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from .backtest import domain_table, scale_table
+from .backtest import domain_table, head_to_head, scale_table
 from .report import GRID, SERIES_COLORS, SURFACE, TEXT, TEXT_SECONDARY
 
 log = logging.getLogger(__name__)
@@ -49,6 +49,11 @@ def headlines(
         else:
             lines.append(f"{model} did not beat the simple guess \"tomorrow looks like today\" in any area.")
 
+    if results is not None:
+        line = duel_sentence(results, model)
+        if line:
+            lines.append(line)
+
     scales = scale_table(summary)
     scales = scales[scales["model"] == model].groupby("scale")["median_skill"].median()
     if {"aggregate", "individual"} <= set(scales.index):
@@ -83,6 +88,22 @@ def headlines(
                 f"{confident['went_up'].mean():.0%} of the time ({len(confident)} forecasts)."
             )
     return lines
+
+
+def duel_sentence(results: pd.DataFrame, model: str) -> str | None:
+    """Who won the duel between the model under test and Seldon, in one sentence."""
+    duel = head_to_head(results, model)
+    if duel.empty:
+        return None
+    areas = duel[duel["domain"] != "all"]
+    won = [DOMAIN_PLAIN.get(d, d) for d in areas.loc[areas["winner"] == "seldon", "domain"]]
+    overall = duel[duel["domain"] == "all"].iloc[0]
+    if won:
+        where = f"won {len(won)} of {len(areas)} areas ({', '.join(won)})"
+    else:
+        where = f"won none of the {len(areas)} areas"
+    return (f"Seldon, our own forecaster built from five laws of crowd behaviour, {where} against {model}, "
+            f"with lower error on {overall['wins']} of {overall['series']} series.")
 
 
 EDGE = 0.02

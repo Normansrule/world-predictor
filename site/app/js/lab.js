@@ -1,5 +1,5 @@
 // The Lab: make a blind call on a real past window, seal it, break the seal, and see how you did
-// against TimesFM and Seldon (TimesFM corrected by its own track record, see src/psychohistory/seldon.py).
+// against TimesFM and Seldon (our own forecaster from five laws of crowd behaviour, see src/psychohistory/seldon.py).
 // Reads window.WP_DATA.lab, built from the backtest paths by web.lab_payload. Both models made their
 // calls from the same history the visitor sees; nothing after the cut is drawn until the seal breaks.
 // Used by the app (#lab) and, in compact form, by the landing page's hero.
@@ -70,7 +70,7 @@
   }
 
   function create(host, D, L, opts) {
-    const { plot, fmt, icon } = window.WPCharts;
+    const { plot, fmt, icon, council, councilBar } = window.WPCharts;
     const compact = !!opts.compact;
     const modelName = L.model === "timesfm-2.5" ? "TimesFM" : L.model;
     const series = L.series.filter((s) => s.rounds.length);
@@ -108,9 +108,11 @@
           <div class="card"><header class="ph"><h2>Your record</h2><button class="btn small lab-reset" style="margin:0">Reset</button></header><div class="lab-tally"></div></div>
           <div class="card"><header class="ph"><h2>${esc(modelName)} vs Seldon</h2><span class="pm">every past window</span></header><div class="lab-board"></div></div>
           <div class="card prose"><header class="ph"><h2>Who is Seldon?</h2></header>
-            <p class="learned">TimesFM, corrected by its own record. Before each forecast it looks only at windows that had already finished,
-              keeps the share of TimesFM's predicted move that paid off, and stretches or narrows the range until it would have caught
-              reality 8 times in 10. It is a challenger, scored on the same windows, and it is allowed to lose.</p></div>
+            <p class="learned">Our own forecaster, built to compete with TimesFM. Hari Seldon bet that crowds follow a few simple laws,
+              so Seldon has five: <b>inertia</b> (tomorrow looks like today), <b>drift</b> (the long-run course holds), <b>momentum</b>
+              (a move keeps going, then fades), <b>reversion</b> (excitement wears off) and the <b>weekly rhythm</b> of news and attention. Before each forecast it
+              replays the series' own past, gives each law a vote by how well it did, and sets its range from its own past misses.
+              No neural network, no pretraining. It is scored on the same windows as TimesFM and it is allowed to lose.</p></div>
         </div>
       </div>`;
     const q = (sel) => host.querySelector(sel);
@@ -338,9 +340,7 @@
       const youBest = best[0] === "You", beat = [sc.model, sc.seldon].filter((x) => sc.you.err < x.err).length;
       const verdict = youBest ? (beat === 2 ? `You beat ${modelName} and Seldon.` : "You were closest.")
         : best[0] === '"No change"' ? `"No change" won: nobody's move paid off.` : `${best[0]} was closest${beat ? `, but you beat ${sc.you.err < sc.model.err ? modelName : "Seldon"}` : ""}.`;
-      const c = R.r.learned;
-      const learned = c.windows < 2 ? `Seldon had ${c.windows === 1 ? "one finished window" : "no finished windows"} to learn from here, so it made the same call as ${modelName}.`
-        : `Seldon kept <b>${Math.round(c.shrink * 100)}%</b> of ${modelName}'s move and scaled its range <b>${c.spread.toFixed(2)}×</b>, learned from ${c.windows} earlier windows.`;
+      const learned = esc(council(R.r.council)) + councilBar(R.r.council);
       const dir = (d) => (d === null ? '<span class="dim">no call</span>' : d ? '<span class="pos">right</span>' : '<span class="neg">wrong</span>');
       wrap.innerHTML = `<div class="lab-result">
         <p class="verdict">${esc(verdict)}</p>

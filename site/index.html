@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>World Predictor</title>
-  <meta name="description" content="A forecasting terminal that keeps score. Google's TimesFM and Seldon, its self-correcting challenger, forecast world news, markets and technology; every forecast is sealed before the future happens and scored when it arrives. Make your own call in the Lab.">
+  <meta name="description" content="A forecasting terminal that keeps score. Google's TimesFM and Seldon, our own psychohistory forecaster, forecast world news, markets and technology; every forecast is sealed before the future happens and scored when it arrives. Make your own call in the Lab.">
   <meta name="theme-color" content="#262d36">
   <meta property="og:title" content="World Predictor">
-  <meta property="og:description" content="Forecasts sealed before the future happens and scored when it arrives. TimesFM against Seldon, its self-correcting challenger, and you.">
+  <meta property="og:description" content="Forecasts sealed before the future happens and scored when it arrives. TimesFM against Seldon, our own psychohistory forecaster, and you.">
   <meta property="og:image" content="assets/banner-dark.svg">
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
   <link rel="manifest" href="manifest.webmanifest">
@@ -44,7 +44,7 @@
     <div class="hero-copy">
       <p class="eyebrow"><span class="dot"></span>TimesFM · Seldon · you</p>
       <h1 class="split">Forecasts, sealed before the future happens.</h1>
-      <p class="lede">Google's <b>TimesFM</b> and our self-correcting <b>Seldon</b> forecast world news, markets and technology.
+      <p class="lede">Google's <b>TimesFM</b> and <b>Seldon</b>, our own forecaster built from five laws of crowd behaviour, forecast world news, markets and technology.
         Every forecast is sealed with a date and scored when reality arrives. Try it: this chart is a real past window, ending hidden.</p>
       <div class="cta-row">
         <a class="btn primary big" href="app/#lab">Play the full Lab</a>
@@ -84,6 +84,7 @@
     <p class="intro">Skill is how much less error than "no change", the guess that tomorrow looks like today, on past windows neither model
       was allowed to see. In range is how often reality landed inside the 80% range; the target is 80%, not 100%.</p>
     <div class="card"><div class="table-wrap"><table class="board" id="board" aria-live="polite"></table></div></div>
+    <p class="duel-line" id="duel-line" hidden></p>
     <p class="note">Full tables, horizons and calibration are in the <a href="app/#desk">terminal</a> and the
       <a href="https://github.com/Normansrule/world-predictor/blob/main/results/REPORT.md">report</a>.</p>
   </section>
@@ -92,7 +93,7 @@
     <div class="wrap">
       <h2 class="title" id="engine-title">One forecast, taken apart.</h2>
       <p class="intro">Scroll, and a forecast comes apart into the six layers it is made of, then clicks back together.
-        Seldon sits between the model and the seal.</p>
+        Seldon reads the same history beside the model and is sealed with it.</p>
     </div>
     <div class="explode" aria-label="How a forecast is built, in six layers">
       <div class="explode__stage wrap">
@@ -111,7 +112,7 @@
           <li style="--i:1"><b>History</b><span>Years of daily or weekly values for one series: the past the model is allowed to see.</span></li>
           <li style="--i:2"><b>Context window</b><span>TimesFM reads the history in patches of 32 steps, like words in a sentence.</span></li>
           <li style="--i:3"><b>TimesFM 2.5</b><span>Google Research&#x27;s open forecasting model. Nothing is trained on our data.</span></li>
-          <li style="--i:4"><b>Forecast</b><span>A range for every step ahead from TimesFM, Seldon&#x27;s corrected range beside it, both sealed with a date.</span></li>
+          <li style="--i:4"><b>Forecast</b><span>A range for every step ahead from TimesFM and from Seldon, our own forecaster, both sealed with a date.</span></li>
           <li style="--i:5"><b>Score</b><span>When the future arrives, reality is drawn over the fan and the forecast is scored.</span></li>
         </ol>
         <!-- engine:end -->
@@ -126,7 +127,7 @@
     <ul class="views">
       <li><a href="app/#lab"><kbd>2</kbd><b>Lab</b><span>Make a blind call on a real past window, seal it, and see whether you beat TimesFM and Seldon.</span></a></li>
       <li><a href="app/#studio"><kbd>3</kbd><b>Forecast Studio</b><span>Ask the chance of any level on any date, then seal your own call on the real future and have it scored.</span></a></li>
-      <li><a href="app/#outlook"><kbd>4</kbd><b>Outlook</b><span>Every series' newest sealed forecast, with Seldon's corrected range beside TimesFM's.</span></a></li>
+      <li><a href="app/#outlook"><kbd>4</kbd><b>Outlook</b><span>Every series' newest sealed forecast, with Seldon's range beside TimesFM's.</span></a></li>
       <li><a href="app/#trace"><kbd>5</kbd><b>Follow a result</b><span>One forecast traced back through every stage, to the public record it came from.</span></a></li>
       <li><a href="app/#replay"><kbd>6</kbd><b>Replay</b><span>Past forecasts meet reality, frame by frame.</span></a></li>
       <li><a href="app/#horizon"><kbd>7</kbd><b>How far ahead</b><span>The "Seldon horizon": how many days the model's edge lasts in each area.</span></a></li>
