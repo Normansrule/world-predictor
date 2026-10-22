@@ -194,6 +194,12 @@
         <div class="card"><header class="ph"><h2>Odds score</h2><span class="pm">Brier, lower is better</span></header><div id="vault-brier"></div></div>
       </div>
       <p class="note" id="vault-note"></p>
+      <div class="card">
+        <header class="ph"><h2>Every opened forecast</h2><span class="pm" id="vault-opened-meta"></span></header>
+        <div class="chips" id="vault-filter" role="group" aria-label="Filter by area"></div>
+        <div class="table-wrap opened-wrap"><table id="vault-opened" class="dense opened"></table></div>
+        <p class="note" id="vault-lag" hidden>† Sealed after its date but before the source published that day's value (Wikipedia and GDELT run a day or two behind). The model never saw it, but it is a forecast of unpublished data rather than of the future.</p>
+      </div>
     </section>
 
     <section class="view" id="view-crowd" aria-labelledby="crowd-h">
@@ -213,11 +219,14 @@
     </section>
 
     <section class="view" id="view-series" aria-labelledby="series-h">
-      <div class="vhead">
-        <h1 id="series-h">Every series</h1>
-        <p class="lede">Backtest results for each series. Sort by any column.</p>
+      <div id="series-all">
+        <div class="vhead">
+          <h1 id="series-h">Every series</h1>
+          <p class="lede">Backtest results for each series. Sort by any column, or open a series to see every forecast it made.</p>
+        </div>
+        <div class="card table-wrap"><table id="series-table" class="dense"></table></div>
       </div>
-      <div class="card table-wrap"><table id="series-table" class="dense"></table></div>
+      <div id="series-page" hidden></div>
     </section>
 
     <section class="view" id="view-about" aria-labelledby="about-h">
@@ -273,6 +282,7 @@
 <script src="js/trace.js"></script>
 <script src="js/lab.js"></script>
 <script src="js/studio.js"></script>
+<script src="js/series.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

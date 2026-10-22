@@ -114,13 +114,14 @@ STAGES = [
     {
         "id": "score", "name": "Open the vault",
         "plain": "When a target date arrives, puts what really happened next to what was sealed.",
-        "code": [("src/psychohistory/ledger.py", "score"), ("src/psychohistory/story.py", "track_record")],
+        "code": [("src/psychohistory/ledger.py", "score"), ("src/psychohistory/story.py", "track_record"),
+                 ("src/psychohistory/web.py", "opened_payload")],
         "input": "Ledger rows and the newest data",
         "output": "predictions/scored.csv: actual, abs_error, in_band80, direction_correct, brier",
         "rule": "A row is scored only once its target date is in the data. Brier compares the chance it gave with what happened.",
         "cadence": CADENCE["weekly"],
         "failure": "Rows whose date has not arrived, or whose value is missing, wait unscored.",
-        "tests": ["test_ledger_predict_then_score", "test_time_vault_track_record"],
+        "tests": ["test_ledger_predict_then_score", "test_time_vault_track_record", "test_opened_forecasts_flag_values_sealed_before_release"],
         "runs": "GitHub Actions",
     },
     {
@@ -141,8 +142,8 @@ STAGES = [
     {
         "id": "publish", "name": "Publish to the app",
         "plain": "Packs the results into one file the web app reads, and GitHub Pages serves it.",
-        "code": [("src/psychohistory/web.py", "build_payload"), ("src/psychohistory/web.py", "write_data_js"),
-                 ("src/psychohistory/story.py", "EDGE"), (".github/workflows/pages.yml", None)],
+        "code": [("src/psychohistory/web.py", "build_payload"), ("src/psychohistory/web.py", "track_payload"),
+                 ("src/psychohistory/web.py", "write_data_js"), ("src/psychohistory/story.py", "EDGE"), (".github/workflows/pages.yml", None)],
         "input": "Results, ledger, scores and run status",
         "output": "results/web/data.js (window.WP_DATA), copied to app/data/data.js on Pages",
         "rule": "Only numbers produced by a run are shown; demo data is marked as demo everywhere it appears.",

@@ -155,6 +155,20 @@ def cmd_ask(args) -> None:
         print(f"Sealed {len(rows)} rows in {args.ledger}; `psychohistory score` checks them as the dates pass.")
 
 
+def cmd_record(args) -> None:
+    """Print one series' track record: every backtest window and every opened sealed forecast."""
+    windows_file = args.out_dir / "backtest_windows.csv"
+    windows = pd.read_csv(windows_file) if windows_file.exists() else None
+    scored = pd.read_csv(args.scored) if args.scored.exists() else None
+    known = set(windows["series_id"]) if windows is not None else set()
+    if scored is not None:
+        known |= set(scored["series_id"])
+    if args.target not in known:
+        hint = ", ".join(sorted(known)) if known else "none yet; run `psychohistory run` first"
+        raise SystemExit(f"No record for {args.target!r}. Series with a record: {hint}")
+    print(story.series_record(args.target, windows, scored, args.model))
+
+
 def cmd_score(args) -> None:
     if not args.ledger.exists():
         print(f"No ledger at {args.ledger}; run `psychohistory predict` first.")
@@ -349,6 +363,11 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--save", type=Path, metavar="FILE", help="write every step to a CSV")
     p.add_argument("--seal", action="store_true", help="write the forecast to the prediction ledger to be scored later")
     p.set_defaults(func=cmd_ask)
+
+    p = sub.add_parser("record", help="print one series' track record: past windows and opened sealed forecasts")
+    common(p)
+    p.add_argument("target", help="a series id, e.g. gold")
+    p.set_defaults(func=cmd_record)
 
     p = sub.add_parser("score", help="score ledger predictions whose target dates have passed")
     common(p)

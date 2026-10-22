@@ -87,6 +87,7 @@ def build_payload(
         "outlook": [], "replay": None, "vault": [], "crowd": crowd_payload(),
         "run": run_status or {}, "evidence": evidence(results, model),
         "lab": lab_payload(paths, model),
+        "track": track_payload(paths, model), "opened": opened_payload(scored, model),
     }
     if summary is not None:
         table = domain_table(summary)
@@ -242,6 +243,58 @@ def lab_payload(paths: pd.DataFrame | None, model: str) -> dict | None:
         board = [{"domain": d, "model": m, "skill": _num(r.skill, 4), "inside": _num(r.inside, 4),
                   "direction": _num(r.direction, 4), "series": int(r.series)} for (d, m), r in table.iterrows()]
     return {"model": model, "challenger": seldon.NAME, "series": out, "board": board}
+
+
+def track_payload(paths: pd.DataFrame | None, model: str) -> dict[str, dict]:
+    """Every backtest window of every series, for its series page: what the model said each time
+    and what really happened. The windows sit back to back, so the actual values are stored once
+    (``actual``, on the dates ``start`` plus ``days`` calendar days) and each window keeps its origin,
+    the index of its first step and its 10th, 50th and 90th percentiles."""
+    if paths is None or paths.empty:
+        return {}
+    rows = paths[paths["model"] == model]
+    out = {}
+    for series_id, part in rows.groupby("series_id"):
+        days = part.drop_duplicates("date").sort_values("date")
+        stamps = pd.to_datetime(days["date"])
+        dates = [_date(d) for d in stamps]
+        at = {d: i for i, d in enumerate(dates)}
+        windows = []
+        for origin, g in part.groupby("origin", sort=True):
+            g = g.sort_values("step")
+            windows.append([str(origin), at[_date(g["date"].iloc[0])],
+                            [_sig(v) for v in g["q10"]], [_sig(v) for v in g["q50"]], [_sig(v) for v in g["q90"]]])
+        out[series_id] = {"start": dates[0], "days": [int((d - stamps.iloc[0]).days) for d in stamps],
+                          "actual": [_sig(v) for v in days["actual"]], "windows": windows}
+    return out
+
+
+OPENED_PER_SERIES = 60  # newest opened predictions kept per series
+
+
+def _sealed_after(target, made_on) -> int:
+    """1 when a forecast was sealed on or after its own date (its value not yet published), else 0.
+    Labels that are not dates (the demo's runs) count as sealed in advance."""
+    made = pd.to_datetime(made_on, errors="coerce")
+    return int(not pd.isna(made) and pd.Timestamp(target) <= made)
+
+
+def opened_payload(scored: pd.DataFrame | None, model: str) -> list[list]:
+    """Sealed predictions whose date has arrived, newest first: [series, sealed on, date, steps
+    ahead, 10th, middle, 90th, actual, chance higher it gave, whether it was higher, whether the
+    date had already passed when it was sealed]. These are forecasts the model made without the
+    answer and scored after the fact; none of them is a backtest. The last flag marks a value that
+    was not published yet when the forecast was sealed (Wikipedia and GDELT run a day or two
+    behind), so the app can say so rather than call it a forecast of the future."""
+    if scored is None or scored.empty:
+        return []
+    rows = scored[scored["model"].isin([model, seldon.NAME])].copy()
+    rows = rows.sort_values(["target_date", "made_on", "series_id"], ascending=[False, False, True])
+    rows = rows.groupby(["series_id", "model"], sort=False).head(OPENED_PER_SERIES)
+    return [[r.series_id, r.model, str(r.made_on), _date(r.target_date), int(r.step), _sig(r.q10), _sig(r.q50), _sig(r.q90),
+             _sig(r.actual), _num(r.p_up, 3), None if pd.isna(r.actual) or pd.isna(r.last_value) else int(r.actual > r.last_value),
+             _sealed_after(r.target_date, r.made_on)]
+            for r in rows.itertuples()]
 
 
 def evidence(results: pd.DataFrame | None, model: str) -> dict[str, list]:

@@ -64,6 +64,11 @@ Type scale: 11, 12, 13, 14, 16, 20, 28, 40, 54 pixels. Spacing scale: 4, 8, 12, 
   the real future: ask the chance of any level on any date, read the percentiles, then seal your own
   call next to TimesFM's and Seldon's. The level is a dashed line you can set by clicking the chart,
   and your call is a violet dot with its range, the same marks the Lab uses.
+- **Series pages**: one per series, reached from All series, the Outlook, the Time Vault and the
+  command bar. Every past window is drawn at once in a faint wash over the real values, and the chosen
+  one is hatched with its middle line drawn bold, so the page reads as a track record rather than a
+  single lucky chart. A slider and a newest-first table pick the window, and the arrow keys walk it.
+  Verdicts are words with a mark ("✓ right", "✗ out"), never colour alone.
 - **Function rail**: every view with its number key. On a phone it becomes a scrolling tab strip.
 - **Panels**: 1px borders, a 4px radius, a header strip with a title on the left and context on the
   right. No resting shadows except on things that float.
@@ -80,6 +85,26 @@ Type scale: 11, 12, 13, 14, 16, 20, 28, 40, 54 pixels. Spacing scale: 4, 8, 12, 
   scores. You see them in the order that answers "who saw it coming?".
 - **Reduced motion keeps every state change** as a fade and drops all travel; the exploded forecast on
   the landing page becomes a still diagram.
+- **The landing page as a showroom (v4).** At Alek's request it borrows the cinematic pacing of
+  Apple's product pages (Apple Inc., n.d.-a, n.d.-b), Igloo (Igloo Inc., n.d.), Rive (Rive, Inc., n.d.),
+  1minus1 (1minus1, n.d.), Bruno Simon (Simon, n.d.) and Dogstudio (Dogstudio, n.d.):
+  - **Hero field.** About 46 sample paths fan out of one red point on a canvas behind the headline, in
+    TimesFM, Seldon and violet tints. It's redrawn only while on screen and while the tab is visible, and
+    it drifts a few pixels with the pointer.
+  - **Headline.** It arrives word by word (rise, unblur), with "sealed" in a periwinkle-to-teal-to-violet
+    gradient.
+  - **The story.** A 420vh section pins one real forecast, the replay series' newest finished window,
+    and maps scroll progress to four steps: the history draws, the range opens behind a red seal, the
+    real days drop in as green (inside) or red (outside) dots, and the score appears. The step captions
+    crossfade; a progress bar in the four step colours runs underneath.
+  - **The record.** Four big numbers count up once when they're in view: series, past windows, sealed
+    forecasts opened and the share inside the range.
+  - **Small touches.** Section reveals (rise, unblur), a gliding tape that pauses on hover or focus, a
+    pointer spotlight on panels, and primary buttons that lean slightly towards the pointer.
+  - **Under reduced motion** the story is a static list beside its finished chart, and nothing moves.
+- **The terminal stays a workbench.** Panels settle in, one after another (50ms apart), when a view opens,
+  and a faint periwinkle light follows the pointer across them. Nothing else in the terminal moves unless
+  it means something.
 
 ### States
 

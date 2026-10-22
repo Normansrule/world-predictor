@@ -1,4 +1,4 @@
-"""Screenshots of the landing page and web app for the README (docs/assets/landing*.png, app-*.png including app-studio*.png, app-lab.gif, app-replay.gif and app-trace.gif).
+"""Screenshots of the landing page and web app for the README (docs/assets/landing*.png, app-*.png including app-studio*.png and app-series*.png, landing-story.gif, app-lab.gif, app-replay.gif and app-trace.gif).
 
     pip install playwright && playwright install chromium
     python scripts/make_app_screenshots.py            # uses site/app/data/data.js
@@ -17,7 +17,7 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parent.parent
 ASSETS = ROOT / "docs" / "assets"
-VIEWS = {"desk": 1340, "outlook": 1000, "replay": 860, "crowd": 860, "vault": 720}
+VIEWS = {"desk": 1340, "outlook": 1000, "replay": 860, "crowd": 860, "vault": 1180}
 
 
 async def theme(page, scheme: str) -> None:
@@ -130,6 +130,16 @@ async def shoot(chromium: str | None, site: Path) -> None:
             png = await page.locator("#view-studio").screenshot()
             Image.open(io.BytesIO(png)).convert("RGB").save(ASSETS / f"app-studio{'' if scheme == 'light' else '-dark'}.png", optimize=True)
             await page.close()
+        # A series page: gold's past windows over the real price, the window table and its sealed forecasts.
+        for scheme in ("light", "dark"):
+            page = await browser.new_page(viewport={"width": 1280, "height": 1400}, color_scheme=scheme, device_scale_factor=1)
+            await theme(page, scheme)
+            await page.goto(f"{app}#series/gold")
+            await page.add_style_tag(content=".status, .cmd { position: static !important; }")
+            await page.wait_for_timeout(1800)
+            png = await page.locator("#series-page").screenshot()
+            Image.open(io.BytesIO(png)).convert("RGB").save(ASSETS / f"app-series{'' if scheme == 'light' else '-dark'}.png", optimize=True)
+            await page.close()
         # The landing page's first screen, once per theme, after the headline has settled.
         for scheme in ("light", "dark"):
             page = await browser.new_page(viewport={"width": 1280, "height": 800}, color_scheme=scheme, device_scale_factor=1)
@@ -139,6 +149,25 @@ async def shoot(chromium: str | None, site: Path) -> None:
             png = await page.screenshot()
             Image.open(io.BytesIO(png)).convert("RGB").save(ASSETS / f"landing{'' if scheme == 'light' else '-dark'}.png", optimize=True)
             await page.close()
+        # The landing page's scroll story as a GIF: one real forecast drawn, sealed, met by reality and scored.
+        page = await browser.new_page(viewport={"width": 1280, "height": 760}, color_scheme="dark", device_scale_factor=1)
+        await theme(page, "dark")
+        await page.goto((site / "index.html").resolve().as_uri())
+        await page.wait_for_timeout(1200)
+        top = await page.evaluate("document.getElementById('story').offsetTop")
+        span = await page.evaluate("document.getElementById('story').offsetHeight - innerHeight")
+        frames = []
+        for i in range(34):
+            await page.evaluate(f"window.scrollTo(0, {top} + {span} * {min(1, i / 30):.3f})")
+            await page.wait_for_timeout(220)
+            png = await page.locator(".story__stage").screenshot()
+            shot = Image.open(io.BytesIO(png)).convert("RGB")
+            frames.append(shot.resize((shot.width * 3 // 4, shot.height * 3 // 4), Image.LANCZOS))
+        frames[-1].save(ASSETS / "landing-story.png", optimize=True)
+        palette = frames[-1].quantize(colors=255, method=Image.Quantize.MEDIANCUT)
+        frames = [f.quantize(palette=palette, dither=Image.Dither.NONE) for f in frames]
+        frames[0].save(ASSETS / "landing-story.gif", save_all=True, append_images=frames[1:], duration=[140] * 33 + [2600], loop=0, optimize=True)
+        await page.close()
         # Animated replay: step the slider through every past forecast.
         page = await browser.new_page(viewport={"width": 1100, "height": 900})
         await page.goto(f"{app}#replay")

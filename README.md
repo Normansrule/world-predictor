@@ -77,10 +77,23 @@ Nothing here is financial advice, and most of the interesting results are about 
   your own CSV, prints the middle and the 80% range for every step, adds Seldon's corrected range when
   it has a track record, answers "what's the chance it ends above X?", and can seal the forecast in the
   ledger to be scored later.
+- **A page for every series.** Every past window TimesFM was tested on, drawn over what really
+  happened, with a slider and a table that say for each one what the middle guess said, how far reality
+  went, how much of it stayed inside the 80% range and whether the direction was right. Below that sit
+  the newest sealed forecast and every sealed forecast whose date has already come.
+- **Receipts, not just averages.** The Time Vault lists every opened forecast with its range, the
+  real value and the verdict. A value that was sealed after its date but before the source published it
+  (Wikipedia and GDELT run a day or two behind) is marked as such, not passed off as a forecast of the
+  future. `psychohistory record gold` prints the same record in the terminal.
 - **Seldon, the improved TimesFM.** Before each forecast, Seldon looks only at windows that had already
   finished and learns two things: how much of TimesFM's predicted move actually paid off on that series
   (it keeps only that share), and how much to stretch or narrow the range so it catches reality 8 times
   in 10. It runs in the backtest, in the weekly sealed forecasts and in the Lab, and it's allowed to lose.
+- **A landing page that moves like a product launch.** A living field of possible futures behind the
+  headline, the headline arriving word by word, a pinned scroll story of one real forecast, the record
+  counted up in big numbers, a tape that glides, and light that follows the pointer across panels.
+  Every effect is plain CSS and JavaScript (no libraries), uses transform and opacity only, pauses when
+  off screen, and turns into a still page under reduced motion.
 - **A terminal, not a brochure.** A status bar with the run's vital signs, a ticker of every sealed
   forecast, a command bar (<kbd>/</kbd>) that jumps to any series, and number keys for every view.
   A calm slate theme by default, with a soft light theme one key (<kbd>T</kbd>) away, and each area
@@ -102,6 +115,12 @@ Nothing here is financial advice, and most of the interesting results are about 
   redraws every chart and republishes the site.
 
 ## Screenshots
+
+**One real forecast, sealed and scored as you scroll.** The landing page pins a single real S&P 500
+forecast (the newest finished window, not a hand-picked one) and plays it out with the scroll: what
+TimesFM could see, the range it sealed, reality arriving day by day, and the score.
+
+<p align="center"><img src="docs/assets/landing-story.gif" alt="Scrolling the landing page: an S&P 500 history draws in, TimesFM's sealed range opens with a red seal, the real days appear as green and red dots, and the score reads 19 of 21 days inside the range" width="100%"></p>
 
 **The Lab.** One S&P 500 round: make the call, seal it, break the seal, see who was closest.
 
@@ -128,6 +147,13 @@ The landing page, slate and light. The Lab is the first thing you see, already l
   <img src="docs/assets/app-studio.png" alt="Forecast Studio: gold's sealed forecast with a level line, the odds TimesFM and Seldon give it, their percentiles, and a sealed call of your own" width="100%">
 </picture>
 
+**A series page.** Gold: twelve past forecasts over what really happened (the chosen one hatched), each scored in the table, then this week's sealed forecast and the ones already opened.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/app-series-dark.png">
+  <img src="docs/assets/app-series.png" alt="Gold's series page: twelve past TimesFM forecasts drawn over the real price, a table scoring each one, the newest sealed forecast with Seldon's range, and the sealed forecasts opened so far" width="100%">
+</picture>
+
 **Follow one result.** One S&P 500 forecast walking through the pipeline, stage by stage.
 
 <p align="center"><img src="docs/assets/app-trace.gif" alt="Walkthrough of one S&P 500 forecast moving through the nine pipeline stages" width="100%"></p>
@@ -139,7 +165,7 @@ The landing page, slate and light. The Lab is the first thing you see, already l
 </tr>
 <tr>
 <td width="50%"><b>Crowd lab</b><br><sub>Grow a simulated crowd and watch it become predictable.</sub><br><img src="docs/assets/app-crowd.png" alt="Crowd lab in the app"></td>
-<td width="50%"><b>Time Vault</b><br><sub>Sealed predictions, opened and scored as their dates arrive.</sub><br><img src="docs/assets/app-vault.png" alt="Time Vault in the app"></td>
+<td width="50%"><b>Time Vault</b><br><sub>Sealed predictions, opened and scored as their dates arrive, with every receipt listed.</sub><br><img src="docs/assets/app-vault.png" alt="Time Vault in the app"></td>
 </tr>
 </table>
 
@@ -195,7 +221,11 @@ silver to world news and AI. Each panel says, in words, the chance it ends highe
 <p align="center"><img src="results/plots/outlook.png" alt="Latest forecasts for the S&P 500, gold, silver, Bitcoin, world news and AI attention" width="95%"></p>
 
 **The Time Vault.** The real test. If the model is honest, the left line settles near 80% and the
-right line stays below the coin flip.
+right line stays below the coin flip. As of 19 October 2026, the first 32 sealed TimesFM forecasts have
+opened, all one to three days ahead: 27 landed inside their 80% range (84%), and 23 of the 31 that leaned
+one way called the direction right. 24 of the 32 are Wikipedia attention values that were sealed after their date but before Wikipedia
+published them, so the model never saw them, but they aren't forecasts of the future in the strict
+sense; the app marks each one. It's an early, small sample, and the Time Vault lists every one.
 
 <p align="center"><img src="results/plots/track_record.png" alt="Time Vault: share of outcomes inside the 80% range and the odds score, as sealed predictions open" width="85%"></p>
 
@@ -245,6 +275,27 @@ The odds are read off the 10th, 50th and 90th percentiles by straight-line inter
 5% and 95% outside that range, because the forecast says nothing sharper out there. The command line
 uses the same rule.
 
+### Series pages and receipts
+
+Press <kbd>0</kbd> for **All series** and click any name, or type it in the command bar (<kbd>/</kbd>).
+Each series page has:
+
+1. **Its numbers**: skill against "no change", right direction, how often reality stayed inside the 80%
+   range, the odds score, and how many real sealed forecasts have opened.
+2. **Every past forecast against what happened.** All of its backtest windows over the real values.
+   Drag the slider (or pick a row) to pick one window; the readout says what its middle guess said,
+   where reality went, and whether it called the direction.
+3. **Sealed on the real future**: the newest sealed forecast, TimesFM and Seldon.
+4. **Opened so far**: every sealed forecast whose date has arrived, with its range, the actual value
+   and the verdict.
+
+The [Time Vault](https://normansrule.github.io/world-predictor/app/#vault) lists every opened
+forecast across all series, filterable by area. In the terminal:
+
+```bash
+psychohistory record gold    # every backtest window and every opened sealed forecast for gold
+```
+
 ### Ask TimesFM from the command line
 
 The full version runs TimesFM live, on the catalog's series or on your own data:
@@ -288,6 +339,7 @@ psychohistory backtest    # rolling backtest vs baselines -> results/REPORT.md a
 psychohistory predict     # seal new forecasts in predictions/ledger.csv
 psychohistory ask gold    # run TimesFM live on one series (or --csv yours) and print its forecast
 psychohistory score       # score sealed forecasts whose dates have arrived
+psychohistory record gold # one series' track record: past windows and opened sealed forecasts
 psychohistory export      # write the app's data file, results/web/data.js
 psychohistory site        # build the static app into build/site (what Pages serves)
 psychohistory simulate    # the toy crowd, no downloads
@@ -441,6 +493,7 @@ site/                    the app: one static folder for Pages, the download and 
   app/                   the terminal (index.html, css/app.css, js/app.js, js/charts.js, js/trace.js)
   app/js/lab.js          the Lab, shared by the terminal and the landing page
   app/js/studio.js       the Forecast Studio: odds for any level, and your own sealed calls
+  app/js/series.js       series pages: every past forecast against what happened, and the opened ones
   app/data/              data.js (this run's numbers) and pipeline.js (the stage inventory)
   sw.js                  offline support; manifest.webmanifest makes it installable
 src/psychohistory/
@@ -452,11 +505,11 @@ src/psychohistory/
   backtest.py            rolling-origin backtest and the Seldon summary tables
   ledger.py              seal forecasts now, score them later
   ask.py                 `psychohistory ask`: TimesFM live on one series or your own CSV
-  story.py               plain-English findings, scoreboard, replay, outlook, Time Vault
+  story.py               plain-English findings, scoreboard, replay, outlook, Time Vault, `record`
   simulate.py            toy agent-based crowd: why aggregates are predictable
   inventory.py           what each pipeline stage does: feeds the app's explorer and ARCHITECTURE.md
   engine_art.py          the exploded-engine drawing, shared by the landing page and this README
-  web.py                 the app's data file (including the Lab's rounds), the demo data, and building the site
+  web.py                 the app's data file (Lab rounds, series windows, opened forecasts), the demo data, and building the site
   progress.py            this README's progress tracker, from docs/progress.json
   report.py              results/REPORT.md and charts
   dashboard.py           results/dashboard.html (Plotly version of the dashboard)
@@ -511,9 +564,24 @@ buttons press in slightly; reality *draws* in after the seal breaks, followed by
 so the order you see them in is the order that matters. Sealing is press-and-hold, so nothing is ever
 sealed by accident. With reduced motion turned on, every state change still happens, as a fade.
 
-**What was cut.** Gradient fills and glows, a wall of identical cards (the Outlook is now a list and a
-detail panel), emoji used as icons, pinging "live" dots, scroll-triggered reveals that hide content, and
-monospace used as decoration.
+**Two speeds: a showroom and a workbench.** The landing page is the showroom, in the spirit of
+[Apple](https://www.apple.com/), the [AirPods Pro](https://www.apple.com/airpods-pro/) page,
+[Igloo](https://www.igloo.inc/), [Rive](https://rive.app/), [1minus1](https://1minus1.com/),
+[Bruno Simon](https://bruno-simon.com/) and [Dogstudio](https://dogstudio.co/):
+
+- a canvas of sample paths fanning out of one point behind the headline (possible futures, which is what
+  a forecast is);
+- two slow colour glows;
+- a pinned, scroll-scrubbed story of one real forecast;
+- big counted-up numbers;
+- a pointer spotlight on panels and buttons that lean slightly towards the pointer.
+
+Every figure in it comes from the data file. The terminal is the workbench: panels settle in when a view
+opens and a faint light follows the pointer, but nothing in it moves unless it carries information.
+
+**What was cut from the terminal.** Gradient fills and glows, a wall of identical cards (the Outlook is a
+list and a detail panel), emoji used as icons, pinging "live" dots, and monospace used as decoration. On
+the landing page, reveals never hide content without JavaScript or under reduced motion.
 
 **Accessible by default.** Every view works from the keyboard, including dragging your call in the Lab
 (its handles are sliders to screen readers); focus is always visible; nothing depends on colour alone;
@@ -541,7 +609,7 @@ World Predictor is Apache-2.0).
 
 <!-- progress:start -->
 
-**29 of 36 milestones done (81%).** Drawn from [`docs/progress.json`](docs/progress.json); tests check every ticked item against the repository.
+**33 of 39 milestones done (85%).** Drawn from [`docs/progress.json`](docs/progress.json); tests check every ticked item against the repository.
 
 <details open><summary><b>📰 World news</b> · 5/6</summary>
 
@@ -576,10 +644,10 @@ World Predictor is Apache-2.0).
 
 </details>
 
-<details open><summary><b>🌐 Web app (GitHub Pages)</b> · 12/14</summary>
+<details open><summary><b>🌐 Web app (GitHub Pages)</b> · 15/16</summary>
 
 - [x] Static app: scoreboard, replay, outlook, horizon, odds, Time Vault, crowd lab
-- [x] No chart library: hand-written SVG charts, under 50 KB of code in total
+- [x] No chart library: hand-written SVG charts, about 45 KB of code once compressed
 - [x] Light and dark themes, phone layout, installable, works offline
 - [x] Pages deployment after every weekly run
 - [x] Landing page that tells the story on scroll, with the exploded forecast engine
@@ -590,14 +658,17 @@ World Predictor is Apache-2.0).
 - [x] Forecast Studio: odds for any level, an odds board, and your own sealed calls
 - [x] `psychohistory ask`: TimesFM live on any series or your own CSV
 - [x] Full bibliography in APA style
+- [x] A page for every series: every past forecast against what happened
+- [x] Time Vault lists every opened forecast, flagged when sealed before the value was published
+- [x] Cinematic landing page: a scroll story of one real forecast, sealed then scored
 - [ ] Live at normansrule.github.io/world-predictor
-- [ ] A detail page for every series
 
 </details>
 
-<details open><summary><b>💻 Downloadable full version</b> · 2/4</summary>
+<details open><summary><b>💻 Downloadable full version</b> · 3/5</summary>
 
 - [x] `psychohistory app`: run TimesFM locally and open the same app
+- [x] `psychohistory record`: one series' full track record in the terminal
 - [x] Release workflow: full project zip and offline app zip
 - [ ] First tagged release
 - [ ] Desktop installer (Tauri, as World Monitor does)

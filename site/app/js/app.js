@@ -251,6 +251,7 @@
         lines: [{ points: V.map((r) => [r.date, r.brier]), color: "var(--tfm)", name: "score" }], dots: [{ points: V.map((r) => [r.date, r.brier]), color: "var(--tfm)", r: 3 }],
         refs: [{ y: 0.25, label: "coin flip", color: "var(--ink-2)" }], height: 260 });
       const last = V[V.length - 1];
+      opened();
       $("vault-note").textContent = `${last.opened.toLocaleString()} sealed predictions opened so far. ` +
         `${fmt.pct(last.inside80)} landed inside the 80% range; odds score ${last.brier.toFixed(3)} (a coin flip scores 0.250).`;
     },
@@ -279,7 +280,19 @@
         { name: "Individual people", color: "var(--ink-2)" }]);
     },
 
-    series() {
+    series(arg) {
+      // #series/<id> is that series' own page; #series alone is the sortable table of all of them.
+      const page = $("series-page"), all = $("series-all");
+      const known = arg && ((D.track || {})[arg] || D.series.some((r) => r.id === arg) || D.outlook.some((o) => o.id === arg));
+      page.hidden = !known; all.hidden = !!known;
+      if (known) {
+        window.WPSeries.render(page, D, arg);
+        const r = D.series.find((x) => x.id === arg) || D.outlook.find((x) => x.id === arg);
+        document.title = `${r ? r.title : arg} · World Predictor`;
+        return;
+      }
+      if (views.series.drawn) return;
+      views.series.drawn = true;
       const rows = D.series || [];
       if (!rows.length) { $("series-table").innerHTML = '<tr><td><div class="empty"><b>No backtest yet.</b>Appears after the first backtest.</div></td></tr>'; return; }
       const cols = [["title", "Series"], ["domain", "Area"], ["scale", "Scale"], ["skill", "Skill"], ["direction", "Right direction"], ["coverage80", "In 80% range"], ["brier", "Odds score"]];
@@ -287,7 +300,7 @@
       const draw = () => {
         const sorted = rows.slice().sort((a, b) => ((a[st.key] ?? -1e9) > (b[st.key] ?? -1e9) ? 1 : -1) * st.dir);
         $("series-table").innerHTML = "<thead><tr>" + cols.map(([k, l]) => `<th aria-sort="${k === st.key ? (st.dir > 0 ? "ascending" : "descending") : "none"}"><button data-k="${k}">${l}${k === st.key ? (st.dir > 0 ? " ▲" : " ▼") : ""}</button></th>`).join("") + "</tr></thead><tbody>" +
-          sorted.map((r) => `<tr><td>${esc(r.title)}</td><td>${tag(r.domain)}</td><td>${esc(r.scale)}</td>` +
+          sorted.map((r) => `<tr><td><a href="#series/${esc(r.id)}">${esc(r.title)}</a></td><td>${tag(r.domain)}</td><td>${esc(r.scale)}</td>` +
             `<td><span class="${skillCls(r.skill)}">${fmt.pct(r.skill)}</span><span class="bar" style="width:${Math.min(60, Math.abs(r.skill || 0) * 240)}px;background:${(r.skill || 0) >= 0 ? "var(--up)" : "var(--down)"}"></span></td>` +
             `<td>${fmt.pct(r.direction)}</td><td>${fmt.pct(r.coverage80)}</td><td>${r.brier === null ? "–" : r.brier.toFixed(3)}</td></tr>`).join("") + "</tbody>";
       };
@@ -300,6 +313,33 @@
 
     about() {},
   };
+
+  // The Time Vault's receipts: each opened forecast of the real future, newest first.
+  function opened() {
+    const rows = (D.opened || []).filter((r) => r[1] === model);
+    const host = $("vault-opened");
+    if (!rows.length) { host.innerHTML = '<tr><td><div class="empty"><b>Nothing opened yet.</b>Sealed forecasts appear here as their dates arrive.</div></td></tr>'; return; }
+    const titleOf = (id) => ((D.series.find((r) => r.id === id) || D.outlook.find((o) => o.id === id) || {}).title || id);
+    const areaOf = (id) => ((D.series.find((r) => r.id === id) || D.outlook.find((o) => o.id === id) || {}).domain);
+    const inside = (r) => r[8] !== null && r[8] >= r[5] && r[8] <= r[7];
+    const called = (r) => (r[9] === null || r[10] === null || Math.abs(r[9] - 0.5) < 0.005 ? null : (r[9] > 0.5) === (r[10] === 1));
+    const st = opened.st || (opened.st = { area: "all" });
+    const areas = [...new Set(rows.map((r) => areaOf(r[0])))].filter(Boolean);
+    $("vault-filter").innerHTML = [["all", "All"], ...AREAS.filter(([d]) => areas.includes(d))].map(([k, l]) =>
+      `<button class="chip" data-k="${k}" style="--c:${k === "all" ? "var(--tfm)" : hue(k)}" aria-pressed="${k === st.area}">${l}</button>`).join("");
+    $("vault-filter").onclick = (e) => { const b = e.target.closest("button"); if (!b) return; st.area = b.dataset.k; opened(); };
+    const shown = rows.filter((r) => st.area === "all" || areaOf(r[0]) === st.area);
+    const n = shown.length, hit = shown.filter(inside).length, dir = shown.map(called).filter((v) => v !== null);
+    $("vault-opened-meta").textContent = `${hit} of ${n} inside the 80% range · direction right ${dir.filter(Boolean).length} of ${dir.length}`;
+    host.innerHTML = `<thead><tr><th>Series</th><th>Date</th><th>Sealed</th><th>80% range</th><th>Actual</th><th>Range</th><th>Direction</th></tr></thead><tbody>` +
+      shown.map((r) => {
+        const c = called(r);
+        return `<tr style="--c:${hue(areaOf(r[0]))}"><td><a href="#series/${esc(r[0])}">${esc(titleOf(r[0]))}</a></td><td>${esc(r[3])}</td><td>${esc(r[2])}<small>${r[11] ? "before release †" : `${r[4]} step${r[4] === 1 ? "" : "s"} ahead`}</small></td>
+          <td>${fmt.num(r[5])} to ${fmt.num(r[7])}</td><td>${fmt.num(r[8])}</td>
+          <td>${inside(r) ? '<span class="pos">✓ in</span>' : '<span class="neg">✗ out</span>'}</td><td>${c === null ? '<span class="dim">–</span>' : c ? '<span class="pos">✓ right</span>' : '<span class="neg">✗ wrong</span>'}</td></tr>`;
+      }).join("") + "</tbody>";
+    $("vault-lag").hidden = !shown.some((r) => r[11]);
+  }
 
   function record() {
     const t = window.WPLab ? window.WPLab.tally() : null;
@@ -330,7 +370,8 @@
       </dl>
       <div id="ochart"></div><div id="olegend"></div>
       <p class="note">${esc(o.description || "")}${S ? " " + seldonNote(S) : ""}</p>
-      <a class="btn" href="#studio/${esc(o.id)}">Ask about a level or seal your own call</a>`;
+      <div class="actions"><a class="btn" href="#studio/${esc(o.id)}">Ask about a level or seal your own call</a>
+        <a class="btn" href="#series/${esc(o.id)}">Its track record</a></div>`;
     const hist = o.history.slice(-Math.max(60, 3 * o.fan.length));
     const bandsS = S ? [{ points: [[last[0], last[1], last[1]]].concat(S.fan.map((f) => [f[0], f[1], f[3]])), color: "transparent", stroke: "var(--seldon)", hatch: false, edge: "2 3" }] : [];
     plot($("ochart"), {
@@ -361,11 +402,13 @@
   const entries = VIEWS.map((v) => ({ label: NAMES[v], hint: "view", go: "#" + v }))
     .concat(D.outlook.map((o) => ({ label: o.title, hint: ticker(o), go: "#outlook/" + o.id })))
     .concat(D.outlook.map((o) => ({ label: `Ask about ${o.title}`, hint: "studio", go: "#studio/" + o.id })))
+    .concat(D.series.map((r) => ({ label: `${r.title} track record`, hint: "series page", go: "#series/" + r.id })))
     .concat(lab ? lab.series.map((s) => ({ label: `${s.title} in the Lab`, hint: "lab", go: "#lab/" + s.id })) : []);
   let hits = [], sel = 0;
   function search() {
     const q = cmd.value.trim().toLowerCase();
-    hits = (q ? entries.filter((e) => (e.label + " " + e.hint).toLowerCase().includes(q)) : entries.slice(0, VIEWS.length)).slice(0, 9);
+    const words = q.split(/\s+/).filter(Boolean);  // every word must appear, in any order
+    hits = (q ? entries.filter((e) => { const t = (e.label + " " + e.hint).toLowerCase(); return words.every((w) => t.includes(w)); }) : entries.slice(0, VIEWS.length)).slice(0, 9);
     sel = 0; paint();
   }
   function paint() {
@@ -414,7 +457,7 @@
     const cur = document.querySelector('.rail a[aria-current="page"]');
     if (cur && matchMedia("(max-width: 860px)").matches) cur.scrollIntoView({ block: "nearest", inline: "nearest" });
     document.title = `${NAMES[name]} · World Predictor`;
-    if (!rendered.has(name) || arg) { views[name](arg); rendered.add(name); }
+    if (!rendered.has(name) || arg || name === "series") { views[name](arg); rendered.add(name); }
   }
   window.addEventListener("hashchange", () => {
     const go = () => { show(location.hash.slice(1)); window.scrollTo(0, 0); };
@@ -423,9 +466,19 @@
   let resizeTimer, lastW = innerWidth;
   window.addEventListener("resize", () => {
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => { if (Math.abs(innerWidth - lastW) < 8) return; lastW = innerWidth; rendered.clear(); show(current); }, 180);
+    resizeTimer = setTimeout(() => { if (Math.abs(innerWidth - lastW) < 8) return; lastW = innerWidth; rendered.clear(); views.series.drawn = false; show(current === "series" ? location.hash.slice(1) : current); }, 180);
   });
   show(location.hash.slice(1) || "desk");
+
+  // A soft light follows the pointer across panels (drawn by .card::after in app.css).
+  if (matchMedia("(hover: hover)").matches && !reduce()) {
+    document.addEventListener("pointermove", (e) => {
+      const card = e.target.closest && e.target.closest(".card");
+      if (!card) return;
+      const r = card.getBoundingClientRect();
+      card.style.setProperty("--mx", e.clientX - r.left + "px"); card.style.setProperty("--my", e.clientY - r.top + "px");
+    }, { passive: true });
+  }
 
   // Offline support on the web (service workers need http(s), so this is skipped for file://).
   if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("../sw.js").catch(() => {});

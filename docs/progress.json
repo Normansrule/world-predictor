@@ -120,7 +120,7 @@
           "evidence": "site/app/index.html"
         },
         {
-          "title": "No chart library: hand-written SVG charts, under 50 KB of code in total",
+          "title": "No chart library: hand-written SVG charts, about 45 KB of code once compressed",
           "done": true,
           "evidence": "site/app/js/charts.js"
         },
@@ -175,11 +175,22 @@
           "evidence": "REFERENCES.md"
         },
         {
-          "title": "Live at normansrule.github.io/world-predictor",
-          "done": false
+          "title": "A page for every series: every past forecast against what happened",
+          "done": true,
+          "evidence": "site/app/js/series.js"
         },
         {
-          "title": "A detail page for every series",
+          "title": "Time Vault lists every opened forecast, flagged when sealed before the value was published",
+          "done": true,
+          "evidence": "src/psychohistory/web.py"
+        },
+        {
+          "title": "Cinematic landing page: a scroll story of one real forecast, sealed then scored",
+          "done": true,
+          "evidence": "site/assets/site.js"
+        },
+        {
+          "title": "Live at normansrule.github.io/world-predictor",
           "done": false
         }
       ]
@@ -193,6 +204,11 @@
           "title": "`psychohistory app`: run TimesFM locally and open the same app",
           "done": true,
           "evidence": "src/psychohistory/web.py"
+        },
+        {
+          "title": "`psychohistory record`: one series' full track record in the terminal",
+          "done": true,
+          "evidence": "src/psychohistory/story.py"
         },
         {
           "title": "Release workflow: full project zip and offline app zip",

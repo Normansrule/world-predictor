@@ -3,6 +3,7 @@
    Motion: transform and opacity only, ease-out, and every travel stops under reduced motion. */
 
 body { overflow-x: hidden; }
+html, body, main { overflow-x: clip; }  /* the hero glows and field may reach past the edge; clip keeps sticky working */
 .wrap { width: min(1240px, 100% - 32px); margin: 0 auto; }
 
 /* Top bar: the terminal's status bar, with page links instead of readouts. */
@@ -118,3 +119,98 @@ p.intro { color: var(--ink-2); max-width: 64ch; margin: 0 0 20px; font-size: 15p
   .explode__scene { height: 600px; }
   .preview img { transform: none; }
 }
+
+/* ---------- v4: depth and motion ----------
+   One rule for all of it: transform, opacity and filter only, driven by scroll or the pointer,
+   and everything stops (or shows its final state) under reduced motion. */
+.visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* Hero: a living field of forecast paths behind the copy, and two slow colour glows. */
+.hero { position: relative; isolation: isolate; }
+.hero::before, .hero::after { content: ""; position: absolute; z-index: -2; border-radius: 50%; filter: blur(60px); opacity: .5; pointer-events: none; }
+.hero::before { width: 46vw; height: 46vw; max-width: 620px; max-height: 620px; left: -12%; top: -30%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--tfm) 38%, transparent), transparent); animation: drift 18s ease-in-out infinite alternate; }
+.hero::after { width: 38vw; height: 38vw; max-width: 520px; max-height: 520px; right: -8%; top: 10%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--you) 30%, transparent), transparent); animation: drift 22s ease-in-out -6s infinite alternate-reverse; }
+@keyframes drift { to { transform: translate3d(6%, 8%, 0) scale(1.12); } }
+.hero-field { position: absolute; inset: -40px -16px auto; height: calc(100% + 80px); width: calc(100% + 32px); z-index: -1; pointer-events: none;
+  mask-image: radial-gradient(120% 90% at 30% 40%, #000 30%, transparent 80%); -webkit-mask-image: radial-gradient(120% 90% at 30% 40%, #000 30%, transparent 80%); opacity: .9; }
+.eyebrow { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 14px; padding: 6px 12px 6px 10px; border: 1px solid var(--line-2); border-radius: 999px;
+  font: 500 12px/1 var(--mono); color: var(--ink-2); background: color-mix(in srgb, var(--panel) 70%, transparent); backdrop-filter: blur(8px); }
+.eyebrow .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--up); box-shadow: 0 0 0 0 color-mix(in srgb, var(--up) 60%, transparent); animation: ping 2.4s var(--ease) infinite; }
+@keyframes ping { 70%, 100% { box-shadow: 0 0 0 8px transparent; } }
+.hero h1 { font-size: clamp(38px, 4.8vw, 66px); max-width: 12ch; }
+.hero h1 .w { display: inline-block; white-space: pre; }
+.js .hero h1.split .w { animation: word .9s var(--ease) both; animation-delay: calc(120ms + var(--w) * 55ms); }
+@keyframes word { from { opacity: 0; transform: translateY(.45em) rotate(2deg); filter: blur(8px); } }
+.js .hero-copy > h1.split { animation: none; }
+.hero h1 .w.hl { background: linear-gradient(100deg, var(--tfm), var(--seldon) 55%, var(--you)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+/* Pointer spotlight on cards and the views index (Dogstudio / Rive style), from --mx/--my set by site.js. */
+.spot { position: relative; }
+.spot::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .3s ease;
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--tfm) 12%, transparent), transparent 60%); }
+@media (hover: hover) { .spot:hover::after { opacity: 1; } }
+.btn.magnet { transition: transform .35s var(--ease), border-color .15s ease, background-color .15s ease; transform: translate(var(--bx, 0), var(--by, 0)); }
+
+/* Reveal as sections scroll in: rise, sharpen. */
+.js .reveal { opacity: 0; transform: translateY(18px); filter: blur(6px); transition: opacity .8s var(--ease), transform .8s var(--ease), filter .8s var(--ease); transition-delay: calc(var(--d, 0) * 70ms); }
+.js .reveal.in { opacity: 1; transform: none; filter: none; }
+
+/* The story: a pinned stage where one real forecast is sealed and scored as you scroll (Apple style). */
+.story { height: 420vh; position: relative; margin-top: clamp(32px, 6vh, 64px); }
+.story__stage { position: sticky; top: 76px; height: calc(100vh - 76px); display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.6fr); gap: clamp(20px, 4vw, 56px); align-items: center; }
+.story__steps { list-style: none; margin: 0; padding: 0; display: grid; }
+.story__steps li { grid-area: 1 / 1; display: grid; gap: 10px; opacity: 0; transform: translateY(24px); filter: blur(4px); transition: opacity .6s var(--ease), transform .6s var(--ease), filter .6s var(--ease); }
+.story__steps li.on { opacity: 1; transform: none; filter: none; }
+.story__steps li.past { transform: translateY(-24px); }
+.story__steps .k { font: 500 12px var(--mono); color: var(--tfm); letter-spacing: .04em; text-transform: uppercase; }
+.story__steps li[data-s="1"] .k { color: var(--seal); } .story__steps li[data-s="2"] .k { color: var(--up); } .story__steps li[data-s="3"] .k { color: var(--you); }
+.story__steps b { font: 600 clamp(28px, 3.4vw, 46px)/1.05 var(--display); letter-spacing: -.02em; text-wrap: balance; }
+.story__steps .t { color: var(--ink-2); font-size: 16px; max-width: 40ch; }
+.story__view { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px 12px; box-shadow: var(--shadow);
+  transform: perspective(1400px) rotateX(calc((1 - var(--enter, 1)) * 12deg)) scale(calc(.94 + .06 * var(--enter, 1))); transform-origin: 50% 100%; }
+.story__meta { display: flex; justify-content: space-between; gap: 12px; font: 12px var(--mono); color: var(--ink-2); margin-bottom: 6px; }
+.story__meta span:first-child { color: var(--ink); font-weight: 600; }
+.story__chart { width: 100%; height: auto; display: block; overflow: visible; }
+.story__chart text { font: 11px var(--mono); fill: var(--ink-2); }
+.story__chart .grid line { stroke: var(--line); }
+.story__chart .seal-mark { transform-box: fill-box; transform-origin: center; }
+.story__bar { height: 3px; background: var(--line); border-radius: 2px; margin-top: 10px; overflow: hidden; }
+.story__bar i { display: block; height: 100%; width: 100%; transform-origin: 0 50%; transform: scaleX(var(--p, 0));
+  background: linear-gradient(90deg, var(--tfm), var(--seal) 35%, var(--up) 65%, var(--you)); }
+@media (max-width: 900px) {
+  .story { height: 380vh; }
+  .story__stage { grid-template-columns: 1fr; grid-template-rows: auto auto; align-content: center; gap: 16px; top: 40px; height: calc(100vh - 40px); }
+  .story__steps b { font-size: 26px; } .story__steps .t { font-size: 14px; }
+}
+
+/* The record, in big numbers. */
+.numbers { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; padding: 0; margin-top: -8vh; position: relative; }
+.numbers .num { padding: 18px 18px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; position: relative; }
+.numbers .num::before { content: ""; position: absolute; inset: 0 0 auto; height: 3px; background: var(--c); }
+.numbers b { display: block; font: 600 clamp(40px, 5vw, 72px)/1 var(--display); letter-spacing: -.03em; color: var(--t, var(--c)); font-variant-numeric: tabular-nums; }
+.numbers span { display: block; margin-top: 10px; color: var(--ink-2); font-size: 14px; max-width: 22ch; }
+@media (max-width: 860px) { .numbers { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* The tape glides on the landing page; hover or focus holds it. */
+.js .site-tape .tape.glide { overflow: hidden; }
+.js .site-tape .tape.glide .run { display: flex; flex: none; animation: glide var(--glide, 60s) linear infinite; }
+.js .site-tape .tape.glide:hover .run, .js .site-tape .tape.glide:focus-within .run { animation-play-state: paused; }
+@keyframes glide { to { transform: translateX(-50%); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero::before, .hero::after, .eyebrow .dot { animation: none; }
+  .js .hero h1.split .w { animation: none; }
+  .js .reveal { opacity: 1; transform: none; filter: none; transition: none; }
+  .story { height: auto; }
+  .story__stage { position: static; height: auto; padding: 24px 0; }
+  .story__steps { gap: 18px; }
+  .story__steps li { grid-area: auto; opacity: 1; transform: none; filter: none; }
+  .story__view { transform: none; }
+  .js .site-tape .tape.glide .run { animation: none; }
+  .js .site-tape .tape.glide { overflow-x: auto; }
+}
+.story__chart g { transition: opacity .5s var(--ease); }
+.story__chart circle { transition: opacity .3s var(--ease); }
+@media (prefers-reduced-motion: reduce) { .story__chart g, .story__chart circle { transition: none; } }

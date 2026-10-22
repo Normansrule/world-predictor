@@ -405,10 +405,16 @@ def test_web_app_data_and_site(tmp_path):
     for r in first["rounds"]:
         assert len(r["model"]) == len(r["seldon"]) == first["horizon"]
         assert r["at"] + first["horizon"] <= len(first["history"])  # the answer is in the history, after the cut
+    # Series pages: the windows sit back to back on one shared run of actual values
+    for sid, t in payload["track"].items():
+        assert len(t["days"]) == len(t["actual"]) and t["days"][0] == 0 and t["days"] == sorted(t["days"])
+        for (_, at, q10, q50, q90), nxt in zip(t["windows"], t["windows"][1:] + [None]):
+            assert len(q10) == len(q50) == len(q90) and all(a <= b <= c for a, b, c in zip(q10, q50, q90))
+            assert at + len(q50) == (nxt[1] if nxt else len(t["actual"]))
     cli.main(["site", *common, "--site-dir", str(tmp_path / "site")])
     built = tmp_path / "site"
     for rel in ("index.html", "sw.js", "manifest.webmanifest", "app/index.html", "app/js/app.js", "app/js/charts.js",
-                "app/js/trace.js", "app/data/pipeline.js", "app/css/app.css"):
+                "app/js/trace.js", "app/js/series.js", "app/data/pipeline.js", "app/css/app.css"):
         assert (built / rel).exists(), rel
     assert (built / "app" / "data" / "data.js").read_text() == text
 
@@ -418,7 +424,7 @@ def test_demo_payload_is_marked_and_complete():
 
     payload = web.demo_payload()
     assert payload["meta"]["demo"] is True
-    for key in ("headlines", "domains", "horizon", "calibration", "series", "outlook", "vault"):
+    for key in ("headlines", "domains", "horizon", "calibration", "series", "outlook", "vault", "track", "opened"):
         assert payload[key], key
     assert payload["scorecard"]["news"]["skill"] is not None
 
@@ -649,3 +655,25 @@ def test_ask_seals_a_catalog_series_with_seldon(tmp_path, capsys):
     assert "Seldon middle" in out and "Sealed 6 rows" in out
     sealed = pd.read_csv(tmp_path / "ledger.csv")
     assert set(sealed["model"]) == {"drift", "seldon"} and sealed["p_up"].between(0, 1).all()
+
+
+def test_opened_forecasts_flag_values_sealed_before_release(tmp_path, capsys):
+    from psychohistory import web
+
+    scored = pd.DataFrame({
+        "made_on": ["2026-10-18", "2026-10-18"], "model": ["drift", "drift"], "series_id": ["wiki_ai", "wiki_ai"],
+        "domain": ["tech", "tech"], "scale": ["individual"] * 2, "last_date": ["2026-10-15"] * 2, "last_value": [10.0, 10.0],
+        "step": [3, 4], "target_date": ["2026-10-18", "2026-10-19"], "q10": [8.0, 8.0], "q50": [10.0, 10.5], "q90": [12.0, 13.0],
+        "point": [10.0, 10.5], "p_up": [0.5, 0.6], "actual": [11.0, 14.0], "abs_error": [1.0, 3.5], "naive_abs_error": [1.0, 4.0],
+        "in_band80": [True, False], "direction_correct": [np.nan, 1.0], "brier": [0.25, 0.16],
+    })
+    rows = web.opened_payload(scored, "drift")
+    assert [r[3] for r in rows] == ["2026-10-19", "2026-10-18"]  # newest first
+    assert [r[11] for r in rows] == [0, 1]  # the 18th was sealed on the 18th, before that value was out
+    assert rows[0][10] == 1  # it ended higher than the last value
+    scored.to_csv(tmp_path / "scored.csv", index=False)
+    cli.main(["record", "wiki_ai", "--scored", str(tmp_path / "scored.csv"), "--out-dir", str(tmp_path / "none"), "--model", "drift"])
+    out = capsys.readouterr().out
+    assert "1 of 2 inside the 80% range" in out and "before the value was published" in out
+    with pytest.raises(SystemExit):
+        cli.main(["record", "gold", "--scored", str(tmp_path / "scored.csv"), "--out-dir", str(tmp_path / "none"), "--model", "drift"])

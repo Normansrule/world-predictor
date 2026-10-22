@@ -443,3 +443,39 @@ def plot_outlook(
     fig.savefig(path)
     plt.close(fig)
     return path
+
+
+def _n(v: float) -> str:
+    """A value for a table: whole numbers with separators when large, four significant digits otherwise."""
+    return f"{v:,.0f}" if abs(v) >= 1000 else f"{v:.4g}"
+
+
+def series_record(series_id: str, windows: pd.DataFrame | None, scored: pd.DataFrame | None, model: str) -> str:
+    """One series' full record as plain text, the same story as its page in the app: every backtest
+    window (what the middle guess said, whether reality stayed inside the 80% range, whether the
+    direction was right) and every sealed forecast whose date has arrived."""
+    name = "TimesFM" if model.startswith("timesfm") else model
+    lines = [f"{SHORT_TITLES.get(series_id, series_id)} ({series_id}), model {model}", ""]
+    rows = windows[(windows["series_id"] == series_id) & (windows["model"] == model)].sort_values("origin") if windows is not None else pd.DataFrame()
+    if rows.empty:
+        lines.append("No backtest windows yet; run `psychohistory backtest`.")
+    else:
+        lines.append(f"Backtest: {len(rows)} past windows, each scored against what happened next")
+        lines.append(f"  {'made':<11} {'in range':>9} {'chance up':>10} {'it rose':>8} {'direction':>10} {'MASE':>6}")
+        for r in rows.itertuples():
+            call = "" if pd.isna(r.p_up) or pd.isna(r.went_up) or abs(r.p_up - 0.5) < 0.005 else ("right" if (r.p_up > 0.5) == bool(r.went_up) else "wrong")
+            lines.append(f"  {str(r.origin):<11} {r.coverage80:>9.0%} {r.p_up:>10.0%} {'yes' if r.went_up else 'no':>8} {call:>10} {r.mase:>6.2f}")
+        lines.append(f"  {name} kept reality inside its 80% range {rows['coverage80'].mean():.0%} of the time (an honest range: about 80%).")
+        lines.append("  MASE is the error scaled by a one-step \"no change\" guess; below 1 is better than that guess.")
+    mine = scored[(scored["series_id"] == series_id) & (scored["model"] == model)].sort_values("target_date") if scored is not None and not scored.empty else pd.DataFrame()
+    lines.append("")
+    if mine.empty:
+        lines.append("Sealed forecasts: none has reached its date yet.")
+    else:
+        lines.append(f"Sealed forecasts opened so far: {int(mine['in_band80'].sum())} of {len(mine)} inside the 80% range")
+        for r in mine.itertuples():
+            made = pd.to_datetime(r.made_on, errors="coerce")
+            lag = " (sealed before the value was published)" if not pd.isna(made) and pd.Timestamp(r.target_date) <= made else ""
+            lines.append(f"  {r.target_date}: range {_n(r.q10)} to {_n(r.q90)}, actual {_n(r.actual)}, "
+                         f"{'inside' if r.in_band80 else 'outside'}; sealed {r.made_on}{lag}")
+    return "\n".join(lines)

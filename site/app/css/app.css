@@ -19,7 +19,7 @@
   --up: #6fd99f; --down: #ff8a7f; --warn: #ffd166; --hypo: #e6a7d6;
   --news: #ff9f6b; --markets: #ffd166; --tech: #e39cf2;
   --on-tfm: #141a2e; --on-seal: #fff6ef;
-  --band: rgba(157, 180, 255, .16); --band-s: rgba(78, 214, 200, .14); --band-y: rgba(196, 168, 255, .16);
+  --band: rgba(157, 180, 255, .16); --band-faint: rgba(157, 180, 255, .07); --band-s: rgba(78, 214, 200, .14); --band-y: rgba(196, 168, 255, .16);
   --tip-bg: #edf1f5; --tip-ink: #262d36;
   --shadow: 0 1px 0 rgba(255, 255, 255, .04) inset, 0 8px 24px rgba(10, 14, 20, .28);
   color-scheme: dark;
@@ -46,7 +46,7 @@
   --up: #14623f; --down: #a01f28; --warn: #6e4c00; --hypo: #77315f;
   --news: #9c4413; --markets: #6e4c00; --tech: #7f3393;
   --on-tfm: #ffffff; --on-seal: #fff7f2;
-  --band: rgba(35, 67, 181, .12); --band-s: rgba(8, 97, 95, .12); --band-y: rgba(90, 55, 173, .12);
+  --band: rgba(35, 67, 181, .12); --band-faint: rgba(35, 67, 181, .05); --band-s: rgba(8, 97, 95, .12); --band-y: rgba(90, 55, 173, .12);
   --tip-bg: #111922; --tip-ink: #e9edf2;
   --shadow: 0 1px 2px rgba(17, 25, 34, .06), 0 6px 18px rgba(17, 25, 34, .08);
   --glow: rgba(35, 67, 181, .06);
@@ -525,3 +525,34 @@ td.area { box-shadow: inset 3px 0 0 var(--c, transparent); padding-left: 12px !i
 .board-odds td:first-child { font-family: var(--sans); }
 .table-wrap:has(> .board-odds) { max-height: 392px; overflow: auto; }
 .table-wrap:has(> .board-odds) thead th { position: sticky; top: 0; background: var(--panel); z-index: 1; }
+
+/* Series pages and the Time Vault's receipts */
+.back { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink-2); text-decoration: none; margin: 0 0 10px; }
+.back::before { content: "←"; }
+@media (hover: hover) { .back:hover { color: var(--ink); } }
+.vhead .flags { margin: 0 0 8px; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 0; }
+#series-page .actions { margin: 0 0 12px; }
+table.opened td small { display: block; color: var(--ink-2); font: 11px var(--mono); }
+table.opened tbody tr td:first-child { box-shadow: inset 3px 0 0 var(--c, transparent); }
+.opened-wrap { max-height: 360px; }
+.opened-wrap { overflow: auto; }
+.opened-wrap thead th { position: sticky; top: 0; background: var(--panel); z-index: 1; }
+#sp-table { margin-top: 12px; }
+#sp-table td:first-child { font-family: var(--mono); font-size: 12px; }
+
+/* v4 motion: panels settle in one after another when a view opens, and a soft light follows the
+   pointer across panels. Transform and opacity only; both off under reduced motion. */
+.view.active .card, .view.active .vhead { animation: settle .55s var(--ease) both; }
+.view.active .card:nth-of-type(2), .view.active .two > .card:nth-child(1) { animation-delay: 50ms; }
+.view.active .card:nth-of-type(3), .view.active .two > .card:nth-child(2) { animation-delay: 100ms; }
+.view.active .card:nth-of-type(4), .view.active .two > .card:nth-child(3) { animation-delay: 150ms; }
+@keyframes settle { from { opacity: 0; transform: translateY(10px) scale(.995); } }
+.card::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .35s ease;
+  background: radial-gradient(520px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--tfm) 7%, transparent), transparent 60%); }
+@media (hover: hover) { .card:hover::after { opacity: 1; } }
+.rail a { transition: color .15s ease, background-color .2s ease, box-shadow .25s var(--ease); }
+@media (prefers-reduced-motion: reduce) {
+  .view.active .card, .view.active .vhead { animation: none; }
+  .card::after { display: none; }
+}

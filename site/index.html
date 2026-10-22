@@ -40,8 +40,10 @@
 
 <main id="main">
   <header class="hero wrap" id="lab">
+    <canvas class="hero-field" id="hero-field" aria-hidden="true"></canvas>
     <div class="hero-copy">
-      <h1>Forecasts, sealed before the future happens.</h1>
+      <p class="eyebrow"><span class="dot"></span>TimesFM · Seldon · you</p>
+      <h1 class="split">Forecasts, sealed before the future happens.</h1>
       <p class="lede">Google's <b>TimesFM</b> and our self-correcting <b>Seldon</b> forecast world news, markets and technology.
         Every forecast is sealed with a date and scored when reality arrives. Try it: this chart is a real past window, ending hidden.</p>
       <div class="cta-row">
@@ -52,6 +54,30 @@
     </div>
     <div class="hero-lab" id="hero-lab" aria-label="Lab: make a blind call on a real past window"></div>
   </header>
+
+  <section class="story" id="story" aria-labelledby="story-title">
+    <h2 class="visually-hidden" id="story-title">One real forecast, from sealed to scored</h2>
+    <div class="story__stage wrap">
+      <ol class="story__steps" id="story-steps">
+        <li data-s="0"><span class="k">01 · The past</span><b>This is all it could see.</b><span class="t" id="story-t0">The history up to the day the forecast was made. Nothing after it.</span></li>
+        <li data-s="1"><span class="k">02 · Sealed</span><b>It commits to a range.</b><span class="t" id="story-t1">A middle guess and an 80% range for every day ahead, sealed with a date.</span></li>
+        <li data-s="2"><span class="k">03 · Reality</span><b>Then the future arrives.</b><span class="t" id="story-t2">One day at a time. Green inside the range, red outside it.</span></li>
+        <li data-s="3"><span class="k">04 · Scored</span><b id="story-score">Scored in public.</b><span class="t" id="story-t3">Every window counts, the good and the bad, in the order they happened.</span></li>
+      </ol>
+      <div class="story__view">
+        <div class="story__meta"><span id="story-name"></span><span id="story-when"></span></div>
+        <svg class="story__chart" id="story-chart" role="img" aria-label="A real past forecast: history, the sealed range, and what happened"></svg>
+        <div class="story__bar" aria-hidden="true"><i id="story-progress"></i></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="numbers wrap" id="numbers" aria-label="The record so far">
+    <div class="num" style="--c:var(--news);--t:var(--news)"><b data-count="0" id="n-series">–</b><span>series forecast every week</span></div>
+    <div class="num" style="--c:var(--tfm)"><b data-count="0" id="n-windows">–</b><span>past windows, scored against what happened</span></div>
+    <div class="num" style="--c:var(--seal);--t:var(--down)"><b data-count="0" id="n-opened">–</b><span>sealed forecasts already opened</span></div>
+    <div class="num" style="--c:var(--up)"><b data-count="0" id="n-inside" data-suffix="%">–</b><span>of them inside their 80% range</span></div>
+  </section>
 
   <section class="block wrap" id="results" aria-labelledby="results-title">
     <h2 class="title" id="results-title">Crowds were predictable. Markets were not.</h2>
@@ -105,7 +131,8 @@
       <li><a href="app/#replay"><kbd>6</kbd><b>Replay</b><span>Past forecasts meet reality, frame by frame.</span></a></li>
       <li><a href="app/#horizon"><kbd>7</kbd><b>How far ahead</b><span>The "Seldon horizon": how many days the model's edge lasts in each area.</span></a></li>
       <li><a href="app/#odds"><kbd>8</kbd><b>Honest odds</b><span>When it says 70%, does it happen 70% of the time?</span></a></li>
-      <li><a href="app/#vault"><kbd>9</kbd><b>Time Vault</b><span>Sealed predictions, opened and scored as their dates arrive.</span></a></li>
+      <li><a href="app/#vault"><kbd>9</kbd><b>Time Vault</b><span>Sealed predictions, opened and scored as their dates arrive, every receipt listed.</span></a></li>
+      <li><a href="app/#series"><kbd>0</kbd><b>Series pages</b><span>Every forecast made for one series, drawn over what really happened.</span></a></li>
     </ul>
   </section>
 
@@ -125,7 +152,8 @@
         <pre><code>git clone https://github.com/Normansrule/world-predictor.git
 cd world-predictor &amp;&amp; pip install -e ".[timesfm]"
 psychohistory app --demo
-psychohistory ask --csv my_series.csv --above 120</code></pre>
+psychohistory ask --csv my_series.csv --above 120
+psychohistory record gold</code></pre>
         <a class="btn" href="https://github.com/Normansrule/world-predictor#quick-start">Full quick start</a>
       </div>
     </div>

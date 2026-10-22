@@ -144,10 +144,12 @@ date", with the day they were retrieved; several undated works by one author are
 The sites and repositories behind the terminal's look and motion. [docs/DESIGN.md](docs/DESIGN.md)
 says what was taken from each one.
 
+- 1minus1. (n.d.). *1minus1*. Retrieved October 21, 2026, from https://1minus1.com/
 - Apache Software Foundation. (n.d.). *echarts* [Computer software]. GitHub. https://github.com/apache/echarts
 - Apple Inc. (n.d.-a). *AirPods Pro*. Retrieved October 20, 2026, from https://www.apple.com/airpods-pro/
-- Apple Inc. (n.d.-b). *Apple Vision Pro*. Retrieved October 20, 2026, from https://www.apple.com/apple-vision-pro/
-- Apple Inc. (n.d.-c). *MacBook Pro*. Retrieved October 20, 2026, from https://www.apple.com/macbook-pro/
+- Apple Inc. (n.d.-b). *Apple*. Retrieved October 21, 2026, from https://www.apple.com/
+- Apple Inc. (n.d.-c). *Apple Vision Pro*. Retrieved October 20, 2026, from https://www.apple.com/apple-vision-pro/
+- Apple Inc. (n.d.-d). *MacBook Pro*. Retrieved October 20, 2026, from https://www.apple.com/macbook-pro/
 - Astral Software Inc. (n.d.). *uv* [Computer software]. GitHub. https://github.com/astral-sh/uv
 - Astro Technology Company. (n.d.). *starlight* [Computer software]. GitHub. https://github.com/withastro/starlight
 - Asturiano, V. (n.d.). *globe.gl* [Computer software]. GitHub. https://github.com/vasturiano/globe.gl
@@ -165,6 +167,7 @@ says what was taken from each one.
 - darkroom.engineering. (n.d.). *lenis* [Computer software]. GitHub. https://github.com/darkroomengineering/lenis
 - Ding, S. (n.d.). *cobe* [Computer software]. GitHub. https://github.com/shuding/cobe
 - Distill. (n.d.). *Distill*. Retrieved October 20, 2026, from https://distill.pub/
+- Dogstudio. (n.d.). *Dogstudio*. Retrieved October 21, 2026, from https://dogstudio.co/
 - Excalidraw. (n.d.). *excalidraw* [Computer software]. GitHub. https://github.com/excalidraw/excalidraw
 - Framework Computer Inc. (n.d.). *Framework*. Retrieved October 20, 2026, from https://frame.work/
 - GitHub. (n.d.-a). *Basic writing and formatting syntax*. Retrieved October 20, 2026, from https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax
