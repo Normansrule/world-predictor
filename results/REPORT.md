@@ -1,6 +1,6 @@
 # World Predictor: Seldon scorecard
 
-_Generated 2026-11-01 with model `timesfm-2.5`. Skill = 1 - MAE(model) / MAE(naive random walk); positive is better than naive. Coverage80 should be close to 0.80 for an honest forecaster. Brier scores the probability of going up (0.25 = coin flip, lower is better). See docs/METHODOLOGY.md._
+_Generated 2026-11-02 with model `timesfm-2.5`. Skill = 1 - MAE(model) / MAE(naive random walk); positive is better than naive. Coverage80 should be close to 0.80 for an honest forecaster. Brier scores the probability of going up (0.25 = coin flip, lower is better). See docs/METHODOLOGY.md._
 
 ## In plain English
 
@@ -54,7 +54,7 @@ Seldon is this project's own forecaster (`src/psychohistory/seldon.py`): five si
 | news     | seldon       |        6 |          0.146 |         1.333 |       0.639 |        0.785 |   0.215 |
 | news     | timesfm-2.5  |        6 |          0.215 |         1.228 |       0.681 |        0.761 |   0.202 |
 | tech     | auto-ets     |       11 |          0.066 |         1.577 |       0.598 |        0.817 |   0.220 |
-| tech     | bass         |        3 |         -1.365 |       108.159 |       0.333 |        0.000 |   0.603 |
+| tech     | bass         |        3 |         -1.365 |       108.159 |       0.333 |        0.000 |   0.602 |
 | tech     | chronos-bolt |       11 |          0.465 |         0.806 |       0.788 |        0.760 |   0.146 |
 | tech     | drift        |       11 |         -0.024 |         1.405 |       0.689 |        0.649 |   0.181 |
 | tech     | ensemble     |       11 |          0.361 |         0.989 |       0.659 |        0.852 |   0.190 |
@@ -106,21 +106,21 @@ _Predictions are sealed with a date before the future happens and opened when it
 
 | domain   | model        |   series |   predictions |   median_skill |   direction |   coverage80 |   brier |
 |:---------|:-------------|---------:|--------------:|---------------:|------------:|-------------:|--------:|
-| markets  | auto-ets     |       12 |           383 |         -0.000 |       0.489 |        0.888 |   0.251 |
-| markets  | chronos-bolt |       12 |           383 |         -0.070 |       0.484 |        0.830 |   0.268 |
-| markets  | ensemble     |       12 |           383 |         -0.012 |       0.486 |        0.858 |   0.253 |
-| markets  | seldon       |       12 |           140 |         -0.017 |       0.326 |        0.761 |   0.258 |
-| markets  | timesfm-2.5  |       12 |           383 |          0.015 |       0.498 |        0.852 |   0.251 |
-| news     | auto-ets     |        6 |           111 |         -0.003 |       0.544 |        0.710 |   0.244 |
-| news     | chronos-bolt |        6 |           111 |          0.072 |       0.559 |        0.645 |   0.268 |
-| news     | ensemble     |        6 |           111 |          0.036 |       0.561 |        0.691 |   0.256 |
-| news     | seldon       |        6 |            36 |          0.002 |       0.633 |        0.444 |   0.266 |
-| news     | timesfm-2.5  |        6 |           111 |          0.046 |       0.503 |        0.653 |   0.301 |
-| tech     | auto-ets     |        8 |           360 |         -0.204 |       0.553 |        0.969 |   0.242 |
-| tech     | chronos-bolt |        8 |           360 |          0.501 |       0.794 |        0.769 |   0.136 |
-| tech     | ensemble     |        8 |           360 |          0.277 |       0.744 |        0.972 |   0.145 |
-| tech     | seldon       |        8 |           128 |          0.297 |       0.734 |        0.781 |   0.155 |
-| tech     | timesfm-2.5  |        8 |           360 |          0.545 |       0.811 |        0.731 |   0.123 |
+| markets  | auto-ets     |       12 |           443 |         -0.002 |       0.482 |        0.887 |   0.253 |
+| markets  | chronos-bolt |       12 |           443 |         -0.100 |       0.462 |        0.830 |   0.274 |
+| markets  | ensemble     |       12 |           443 |         -0.036 |       0.468 |        0.851 |   0.256 |
+| markets  | seldon       |       12 |           176 |         -0.019 |       0.342 |        0.777 |   0.259 |
+| markets  | timesfm-2.5  |       12 |           443 |          0.000 |       0.497 |        0.847 |   0.252 |
+| news     | auto-ets     |        6 |           111 |          0.019 |       0.568 |        0.793 |   0.240 |
+| news     | chronos-bolt |        6 |           111 |          0.072 |       0.606 |        0.681 |   0.244 |
+| news     | ensemble     |        6 |           111 |          0.036 |       0.608 |        0.762 |   0.240 |
+| news     | seldon       |        6 |            36 |          0.002 |       0.606 |        0.500 |   0.269 |
+| news     | timesfm-2.5  |        6 |           111 |          0.046 |       0.551 |        0.688 |   0.279 |
+| tech     | auto-ets     |        8 |           400 |         -0.231 |       0.520 |        0.960 |   0.253 |
+| tech     | chronos-bolt |        8 |           400 |          0.480 |       0.768 |        0.713 |   0.150 |
+| tech     | ensemble     |        8 |           400 |          0.243 |       0.715 |        0.945 |   0.156 |
+| tech     | seldon       |        8 |           152 |          0.305 |       0.724 |        0.737 |   0.157 |
+| tech     | timesfm-2.5  |        8 |           400 |          0.535 |       0.792 |        0.677 |   0.133 |
 
 ## 5. How far ahead can it see?
 
@@ -159,7 +159,7 @@ Backtest forecasts grouped by the chance they gave of the series ending higher. 
 | series_id         | domain   | scale      | model       |      mae |   mase |   smape |   direction |   coverage80 |   pinball |   brier |   skill |   prob_skill |
 |:------------------|:---------|:-----------|:------------|---------:|-------:|--------:|------------:|-------------:|----------:|--------:|--------:|-------------:|
 | aapl              | markets  | individual | timesfm-2.5 |   11.277 |  4.775 |   0.039 |       0.500 |        0.734 |     1.849 |   0.241 |  -0.007 |       -0.008 |
-| adoption_internet | tech     | aggregate  | timesfm-2.5 |    2.341 |  0.774 |   0.032 |       1.000 |        1.000 |     0.260 |   0.003 |   0.460 |        0.526 |
+| adoption_internet | tech     | aggregate  | timesfm-2.5 |    2.341 |  0.774 |   0.032 |       1.000 |        1.000 |     0.260 |   0.002 |   0.460 |        0.526 |
 | adoption_solar    | tech     | aggregate  | timesfm-2.5 |    0.254 | 64.139 |   0.421 |       0.750 |        0.417 |    27.337 |   0.197 |   0.441 |        0.282 |
 | adoption_wind     | tech     | aggregate  | timesfm-2.5 |    0.165 | 31.187 |   0.249 |       0.833 |        0.694 |    12.482 |   0.124 |   0.646 |        0.416 |
 | bitcoin           | markets  | individual | timesfm-2.5 | 5007.985 |  3.973 |   0.067 |       0.250 |        0.842 |     1.589 |   0.257 |  -0.001 |        0.006 |
@@ -199,7 +199,7 @@ Latest forecasts recorded in the ledger (made with data up to each series' last 
 | series         |   last | target date   | median   | chance higher   | range (10%-90%)   |
 |:---------------|-------:|:--------------|:---------|:----------------|:------------------|
 | news_climate   |  0.857 | 2026-11-24    | +7.2%    | 62%             | -18.9% to +49.4%  |
-| news_composite |  1.581 | 2026-11-24    | -29.6%   | 5%              | -41.3% to -8.8%   |
+| news_composite |  1.323 | 2026-11-24    | -27.4%   | 5%              | -38.9% to -7.0%   |
 | news_election  | 11.407 | 2026-11-24    | -51.0%   | 5%              | -63.0% to -23.4%  |
 | news_inflation |  2.976 | 2026-11-24    | -33.0%   | 5%              | -48.2% to -10.1%  |
 | news_pandemic  |  1.713 | 2026-11-24    | -6.7%    | 29%             | -20.9% to +13.0%  |
@@ -216,18 +216,18 @@ Latest forecasts recorded in the ledger (made with data up to each series' last 
 
 | series     |      last | target date   | median   | chance higher   | range (10%-90%)   |
 |:-----------|----------:|:--------------|:---------|:----------------|:------------------|
-| aapl       |   344.63  | 2026-11-30    | +0.9%    | 56%             | -6.7% to +6.2%    |
-| bitcoin    | 77890.4   | 2026-11-29    | -0.9%    | 47%             | -17.1% to +16.4%  |
-| copper     |     6.482 | 2026-11-30    | +0.0%    | 50%             | -7.6% to +4.5%    |
-| gold       |  3898.9   | 2026-11-30    | -0.9%    | 44%             | -8.9% to +8.1%    |
-| msci_world |   204.64  | 2026-11-30    | +2.4%    | 82%             | -0.9% to +4.8%    |
-| nasdaq100  | 28384.8   | 2026-11-30    | +3.2%    | 71%             | -4.5% to +9.5%    |
-| nvda       |   204.64  | 2026-11-30    | +0.9%    | 54%             | -10.7% to +12.3%  |
-| oil_wti    |   104.12  | 2026-11-30    | -4.5%    | 33%             | -19.5% to +9.0%   |
-| silver     |    49.276 | 2026-11-30    | -0.5%    | 48%             | -13.4% to +16.2%  |
-| sp500      |  7580.07  | 2026-11-30    | +2.2%    | 77%             | -1.9% to +4.9%    |
-| tsla       |   399.81  | 2026-11-30    | +0.2%    | 51%             | -15.3% to +15.7%  |
-| xom        |   187.25  | 2026-11-30    | +0.5%    | 52%             | -9.7% to +11.3%   |
+| aapl       |   341.41  | 2026-12-01    | +1.0%    | 57%             | -6.9% to +6.3%    |
+| bitcoin    | 77790.1   | 2026-11-30    | -1.5%    | 45%             | -17.5% to +15.9%  |
+| copper     |     6.541 | 2026-12-01    | -0.3%    | 45%             | -7.4% to +3.9%    |
+| gold       |  3957.8   | 2026-12-01    | -0.6%    | 45%             | -8.0% to +8.1%    |
+| msci_world |   205.545 | 2026-12-01    | +1.8%    | 78%             | -1.3% to +4.2%    |
+| nasdaq100  | 28510.9   | 2026-12-01    | +2.6%    | 68%             | -4.7% to +8.9%    |
+| nvda       |   207.36  | 2026-12-01    | +0.3%    | 51%             | -10.2% to +10.6%  |
+| oil_wti    |    97.49  | 2026-12-01    | -2.9%    | 39%             | -18.3% to +11.1%  |
+| silver     |    50.905 | 2026-12-01    | -0.8%    | 47%             | -13.0% to +15.5%  |
+| sp500      |  7613.91  | 2026-12-01    | +1.7%    | 73%             | -2.1% to +4.4%    |
+| tsla       |   407.43  | 2026-12-01    | +0.7%    | 52%             | -14.8% to +16.8%  |
+| xom        |   182.29  | 2026-12-01    | +0.6%    | 53%             | -9.4% to +10.4%   |
 
 ![aapl](plots/aapl.png)
 ![bitcoin](plots/bitcoin.png)
@@ -249,14 +249,14 @@ Latest forecasts recorded in the ledger (made with data up to each series' last 
 | adoption_internet |    73.6   | 2028-01-01    | +5.8%    | 79%             | -2.9% to +19.5%   |
 | adoption_solar    |     8.745 | 2028-01-01    | +49.5%   | 95%             | +15.3% to +94.2%  |
 | adoption_wind     |     8.539 | 2028-01-01    | +6.9%    | 73%             | -9.3% to +22.4%   |
-| tech_composite    |     0.539 | 2026-11-28    | +9.0%    | 85%             | -2.0% to +26.8%   |
-| wiki_ai           | 13052     | 2026-11-28    | -15.1%   | 21%             | -30.3% to +13.5%  |
-| wiki_crispr       |   390     | 2026-11-28    | +35.1%   | 95%             | +8.0% to +71.0%   |
-| wiki_ev           |   324     | 2026-11-28    | +11.3%   | 81%             | -4.7% to +36.0%   |
-| wiki_fusion       |   383     | 2026-11-28    | +27.2%   | 95%             | +1.6% to +70.3%   |
-| wiki_humanoid     |   215     | 2026-11-28    | +12.0%   | 77%             | -7.6% to +52.4%   |
-| wiki_llm          |  2612     | 2026-11-28    | -3.2%    | 36%             | -12.0% to +11.8%  |
-| wiki_quantum      |  1089     | 2026-11-28    | +16.1%   | 84%             | -3.7% to +54.9%   |
+| tech_composite    |     0.523 | 2026-11-29    | +17.0%   | 95%             | +4.4% to +35.9%   |
+| wiki_ai           | 12385     | 2026-11-29    | -6.5%    | 33%             | -21.9% to +20.1%  |
+| wiki_crispr       |   492     | 2026-11-29    | +19.6%   | 88%             | -1.6% to +48.2%   |
+| wiki_ev           |   284     | 2026-11-29    | +25.5%   | 95%             | +5.6% to +53.7%   |
+| wiki_fusion       |   378     | 2026-11-29    | +31.0%   | 95%             | +2.9% to +76.3%   |
+| wiki_humanoid     |   185     | 2026-11-29    | +35.6%   | 95%             | +9.1% to +82.3%   |
+| wiki_llm          |  2418     | 2026-11-29    | +5.5%    | 75%             | -4.8% to +21.7%   |
+| wiki_quantum      |  1151     | 2026-11-29    | +12.6%   | 79%             | -5.7% to +47.8%   |
 
 ![adoption_internet](plots/adoption_internet.png)
 ![adoption_solar](plots/adoption_solar.png)
