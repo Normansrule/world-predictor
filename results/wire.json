@@ -1,0 +1,155 @@
+{
+ "fetched": "2026-11-03T03:02Z",
+ "topics": {
+  "oil_wti": {
+   "query": "\"oil prices\"",
+   "articles": [
+    {
+     "title": "San Diego gas prices down 40 cents a gallon in the past month . But what happens next ?",
+     "url": "https://www.sandiegouniontribune.com/2026/11/02/san-diego-gas-prices-down-40-cents-a-gallon-in-the-past-month-but-what-happens-next/",
+     "domain": "sandiegouniontribune.com",
+     "country": "United States",
+     "seen": "2026-11-03T02:15Z"
+    },
+    {
+     "title": "Building immunity to shocks - The HinduBusinessLine",
+     "url": "https://www.thehindubusinessline.com/opinion/building-immunity-to-shocks/article71657750.ece",
+     "domain": "thehindubusinessline.com",
+     "country": "India",
+     "seen": "2026-11-03T02:15Z"
+    },
+    {
+     "title": "Stock Market Today Live : Gift Nifty points to gap - up opening ; crude oil , US election in focus",
+     "url": "https://www.thehindubusinessline.com/markets/sensex-nifty50-today-stock-market-live-updates-3-november-2026/article71657258.ece",
+     "domain": "thehindubusinessline.com",
+     "country": "India",
+     "seen": "2026-11-03T02:15Z"
+    },
+    {
+     "title": "Ontario gasoline , diesel prices to plummet Wednesday",
+     "url": "https://www.niagarathisweek.com/news/ontario-gas-price-prediction-for-nov-4/article_3a74bb58-21aa-579f-9247-a053deae89b2.html",
+     "domain": "niagarathisweek.com",
+     "country": "Canada",
+     "seen": "2026-11-03T02:15Z"
+    },
+    {
+     "title": "RBA interest rate decision : Xmas , unemployment and Trump",
+     "url": "https://www.crikey.com.au/2026/11/03/interest-rate-decision-reserve-bank-rba-inflation-unemployment-donald-trump/",
+     "domain": "crikey.com.au",
+     "country": "Australia",
+     "seen": "2026-11-03T02:15Z"
+    },
+    {
+     "title": "Explosions rock Iran Qeshm Island as Tehran claims three US drones downed",
+     "url": "https://www.thehindubusinessline.com/news/world/explosions-reported-on-irans-qeshm-island-amid-rising-tensions-with-us/article71659179.ece",
+     "domain": "thehindubusinessline.com",
+     "country": "India",
+     "seen": "2026-11-03T02:15Z"
+    }
+   ]
+  },
+  "wiki_llm": {
+   "query": "\"language model\"",
+   "articles": [
+    {
+     "title": "John Ivison :  Red flags all over  Carney government buy - in of AI company Cohere",
+     "url": "https://calgaryherald.com:443/np-comment/john-ivison-red-flags-all-over-carney-governments-buy-in-of-ai-company-cohere/wcm/0f0c481c-ebf1-4a32-b6bb-510f52bfff6a",
+     "domain": "calgaryherald.com",
+     "country": "Canada",
+     "seen": "2026-11-03T02:15Z"
+    }
+   ]
+  },
+  "wiki_ai": {
+   "query": "\"artificial intelligence\"",
+   "articles": [
+    {
+     "title": "Here when Forsyth County parents can get tips from a national expert in keeping kids safe online",
+     "url": "https://www.forsythnews.com/news/education/heres-when-forsyth-county-parents-can-get-tips-from-a-national-expert-in-keeping-kids-safe-online/",
+     "domain": "forsythnews.com",
+     "country": "United States",
+     "seen": "2026-11-03T02:15Z"
+    },
+    {
+     "title": "John Ivison :  Red flags all over  Carney government buy - in of AI company Cohere",
+     "url": "https://calgaryherald.com:443/np-comment/john-ivison-red-flags-all-over-carney-governments-buy-in-of-ai-company-cohere/wcm/0f0c481c-ebf1-4a32-b6bb-510f52bfff6a",
+     "domain": "calgaryherald.com",
+     "country": "Canada",
+     "seen": "2026-11-03T02:15Z"
+    },
+    {
+     "title": "newsroomamerica . com",
+     "url": "https://newsroomamerica.com/?before=119284",
+     "domain": "newsroomamerica.com",
+     "country": "United States",
+     "seen": "2026-11-03T02:15Z"
+    },
+    {
+     "title": "War , tariffs and China : What the US midterms mean for the Asia - Pacific - Dominican Republic Post – Caribbean News , Business , Travel & Culture",
+     "url": "https://dominicanrepublicpost.com/war-tariffs-and-china-what-the-us-midterms-mean-for-the-asia-pacific/",
+     "domain": "dominicanrepublicpost.com",
+     "country": "United States",
+     "seen": "2026-11-03T02:15Z"
+    },
+    {
+     "title": "Mercado Bitcoin drain moved $40M in plain transactions",
+     "url": "https://techreport.com/news/software/mercado-bitcoin-drain-moved-40-million-in-plain-transactions-pointing-to-stolen-signing-keys/",
+     "domain": "techreport.com",
+     "country": "United States",
+     "seen": "2026-11-03T02:15Z"
+    },
+    {
+     "title": "Andalusian tourism minister :  The deterioration of our international image and rail safety concerns are a threat to tourism",
+     "url": "https://www.surinenglish.com/andalucia/gavira-deterioration-international-20261102000500-nt.html",
+     "domain": "surinenglish.com",
+     "country": "Spain",
+     "seen": "2026-11-03T02:15Z"
+    }
+   ]
+  },
+  "wiki_ev": {
+   "query": "\"electric vehicles\"",
+   "articles": [
+    {
+     "title": "LG Energy Solution Releases 2026 Third - Quarter Financial Results",
+     "url": "https://www.prnewswire.com/news-releases/lg-energy-solution-releases-2026-third-quarter-financial-results-302927133.html",
+     "domain": "prnewswire.com",
+     "country": "United States",
+     "seen": "2026-11-03T02:15Z"
+    },
+    {
+     "title": "Automakers back Trump administration rollback of US fuel economy rules | WKZO | Everything Kalamazoo",
+     "url": "https://wkzo.com/2026/11/02/automakers-back-us-rollback-of-fuel-economy-rules/",
+     "domain": "wkzo.com",
+     "country": "United States",
+     "seen": "2026-11-03T02:15Z"
+    },
+    {
+     "title": "FCC chairman joins Sen . Cramer in North Dakota to talk broadcast rules , drone tech",
+     "url": "https://y94.com/2026/11/02/fcc-chairman-joins-sen-cramer-in-north-dakota-to-talk-broadcast-rules-drone-tech/",
+     "domain": "y94.com",
+     "country": "United States",
+     "seen": "2026-11-03T02:15Z"
+    },
+    {
+     "title": "ELEKTROS ( OTC : ELEK ) Advances Review of U . S . Lithium Opportunity as Critical Minerals Gain Strategic Attention",
+     "url": "http://www.theusnews.com/news/279408624/elektros-otcelek-advances-review-of-us-lithium-opportunity-as-critical-minerals-gain-strategic-attention",
+     "domain": "theusnews.com",
+     "country": "United States",
+     "seen": "2026-11-03T02:15Z"
+    }
+   ]
+  }
+ },
+ "failed": {
+  "news_war": "JSONDecodeError: Expecting value: line 1 column 1 (char 0)",
+  "news_inflation": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22inflation%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sort=Da",
+  "sp500": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22S%26P+500%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sort=Da",
+  "msci_world": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22global+stocks%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sor",
+  "vix": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22stock+market%22+fear+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d",
+  "bitcoin": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=bitcoin+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sort=DateDesc",
+  "wiki_quantum": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22quantum+computing%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d",
+  "adoption_solar": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22solar+power%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sort=",
+  "adoption_wind": "ConnectTimeout: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Max retries exceeded with url: /api/v2/doc/doc?query=%22wind+power%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecor"
+ }
+}
