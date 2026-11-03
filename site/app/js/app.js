@@ -10,10 +10,19 @@
   const hue = (d) => (AREA[d] ? `var(--${d})` : "var(--ink-3)");
   const tag = (d) => `<span class="tag" style="--c:${hue(d)}">${esc(AREA[d] || d)}</span>`;
   const UNIT = { news: "days", markets: "trading days", tech: "days" };
-  const VIEWS = ["desk", "lab", "studio", "outlook", "trace", "replay", "horizon", "odds", "vault", "crowd", "series", "about"];
-  const KEYS = { 1: "desk", 2: "lab", 3: "studio", 4: "outlook", 5: "trace", 6: "replay", 7: "horizon", 8: "odds", 9: "vault", 0: "series", "?": "about" };
-  const NAMES = { desk: "Desk", lab: "Lab", studio: "Forecast Studio", outlook: "Outlook", trace: "Follow a result", replay: "Replay", horizon: "How far ahead", odds: "Honest odds",
+  const VIEWS = ["terminal", "desk", "markets", "monitor", "year", "lab", "studio", "outlook", "trace", "replay", "horizon", "odds", "vault", "crowd", "series", "about"];
+  const KEYS = { w: "terminal", W: "terminal", m: "markets", M: "markets", r: "monitor", R: "monitor", y: "year", Y: "year", 1: "desk", 2: "lab", 3: "studio", 4: "outlook", 5: "trace", 6: "replay", 7: "horizon", 8: "odds", 9: "vault", 0: "series", "?": "about" };
+  const NAMES = { terminal: "World terminal", desk: "Desk", markets: "Markets desk", monitor: "Monitor", year: "Year ledger", lab: "Lab", studio: "Forecast Studio", outlook: "Outlook", trace: "Follow a result", replay: "Replay", horizon: "How far ahead", odds: "Honest odds",
     vault: "Time Vault", crowd: "Crowd lab", series: "All series", about: "About" };
+  // The workflow's schedule: new forecasts sealed Monday 06:00 UTC, live refresh every weekday 22:30 UTC.
+  function nextRun(now = new Date()) {
+    for (let k = 0; k < 8 * 48; k++) {
+      const t = new Date(Math.ceil(now.getTime() / 18e5) * 18e5 + k * 18e5), d = t.getUTCDay(), hm = t.getUTCHours() * 60 + t.getUTCMinutes();
+      if (d === 1 && hm === 360) return "Mon 06:00 UTC · new forecasts";
+      if (d >= 1 && d <= 5 && hm === 1350) return t.toLocaleString("en", { weekday: "short", timeZone: "UTC" }) + " 22:30 UTC · refresh";
+    }
+    return "Mon 06:00 UTC";
+  }
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const reduce = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -24,7 +33,7 @@
   const model = D.meta.model;
   const modelName = /^timesfm/.test(model) ? "TimesFM" : model;
   const colorOf = (m) => (m === model || /^timesfm/.test(m) ? "var(--tfm)" : m === "seldon" ? "var(--seldon)" : m === "naive" ? "var(--ink-2)" : "var(--ink)");
-  const nameOf = (m) => (m === model ? modelName : m === "seldon" ? "Seldon" : m);
+  const nameOf = (m) => (m === model ? modelName : m === "seldon" ? "Seldon" : m === "seldon-laws" ? "Seldon laws" : m);
   const skillCls = (v) => (v === null || v === undefined ? "dim" : Math.abs(v) < 0.02 ? "dim" : v > 0 ? "pos" : "neg");
   const signed = (v) => { const r = Math.round(v * 100); return r === 0 ? "0%" : (r > 0 ? "+" : "−") + Math.abs(r) + "%"; };
 
@@ -37,7 +46,7 @@
     ["", "Challenger", "seldon"],
     ["", "Series", String(D.series.length)],
     ["", "Sealed", String(sealed)],
-    ["", "Next run", "Mon 06:00 UTC"],
+    ["", "Next run", nextRun()],
   ].map(([c, k, v]) => `<div class="${c}"><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join("");
   $("tape").innerHTML = D.outlook.map((o) => {
     const p = o.p_up, cls = p === null ? "flat" : p > 0.55 ? "up" : p < 0.45 ? "down" : "flat";
@@ -139,6 +148,13 @@
         }).join("") + "</tbody>"
         : '<tr><td><div class="empty"><b>Nothing sealed yet.</b>Forecasts appear after the first run of <code>psychohistory predict</code>.</div></td></tr>';
     },
+
+    markets(arg) { window.WPMarkets.render($("markets-root"), D, arg); },
+
+    monitor() { window.WPMonitor.render($("monitor-root"), D); },
+    year() { window.WPYear.render($("year-root"), D); },
+
+    terminal(arg) { window.WPTerminal.render($("terminal-root"), D, arg); },
 
     studio(arg) { window.WPStudio.render($("studio-root"), D, { start: arg, onSeal: () => rendered.delete("desk") }); },
 
@@ -343,7 +359,8 @@
     $("vault-lag").hidden = !shown.some((r) => r[11]);
   }
 
-  // The duel: who won more series, TimesFM or Seldon, on exactly the same backtest windows.
+  // The duel: who won more series, TimesFM or Seldon, on exactly the same backtest windows. The full
+  // Seldon first, then its crowd laws alone (no TimesFM vote), when the run has both.
   function duel() {
     const rows = D.duel || [], host = $("duel");
     if (!host) return;
@@ -352,19 +369,28 @@
         <p class="note" style="margin:0">${esc(council(null))} The head-to-head count appears after the next backtest.</p>`;
       return;
     }
+    const laws = D.duel_laws || [];
+    host.innerHTML = duelBlock(rows, "Seldon", "The full Seldon: crowd laws and " + modelName + " in one council")
+      + (laws.length ? duelBlock(laws, "Laws", "The crowd laws alone, without " + modelName, true) : "")
+      + `<p class="note" style="margin:10px 0 0">A series goes to whichever had the lower average error on the same windows; ties are left out. Seldon is our own forecaster: ${esc(modelName)} and four laws of crowd behaviour (inertia, drift, momentum, reversion, on top of the weekly rhythm) in one council, the laws' share of the vote learned per area from finished windows. Where the laws have not yet earned a share, Seldon follows ${esc(modelName)} and the series is a tie.</p>`;
+  }
+
+  function duelBlock(rows, who, label, second) {
     const all = rows.find((r) => r.domain === "all"), areas = rows.filter((r) => r.domain !== "all");
-    const name = (w) => (w === "seldon" ? "Seldon" : w === "tie" ? "Tie" : modelName);
-    const verdict = all.wins > all.losses ? `Seldon beat ${modelName} on ${all.wins} of ${all.series} series.`
-      : all.losses > all.wins ? `${modelName} beat Seldon on ${all.losses} of ${all.series} series.` : `Dead heat: ${all.wins} series each.`;
-    host.innerHTML = `<div class="duel-head"><span class="who" style="--c:var(--tfm)">${esc(modelName)}</span><b>vs</b><span class="who" style="--c:var(--seldon)">Seldon</span>
-        <p class="duel-verdict">${esc(verdict)}</p></div>
+    if (!all) return "";
+    const name = (w) => (w === "tie" ? "Tie" : w === model ? modelName : who);
+    const ties = all.series - all.wins - all.losses, tieText = ties ? `, ${ties} tied` : "";
+    const verdict = all.wins > all.losses ? `${who} won ${all.wins} of ${all.series} series, ${modelName} ${all.losses}${tieText}.`
+      : all.losses > all.wins ? `${modelName} won ${all.losses} of ${all.series} series, ${who} ${all.wins}${tieText}.` : `Dead heat: ${all.wins} series each${tieText}.`;
+    return `<div class="duel-block${second ? " second" : ""}"><div class="duel-head"><span class="who" style="--c:var(--tfm)">${esc(modelName)}</span><b>vs</b><span class="who" style="--c:var(--seldon)">${esc(who)}</span>
+        <small class="duel-label">${esc(label)}</small><p class="duel-verdict">${esc(verdict)}</p></div>
       <div class="duel-areas">${areas.map((r) => {
         const a = AREAS.find(([d]) => d === r.domain), share = r.series ? r.wins / r.series : 0;
+        const won = r.winner !== "tie" && r.winner !== model;
         return `<div class="duel-area" style="--c:${hue(r.domain)}"><span>${a ? a[1] : esc(r.domain)}</span>
-          <span class="duel-bar" style="--s:${(share * 100).toFixed(1)}%" title="Seldon won ${r.wins}, ${esc(modelName)} won ${r.losses}"><i></i></span>
-          <small>Seldon ${r.wins} · ${esc(modelName)} ${r.losses}</small><b class="${r.winner === "seldon" ? "s" : r.winner === "tie" ? "" : "m"}">${esc(name(r.winner))}</b></div>`;
-      }).join("")}</div>
-      <p class="note" style="margin:10px 0 0">A series goes to whichever had the lower average error on the same windows. Seldon is our own forecaster: five laws of crowd behaviour (inertia, drift, momentum, reversion, a weekly rhythm), no neural network.</p>`;
+          <span class="duel-bar" style="--s:${(share * 100).toFixed(1)}%" title="${esc(who)} won ${r.wins}, ${esc(modelName)} won ${r.losses}"><i></i></span>
+          <small>${esc(who)} ${r.wins} · ${esc(modelName)} ${r.losses}</small><b class="${won ? "s" : r.winner === "tie" ? "" : "m"}">${esc(name(r.winner))}</b></div>`;
+      }).join("")}</div></div>`;
   }
 
   function record() {
@@ -425,6 +451,8 @@
   const entries = VIEWS.map((v) => ({ label: NAMES[v], hint: "view", go: "#" + v }))
     .concat(D.outlook.map((o) => ({ label: o.title, hint: ticker(o), go: "#outlook/" + o.id })))
     .concat(D.outlook.map((o) => ({ label: `Ask about ${o.title}`, hint: "studio", go: "#studio/" + o.id })))
+    .concat(D.outlook.map((o) => ({ label: `${o.title} in the World terminal`, hint: "terminal", go: "#terminal/" + o.id })))
+    .concat(D.outlook.filter((o) => o.domain === "markets").map((o) => ({ label: `${o.title} on the Markets desk`, hint: "markets", go: "#markets/" + o.id })))
     .concat(D.series.map((r) => ({ label: `${r.title} track record`, hint: "series page", go: "#series/" + r.id })))
     .concat(lab ? lab.series.map((s) => ({ label: `${s.title} in the Lab`, hint: "lab", go: "#lab/" + s.id })) : []);
   let hits = [], sel = 0;
@@ -484,14 +512,22 @@
   }
   window.addEventListener("hashchange", () => {
     const go = () => { show(location.hash.slice(1)); window.scrollTo(0, 0); };
-    if (document.startViewTransition && !reduce()) document.startViewTransition(go); else go();
+    // A view opened by a key opens at once (it happens dozens of times a session); a click gets a short crossfade.
+    if (document.startViewTransition && !reduce() && lastInput === "pointer") document.startViewTransition(go); else go();
   });
+  let lastInput = "pointer";
+  document.addEventListener("keydown", () => (lastInput = "key"), true);
+  document.addEventListener("pointerdown", () => (lastInput = "pointer"), true);
   let resizeTimer, lastW = innerWidth;
   window.addEventListener("resize", () => {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => { if (Math.abs(innerWidth - lastW) < 8) return; lastW = innerWidth; rendered.clear(); views.series.drawn = false; show(current === "series" ? location.hash.slice(1) : current); }, 180);
   });
+  // Settle any of your sealed calls whose day is in this data file, so your book outlives the data.
+  if (window.WPTerminal && !D.meta.demo) try { window.WPTerminal.settleAll(D); } catch (e) {}
   show(location.hash.slice(1) || "desk");
+  // Panels settle in on the first view only; after that, switching views is instant.
+  setTimeout(() => document.documentElement.classList.add("settled"), 900);
 
   // A soft light follows the pointer across panels (drawn by .card::after in app.css).
   if (matchMedia("(hover: hover)").matches && !reduce()) {

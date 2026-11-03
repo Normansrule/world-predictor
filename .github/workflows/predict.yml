@@ -2,10 +2,14 @@ name: predict
 
 # Every Monday: fetch fresh data, record new TimesFM forecasts in the ledger, score old ones.
 # On the 1st of each month (or on demand) also rerun the full backtest.
+# Every weekday evening after the US close: a live refresh. It fetches the day's real values and
+# rescores the sealed forecasts, so the year ledger and the monitor fill in day by day, but it
+# seals nothing new and reruns no backtest.
 on:
   schedule:
     - cron: "0 6 * * 1"
     - cron: "0 7 1 * *"
+    - cron: "30 22 * * 1-5"
   workflow_dispatch:
     inputs:
       backtest:
@@ -35,16 +39,30 @@ jobs:
           pip install -e ".[timesfm,rivals,classical]"
       - name: Fetch data
         run: psychohistory -v fetch
+      - name: Check no sealed forecast was edited
+        run: psychohistory verify
       - name: Record forecasts
+        if: github.event.schedule != '30 22 * * 1-5'
         run: psychohistory -v predict --compare chronos-bolt --ensemble
       - name: Score past forecasts
         run: psychohistory -v score
+      - name: Long-term monitor (sealed forecasts against reality, drift alarms)
+        run: psychohistory monitor --save results/monitor.csv
       - name: Refresh report with new ledger scores
         run: if [ -f results/backtest_windows.csv ]; then psychohistory report; fi
       - name: Backtest
         if: github.event.schedule == '0 7 1 * *' || (github.event_name == 'workflow_dispatch' && inputs.backtest)
         run: psychohistory -v backtest --compare chronos-bolt --ensemble
-      - name: Refresh the web app data
+      - name: Volatility backtest (GARCH, EWMA and the models' ranges against what happened)
+        if: github.event.schedule != '30 22 * * 1-5'
+        run: psychohistory vol --backtest
+      - name: Event odds backtest (spikes and lulls in news and tech attention against climatology)
+        if: github.event.schedule != '30 22 * * 1-5'
+        run: psychohistory events --backtest
+      - name: World wire (the newest headlines per topic, for the World terminal)
+        continue-on-error: true
+        run: psychohistory wire
+      - name: Refresh the web app data (including the year ledger)
         run: psychohistory export
       - name: Commit results
         run: |

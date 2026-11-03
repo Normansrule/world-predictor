@@ -71,6 +71,11 @@ MARKETS = [
     _stock("xom", "XOM", "Exxon Mobil Corp."),
     _stock("gold", "GC=F", "Gold futures (USD/oz)"),
     _stock("silver", "SI=F", "Silver futures (USD/oz)"),
+    # Bonds: the 10-year US Treasury yield (in percent, CBOE's ^TNX) and a long-Treasury fund's price.
+    _stock("us10y", "^TNX", "US 10-year Treasury yield (%)", "aggregate"),
+    _stock("tlt", "TLT", "iShares 20+ Year Treasury Bond ETF"),
+    # Fear: the CBOE Volatility Index, the market's own price for the next month's swings.
+    _stock("vix", "^VIX", "CBOE Volatility Index (VIX, the fear gauge)", "aggregate"),
     _stock("oil_wti", "CL=F", "WTI crude oil futures"),
     _stock("copper", "HG=F", "Copper futures"),
     SeriesSpec("bitcoin", "markets", "yahoo", {"ticker": "BTC-USD", "start": "2015-01-01"}, "D", 28, "individual", "Bitcoin in USD"),

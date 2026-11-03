@@ -1,5 +1,15 @@
 """Seldon: our own psychohistory forecaster, built to compete with TimesFM head to head.
 
+Seldon comes in two forms, both scored on the same windows as TimesFM:
+
+* ``seldon-laws`` - the crowd laws alone (below): no neural network, nothing but the series' past.
+* ``seldon`` - the full Seldon: the crowd laws *and* the model under test (TimesFM) as voters in
+  one council. How much say TimesFM gets is learned per area (news, markets, technology) from every
+  finished forecast window of every series in that area: Seldon's law of large numbers applied to
+  its own track record, since one series' dozen windows are too few to learn from but a whole area's
+  are not. Until an area has enough finished windows, TimesFM keeps the whole vote, so Seldon starts
+  as TimesFM and only moves away from it where the laws have earned a share.
+
 TimesFM is a 200-million-parameter neural network trained on billions of time points. Seldon is
 the opposite bet, the one Hari Seldon made in *Foundation*: a handful of simple laws of mass
 behaviour, each weighed by how well it has predicted this very crowd before. No neural network,
@@ -40,10 +50,15 @@ from dataclasses import dataclass, field
 from typing import Sequence
 
 import numpy as np
+import pandas as pd
 
 from .models import QUANTILES, Forecast
 
-NAME = "seldon"
+NAME = "seldon"  # the full Seldon: crowd laws plus the model under test
+LAWS_NAME = "seldon-laws"  # the crowd laws alone
+SHARES = np.round(np.linspace(0.0, 1.0, 11), 1)  # candidate shares of the vote for the crowd laws
+MIN_POOL = 10  # finished windows an area needs before the laws can earn any share
+MARGIN = 0.02  # a share is only used if it beat the model alone by this much on those windows
 LAWS = ("inertia", "drift", "momentum", "reversion")  # the laws that vote; the weekly rhythm is laid on top
 REPLAYS = 16  # earlier dates the council replays before every forecast
 MIN_TRAIN = 24  # points a replay needs before its date
@@ -260,10 +275,10 @@ def predict(context: np.ndarray, horizon: int) -> tuple[Forecast, Council]:
 
 
 class SeldonForecaster:
-    """Seldon as a model like any other: same inputs and outputs as TimesFM, scored the same way.
+    """Seldon's crowd laws as a model like any other: same inputs and outputs as TimesFM.
     ``councils`` keeps how each of the last batch of forecasts was made."""
 
-    name = NAME
+    name = LAWS_NAME
 
     def __init__(self) -> None:
         self.councils: list[Council] = []
@@ -292,3 +307,109 @@ def council_json(council: Council) -> dict:
     """The council in the shape the web app reads."""
     return {"weights": {k: round(v, 3) for k, v in council.weights.items()}, "replays": council.replays,
             "cycle": council.cycle, "vol": round(council.vol_ratio, 3)}
+
+
+# --------------------------------------------------------------------------------------------
+# The full Seldon: the crowd laws and the model under test in one council.
+# --------------------------------------------------------------------------------------------
+
+
+@dataclass
+class Window:
+    """One finished forecast window, as the share is learned from it."""
+
+    domain: str
+    end: pd.Timestamp  # the date of its last value: it counts as finished from then on
+    last: float  # the value at its origin
+    model: np.ndarray  # the model under test's middle path
+    laws: np.ndarray  # the crowd laws' middle path
+    actual: np.ndarray
+
+
+def learn_share(windows: Sequence[Window]) -> float:
+    """The laws' share of the vote that would have given the lowest error on these windows: the
+    mean absolute percentage error over every finished day, the measure the year ledger keeps. Zero
+    (all to the model) with fewer than ``MIN_POOL`` windows, or unless the best share beat the model
+    alone by ``MARGIN``.
+
+    Until November 2026 the error of each window was measured against "no change" and averaged, and
+    five windows were enough. Replayed on every recorded window, learning only from the windows
+    finished before each forecast, that rule moved away from TimesFM too early and too often: it
+    missed by 8.97% on an average day against TimesFM's 8.83%. This one ties TimesFM on the same
+    replay (scripts/seldon_bakeoff.py)."""
+    if len(windows) < MIN_POOL:
+        return 0.0
+    actual = np.concatenate([w.actual for w in windows])
+    model = np.concatenate([w.model for w in windows])
+    laws = np.concatenate([w.laws for w in windows])
+    ok = np.isfinite(actual) & np.isfinite(model) & np.isfinite(laws) & (actual != 0)
+    if not ok.any():
+        return 0.0
+    actual, model, laws = actual[ok], model[ok], laws[ok]
+    errors = [float(np.mean(np.abs((1 - share) * model + share * laws - actual) / np.abs(actual))) for share in SHARES]
+    best = int(np.argmin(errors))
+    return float(SHARES[best]) if errors[best] <= errors[0] * (1 - MARGIN) else 0.0
+
+
+def share_for(windows: Sequence[Window], domain: str, at=None) -> float:
+    """The laws' share for a forecast in ``domain`` made at date ``at`` (None: now), learned only
+    from that area's windows that had finished by then."""
+    at = None if at is None else pd.Timestamp(at)
+    return learn_share([w for w in windows if w.domain == domain and (at is None or w.end <= at)])
+
+
+def blend(model: Forecast, laws: Forecast, share: float) -> Forecast:
+    """The council's forecast: every decile averaged with the laws' share (quantile averaging)."""
+    point = (1 - share) * model.point + share * laws.point
+    quantiles = np.sort((1 - share) * model.quantiles + share * laws.quantiles, axis=1)
+    return Forecast(point, quantiles)
+
+
+def blend_bands(model_bands: Sequence[np.ndarray], laws: Forecast, share: float) -> tuple[np.ndarray, ...]:
+    """The same blend on a saved 10th / 50th / 90th percentile path (what the backtest paths keep)."""
+    return tuple((1 - share) * np.asarray(b, float) + share * laws.q(level)
+                 for b, level in zip(model_bands, (0.1, 0.5, 0.9)))
+
+
+def windows_from_paths(paths: pd.DataFrame | None, data: dict[str, pd.Series], model: str,
+                       domains: dict[str, str], max_context: int = 1024) -> list[Window]:
+    """Finished windows of ``model`` from the backtest paths, with the crowd laws' recorded path for
+    the same window when the run kept one, or else the laws run on the data up to each window's
+    origin (exactly what they would have said then)."""
+    if paths is None or paths.empty:
+        return []
+    recorded = {key: g.sort_values("step")["q50"].to_numpy(float)
+                for key, g in paths[paths["model"] == LAWS_NAME].groupby(["series_id", "origin"])}
+    out = []
+    for (series_id, origin), g in paths[paths["model"] == model].groupby(["series_id", "origin"]):
+        if series_id not in data or series_id not in domains:
+            continue
+        g = g.sort_values("step")
+        series = data[series_id]
+        context = series[series.index <= pd.Timestamp(origin)].to_numpy(dtype=float)[-max_context:]
+        if len(context) == 0:
+            continue
+        laws = recorded.get((series_id, origin))
+        if laws is None or len(laws) != len(g):
+            laws = predict(context, len(g))[0].q(0.5)
+        out.append(Window(domains[series_id], pd.Timestamp(g["date"].max()), float(context[-1]),
+                          g["q50"].to_numpy(float), laws, g["actual"].to_numpy(float)))
+    return out
+
+
+def full_council(council: Council, share: float, model: str) -> dict:
+    """The council the app shows: the model's vote next to each law's, all adding up to one."""
+    out = council_json(council)
+    key = "timesfm" if model.startswith("timesfm") else model
+    out["weights"] = {key: round(1 - share, 3), **{k: round(share * v, 3) for k, v in council.weights.items()}}
+    out["share"] = round(share, 3)
+    return out
+
+
+def explain_full(council: Council, share: float, model_name: str) -> str:
+    """One sentence on how the full Seldon reached a forecast."""
+    if share == 0:
+        return (f"Seldon gave {model_name} the whole vote here: in this area its crowd laws have not yet beaten "
+                f"{model_name} on the finished windows, so it does not move away from it.")
+    return (f"Seldon gave {model_name} {1 - share:.0%} of the vote and its crowd laws {share:.0%}, the split that "
+            f"did best on this area's finished windows. " + explain(council))

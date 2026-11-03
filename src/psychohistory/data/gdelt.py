@@ -65,3 +65,23 @@ def fetch(query: str, start: str = "2017-01-01", mode: str = "timelinevol") -> p
     series = pd.Series([float(p["value"]) for p in points], index=index)
     # Resample to calendar days in case GDELT returned a finer resolution.
     return series.resample("D").mean().dropna()
+
+
+def headlines(query: str, records: int = 6, timespan: str = "4d") -> list[dict]:
+    """The newest English-language articles matching ``query`` (GDELT's ``ArtList`` mode): title,
+    link, site, source country and when GDELT first saw it (UTC)."""
+    params = {"query": f"{query} sourcelang:english", "mode": "ArtList", "format": "json",
+              "maxrecords": records, "timespan": timespan, "sort": "DateDesc"}
+    out = []
+    for item in _request(params).get("articles") or []:
+        title, url = (item.get("title") or "").strip(), item.get("url") or ""
+        if not title or not url.startswith(("http://", "https://")):
+            continue
+        seen = item.get("seendate") or ""
+        try:
+            seen = datetime.strptime(seen, "%Y%m%dT%H%M%SZ").strftime("%Y-%m-%dT%H:%MZ")
+        except ValueError:
+            seen = ""
+        out.append({"title": title, "url": url, "domain": item.get("domain") or "",
+                    "country": item.get("sourcecountry") or "", "seen": seen})
+    return out

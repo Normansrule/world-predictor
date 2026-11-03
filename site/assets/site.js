@@ -62,11 +62,21 @@
     const all = (D.duel || []).find((r) => r.domain === "all"), line = $("#duel-line");
     if (all && line) {
       line.hidden = false;
+      const ties = all.series - all.wins - all.losses;
       line.innerHTML = `<span class="who" style="--c:var(--seldon)">Seldon</span> ` + (all.wins > all.losses
-        ? `beat ${esc(name)} on <b>${all.wins} of ${all.series}</b> series.` : all.losses > all.wins
-        ? `lost to ${esc(name)} on <b>${all.losses} of ${all.series}</b> series.` : `tied ${esc(name)}: ${all.wins} series each.`)
-        + ` Seldon is our own forecaster: five laws of crowd behaviour, no neural network.`;
+        ? `beat ${esc(name)} on <b>${all.wins} of ${all.series}</b> series` : all.losses > all.wins
+        ? `lost to ${esc(name)} on <b>${all.losses} of ${all.series}</b> series` : `tied ${esc(name)}: ${all.wins} series each`)
+        + (ties ? ` (${ties} tied).` : ".")
+        + ` Seldon is our own forecaster: crowd laws and TimesFM in one council.`
+        + lawsWon(D.duel_laws || [], name);
     }
+  }
+
+  // Areas the crowd laws alone (no TimesFM vote) won, in one sentence, or nothing.
+  function lawsWon(rows, name) {
+    const titles = { markets: "markets", news: "world news", tech: "technology" };
+    const won = rows.filter((r) => r.domain !== "all" && r.wins > r.losses);
+    return won.length ? " Its crowd laws alone beat " + esc(name) + " in " + won.map((r) => `${titles[r.domain] || esc(r.domain)} (<b>${r.wins} of ${r.series}</b> series)`).join(" and ") + "." : "";
   }
 
   // The exploded forecast: browsers without scroll-driven animations get --spread from here.

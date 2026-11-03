@@ -1,4 +1,4 @@
-"""Screenshots of the landing page and web app for the README (docs/assets/landing*.png, app-*.png including app-studio*.png and app-series*.png, landing-story.gif, app-lab.gif, app-replay.gif and app-trace.gif).
+"""Screenshots of the landing page and web app for the README (docs/assets/landing*.png, app-*.png including app-markets*.png, app-monitor.png, app-studio*.png and app-series*.png, landing-story.gif, app-lab.gif, app-replay.gif and app-trace.gif).
 
     pip install playwright && playwright install chromium
     python scripts/make_app_screenshots.py            # uses site/app/data/data.js
@@ -17,7 +17,7 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parent.parent
 ASSETS = ROOT / "docs" / "assets"
-VIEWS = {"desk": 1340, "outlook": 1000, "replay": 860, "crowd": 860, "vault": 1180}
+VIEWS = {"terminal": 1900, "desk": 1340, "markets": 1560, "monitor": 1700, "year": 1240, "outlook": 1000, "replay": 860, "crowd": 860, "vault": 1180}
 
 
 async def theme(page, scheme: str) -> None:
@@ -35,9 +35,9 @@ async def shoot(chromium: str | None, site: Path) -> None:
             page = await browser.new_page(viewport={"width": 1280, "height": 800}, color_scheme=scheme, device_scale_factor=1)
             await theme(page, scheme)
             for view, height in VIEWS.items():
-                if scheme == "dark" and view != "desk":
+                if scheme == "dark" and view not in ("desk", "markets", "terminal", "year"):
                     continue
-                await page.goto(f"{app}#{view}")
+                await page.goto(f"{app}#{view}/gold:20" if view == "markets" else f"{app}#{view}/gold" if view == "terminal" else f"{app}#{view}")
                 await page.wait_for_timeout(2400)  # let the charts finish drawing in
                 png = await page.screenshot(clip={"x": 0, "y": 0, "width": 1280, "height": height}, full_page=True)
                 suffix = "" if scheme == "light" else "-dark"
@@ -46,6 +46,17 @@ async def shoot(chromium: str | None, site: Path) -> None:
                     shot = Image.open(io.BytesIO(png)).convert("RGB").crop((0, 0, 1280, 800))
                     shot.save(ROOT / "site" / "assets" / "app-preview.png", optimize=True)
             await page.close()
+        # The volatility and event-odds cards on their own: the Markets desk's outlook for gold, the Monitor's boards
+        # and the World terminal's event odds.
+        page = await browser.new_page(viewport={"width": 1280, "height": 800}, color_scheme="light", device_scale_factor=1)
+        await theme(page, "light")
+        for view, card, name in (("markets/gold:20", "#mk-vol", "app-vol-outlook"), ("monitor", "#mo-vol", "app-vol-monitor"),
+                                 ("terminal/news_election", "#tm-events", "app-event-odds"), ("monitor", "#mo-events", "app-event-monitor")):
+            await page.goto(f"{app}#{view}")
+            await page.wait_for_timeout(1600)
+            png = await page.locator(card).screenshot()
+            Image.open(io.BytesIO(png)).convert("RGB").save(ASSETS / f"{name}.png", optimize=True)
+        await page.close()
         # "Follow one result": one still per theme at the sealed forecast, and the walkthrough as a GIF.
         for scheme in ("light", "dark"):
             page = await browser.new_page(viewport={"width": 1280, "height": 800}, color_scheme=scheme, device_scale_factor=1)

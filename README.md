@@ -6,7 +6,7 @@
 </picture>
 
 **A forecasting terminal that keeps score.**<br>
-Google's open-source **TimesFM** against **Seldon**, our own psychohistory forecaster, on world news, markets and new technologies.
+Google's open-source **TimesFM** against **Seldon**, our own psychohistory forecaster that gives TimesFM a seat in a council of crowd laws, on world news, markets and new technologies.
 Every forecast is sealed before the future happens and scored when it arrives. Then it's your turn, in the Lab.
 
 [![Play the Lab](https://img.shields.io/badge/Play-the_Lab-c4412a?style=for-the-badge&logo=googlechrome&logoColor=white)](https://normansrule.github.io/world-predictor/app/#lab)
@@ -50,10 +50,11 @@ In Isaac Asimov's *Foundation*, Hari Seldon can't predict what any one person wi
 honest version of that bet: every week it asks [**TimesFM**](https://github.com/google-research/timesfm)
 (Time Series Foundation Model, Google Research's open-source forecaster) what happens next in world
 news, markets and new technology, seals each forecast with a date, and scores it in public once the
-future shows up. Against it runs **Seldon**, this project's own forecaster: no neural network, just a
-few laws of crowd behaviour that vote on every forecast according to how well each has predicted that
-series before. Both are scored by the same code on the same windows, so the question "can a handful of
-psychohistory rules match a 200-million-parameter foundation model?" gets a real answer. In the
+future shows up. Against it runs **Seldon**, this project's own forecaster: a council of simple laws of
+crowd behaviour with TimesFM as one more voter, each voter's share earned on forecasts that already came
+true. Its laws-only twin, **Seldon laws**, has no neural network at all. All three are scored by the same
+code on the same windows, so the question "can psychohistory rules match or beat a 200-million-parameter
+foundation model?" gets a real answer. In the
 **Lab** you can make your own blind call on a real past window and see whether you'd have beaten them both. It's for anyone curious how far AI (artificial intelligence) forecasting really
 reaches: people who follow markets or the news, data-science learners who want a worked, open example
 of backtesting and calibration, and forecasting nerds who'd rather see the misses than a highlight reel.
@@ -62,11 +63,30 @@ Nothing here is financial advice, and most of the interesting results are about 
 | Area | What gets forecast | Data |
 |---|---|---|
 | **World events in the news** | Share of world news coverage about war, elections, inflation, climate, disease outbreaks and protests | [GDELT](https://www.gdeltproject.org/) (Global Database of Events, Language and Tone) |
-| **Markets and stores of value** | S&P 500 (Standard & Poor's 500), Nasdaq-100, MSCI World (Morgan Stanley Capital International), Apple, NVIDIA, Tesla, Exxon, **gold**, **silver**, oil, copper, Bitcoin | Yahoo Finance via [yfinance](https://github.com/ranaroussi/yfinance) |
+| **Markets and stores of value** | S&P 500 (Standard & Poor's 500), Nasdaq-100, MSCI World (Morgan Stanley Capital International), Apple, NVIDIA, Tesla, Exxon, **gold**, **silver**, **bonds** (US 10-year Treasury yield, TLT), oil, copper, Bitcoin | Yahoo Finance via [yfinance](https://github.com/ranaroussi/yfinance) |
 | **New technologies** | Attention to large language models, AI, quantum computing, CRISPR (clustered regularly interspaced short palindromic repeats) gene editing, electric vehicles, fusion and humanoid robots; adoption of solar, wind and the internet | [Wikimedia Pageviews](https://wikitech.wikimedia.org/wiki/Analytics/AQS/Pageviews), [Our World in Data](https://ourworldindata.org/) |
 
 ## Key features
 
+- **The World terminal, the whole world on one screen.** A command line (`GOLD`, `SPX`, `N:WAR`,
+  `WATCH`, `BOOK`), and every series in one dense board: last value, the week's move, how unusual it was
+  in σ, the sealed forecast and its 80% range, the chance of rising, TimesFM's backtest record and its
+  live hit rate, and the newest headlines from the GDELT world wire. Beside it: the week's movers, the
+  sealed forecasts that just opened against what happened, a focus panel with the chart, both models'
+  forecasts and volatility, and a live scoreboard. [Open it](https://normansrule.github.io/world-predictor/app/#terminal).
+- **A year ledger, Jan 1 to Dec 31.** One table per tracked group (gold, silver, bonds, indices, stocks,
+  oil and copper, Bitcoin, news, technology), a row for every day: the real value against the most
+  likely value of TimesFM, Seldon and the crowd laws, each one's miss in percent, dashes where nothing
+  was tracked, and a leaderboard of who is closest. Refreshed every weekday. [Open it](https://normansrule.github.io/world-predictor/app/#year).
+- **Event odds for world news and technology.** "The chance election coverage, four weeks from now,
+  is at a level it reaches only one day in ten": a spike or a lull, for every news and technology
+  series, read off TimesFM's and Seldon's sealed ranges, scored with the Brier score against
+  climatology ("10%, as usual") and persistence ("what followed days like this one"), and sealed every
+  week so the odds build a record of their own.
+- **Your own book of predictions, kept for years.** Seal a call from the terminal on any series and
+  date. When its day comes it is settled against the real value and against TimesFM and Seldon, and the
+  result is kept in the call itself, so the record outlives the data. Your running skill against
+  TimesFM, how often reality lands in your range, and an export/import that checks every seal.
 - **The Lab.** A real past window with the ending hidden. Drag your forecast and your range, hold to
   seal it, hold again to break the seal, and watch reality, TimesFM and Seldon draw in. You're scored on
   the same terms they are (average miss, whether reality stayed in your range, direction), and your
@@ -76,6 +96,29 @@ Nothing here is financial advice, and most of the interesting results are about 
   percentiles beside it and a CSV (comma-separated values) download. Then seal your own call on the
   real future: it's fingerprinted, kept in your browser and scored against both models once the real
   value is in the data.
+- **A Markets desk, built like an analyst's terminal.** Every market's sealed forecast on one
+  screen at the horizon you pick (one day, one week, two weeks, a month): expected move, 80% range,
+  chance of rising, TimesFM and Seldon side by side with a flag where they disagree, the volatility each
+  forecast implies against what the market has really shown, and which model has had the least error
+  on that very asset. Click a market for its fan chart, a price ladder (10th to 90th percentile), an
+  odds calculator for any price level, every model's record there and its recent calls. Tick up to four
+  to compare them rebased to 100, and export the lot as CSV or JSON. [Open it](https://normansrule.github.io/world-predictor/app/#markets).
+- **A forecast desk note for any ticker.** `psychohistory desk MSFT ETH-USD ^FTSE` runs TimesFM and
+  Seldon live on any Yahoo Finance symbol (or your own CSV), backtests every model on that asset's own
+  past first, and writes a note with the outlook, odds for price levels, forecast against realized
+  volatility and whom to trust there, plus the numbers as CSV and JSON.
+- **A monitor built to run for years.** Every sealed forecast that comes due is scored against what
+  really happened and kept: skill against "no change", 80% coverage, direction and Brier score, month
+  by month or week by week, per area, per series and per model, with the running total beside it and
+  the backtest's promise drawn as a line. A Diebold-Mariano test says whether TimesFM is *really*
+  better than "no change" or just lucky so far, and drift alarms flag any series whose ranges have
+  become too narrow or whose edge has gone. Every weekly batch of the ledger carries a SHA-256
+  fingerprint, so an edited forecast can't hide. [Open it](https://normansrule.github.io/world-predictor/app/#monitor).
+- **Volatility forecasts, where markets really can be forecast.** Prices are close to a random walk,
+  but the size of the moves clusters. Every market's volatility over the next week and month is
+  forecast by GARCH(1,1), EWMA and the range TimesFM and Seldon sealed, backtested every week against
+  last month's volatility with QLIKE and a significance test, then sealed in its own fingerprinted
+  ledger and scored as the windows pass. `psychohistory vol`, the Markets desk and the Monitor show it.
 - **TimesFM on your own data.** `psychohistory ask` runs TimesFM live on any series in the catalog or on
   your own CSV, prints the middle and the 80% range for every step, puts Seldon's own forecast beside
   it with the votes behind it, answers "what's the chance it ends above X?", and can seal the forecast in the
@@ -89,11 +132,11 @@ Nothing here is financial advice, and most of the interesting results are about 
   (Wikipedia and GDELT run a day or two behind) is marked as such, not passed off as a forecast of the
   future. `psychohistory record gold` prints the same record in the terminal.
 - **Seldon, our own algorithm, against TimesFM.** Four laws of crowd behaviour (inertia, long-run drift,
-  fading momentum, reversion to normal) plus the weekly rhythm of news and attention. Before every
-  forecast Seldon replays the series' own past, gives each law a vote by how well it did, and sets its
-  80% range from its own past misses, scaled by how calm or wild the series is right now. It runs in
-  milliseconds on numpy alone, beside TimesFM in the backtest, the weekly sealed forecasts, `ask` and
-  the app, and every scoreboard says who won. [How it works](#seldon-vs-timesfm).
+  fading momentum, reversion to normal) on top of the weekly rhythm of news and attention, each voting
+  by how well it predicted the series' own past, with TimesFM in the same council. The laws only get a
+  share of the vote in an area (news, markets, technology) once they have beaten TimesFM on that area's
+  finished windows. It runs beside TimesFM in the backtest, the weekly sealed forecasts, `ask` and the
+  app, and every scoreboard says who won. [How it works](#seldon-vs-timesfm).
 - **A landing page that moves like a product launch.** A living field of possible futures behind the
   headline, the headline arriving word by word, a pinned scroll story of one real forecast, the record
   counted up in big numbers, a tape that glides, and light that follows the pointer across panels.
@@ -174,51 +217,58 @@ The landing page, slate and light. The Lab is the first thing you see, already l
 </tr>
 </table>
 
-<sub>Screenshots show the recorded forecast run of 2026-10-19 (TimesFM 2.5), with Seldon run afterwards on the same windows by <code>scripts/seldon_first_look.py</code>. Before a first run the app uses demo data and says so on every screen. Regenerate them with <code>python scripts/make_app_screenshots.py --site build/site</code>.</sub>
+<sub>Screenshots show the recorded forecast run of 2026-10-22 (TimesFM 2.5 and Seldon's crowd laws, with the full Seldon rebuilt from them by <code>scripts/rebuild_app_data.py</code>). Before a first run the app uses demo data and says so on every screen. Regenerate them with <code>python scripts/make_app_screenshots.py --site build/site</code>.</sub>
 
 ---
 
 ## Latest results
 
 Everything in this section is redrawn by every forecast run and committed by the weekly GitHub
-Action. **First real run: 18 October 2026**, TimesFM 2.5 on 25 live series (5 news topics, 12 markets,
-8 technologies), each backtested over past windows against what really happened:
+Action. **Latest full run: 22 October 2026**, TimesFM 2.5 on 29 live series (6 news topics, 12
+markets, 11 technologies), each backtested over 12 past windows against what really happened:
 
 | Area | TimesFM vs "tomorrow looks like today" | Its 80% range caught reality | Edge lasts |
 |---|---|---|---|
-| World news | **12% less error** | 79% of the time | about 28 days |
-| Markets (stocks, gold, silver, oil, Bitcoin) | about the same (+1%) | 83% of the time | no steady edge |
-| Technology | **43% less error** | 76% of the time | about 28 days |
+| World news | **8% less error** | 78% of the time | about 28 days |
+| Markets (stocks, gold, silver, oil, Bitcoin) | about the same (−2%) | 82% of the time | no steady edge |
+| Technology | **45% less error** | 75% of the time | about 28 days |
 
-**TimesFM against Seldon: the first look.** Seldon, our own forecaster, was run on the same
-25 series and the same past windows as TimesFM, each time from only the values before the window.
-TimesFM won clearly:
+**The official duel: TimesFM against Seldon.** That run put Seldon's crowd laws on exactly the same
+337 windows as TimesFM, from only what was known before each one, and scored them with the same
+code. The full Seldon (the laws with TimesFM as one more voter) is rebuilt exactly from the two
+recorded forecasts, its share of the vote learned per area from windows that had already finished:
 
-| Area | Series | Seldon won | TimesFM won | Skill: TimesFM / Seldon | In its 80% range: TimesFM / Seldon |
-|---|---|---|---|---|---|
-| World news | 5 | 2 | 3 | +8.1% / **+8.3%** | 79% / 83% |
-| Markets | 12 | 3 | 9 | **+1.2%** / −1.6% | 83% / **80%** |
-| Technology | 8 | 0 | 8 | **+42.8%** / +20.1% | **76%** / 84% |
-| **All** | 25 | **5** | **20** | **+7.9%** / +7.0% | 80% / 82% |
+| Area | Series | Crowd laws alone: won / lost | Full Seldon: won / lost / tied | Error vs TimesFM: laws / full Seldon |
+|---|---|---|---|---|
+| Markets | 12 | **9 / 3** | 0 / 0 / 12 | **−1.7%** / 0.0% |
+| World news | 6 | 1 / 5 | 0 / 0 / 6 | +2.4% / 0.0% |
+| Technology | 11 | 1 / 10 | 0 / 2 / 9 | +31% / +3.2% |
+| **All** | 29 | 11 / 18 | 0 / 2 / 27 | +11.6% / +1.2% |
 
-Seldon tied TimesFM on world news and kept its ranges honest everywhere, but it could not touch
-TimesFM on Wikipedia attention, where the foundation model's pattern knowledge is worth twice
-Seldon's simple rules, and in markets its laws added noise to what is close to a random walk. Read
-this as a first look, not the final word: the run's raw data is not stored, so these windows were
-rebuilt from the saved backtest values, which gave Seldon at most the few hundred days before each
-window while TimesFM read up to 1,024, and the weekly rhythm step was added to Seldon after an earlier
-pass over these same windows showed it missing the weekly pattern in Wikipedia views. The official
-head-to-head comes from the next full backtest, which runs both on identical data and adds a
-"Seldon vs TimesFM: the duel" table to [results/REPORT.md](results/REPORT.md). Rebuild this table with
-`python scripts/seldon_first_look.py`.
+**The honest verdict: a split decision.** For the first time something here beat TimesFM on most
+series in an area: **in markets, the four crowd laws alone had lower error than TimesFM on 9 of 12
+series**: gold, silver, oil, copper, Bitcoin and four single stocks (Apple, NVIDIA, Tesla, Exxon),
+in the area where TimesFM itself does no better than "no change". TimesFM kept the three big indices
+(S&P 500, Nasdaq 100, MSCI World). Technology stays TimesFM's: its trends are what a foundation model
+reads best. The full Seldon now mostly stands aside: since November 2026 it learns the laws' share from
+the average percentage miss over at least ten finished windows, and in no area did a share beat
+TimesFM alone by the 2% it asks for, except on the two yearly adoption series (solar, wind), where the
+laws still cost it. The earlier rule (five windows, error against "no change") had won world news 5
+to 1 here but, replayed on every recorded daily window, missed by 8.97% on an average day against
+TimesFM's 8.83%, so it was replaced; the new rule ties TimesFM on the same replay
+(`python scripts/seldon_bakeoff.py`). Read the full Seldon's numbers as a replay: this run recorded TimesFM's and the laws'
+forecasts but not their blend, so it was rebuilt from them (`backtest.replay_seldon`); errors, wins
+and the 80% range are exact, range skill is close. The next full backtest scores it directly. Every
+table is in [results/REPORT.md](results/REPORT.md); rebuild the app's copy with
+`python scripts/rebuild_app_data.py`.
 
 On public data neither model was tuned on, the 1,500 held-out daily series of the M4 competition,
-Seldon had the best range score of the four methods tried (pinball loss 1.144, against 1.146 for a
+Seldon laws had the best range score of the four methods tried (pinball loss 1.144, against 1.146 for a
 drift line, 1.167 for "no change" and 1.170 for AutoETS) and beat "no change" on 62% of series
 (`python scripts/seldon_m4_check.py`). TimesFM was not run on M4 here.
 
-When it gave 70% or better odds of a rise, the rise happened 84% of the time (31 forecasts).
-Big aggregates such as indices beat single stocks (10% vs −1% skill in markets), just as Seldon would
+When it gave 70% or better odds of a rise, the rise happened 87% of the time (53 forecasts).
+Big aggregates such as indices beat single stocks (13% vs −3% skill in markets), just as Seldon would
 predict. Markets staying close to a random walk is the honest, expected result. Full tables are in
 [results/REPORT.md](results/REPORT.md), and the Time Vault fills in as sealed predictions come due.
 
@@ -334,6 +384,246 @@ psychohistory ask sp500 --seal                       # also seal it in the ledge
 It prints the middle and 80% range for every step, Seldon's own forecast beside it, and how
 Seldon's laws split their votes for that series.
 
+### The Markets desk, and a desk note for any ticker
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/app-markets-dark.png">
+  <img src="docs/assets/app-markets.png" alt="The Markets desk: a watchlist of twelve markets with expected move, 80% range, chance of rising, TimesFM and Seldon side by side, forecast and realized volatility, each model's record and the most trusted model, above gold's fan chart, price ladder and odds calculator" width="100%">
+</picture>
+
+In the app, press <kbd>M</kbd>. From the command line, the full version does the same for any
+market Yahoo Finance lists, live:
+
+```bash
+psychohistory desk gold MSFT ETH-USD               # catalog ids or any Yahoo tickers
+psychohistory desk ^FTSE --horizon 10 --level 9000 # 10 trading days, chance of closing above 9,000
+psychohistory desk --csv my_prices.csv             # your own date,value history
+```
+
+Each note (in `results/desk/`, as Markdown, CSV and JSON) has the outlook at 1, 5, 10 and 20 steps,
+the chance of ending above round levels around the last price, the volatility the forecast implies
+against the last three months', and a backtest of TimesFM, Seldon, its crowd laws, drift and "no
+change" on that asset's own past windows, ending with which of them to trust there. Markets are close
+to a random walk, so the note says so when nothing has beaten "no change".
+
+### The World terminal and your book
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/app-terminal-dark.png">
+  <img src="docs/assets/app-terminal.png" alt="The World terminal: a WP command line with WORLD, MKT, NEWS, TECH, WATCH, BOOK and HELP keys; a board of 29 series with code, last value, one-week move, sigma, forecast, 80% range, chance of rising, record and live hit rate; movers; just-opened sealed forecasts; a gold focus panel with chart and a 'your call' form; the world wire; your book; and a scoreboard" width="100%">
+</picture>
+
+Press <kbd>W</kbd> in the app. Type a code and press Enter: `SPX`, `NDX`, `AAPL`, `XAU`, `WTI`, `BTC`,
+`N:WAR`, `N:ELECTION`, `T:AI`, `T:LLM` and so on; `MKT`, `NEWS`, `TECH` and `WORLD` switch the board;
+`WATCH` and `UNWATCH` keep a watchlist; `CALL 4200` fills your call; `HELP` lists the rest.
+
+- **σ** says how unusual the latest week was: a market's weekly return against its own usual week, or
+  a news or attention series against its previous four weeks. The movers panel lists the largest.
+- **Just opened** shows the newest sealed forecasts whose day has come: what TimesFM said, what
+  happened, and whether reality landed inside its range.
+- **The world wire** carries the newest English-language headlines for every topic, from the GDELT
+  Project's article list (`psychohistory wire`, run every week); a button fetches live ones for the
+  series in focus. Headlines are context: no model reads them.
+- **Your book.** Seal a value and a range for any date the models forecast. The call is fingerprinted
+  when sealed and settled against the real value when its day is in the data, then kept with its result
+  in this browser. Export the book as JSON to keep it for years and import it on any device; every
+  imported call is checked against its seal. The book is shared with the Forecast Studio.
+
+### The long-term monitor: predictions against reality, over years
+
+<img src="docs/assets/app-monitor.png" alt="The Monitor: forecasts scored, weekly batches and ledger fingerprints, a chart of TimesFM's live skill against no change week by week with the backtest's line, a board of live against backtest per area with the significance verdict, drift alarms and live calibration" width="100%">
+
+A backtest says how a model *would* have done. The monitor says how it *is* doing, on forecasts that
+were sealed before the outcome existed. In the app, press <kbd>R</kbd>. From the command line:
+
+```bash
+psychohistory monitor                          # live record by area and model, the test, the alarms
+psychohistory monitor --save results/monitor.csv   # month-by-month table, kept by the weekly run
+psychohistory verify                           # check every sealed batch against its fingerprint
+```
+
+- **Skill, coverage, direction and Brier over time,** per month (or per week until three months
+  exist), for all areas or one, with the cumulative record so a lucky month doesn't read as a trend.
+- **Is it really better than "no change"?** A Diebold-Mariano test on the weekly batches' scaled
+  errors, with Newey-West variance because a 4-week forecast made each week overlaps the next three,
+  and the Harvey-Leybourne-Newbold correction with Student's t, because a few batches are all it has
+  (the normal curve would cry wolf on four data points). Until there are enough batches to carry the
+  overlap it says "too early" rather than guess.
+- **Drift alarms** for forecasts due in the last 13 weeks: a range too narrow or too wide (80%
+  coverage tested against 80%), an edge lost (live skill well below the backtest's), or a model worse
+  than no change. Every forecaster is tested on every series at once, hundreds of tests, so 5% of
+  them would ring by chance alone; an alarm is raised only if it passes a Benjamini-Hochberg
+  false-discovery cut. On the 2026-11-01 data that took the list from 67 alarms to 23, grouped by
+  kind and series in the app.
+- **A tamper-evident ledger.** `predictions/seals.csv` holds a SHA-256 fingerprint of every weekly
+  batch. The weekly run refuses to continue if a sealed forecast was edited, and each full backtest
+  is kept by date in `results/history/` so the expected skill can be compared over the years too.
+
+Four weekly batches of sealed forecasts have come due so far (2026-11-01), so every verdict still
+reads "too early" or "not distinguishable from no change". The point is the years to come: the
+record builds itself every Monday.
+
+### Volatility: how far markets swing
+
+<img src="docs/assets/app-vol-monitor.png" alt="The Monitor's volatility board: TimesFM's range, GARCH, EWMA, last month's volatility, Seldon and Seldon's laws a week and a month ahead, with windows, skill against last month's volatility, markets beaten, typical miss, Diebold-Mariano p and the live sealed record" width="100%">
+
+A price forecast that beats "no change" is rare; a volatility forecast that beats last month's
+volatility is not, because calm follows calm and storms follow storms (Mandelbrot, 1963). So every
+market gets four volatility forecasts for the next week and month: GARCH(1,1) (Bollerslev, 1986),
+fitted by maximum likelihood with no extra library; RiskMetrics' EWMA; and the volatility TimesFM's
+and Seldon's 80% ranges imply. Each is scored against the volatility that followed with QLIKE (Patton,
+2011), as skill against last month's volatility carried forward on the same windows.
+
+```bash
+psychohistory vol              # the volatility backtest across markets and the sealed record so far
+psychohistory vol --backtest   # rerun it from the data and the saved backtest paths (the weekly run does)
+```
+
+On the first year of recorded data (origins from November 2025 to October 2026, rebuilt on
+2026-11-02), EWMA and GARCH beat last month's volatility by 10% to 13% at both spans; EWMA a week
+ahead won in all 12 markets (p 0.04), the only result under 0.05 so far, and with a dozen tests
+running, one that low is still within reach of luck. TimesFM's range trailed last month's volatility
+at both spans (−12% a week ahead, −21% a month ahead); an earlier cut of the same year had it ahead a
+week out (+16%), so that question is open. The weekly run reruns the test on the
+full history and seals new volatility forecasts every week in `predictions/vol_ledger.csv`, so the
+Monitor's volatility board grows a live record beside the backtest. In the Markets desk, each market
+has a volatility outlook with every forecaster's record on that asset.
+
+<img src="docs/assets/app-vol-outlook.png" alt="The Markets desk's volatility outlook for gold: GARCH, EWMA, TimesFM's range, Seldon's range and last month's volatility for the next week and month, each with its record on gold" width="100%">
+
+### Event odds: spikes and lulls in world news and technology
+
+A forecast of "5.8% of world news coverage" is hard to act on. The odds of something unusual are not:
+for every news and technology series, the World terminal's **ODDS** pane gives the chance that, on the
+forecast's target date four weeks ahead, the series is
+
+- in a **spike**: above the 90th percentile of its last two years, a level it reaches one day in ten;
+- in a **lull**: below the 10th percentile, a low it falls to one day in ten.
+
+The thresholds come from the history up to the forecast's last day, so they are sealed with it. Each
+model's odds are read off its sealed 10%, 50% and 90% quantiles as a split normal (in logs for positive
+series), so the tails, where events live, are not cut off at the 10% and 90% levels. Two baselines keep
+them honest: **climatology** says 10% for both, and **persistence** says how often the series was past
+the line four weeks after a day in the same state as today. Attention is sticky, so persistence is the
+hard one to beat. Every forecaster's odds are scored with the Brier score (Brier, 1950), as skill
+against each baseline on the same forecasts, with a Diebold-Mariano test of the edge over climatology.
+
+```bash
+psychohistory events             # today's odds, the backtest and the sealed record so far
+psychohistory events --backtest  # rerun the backtest from the data and the saved paths (the weekly run does)
+```
+
+A first look, from the recorded actuals of the last year (the 14 news and technology series, 10 monthly
+origins each after the half-year of history the thresholds need): TimesFM's lull odds beat
+climatology by 48% and persistence by 40% (p 0.06), mostly on technology: Wikipedia attention to most
+of these technologies kept sliding, a lull came true in 63% of the technology forecasts against the
+10% climatology expects, and TimesFM's ranges followed the slide. Its spike odds beat climatology by 11%
+(p 0.42, so possibly luck). Seldon's crowd laws alone added nothing on spikes. The full rerun in CI
+replaces these numbers, and from the next weekly run every batch of odds is sealed in
+`predictions/event_ledger.csv`, fingerprinted in `predictions/event_seals.csv` and scored in the Monitor
+as its day passes. Odds, not advice.
+
+<img src="docs/assets/app-event-odds.png" alt="The World terminal's event odds: for each news and technology series, the chance of a spike or a lull four weeks ahead from TimesFM, Seldon and persistence, with TimesFM's record against climatology" width="100%">
+
+### The year ledger: every day of the year, four forecasters against reality
+
+The **Year ledger** ([open it](https://normansrule.github.io/world-predictor/app/#year), key `Y`) is
+the books for the year: one table for each tracked part of the world (gold, silver, bonds, the VIX
+fear gauge, stock indices, single stocks, oil and copper, Bitcoin, world news, technology), with a row
+for every day from 1 January to 31 December. Each row has the real value, the real move since the
+forecast was made, and for TimesFM, Radiant, Seldon and Seldon's crowd laws alone the most likely value
+(the median), the change it expected and how far off it was in percent. The closest is marked. Days
+nobody forecast, and days that have not happened yet, are dashes. Rows can be daily, weekly or monthly,
+and a strip above each table colours every day of the year by whoever came closest; click a day to
+jump to it.
+
+A forecast for a day comes from the sealed ledger when one was sealed before that day (marked
+**sealed**), and otherwise from the rolling-origin backtest, made from the data up to its origin but
+replayed afterwards (marked **backtest**). The models are compared only on days where all of them
+forecast from the same kind of record (sealed against sealed, backtest against backtest) and the real
+value is in, so none is helped by skipping hard days or by a forecast made closer to the day. Bonds and
+the VIX are new: their rows stay dashes until the first run fetches them. A weekday refresh at
+22:30 UTC, after the US close, fetches the day's real values, rescores and republishes, so the ledger
+fills in day by day; new forecasts are still sealed once a week.
+
+The 2026 ledger so far, from the recorded actuals (6,437 like-for-like days over 26 series): Radiant
+missed by **9.29%** on an average day, TimesFM by 9.35%, Seldon by 9.35% and the crowd laws by 10.71%.
+Radiant was closer than TimesFM on 15 of the 26 series. A **race chart** above the tables draws each
+challenger's average miss so far, day by day, as its gap to TimesFM: below the line is beating it.
+
+**Real or luck?** A lead over 200 days can still be luck, so every challenger's gap on every series is
+put to a Diebold-Mariano test (Diebold & Mariano, 1995) of its daily misses against TimesFM's. Forecasts
+made up to four weeks ahead overlap, so the test's variance allows for errors that run together for up
+to a horizon (Newey & West, 1987) and is corrected for short records (Harvey et al., 1997). With 26
+series tested at once, the Benjamini-Hochberg cut keeps false calls to about one in twenty (Benjamini &
+Hochberg, 1995). Each series card says **real** or **could be luck**, the leaderboard counts the series
+where a challenger is clearly better or clearly worse, and each table downloads as a CSV for your own
+books. On 2026 so far only one lead passes: Radiant on Exxon (4.93% against 5.03%, p 0.001). Its other
+14 leads could be luck. The crowd laws are clearly worse on four technology series.
+
+**The bake-off: can anything here beat TimesFM?** Twelve forecasters built from TimesFM, the crowd laws
+and "no change" were replayed on all 286 recorded daily windows of 2025-26, each learning only from the
+windows of its area that had finished before its forecast (`python scripts/seldon_bakeoff.py`).
+Average miss per day of the most likely value:
+
+| Forecaster | All | To March | April on | Markets | News | Tech |
+|---|---|---|---|---|---|---|
+| **Radiant** | **8.77%** | **9.04%** | **8.61%** | 4.86% | 14.02% | **10.71%** |
+| TimesFM | 8.83% | 9.18% | **8.61%** | 4.87% | **13.99%** | 10.90% |
+| Seldon, new share rule (now in use) | 8.83% | 9.17% | **8.61%** | 4.87% | **13.99%** | 10.90% |
+| Seldon, old share rule | 8.97% | 9.47% | 8.67% | 4.86% | 14.64% | 10.90% |
+| Shrink TimesFM's predicted move | 8.97% | 9.54% | 8.62% | 4.84% | 14.28% | 11.19% |
+| TimesFM and the laws, half each | 9.13% | 9.31% | 9.01% | 4.84% | 14.40% | 11.62% |
+| Crowd laws alone | 9.94% | 10.07% | 9.87% | 4.83% | 15.73% | 13.27% |
+| Radiant's behavioural core alone | 12.03% | 12.92% | 11.47% | 4.96% | 18.14% | 18.04% |
+| "No change" | 12.22% | 13.03% | 11.71% | **4.81%** | 18.46% | 18.65% |
+
+The first ten combiners did not beat TimesFM. That is the "forecast combination puzzle" seen many
+times before: weights learned from a short record tend to lose to the best single forecast or a plain
+average, because estimating them adds more noise than they remove (Stock & Watson, 2004; Smith & Wallis,
+2009; Timmermann, 2006). The old Seldon rule handed the laws a share of the news vote too early and
+lost 0.65 points there, so it was replaced: Seldon now needs ten finished windows and a 2% lower
+average miss before the laws get any say, which on this year's data means it stays with TimesFM.
+Radiant, below, is the first to come out ahead, by 0.06 points. Read that with care: the gap is small,
+it was built and tuned after looking at this same year (four settings were tried for the core's
+penalty and two for the mix's learning rate), and its edge comes from the first half and from
+technology. Its first clean test is the next CI backtest, where its core learns from decades of
+history, and then every week's sealed forecasts. Research, not investment advice.
+
+<img src="docs/assets/app-year.png" alt="The Year ledger: a leaderboard of TimesFM, Radiant, Seldon and the crowd laws for 2026 with a race chart of each challenger's gap to TimesFM, and gold's table with real-or-luck verdicts, a strip of the year coloured by the closest model and a row per week of real values, forecasts and percentage misses" width="100%">
+
+### Radiant: market psychology and statistics against TimesFM
+
+Radiant ([`radiant.py`](src/psychohistory/radiant.py)) is named after the Prime Radiant, the device
+in Asimov's *Second Foundation* (1953) that holds the Seldon Plan and shows where it is going wrong.
+It has two parts.
+
+**The core (`radiant-core`)** turns five well-documented patterns of crowd behaviour into numbers,
+measured from each series' own past:
+
+| Signal | The behaviour | Source |
+|---|---|---|
+| Momentum | A crowd that has been moving one way keeps moving as late arrivals follow the early ones (herding) | Jegadeesh & Titman (1993); Moskowitz et al. (2012); Bikhchandani et al. (1992) |
+| Overreaction | After an extreme run, measured in the series' own volatility, some of it is given back | De Bondt & Thaler (1985) |
+| Short-term reversal | Last week's move partly undoes itself | Lehmann (1990) |
+| Momentum crashes | When markets turn wild, momentum stops working, so it is scaled by this month's volatility against the year's | Daniel & Moskowitz (2016) |
+| Attention spikes | A series far above its recent normal, a burst of news or interest, fades back | Barber & Odean (2008); Da et al. (2011) |
+
+At many earlier dates the core measures the signals and sets them against what followed, and a ridge
+regression (Hoerl & Kennard, 1970) shrunk hard toward "no change" turns them into a forecast of the
+change. Nothing after the forecast date is used. On its own the core loses, even to "no change", on
+the year of history this sandbox has: the signals are real in the literature but weak, and they need
+long histories to estimate. In GitHub Actions it sees decades.
+
+**The full Radiant (`radiant`)** mixes TimesFM, the crowd laws, the core and "no change" decile by
+decile, with exponential weights (Freund & Schapire, 1997; Cesa-Bianchi & Lugosi, 2006): every
+finished forecast window of an area charges each one its miss relative to TimesFM's, and its weight
+shrinks by e^(−2 × charge). It starts with 70% of the weight on TimesFM, so a signal only gains a say by
+being right on forecasts it never saw while learning. Both are backtested on the same windows as
+TimesFM, sealed every week beside it, and scored in the year ledger, the bake-off and the real-or-luck
+verdicts. The VIX, the market's own fear gauge (Whaley, 2000), is now tracked too; feeding it to the
+core as a signal for other markets is the next step.
+
 ### Quick start
 
 On your own computer (Ubuntu shown, from any folder). No GPU (graphics processing unit) needed:
@@ -362,8 +652,14 @@ psychohistory fetch       # download all series into data/ (cached)
 psychohistory backtest    # rolling backtest vs baselines -> results/REPORT.md and charts
 psychohistory predict     # seal new forecasts in predictions/ledger.csv
 psychohistory ask gold    # run TimesFM live on one series (or --csv yours) and print its forecast
+psychohistory desk MSFT   # a forecast desk note for any Yahoo ticker, with a track record on it
 psychohistory score       # score sealed forecasts whose dates have arrived
 psychohistory record gold # one series' track record: past windows and opened sealed forecasts
+psychohistory monitor     # the live record over time, the significance test and drift alarms
+psychohistory verify      # check no sealed forecast was edited (SHA-256 per weekly batch)
+psychohistory vol         # volatility forecasts: GARCH, EWMA and TimesFM's range against last month's
+psychohistory events      # event odds: the chance of a spike or a lull in news and tech attention
+psychohistory wire        # the newest headlines per topic from GDELT, for the World terminal
 psychohistory export      # write the app's data file, results/web/data.js
 psychohistory site        # build the static app into build/site (what Pages serves)
 psychohistory simulate    # the toy crowd, no downloads
@@ -397,7 +693,10 @@ psychohistory simulate    # the toy crowd, no downloads
 | `timesfm-2.5` (default) | [google/timesfm-2.5-200m-pytorch](https://huggingface.co/google/timesfm-2.5-200m-pytorch) | Apache-2.0 |
 | `timesfm-3` | [google/timesfm-3.0-pytorch](https://huggingface.co/google/timesfm-3.0-pytorch) | **Non-commercial only** ([licence](https://huggingface.co/google/timesfm-3.0-pytorch/blob/main/LICENSE)) |
 | `chronos-bolt`, `chronos-2` | Amazon's rival foundation models, [amazon/chronos-bolt-small](https://huggingface.co/amazon/chronos-bolt-small) and [amazon/chronos-2](https://huggingface.co/amazon/chronos-2) (install the `rivals` extra) | See each model card |
-| `seldon` | Our own psychohistory forecaster: four crowd laws and a weekly rhythm, weighted by their record on each series ([`seldon.py`](src/psychohistory/seldon.py)); numpy only, always run alongside the main model | Apache-2.0 (this repo) |
+| `seldon` | Our own psychohistory forecaster: the crowd laws below plus the model under test in one council, the laws' share learned per area from finished windows ([`seldon.py`](src/psychohistory/seldon.py)); always run alongside the main model | Apache-2.0 (this repo) |
+| `seldon-laws` | The crowd laws alone: four laws and a weekly rhythm, weighted by their record on each series; numpy only, no neural network | Apache-2.0 (this repo) |
+| `radiant` | Our attempt to beat TimesFM: TimesFM, the crowd laws, the behavioural core and "no change" mixed by exponential weights learned per area from finished windows ([`radiant.py`](src/psychohistory/radiant.py)); always run alongside the main model | Apache-2.0 (this repo) |
+| `radiant-core` | Market psychology as statistics: momentum, overreaction, short-term reversal, momentum crashes and attention spikes, weighted by a ridge regression on each series' own past | Apache-2.0 (this repo) |
 | `ensemble` | Average of TimesFM, its `--compare` rivals and AutoETS (add `--ensemble`) | n/a |
 | `bass` | Bass diffusion S-curve (Bass, 1969), run automatically on technology-adoption series | Apache-2.0 (this repo) |
 | `auto-ets`, `auto-arima` | Classical baselines (ARIMA is autoregressive integrated moving average) from [statsforecast](https://github.com/Nixtla/statsforecast) (install the `classical` extra) | Apache-2.0 |
@@ -445,8 +744,9 @@ flowchart LR
     E[AutoETS]
     B[Bass S-curve]
     N[naive · drift · mean]
-    S[Seldon<br/>our own crowd laws]
+    SL[Seldon laws]
     T & C & E --> EN[ensemble]
+    T & SL --> S[Seldon<br/>council of both]
   end
   M --> BT[rolling backtest<br/>no peeking at the future]
   M --> L[prediction ledger<br/>sealed, scored later]
@@ -470,8 +770,9 @@ flowchart LR
 ### Seldon vs TimesFM
 
 TimesFM is a 200-million-parameter neural network pretrained on billions of time points. **Seldon**
-([`seldon.py`](src/psychohistory/seldon.py)) is the opposite bet, the one Hari Seldon made: a crowd
-follows a few simple laws, and the trick is knowing which law rules which crowd.
+([`seldon.py`](src/psychohistory/seldon.py)) starts from the opposite bet, the one Hari Seldon made: a
+crowd follows a few simple laws, and the trick is knowing which law rules which crowd. Then, because
+the goal is to beat TimesFM rather than to be pure, it lets TimesFM vote too.
 
 | Law | The crowd behaviour | Forecast |
 |---|---|---|
@@ -490,6 +791,12 @@ follows a few simple laws, and the trick is knowing which law rules which crowd.
    the rate the replays show, and stretched or narrowed by how volatile the series is right now.
 4. **Never peek.** Every replay ends before the forecast date; a test changes a later window and checks
    no earlier Seldon forecast moves. Prices and attention are forecast on a log scale.
+5. **Seat TimesFM at the table.** That council is `seldon-laws`. The full `seldon` adds TimesFM as a
+   voter: in each area (news, markets, technology) it tries giving the laws 0%, 10%, … 100% of the vote
+   on every finished window of every series there, and keeps the best split only if it beat TimesFM
+   alone by at least 2% in average percentage miss. Pooling a whole area is Seldon's law of large
+   numbers turned on itself: one series' dozen windows are too few to learn from, a whole area's are
+   not. With fewer than ten finished windows, TimesFM keeps the whole vote.
 
 Seldon is scored by exactly the same code as TimesFM, on the same windows, sealed in the same ledger,
 and the app's scoreboard, the Lab and every outlook show both. It is allowed to lose.
@@ -544,9 +851,16 @@ src/psychohistory/
   models.py              TimesFM, Chronos, AutoETS, Bass and baseline forecasters, plus the ensemble
   metrics.py             error and calibration scores: MAE, MASE, sMAPE, direction, 80% coverage, Brier
   seldon.py              Seldon: our own forecaster, crowd laws weighted by their record, no neural network
+  radiant.py             Radiant: behavioural signals plus an exponential-weights mix of TimesFM, the laws and no change
   backtest.py            rolling-origin backtest, the Seldon summary tables and the TimesFM-vs-Seldon duel
-  ledger.py              seal forecasts now, score them later
+  ledger.py              seal forecasts now, score them later, fingerprint every weekly batch
+  monitor.py             `psychohistory monitor`: the live record over time, Diebold-Mariano, drift alarms
+  volatility.py          `psychohistory vol`: GARCH(1,1), EWMA and implied volatility, QLIKE, a sealed volatility ledger
+  yearbook.py            the year ledger: every day of the year, each model's median against reality, sealed over backtest
+  events.py              `psychohistory events`: odds of a spike or a lull, Brier skill vs climatology and persistence, a sealed event ledger
+  wire.py                `psychohistory wire`: the newest GDELT headlines per topic, for the World terminal
   ask.py                 `psychohistory ask`: TimesFM live on one series or your own CSV
+  desk.py                `psychohistory desk`: a forecast desk note for any ticker, with odds, volatility and a per-asset track record
   story.py               plain-English findings, scoreboard, replay, outlook, Time Vault, `record`
   simulate.py            toy agent-based crowd: why aggregates are predictable
   inventory.py           what each pipeline stage does: feeds the app's explorer and ARCHITECTURE.md
@@ -561,7 +875,7 @@ docs/                    METHODOLOGY.md, ARCHITECTURE.md, DESIGN.md, progress.js
 predictions/             ledger.csv (sealed forecasts) and scored.csv
 results/                 REPORT.md, charts, and run_status.json (which series got through each stage)
 .github/workflows/       tests, predict (weekly), pages (web app), release (downloads)
-scripts/                 make_readme_art.py, make_app_screenshots.py, seldon_first_look.py, seldon_m4_check.py, publish_to_github.sh
+scripts/                 make_readme_art.py, make_app_screenshots.py, rebuild_app_data.py, seldon_m4_check.py, publish_to_github.sh
 ```
 
 The metric names, in full: MAE is mean absolute error, MASE is mean absolute scaled error, and sMAPE is
@@ -651,29 +965,36 @@ World Predictor is Apache-2.0).
 
 <!-- progress:start -->
 
-**33 of 40 milestones done (82%).** Drawn from [`docs/progress.json`](docs/progress.json); tests check every ticked item against the repository.
+**50 of 54 milestones done (93%).** Drawn from [`docs/progress.json`](docs/progress.json); tests check every ticked item against the repository.
 
-<details open><summary><b>📰 World news</b> · 5/6</summary>
+<details><summary><b>📰 World news</b> · 11/11</summary>
 
 - [x] GDELT news-attention loader
 - [x] Six news topics plus a news composite
 - [x] Rolling backtest against naive, drift, mean and AutoETS
 - [x] Weekly sealed forecasts in the prediction ledger
 - [x] First real TimesFM results published
-- [ ] Event-level odds (for example, escalation of a named conflict)
+- [x] Radiant: behavioural finance signals and an exponential-weights mix, scored against TimesFM in the bake-off, the year ledger and the weekly sealed ledger
+- [x] Year ledger verdicts: a Diebold-Mariano test per series against TimesFM, cut with Benjamini-Hochberg, and a CSV of every table
+- [x] Bake-off: ten ways of combining TimesFM and the crowd laws replayed without peeking; Seldon's share rule replaced by the one that came closest
+- [x] Year ledger: every day of the year, TimesFM, Seldon and the crowd laws against reality, refreshed every weekday
+- [x] Event-level odds: spikes and lulls in world news and tech attention, scored against climatology and persistence
+- [x] World wire: the newest GDELT headlines for every topic, weekly
 
 </details>
 
-<details open><summary><b>📈 Markets, gold and silver</b> · 6/8</summary>
+<details><summary><b>📈 Markets, gold and silver</b> · 10/10</summary>
 
 - [x] Yahoo Finance loader (stocks, indices, gold, silver, oil, copper, Bitcoin)
 - [x] Chronos rival models and a quantile-averaged ensemble
 - [x] Seldon: our own psychohistory forecaster, run head to head with TimesFM
-- [ ] Official Seldon vs TimesFM duel from a full backtest
+- [x] Official Seldon vs TimesFM duel from a full backtest
 - [x] Chance-of-rising odds scored with the Brier score
 - [x] Outlook grid for stocks, gold, silver and Bitcoin
+- [x] Markets desk: watchlist, odds calculator, who to trust per asset, compare and export
+- [x] Forecast desk note for any Yahoo ticker (psychohistory desk)
 - [x] First real TimesFM results published
-- [ ] Volatility forecasts (GARCH from the arch library)
+- [x] Volatility forecasts: GARCH(1,1), EWMA and TimesFM's range, sealed weekly and scored with QLIKE
 
 </details>
 
@@ -687,8 +1008,10 @@ World Predictor is Apache-2.0).
 
 </details>
 
-<details open><summary><b>🌐 Web app (GitHub Pages)</b> · 15/16</summary>
+<details open><summary><b>🌐 Web app (GitHub Pages)</b> · 19/20</summary>
 
+- [x] World terminal: command line, world board, movers, just-opened forecasts, focus and scoreboard
+- [x] Your book: sealed calls settled for good, running skill against TimesFM, export and import
 - [x] Static app: scoreboard, replay, outlook, horizon, odds, Time Vault, crowd lab
 - [x] No chart library: hand-written SVG charts, about 45 KB of code once compressed
 - [x] Light and dark themes, phone layout, installable, works offline
@@ -705,16 +1028,21 @@ World Predictor is Apache-2.0).
 - [x] Time Vault lists every opened forecast, flagged when sealed before the value was published
 - [x] Cinematic landing page: a scroll story of one real forecast, sealed then scored
 - [ ] Live at normansrule.github.io/world-predictor
+- [x] Long-term monitor: live skill, coverage and calibration by month, with drift alarms
+- [x] Design audit: WCAG 2.2 contrast in both themes, an 11px type floor, 40px touch targets, keyboard-instant views
 
 </details>
 
-<details open><summary><b>💻 Downloadable full version</b> · 3/5</summary>
+<details open><summary><b>💻 Downloadable full version</b> · 6/8</summary>
 
 - [x] `psychohistory app`: run TimesFM locally and open the same app
 - [x] `psychohistory record`: one series' full track record in the terminal
 - [x] Release workflow: full project zip and offline app zip
 - [ ] First tagged release
 - [ ] Desktop installer (Tauri, as World Monitor does)
+- [x] psychohistory monitor: is the live record better than no change, with a significance test
+- [x] Tamper-evident ledger: a SHA-256 fingerprint per weekly batch (psychohistory verify)
+- [x] Small-sample statistics: Student's t, Harvey-Leybourne-Newbold, Benjamini-Hochberg false-discovery cut on alarms
 
 </details>
 
@@ -727,18 +1055,57 @@ bibliography, with every model, data source, theory and design reference, is in
 
 - Ansari, A. F., Stella, L., Turkmen, C., Zhang, X., Mercado, P., Shen, H., Shchur, O., Rangapuram, S. S., Pineda Arango, S., Kapoor, S., Zschiegner, J., Maddix, D. C., Wang, H., Mahoney, M. W., Torkkola, K., Wilson, A. G., Bohlke-Schneider, M., & Wang, Y. (2024). Chronos: Learning the language of time series. *Transactions on Machine Learning Research*. https://arxiv.org/abs/2403.07815
 - Asimov, I. (1951). *Foundation*. Gnome Press.
+- Asimov, I. (1953). *Second Foundation*. Gnome Press.
+- Barber, B. M., & Odean, T. (2008). All that glitters: The effect of attention and news on the buying behavior of individual and institutional investors. *The Review of Financial Studies, 21*(2), 785–818. https://doi.org/10.1093/rfs/hhm079
+- Bates, J. M., & Granger, C. W. J. (1969). The combination of forecasts. *Operational Research Quarterly, 20*(4), 451–468. https://doi.org/10.1057/jors.1969.103
+- Benjamini, Y., & Hochberg, Y. (1995). Controlling the false discovery rate: A practical and powerful approach to multiple testing. *Journal of the Royal Statistical Society: Series B (Methodological), 57*(1), 289–300. https://doi.org/10.1111/j.2517-6161.1995.tb02031.x
+- Bikhchandani, S., Hirshleifer, D., & Welch, I. (1992). A theory of fads, fashion, custom, and cultural change as informational cascades. *Journal of Political Economy, 100*(5), 992–1026. https://doi.org/10.1086/261849
+- BlackRock. (n.d.). *iShares 20+ Year Treasury Bond ETF (TLT)* [Data set]. Retrieved November 2, 2026, from https://www.ishares.com/us/products/239454/
+- Bollerslev, T. (1986). Generalized autoregressive conditional heteroskedasticity. *Journal of Econometrics, 31*(3), 307–327. https://doi.org/10.1016/0304-4076(86)90063-1
 - Brier, G. W. (1950). Verification of forecasts expressed in terms of probability. *Monthly Weather Review, 78*(1), 1–3. https://doi.org/10.1175/1520-0493(1950)078<0001:VOFEIT>2.0.CO;2
+- Cboe Global Markets. (n.d.-a). *Cboe 10-Year U.S. Treasury Note Yield Index (TNX)* [Data set]. Retrieved November 2, 2026, from https://www.cboe.com/
+- Cboe Global Markets. (n.d.-b). *Cboe Volatility Index (VIX)* [Data set]. Retrieved November 2, 2026, from https://www.cboe.com/tradable_products/vix/
+- Cesa-Bianchi, N., & Lugosi, G. (2006). *Prediction, learning, and games*. Cambridge University Press. https://doi.org/10.1017/CBO9780511546921
+- Da, Z., Engelberg, J., & Gao, P. (2011). In search of attention. *The Journal of Finance, 66*(5), 1461–1499. https://doi.org/10.1111/j.1540-6261.2011.01679.x
+- Daniel, K., & Moskowitz, T. J. (2016). Momentum crashes. *Journal of Financial Economics, 122*(2), 221–247. https://doi.org/10.1016/j.jfineco.2015.12.002
 - Das, A., Kong, W., Sen, R., & Zhou, Y. (2024). A decoder-only foundation model for time-series forecasting. In *Proceedings of the 41st International Conference on Machine Learning* (Proceedings of Machine Learning Research, Vol. 235). PMLR. https://arxiv.org/abs/2310.10688
+- De Bondt, W. F. M., & Thaler, R. (1985). Does the stock market overreact? *The Journal of Finance, 40*(3), 793–805. https://doi.org/10.1111/j.1540-6261.1985.tb05004.x
+- Diebold, F. X., & Mariano, R. S. (1995). Comparing predictive accuracy. *Journal of Business & Economic Statistics, 13*(3), 253–263. https://doi.org/10.1080/07350015.1995.10524599
+- Engle, R. F. (1982). Autoregressive conditional heteroscedasticity with estimates of the variance of United Kingdom inflation. *Econometrica, 50*(4), 987–1007. https://doi.org/10.2307/1912773
+- Freund, Y., & Schapire, R. E. (1997). A decision-theoretic generalization of on-line learning and an application to boosting. *Journal of Computer and System Sciences, 55*(1), 119–139. https://doi.org/10.1006/jcss.1997.1504
+- Gardner, E. S., Jr., & McKenzie, E. (1985). Forecasting trends in time series. *Management Science, 31*(10), 1237–1246. https://doi.org/10.1287/mnsc.31.10.1237
 - Garza, A., Mergenthaler Canseco, M., Challú, C., & Olivares, K. G. (2022). *StatsForecast: Lightning fast forecasting with statistical and econometric models* [Computer software]. GitHub. https://github.com/Nixtla/statsforecast
 - Gneiting, T., & Raftery, A. E. (2007). Strictly proper scoring rules, prediction, and estimation. *Journal of the American Statistical Association, 102*(477), 359–378. https://doi.org/10.1198/016214506000001437
 - Google Research. (n.d.). *timesfm* [Computer software]. GitHub. https://github.com/google-research/timesfm
+- Harvey, D., Leybourne, S., & Newbold, P. (1997). Testing the equality of prediction mean squared errors. *International Journal of Forecasting, 13*(2), 281–291. https://doi.org/10.1016/S0169-2070(96)00719-4
+- Hoerl, A. E., & Kennard, R. W. (1970). Ridge regression: Biased estimation for nonorthogonal problems. *Technometrics, 12*(1), 55–67. https://doi.org/10.1080/00401706.1970.10488634
 - Hyndman, R. J., & Koehler, A. B. (2006). Another look at measures of forecast accuracy. *International Journal of Forecasting, 22*(4), 679–688. https://doi.org/10.1016/j.ijforecast.2006.03.001
+- Jegadeesh, N., & Titman, S. (1993). Returns to buying winners and selling losers: Implications for stock market efficiency. *The Journal of Finance, 48*(1), 65–91. https://doi.org/10.1111/j.1540-6261.1993.tb04702.x
+- J.P. Morgan/Reuters. (1996). *RiskMetrics: Technical document* (4th ed.). Morgan Guaranty Trust Company.
 - koala73. (n.d.). *worldmonitor* [Computer software]. GitHub. https://github.com/koala73/worldmonitor
 - Koenker, R., & Bassett, G., Jr. (1978). Regression quantiles. *Econometrica, 46*(1), 33–50. https://doi.org/10.2307/1913643
 - Leetaru, K., & Schrodt, P. A. (2013, April). *GDELT: Global data on events, location, and tone, 1979–2012* [Paper presentation]. International Studies Association Annual Convention, San Francisco, CA, United States.
+- Lehmann, B. N. (1990). Fads, martingales, and market efficiency. *The Quarterly Journal of Economics, 105*(1), 1–28. https://doi.org/10.2307/2937816
+- Lichtendahl, K. C., Jr., Grushka-Cockayne, Y., & Winkler, R. L. (2013). Is it better to average probabilities or quantiles? *Management Science, 59*(7), 1594–1611. https://doi.org/10.1287/mnsc.1120.1667
+- Makridakis, S., Spiliotis, E., & Assimakopoulos, V. (2020). The M4 Competition: 100,000 time series and 61 forecasting methods. *International Journal of Forecasting, 36*(1), 54–74. https://doi.org/10.1016/j.ijforecast.2019.04.014
+- Mandelbrot, B. (1963). The variation of certain speculative prices. *The Journal of Business, 36*(4), 394–419. https://doi.org/10.1086/294632
+- Moskowitz, T. J., Ooi, Y. H., & Pedersen, L. H. (2012). Time series momentum. *Journal of Financial Economics, 104*(2), 228–250. https://doi.org/10.1016/j.jfineco.2011.11.003
+- Newey, W. K., & West, K. D. (1987). A simple, positive semi-definite, heteroskedasticity and autocorrelation consistent covariance matrix. *Econometrica, 55*(3), 703–708. https://doi.org/10.2307/1913610
 - Normansrule. (n.d.). *worldmonitor (Terra Atlas)* [Computer software]. GitHub. https://github.com/Normansrule/worldmonitor
+- Our World in Data. (n.d.). *Our World in Data* [Data set]. Retrieved October 20, 2026, from https://ourworldindata.org/
+- Patton, A. J. (2011). Volatility forecast comparison using imperfect volatility proxies. *Journal of Econometrics, 160*(1), 246–256. https://doi.org/10.1016/j.jeconom.2010.03.034
+- Shiller, R. J. (2000). *Irrational exuberance*. Princeton University Press.
+- Smith, J., & Wallis, K. F. (2009). A simple explanation of the forecast combination puzzle. *Oxford Bulletin of Economics and Statistics, 71*(3), 331–355. https://doi.org/10.1111/j.1468-0084.2008.00541.x
+- Stock, J. H., & Watson, M. W. (2004). Combination forecasts of output growth in a seven-country data set. *Journal of Forecasting, 23*(6), 405–430. https://doi.org/10.1002/for.928
+- Student. (1908). The probable error of a mean. *Biometrika, 6*(1), 1–25. https://doi.org/10.1093/biomet/6.1.1
 - Tashman, L. J. (2000). Out-of-sample tests of forecasting accuracy: An analysis and review. *International Journal of Forecasting, 16*(4), 437–450. https://doi.org/10.1016/S0169-2070(00)00065-0
 - Tetlock, P. E., & Gardner, D. (2015). *Superforecasting: The art and science of prediction*. Crown.
+- The GDELT Project. (n.d.). *GDELT DOC 2.0 API* [Data set]. Retrieved October 20, 2026, from https://www.gdeltproject.org/
+- Timmermann, A. (2006). Forecast combinations. In G. Elliott, C. W. J. Granger, & A. Timmermann (Eds.), *Handbook of economic forecasting* (Vol. 1, pp. 135–196). Elsevier. https://doi.org/10.1016/S1574-0706(05)01004-9
+- Wallis, K. F. (2014). The two-piece normal, binormal, or double Gaussian distribution: Its origin and rediscoveries. *Statistical Science, 29*(1), 106–112. https://doi.org/10.1214/13-STS417
+- Whaley, R. E. (2000). The investor fear gauge. *The Journal of Portfolio Management, 26*(3), 12–17. https://doi.org/10.3905/jpm.2000.319728
+- Wikimedia Foundation. (n.d.). *Wikimedia REST API: Pageviews* [Data set]. Retrieved October 20, 2026, from https://wikimedia.org/api/rest_v1/
+- Yahoo. (n.d.). *Yahoo Finance* [Data set]. Retrieved October 20, 2026, from https://finance.yahoo.com/
 
 World Monitor and its fork Terra Atlas are the basis for shipping one app two ways (ideas only, no
 code copied). The design-audit guides (Impeccable, taste-skill and Emil Kowalski's skills) and the

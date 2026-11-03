@@ -21,6 +21,7 @@ flowchart LR
   fetch --> context
   context --> model
   context --> seldon
+  model --> seldon
   model --> seal
   seldon --> seal
   seal --> score
@@ -37,7 +38,7 @@ The list of everything World Predictor forecasts, and where each series comes fr
 
 | | |
 |---|---|
-| **Code** | [`src/psychohistory/catalog.py` · SeriesSpec](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/catalog.py#L16)<br>[`src/psychohistory/catalog.py` · CATALOG](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/catalog.py#L102) |
+| **Code** | [`src/psychohistory/catalog.py` · SeriesSpec](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/catalog.py#L16)<br>[`src/psychohistory/catalog.py` · CATALOG](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/catalog.py#L107) |
 | **Takes** | Nothing: edited by hand. |
 | **Gives** | SeriesSpec(id, domain, source, params, freq, horizon, scale) |
 | **Rule** | One entry per series. Horizons: 28 days (news, Wikipedia), 21 trading days (markets), 3 years (OWID). |
@@ -53,7 +54,7 @@ Downloads each series from its public source and keeps a dated copy on disk.
 
 | | |
 |---|---|
-| **Code** | [`src/psychohistory/data/__init__.py` · fetch](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/data/__init__.py#L44)<br>[`src/psychohistory/data/http.py` · get](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/data/http.py#L12)<br>[`src/psychohistory/data/gdelt.py` · fetch](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/data/gdelt.py#L48)<br>[`src/psychohistory/data/markets.py` · fetch](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/data/markets.py#L12)<br>[`src/psychohistory/data/wikipedia.py` · fetch](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/data/wikipedia.py#L20)<br>[`src/psychohistory/data/owid.py` · fetch](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/data/owid.py#L18)<br>[`src/psychohistory/cli.py` · _load](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/cli.py#L20) |
+| **Code** | [`src/psychohistory/data/__init__.py` · fetch](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/data/__init__.py#L44)<br>[`src/psychohistory/data/http.py` · get](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/data/http.py#L12)<br>[`src/psychohistory/data/gdelt.py` · fetch](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/data/gdelt.py#L48)<br>[`src/psychohistory/data/markets.py` · fetch](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/data/markets.py#L12)<br>[`src/psychohistory/data/wikipedia.py` · fetch](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/data/wikipedia.py#L20)<br>[`src/psychohistory/data/owid.py` · fetch](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/data/owid.py#L18)<br>[`src/psychohistory/cli.py` · _load](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/cli.py#L21) |
 | **Takes** | SeriesSpec |
 | **Gives** | Date-indexed values, cached as data/<domain>/<id>.csv (not committed: Yahoo's terms) |
 | **Rule** | Drop missing values, sort by date, keep the last of any duplicate date. Missing stays missing, never zero. |
@@ -69,7 +70,7 @@ Cuts the history down to the part the model is allowed to read: the past only.
 
 | | |
 |---|---|
-| **Code** | [`src/psychohistory/ledger.py` · predict](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/ledger.py#L38)<br>[`src/psychohistory/backtest.py` · MAX_CONTEXT](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/backtest.py#L22) |
+| **Code** | [`src/psychohistory/ledger.py` · predict](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/ledger.py#L41)<br>[`src/psychohistory/backtest.py` · MAX_CONTEXT](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/backtest.py#L23) |
 | **Takes** | The full cached series |
 | **Gives** | The last 1,024 values or fewer |
 | **Rule** | Live forecasts read everything up to the newest value; backtests read only up to each past origin. |
@@ -85,7 +86,7 @@ Google Research's pretrained forecasting model reads the context and returns a r
 
 | | |
 |---|---|
-| **Code** | [`src/psychohistory/models.py` · TimesFM25Forecaster](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/models.py#L112)<br>[`src/psychohistory/models.py` · load_model](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/models.py#L346) |
+| **Code** | [`src/psychohistory/models.py` · TimesFM25Forecaster](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/models.py#L112)<br>[`src/psychohistory/models.py` · load_model](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/models.py#L350) |
 | **Takes** | Context arrays and a horizon |
 | **Gives** | Forecast: a middle path and nine deciles (10%..90%) per step |
 | **Rule** | Zero-shot: checkpoint google/timesfm-2.5-200m-pytorch, never trained on this project's data. |
@@ -97,18 +98,18 @@ Google Research's pretrained forecasting model reads the context and returns a r
 
 ## 5. Seldon, our own forecaster
 
-The challenger: four simple laws of crowd behaviour plus a weekly rhythm, each law voting by how well it predicted this series before.
+The challenger: TimesFM and four simple laws of crowd behaviour in one council, each with the share of the vote it earned on finished windows.
 
 | | |
 |---|---|
-| **Code** | [`src/psychohistory/seldon.py` · predict](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/seldon.py#L237)<br>[`src/psychohistory/seldon.py` · convene](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/seldon.py#L171)<br>[`src/psychohistory/seldon.py` · find_cycle](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/seldon.py#L126)<br>[`src/psychohistory/seldon.py` · SeldonForecaster](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/seldon.py#L262) |
-| **Takes** | The same context arrays and horizon TimesFM gets |
-| **Gives** | Forecast rows with model = seldon, sealed and scored next to the TimesFM rows |
-| **Rule** | Inertia, drift, momentum and reversion each forecast the series with its weekly rhythm taken out; 16 replays of the series' own past set their votes (1 / error^4) and the 80% range, and the rhythm is laid back on top. Learns only from data before the forecast date. |
+| **Code** | [`src/psychohistory/seldon.py` · predict](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/seldon.py#L252)<br>[`src/psychohistory/seldon.py` · convene](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/seldon.py#L186)<br>[`src/psychohistory/seldon.py` · learn_share](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/seldon.py#L329)<br>[`src/psychohistory/backtest.py` · add_seldon](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/backtest.py#L119)<br>[`src/psychohistory/seldon.py` · find_cycle](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/seldon.py#L141)<br>[`src/psychohistory/seldon.py` · SeldonForecaster](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/seldon.py#L277) |
+| **Takes** | The same context arrays and horizon TimesFM gets, TimesFM's forecast, and every finished window in the same area |
+| **Gives** | Forecast rows with model = seldon (full) and seldon-laws (laws alone), sealed and scored next to TimesFM |
+| **Rule** | Inertia, drift, momentum and reversion each forecast the series with its weekly rhythm taken out; 16 replays of the series' own past set their votes (1 / error^4) and the 80% range, and the rhythm is laid back on top. Learns only from data before the forecast date. The full Seldon then blends TimesFM with these laws, the laws' share learned per area from finished windows (TimesFM keeps the whole vote until an area has 10 and the laws cut the average percentage miss by 2%). |
 | **When** | Every Monday 06:00 UTC (.github/workflows/predict.yml), or on demand |
 | **If it fails** | With too little history to replay, every law gets an equal vote and the range is a random walk's. |
 | **Runs in** | Python (numpy only), beside TimesFM |
-| **Tests** | [`test_seldon_follows_a_weekly_rhythm_and_a_trend`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L576), [`test_seldon_never_peeks_past_the_forecast_date`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L590), [`test_seldon_range_is_honest_on_a_random_walk`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L609), [`test_seldon_handles_short_and_negative_series`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L621), [`test_head_to_head_counts_series_won_on_the_same_windows`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L631) |
+| **Tests** | [`test_seldon_follows_a_weekly_rhythm_and_a_trend`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L576), [`test_seldon_never_peeks_past_the_forecast_date`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L590), [`test_full_seldon_starts_as_the_model_and_earns_its_share`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L631), [`test_full_seldon_in_the_backtest_never_peeks`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L651), [`test_seldon_range_is_honest_on_a_random_walk`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L609), [`test_seldon_handles_short_and_negative_series`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L621), [`test_head_to_head_counts_series_won_on_the_same_windows`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L831) |
 | **Status** | Implemented |
 
 ## 6. Seal the forecast
@@ -117,7 +118,7 @@ Writes the forecast down with today's date before the future happens.
 
 | | |
 |---|---|
-| **Code** | [`src/psychohistory/ledger.py` · predict](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/ledger.py#L38)<br>[`src/psychohistory/ledger.py` · append](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/ledger.py#L90)<br>[`src/psychohistory/metrics.py` · prob_above](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/metrics.py#L23) |
+| **Code** | [`src/psychohistory/ledger.py` · predict](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/ledger.py#L41)<br>[`src/psychohistory/ledger.py` · append](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/ledger.py#L114)<br>[`src/psychohistory/metrics.py` · prob_above](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/metrics.py#L23) |
 | **Takes** | Forecast and the newest observed value |
 | **Gives** | Rows in predictions/ledger.csv: made_on, last_date, last_value, step, target_date, q10, q50, q90, p_up |
 | **Rule** | The chance of ending higher is read off the deciles by interpolation, capped at 5% and 95%. |
@@ -133,14 +134,14 @@ When a target date arrives, puts what really happened next to what was sealed.
 
 | | |
 |---|---|
-| **Code** | [`src/psychohistory/ledger.py` · score](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/ledger.py#L101)<br>[`src/psychohistory/story.py` · track_record](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/story.py#L328)<br>[`src/psychohistory/web.py` · opened_payload](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/web.py#L338) |
+| **Code** | [`src/psychohistory/ledger.py` · score](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/ledger.py#L172)<br>[`src/psychohistory/story.py` · track_record](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/story.py#L336)<br>[`src/psychohistory/web.py` · opened_payload](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/web.py#L470) |
 | **Takes** | Ledger rows and the newest data |
 | **Gives** | predictions/scored.csv: actual, abs_error, in_band80, direction_correct, brier |
 | **Rule** | A row is scored only once its target date is in the data. Brier compares the chance it gave with what happened. |
 | **When** | Every Monday 06:00 UTC (.github/workflows/predict.yml), or on demand |
 | **If it fails** | Rows whose date has not arrived, or whose value is missing, wait unscored. |
 | **Runs in** | GitHub Actions |
-| **Tests** | [`test_ledger_predict_then_score`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L134), [`test_time_vault_track_record`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L361), [`test_opened_forecasts_flag_values_sealed_before_release`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L673) |
+| **Tests** | [`test_ledger_predict_then_score`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L134), [`test_time_vault_track_record`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L361), [`test_opened_forecasts_flag_values_sealed_before_release`](https://github.com/Normansrule/world-predictor/blob/main/tests/test_pipeline.py#L873) |
 | **Status** | Implemented |
 
 ## 8. Backtest
@@ -149,7 +150,7 @@ Replays the past: forecasts from old dates, scored against what followed, next t
 
 | | |
 |---|---|
-| **Code** | [`src/psychohistory/backtest.py` · backtest_series](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/backtest.py#L32)<br>[`src/psychohistory/backtest.py` · origins](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/backtest.py#L25)<br>[`src/psychohistory/backtest.py` · summarize](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/backtest.py#L97)<br>[`src/psychohistory/metrics.py` · score](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/metrics.py#L37) |
+| **Code** | [`src/psychohistory/backtest.py` · backtest_series](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/backtest.py#L33)<br>[`src/psychohistory/backtest.py` · origins](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/backtest.py#L26)<br>[`src/psychohistory/backtest.py` · summarize](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/backtest.py#L259)<br>[`src/psychohistory/metrics.py` · score](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/metrics.py#L37) |
 | **Takes** | Cached series and the models |
 | **Gives** | results/backtest_windows.csv, backtest_summary.csv, skill_by_step.csv, backtest_paths.csv |
 | **Rule** | 12 origins spaced one horizon apart. Skill = 1 - MAE(model) / MAE(naive). Under 2% either way counts as no edge. |
@@ -165,7 +166,7 @@ Packs the results into one file the web app reads, and GitHub Pages serves it.
 
 | | |
 |---|---|
-| **Code** | [`src/psychohistory/web.py` · build_payload](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/web.py#L66)<br>[`src/psychohistory/web.py` · track_payload](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/web.py#L304)<br>[`src/psychohistory/web.py` · write_data_js](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/web.py#L383)<br>[`src/psychohistory/story.py` · EDGE](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/story.py#L109)<br>[`.github/workflows/pages.yml`](https://github.com/Normansrule/world-predictor/blob/main/.github/workflows/pages.yml) |
+| **Code** | [`src/psychohistory/web.py` · build_payload](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/web.py#L74)<br>[`src/psychohistory/web.py` · track_payload](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/web.py#L436)<br>[`src/psychohistory/web.py` · write_data_js](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/web.py#L515)<br>[`src/psychohistory/story.py` · EDGE](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/story.py#L117)<br>[`.github/workflows/pages.yml`](https://github.com/Normansrule/world-predictor/blob/main/.github/workflows/pages.yml) |
 | **Takes** | Results, ledger, scores and run status |
 | **Gives** | results/web/data.js (window.WP_DATA), copied to app/data/data.js on Pages |
 | **Rule** | Only numbers produced by a run are shown; demo data is marked as demo everywhere it appears. |

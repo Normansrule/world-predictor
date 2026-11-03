@@ -73,6 +73,14 @@ scored by the same code as TimesFM. It uses nothing but the series' own past:
    and by 1.1 because a few replays understate the tails. With too little history it falls back to a
    random-walk range from the day-to-day changes.
 
+7. **The full Seldon.** `seldon-laws` is steps 1-6. `seldon` blends the model under test's deciles with
+   the laws' deciles, the laws holding share s of the vote. s is chosen per domain from {0, 0.1, ..., 1} to
+   minimise the mean, over every finished window of every series in that domain, of MAE(blend) / MAE("no
+   change"); a window counts as finished once its last date is on or before the new forecast's origin.
+   s stays 0 with fewer than 5 finished windows, or when the best s beat s = 0 by less than 2%.
+   In the backtest this runs after all series are forecast (`backtest.add_seldon`); live, the windows
+   are the saved backtest paths with the laws rerun on the data up to each origin.
+
 Settings were chosen on M4 daily series 0-499 and checked on series 500-1,999
 (`scripts/seldon_m4_check.py`). **The duel** (`backtest.head_to_head`) counts, per domain, the series on
 which Seldon's mean absolute error over the same windows was lower than TimesFM's, alongside both

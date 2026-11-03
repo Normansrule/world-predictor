@@ -39,7 +39,11 @@
 
 <div class="shell">
   <nav class="rail" aria-label="Views">
+    <a href="#terminal"><kbd>W</kbd>World terminal</a>
     <a href="#desk"><kbd>1</kbd>Desk</a>
+    <a href="#markets"><kbd>M</kbd>Markets desk</a>
+    <a href="#monitor"><kbd>R</kbd>Monitor</a>
+    <a href="#year"><kbd>Y</kbd>Year ledger</a>
     <a href="#lab"><kbd>2</kbd>Lab</a>
     <a href="#studio"><kbd>3</kbd>Forecast Studio</a>
     <a href="#outlook"><kbd>4</kbd>Outlook</a>
@@ -56,10 +60,18 @@
   <main id="main" tabindex="-1">
     <div id="demo"></div>
 
+    <section class="view" id="view-terminal" aria-labelledby="terminal-h"><div id="terminal-root"></div></section>
+
+    <section class="view" id="view-markets" aria-labelledby="markets-h"><div id="markets-root"></div></section>
+
+    <section class="view" id="view-monitor" aria-labelledby="monitor-h"><div id="monitor-root"></div></section>
+
+    <section class="view" id="view-year" aria-labelledby="year-h"><div id="year-root"></div></section>
+
     <section class="view" id="view-desk" aria-labelledby="desk-h">
       <div class="vhead">
         <h1 id="desk-h">Is anyone better than "no change"?</h1>
-        <p class="lede">Google's TimesFM against Seldon, our own forecaster built from five laws of crowd behaviour. Both scored against "tomorrow looks like today" on windows neither model saw.</p>
+        <p class="lede">Google's TimesFM against Seldon, our own forecaster: crowd laws with TimesFM as one voter. Both scored against "tomorrow looks like today" on windows neither model saw.</p>
       </div>
       <div class="desk">
         <div class="card span3" id="board-card">
@@ -243,9 +255,9 @@
           <header class="ph"><h2>How it is scored</h2></header>
           <p><b>Skill</b> is 1 − error(model) ÷ error("no change"). <b>80% range</b>: it should catch reality 8 times in 10.
             <b>Odds score</b> (Brier): 0 is perfect, 0.25 is a coin flip. Backtests never let a model see the future it is tested on.</p>
-          <p><b>Seldon</b> is our own forecaster, built to compete with TimesFM: five laws of crowd behaviour (inertia, drift, momentum, reversion, a weekly rhythm),
-            each voting by how well it predicted the same series before, with a range set by its own past misses. No neural network. It learns only from data before
-            each forecast, is scored by the same code on the same windows, and is allowed to lose.</p>
+          <p><b>Seldon</b> is our own forecaster, built to beat TimesFM: four laws of crowd behaviour (inertia, drift, momentum, reversion, on top of the weekly rhythm)
+            and TimesFM itself in one council. The laws' share of the vote is learned per area from finished windows only; until they have beat TimesFM there, TimesFM
+            keeps the vote. <b>Seldon laws</b> is the same council without TimesFM. Both are scored by the same code on the same windows and are allowed to lose.</p>
           <p>Nothing here is financial advice.</p>
         </div>
         <div class="card prose">
@@ -285,6 +297,10 @@
 <script src="js/lab.js"></script>
 <script src="js/studio.js"></script>
 <script src="js/series.js"></script>
+<script src="js/markets.js"></script>
+<script src="js/monitor.js"></script>
+<script src="js/terminal.js"></script>
+<script src="js/year.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

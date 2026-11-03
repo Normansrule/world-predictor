@@ -32,8 +32,34 @@
           "evidence": "results/REPORT.md"
         },
         {
-          "title": "Event-level odds (for example, escalation of a named conflict)",
-          "done": false
+          "title": "Radiant: behavioural finance signals and an exponential-weights mix, scored against TimesFM in the bake-off, the year ledger and the weekly sealed ledger",
+          "done": true,
+          "evidence": "src/psychohistory/radiant.py"
+        },
+        {
+          "title": "Year ledger verdicts: a Diebold-Mariano test per series against TimesFM, cut with Benjamini-Hochberg, and a CSV of every table",
+          "done": true,
+          "evidence": "src/psychohistory/yearbook.py"
+        },
+        {
+          "title": "Bake-off: ten ways of combining TimesFM and the crowd laws replayed without peeking; Seldon's share rule replaced by the one that came closest",
+          "done": true,
+          "evidence": "scripts/seldon_bakeoff.py"
+        },
+        {
+          "title": "Year ledger: every day of the year, TimesFM, Seldon and the crowd laws against reality, refreshed every weekday",
+          "done": true,
+          "evidence": "src/psychohistory/yearbook.py"
+        },
+        {
+          "title": "Event-level odds: spikes and lulls in world news and tech attention, scored against climatology and persistence",
+          "done": true,
+          "evidence": "src/psychohistory/events.py"
+        },
+        {
+          "done": true,
+          "evidence": "src/psychohistory/wire.py",
+          "title": "World wire: the newest GDELT headlines for every topic, weekly"
         }
       ]
     },
@@ -59,7 +85,8 @@
         },
         {
           "title": "Official Seldon vs TimesFM duel from a full backtest",
-          "done": false
+          "done": true,
+          "evidence": "results/REPORT.md"
         },
         {
           "title": "Chance-of-rising odds scored with the Brier score",
@@ -72,13 +99,24 @@
           "evidence": "results/plots/outlook.png"
         },
         {
+          "title": "Markets desk: watchlist, odds calculator, who to trust per asset, compare and export",
+          "done": true,
+          "evidence": "site/app/js/markets.js"
+        },
+        {
+          "title": "Forecast desk note for any Yahoo ticker (psychohistory desk)",
+          "done": true,
+          "evidence": "src/psychohistory/desk.py"
+        },
+        {
           "title": "First real TimesFM results published",
           "done": true,
           "evidence": "results/REPORT.md"
         },
         {
-          "title": "Volatility forecasts (GARCH from the arch library)",
-          "done": false
+          "title": "Volatility forecasts: GARCH(1,1), EWMA and TimesFM's range, sealed weekly and scored with QLIKE",
+          "done": true,
+          "evidence": "src/psychohistory/volatility.py"
         }
       ]
     },
@@ -118,6 +156,16 @@
       "icon": "🌐",
       "name": "Web app (GitHub Pages)",
       "items": [
+        {
+          "done": true,
+          "evidence": "site/app/js/terminal.js",
+          "title": "World terminal: command line, world board, movers, just-opened forecasts, focus and scoreboard"
+        },
+        {
+          "done": true,
+          "evidence": "site/app/js/terminal.js",
+          "title": "Your book: sealed calls settled for good, running skill against TimesFM, export and import"
+        },
         {
           "title": "Static app: scoreboard, replay, outlook, horizon, odds, Time Vault, crowd lab",
           "done": true,
@@ -196,6 +244,16 @@
         {
           "title": "Live at normansrule.github.io/world-predictor",
           "done": false
+        },
+        {
+          "done": true,
+          "evidence": "site/app/js/monitor.js",
+          "title": "Long-term monitor: live skill, coverage and calibration by month, with drift alarms"
+        },
+        {
+          "title": "Design audit: WCAG 2.2 contrast in both themes, an 11px type floor, 40px touch targets, keyboard-instant views",
+          "done": true,
+          "evidence": "docs/DESIGN.md"
         }
       ]
     },
@@ -226,6 +284,21 @@
         {
           "title": "Desktop installer (Tauri, as World Monitor does)",
           "done": false
+        },
+        {
+          "done": true,
+          "evidence": "src/psychohistory/monitor.py",
+          "title": "psychohistory monitor: is the live record better than no change, with a significance test"
+        },
+        {
+          "done": true,
+          "evidence": "predictions/seals.csv",
+          "title": "Tamper-evident ledger: a SHA-256 fingerprint per weekly batch (psychohistory verify)"
+        },
+        {
+          "title": "Small-sample statistics: Student's t, Harvey-Leybourne-Newbold, Benjamini-Hochberg false-discovery cut on alarms",
+          "done": true,
+          "evidence": "src/psychohistory/monitor.py"
         }
       ]
     }

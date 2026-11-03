@@ -14,6 +14,7 @@ import numpy as np
 import pandas as pd
 
 from .backtest import domain_table, head_to_head, scale_table
+from .models import LAWS
 from .report import GRID, SERIES_COLORS, SURFACE, TEXT, TEXT_SECONDARY
 
 log = logging.getLogger(__name__)
@@ -91,7 +92,8 @@ def headlines(
 
 
 def duel_sentence(results: pd.DataFrame, model: str) -> str | None:
-    """Who won the duel between the model under test and Seldon, in one sentence."""
+    """Who won the duel between the model under test and Seldon, in one sentence, with the crowd
+    laws alone where they won an area the full Seldon did not."""
     duel = head_to_head(results, model)
     if duel.empty:
         return None
@@ -102,8 +104,14 @@ def duel_sentence(results: pd.DataFrame, model: str) -> str | None:
         where = f"won {len(won)} of {len(areas)} areas ({', '.join(won)})"
     else:
         where = f"won none of the {len(areas)} areas"
-    return (f"Seldon, our own forecaster built from five laws of crowd behaviour, {where} against {model}, "
-            f"with lower error on {overall['wins']} of {overall['series']} series.")
+    line = (f"Seldon, our own forecaster (crowd laws with {model} as one voter), {where} against {model}, "
+            f"with lower error on {overall['wins']} of {overall['series']} series and higher on {overall['losses']}.")
+    laws = head_to_head(results, model, LAWS)
+    for r in laws[laws["domain"] != "all"].itertuples():
+        if r.winner == LAWS and DOMAIN_PLAIN.get(r.domain, r.domain) not in won:
+            line += (f" Its crowd laws alone, without {model}, won {DOMAIN_PLAIN.get(r.domain, r.domain)}: "
+                     f"lower error on {r.wins} of {r.series} series.")
+    return line
 
 
 EDGE = 0.02

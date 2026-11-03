@@ -7,3 +7,6 @@ build/
 dist/
 # Raw downloaded data: re-fetched on demand, not redistributed (see CREDITS.md).
 /data/
+
+# Forecast desk notes written by `psychohistory desk` on your own machine
+results/desk/

@@ -11,18 +11,21 @@ once those dates have passed and writes ``predictions/scored.csv``.
 
 from __future__ import annotations
 
+import hashlib
 from datetime import date
 from pathlib import Path
+from typing import Callable
 
 import numpy as np
 import pandas as pd
 
 from .catalog import SeriesSpec
 from .metrics import prob_above
-from .models import Forecaster
+from .models import Forecast, Forecaster
 
 LEDGER = Path("predictions/ledger.csv")
 SCORED = Path("predictions/scored.csv")
+SEALS = Path("predictions/seals.csv")  # a SHA-256 fingerprint of every batch, so years later no edit goes unseen
 
 COLUMNS = [
     "made_on", "model", "series_id", "domain", "scale", "last_date", "last_value",
@@ -41,8 +44,11 @@ def predict(
     model: Forecaster,
     max_context: int = 1024,
     made_on: date | None = None,
+    extras: dict[str, Callable[[SeriesSpec, Forecast, np.ndarray], Forecast]] | None = None,
 ) -> pd.DataFrame:
-    """Seal ``model``'s forecasts: one row per series and step ahead."""
+    """Seal ``model``'s forecasts: one row per series and step ahead. ``extras`` maps another
+    model's name to a function that builds its forecast from this one and the context (the full
+    Seldon, which gives this model a vote), so the model runs once for both."""
     made_on = made_on or date.today()
     specs = [s for s in specs if s.id in data]
     rows = []
@@ -50,14 +56,15 @@ def predict(
     for horizon in sorted({s.horizon for s in specs}):
         group = [s for s in specs if s.horizon == horizon]
         contexts = [data[s.id].to_numpy(dtype=float)[-max_context:] for s in group]
-        for spec, forecast in zip(group, model.forecast(contexts, horizon)):
+        for spec, context, base in zip(group, contexts, model.forecast(contexts, horizon)):
             series = data[spec.id]
             dates = future_dates(series.index[-1], horizon, spec.freq)
-            for step, target in enumerate(dates):
+            versions = [(model.name, base)] + [(name, fn(spec, base, context)) for name, fn in (extras or {}).items()]
+            for (name, forecast), (step, target) in ((v, d) for v in versions for d in enumerate(dates)):
                 rows.append(
                     {
                         "made_on": made_on.isoformat(),
-                        "model": model.name,
+                        "model": name,
                         "series_id": spec.id,
                         "domain": spec.domain,
                         "scale": spec.scale,
@@ -87,6 +94,23 @@ def ensemble_rows(rows: pd.DataFrame, members: list[str], name: str = "ensemble"
     return combined[COLUMNS]
 
 
+def read(path: Path) -> pd.DataFrame | None:
+    """A ledger or scored file as written, or None if there is none yet (see ``name_by_maker``)."""
+    return name_by_maker(pd.read_csv(path)) if path.exists() and path.stat().st_size > 1 else None
+
+
+def name_by_maker(rows: pd.DataFrame) -> pd.DataFrame:
+    """Name every sealed row for the forecaster that made it. Before the full Seldon (the crowd laws
+    with TimesFM as one more voter), ``seldon`` was the crowd laws alone; a day sealed since then
+    always carries ``seldon-laws`` rows too, so a day with ``seldon`` rows and none of those was
+    sealed by the laws. The file itself is never edited."""
+    if rows.empty or "made_on" not in rows:
+        return rows
+    laws_days = set(rows.loc[rows["model"] == "seldon-laws", "made_on"])
+    old = (rows["model"] == "seldon") & ~rows["made_on"].isin(laws_days)
+    return rows.assign(model=rows["model"].where(~old, "seldon-laws")) if old.any() else rows
+
+
 def append(rows: pd.DataFrame, path: Path = LEDGER) -> pd.DataFrame:
     path.parent.mkdir(parents=True, exist_ok=True)
     if path.exists():
@@ -96,6 +120,53 @@ def append(rows: pd.DataFrame, path: Path = LEDGER) -> pd.DataFrame:
         rows = rows.drop_duplicates(["made_on", "model", "series_id", "step"], keep="last")
     rows.to_csv(path, index=False)
     return rows
+
+
+def fingerprint(rows: pd.DataFrame, columns: list[str] = COLUMNS, order: tuple[str, ...] = ("series_id", "step", "target_date")) -> str:
+    """SHA-256 of one batch's rows in a fixed order and number format, so the same rows always give
+    the same fingerprint and any changed digit gives another."""
+    rows = rows[columns].sort_values(list(order)).reset_index(drop=True)
+    text = rows.to_csv(index=False, float_format="%.10g", lineterminator="\n")
+    return hashlib.sha256(text.encode()).hexdigest()
+
+
+def batches(entries: pd.DataFrame, columns: list[str] = COLUMNS, order: tuple[str, ...] = ("series_id", "step", "target_date")) -> pd.DataFrame:
+    """One row per batch (a day and a model): how many rows it has and their fingerprint."""
+    out = [{"made_on": str(made_on), "model": model, "rows": len(g), "sha256": fingerprint(g, columns, order)}
+           for (made_on, model), g in entries.groupby(["made_on", "model"], sort=True)]
+    return pd.DataFrame(out, columns=["made_on", "model", "rows", "sha256"])
+
+
+def write_seals(entries: pd.DataFrame, path: Path = SEALS, today: str | None = None, **layout) -> pd.DataFrame:
+    """Fingerprint every batch not yet in ``path`` (and today's, which a same-day re-run may replace).
+    Earlier fingerprints are never rewritten, so ``verify`` can tell if an old batch was edited."""
+    today = today or date.today().isoformat()
+    current = batches(entries, **layout).assign(fingerprinted_on=today)
+    if path.exists():
+        old = pd.read_csv(path, dtype=str)
+        keep = old[old["made_on"] != today]
+        fresh = current[~current.set_index(["made_on", "model"]).index.isin(keep.set_index(["made_on", "model"]).index)]
+        current = pd.concat([keep, fresh.astype(str)], ignore_index=True)
+    current = current.sort_values(["made_on", "model"]).reset_index(drop=True)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    current.to_csv(path, index=False)
+    return current
+
+
+def verify(entries: pd.DataFrame, path: Path = SEALS, **layout) -> pd.DataFrame:
+    """Every fingerprinted batch checked against the ledger as it is now: one row per batch with
+    ``status`` "ok", "changed" (its rows differ from when they were fingerprinted) or "missing"."""
+    if not path.exists():
+        return pd.DataFrame(columns=["made_on", "model", "rows", "status"])
+    seals = pd.read_csv(path, dtype=str)
+    now = batches(entries, **layout).set_index(["made_on", "model"])
+    out = []
+    for r in seals.itertuples(index=False):
+        key = (r.made_on, r.model)
+        status = "missing" if key not in now.index else "ok" if now.loc[key, "sha256"] == r.sha256 else "changed"
+        out.append({"made_on": r.made_on, "model": r.model, "rows": int(r.rows), "status": status,
+                    "fingerprinted_on": getattr(r, "fingerprinted_on", "")})
+    return pd.DataFrame(out)
 
 
 def score(ledger: pd.DataFrame, data: dict[str, pd.Series]) -> pd.DataFrame:

@@ -322,12 +322,16 @@ MODELS = {
     "mean": MeanForecaster,
     "auto-ets": lambda: StatsForecastForecaster("ets"),
     "auto-arima": lambda: StatsForecastForecaster("arima"),
-    "seldon": lambda: __import__("psychohistory.seldon", fromlist=["SeldonForecaster"]).SeldonForecaster(),
+    "seldon-laws": lambda: __import__("psychohistory.seldon", fromlist=["SeldonForecaster"]).SeldonForecaster(),
+    "radiant-core": lambda: __import__("psychohistory.radiant", fromlist=["RadiantCoreForecaster"]).RadiantCoreForecaster(),
 }
 
-# Our own psychohistory forecaster (seldon.py). It runs beside the model under test everywhere:
-# backtest, sealed ledger, `ask` and the app, so every TimesFM number has a Seldon number next to it.
+# Our own psychohistory forecaster (seldon.py). The crowd laws alone are the model "seldon-laws";
+# the full Seldon ("seldon") gives the model under test a vote beside them, so it is built from both
+# rather than loaded. Both run beside the model under test everywhere: backtest, sealed ledger,
+# `ask` and the app, so every TimesFM number has a Seldon number next to it.
 CHALLENGER = "seldon"
+LAWS = "seldon-laws"
 
 BASELINES = ("naive", "drift", "mean")
 

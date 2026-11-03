@@ -199,7 +199,7 @@ def test_cli_end_to_end_from_cache(tmp_path):
         assert "Updated" in svg and "%" in svg
     assert "plotly" in board and "What the model expects next" in board and "S&P 500 index" in board
     sealed = pd.read_csv(tmp_path / "ledger.csv")
-    assert set(sealed["model"]) == {"drift", "seldon"}  # Seldon is sealed alongside the model under test
+    assert set(sealed["model"]) == {"drift", "seldon", "seldon-laws", "radiant", "radiant-core"}  # both Seldons and both Radiants are sealed beside the model
     assert (sealed["model"] == "drift").sum() == sum(s.horizon for s in specs)
 
 
@@ -282,7 +282,7 @@ def test_compare_adds_rivals_to_backtest_and_ledger(tmp_path):
     cli.main(["backtest", *common, "--windows", "3"])
     cli.main(["predict", *common])
     assert {"drift", "mean", "naive"} <= set(pd.read_csv(tmp_path / "results" / "backtest_windows.csv")["model"])
-    assert set(pd.read_csv(tmp_path / "ledger.csv")["model"]) == {"drift", "mean", "seldon"}
+    assert set(pd.read_csv(tmp_path / "ledger.csv")["model"]) == {"drift", "mean", "seldon", "seldon-laws", "radiant", "radiant-core"}
 
 
 def test_bass_recovers_an_s_curve():
@@ -594,13 +594,13 @@ def test_seldon_never_peeks_past_the_forecast_date():
     spec = SeriesSpec("x", "markets", "yahoo", horizon=20)
     model = seldon.SeldonForecaster()
     results = backtest.backtest_series(spec, series, [model, NaiveForecaster()], windows=6)
-    rows = results[results["model"] == "seldon"].sort_values("origin")
+    rows = results[results["model"] == "seldon-laws"].sort_values("origin")
     assert len(rows) == 6
     # Changing the last window's future must not change any earlier Seldon forecast.
     changed = series.copy()
     changed.iloc[-20:] += 50
     again = backtest.backtest_series(spec, changed, [model, NaiveForecaster()], windows=6)
-    again = again[again["model"] == "seldon"].sort_values("origin")
+    again = again[again["model"] == "seldon-laws"].sort_values("origin")
     assert np.allclose(again["mae"].to_numpy()[:-1], rows["mae"].to_numpy()[:-1])
     # Every replay ends before the forecast date.
     assert all(t + 20 <= 300 for t in seldon.replay_dates(300, 20))
@@ -626,6 +626,206 @@ def test_seldon_handles_short_and_negative_series():
         assert forecast.quantiles.shape == (6, 9) and np.all(np.isfinite(forecast.quantiles))
         assert seldon.explain(council)
     assert not seldon.predict(np.linspace(-3, 3, 40), 6)[1].log  # negative values are not logged
+
+
+def test_full_seldon_starts_as_the_model_and_earns_its_share():
+    from psychohistory import seldon
+
+    def window(day, laws_error, model_error=1.0):
+        actual = np.full(5, 100.0)
+        return seldon.Window("news", pd.Timestamp("2026-01-01") + pd.Timedelta(days=int(day)), 101.0,
+                             actual + model_error, actual + laws_error, actual)
+    good = [window(d, 0.0) for d in range(12)]  # the laws were spot on, the model was not
+    assert seldon.learn_share(good[: seldon.MIN_POOL - 1]) == 0.0  # too few windows: all to the model
+    assert seldon.learn_share(good) == 1.0
+    assert seldon.learn_share([window(d, 3.0) for d in range(12)]) == 0.0  # laws worse: no share
+    # Only windows finished by the forecast date count, and only from the same area.
+    assert seldon.share_for(good, "news", "2026-01-03") == 0.0
+    assert seldon.share_for(good, "markets") == 0.0 and seldon.share_for(good, "news") == 1.0
+    base = Forecast(np.full(3, 10.0), np.tile(np.linspace(8, 12, 9), (3, 1)))
+    laws = Forecast(np.full(3, 20.0), np.tile(np.linspace(18, 22, 9), (3, 1)))
+    assert np.allclose(seldon.blend(base, laws, 0.0).quantiles, base.quantiles)
+    assert np.allclose(seldon.blend(base, laws, 0.5).point, 15.0)
+
+
+def test_full_seldon_in_the_backtest_never_peeks():
+    kept, frames = [], []
+    spec = SeriesSpec("x", "news", "gdelt", horizon=14)
+    series = synthetic(500, seed=4)
+    from psychohistory.seldon import SeldonForecaster
+    backtest.backtest_series(spec, series, [DriftForecaster(), SeldonForecaster(), NaiveForecaster()], windows=10, keep=kept)
+    first = backtest.add_seldon(kept, "drift").sort_values("origin")
+    assert len(first) == 10 and (first["share"].iloc[: seldon_min_pool()] == 0).all()
+    changed = series.copy()
+    changed.iloc[-14:] += 40
+    kept2 = []
+    backtest.backtest_series(spec, changed, [DriftForecaster(), SeldonForecaster(), NaiveForecaster()], windows=10, keep=kept2)
+    again = backtest.add_seldon(kept2, "drift").sort_values("origin")
+    assert np.allclose(again["mae"].to_numpy()[:-1], first["mae"].to_numpy()[:-1])
+
+
+def test_full_seldon_replays_exactly_from_a_laws_only_run(tmp_path):
+    """A run from before the full Seldon kept the model's and the laws' paths; replaying the blend
+    from them must match scoring it live, and the laws' rows must be renamed for what they were."""
+    from psychohistory.seldon import SeldonForecaster
+    spec = SeriesSpec("x", "news", "gdelt", horizon=14)
+    series = synthetic(500, seed=4) + np.linspace(0, 30, 500)
+    kept, paths = [], []
+    live = backtest.backtest_series(spec, series, [DriftForecaster(), SeldonForecaster(), NaiveForecaster()], windows=16,
+                                    keep=kept, path_rows=paths, paths_for=("drift", "seldon-laws"))
+    truth = backtest.add_seldon(kept, "drift").sort_values("origin")
+    assert (truth["share"] > 0).any()  # the laws earn a share, so the replay has something to blend
+    old = {"seldon-laws": "seldon"}  # how the run named the laws back then
+    live.replace({"model": old}).to_csv(tmp_path / "w.csv", index=False)
+    pd.DataFrame(paths).replace({"model": old}).to_csv(tmp_path / "p.csv", index=False)
+    results, upgraded_paths, upgraded = backtest.upgrade_run(pd.read_csv(tmp_path / "w.csv"), pd.read_csv(tmp_path / "p.csv"), "drift")
+    assert upgraded and {"seldon", "seldon-laws"} <= set(results["model"]) and "seldon" in set(upgraded_paths["model"])
+    replay = results[results["model"] == "seldon"].sort_values("origin")
+    for column in ("mae", "mase", "coverage80", "direction", "share"):
+        assert np.allclose(replay[column].to_numpy(float), truth[column].to_numpy(float), equal_nan=True), column
+    again, _, twice = backtest.upgrade_run(results, upgraded_paths, "drift")
+    assert not twice and len(again) == len(results)
+
+
+def test_sealed_laws_only_days_are_named_for_their_maker():
+    rows = pd.DataFrame({"made_on": ["d1", "d1", "d2", "d2", "d2"],
+                         "model": ["timesfm-2.5", "seldon", "timesfm-2.5", "seldon", "seldon-laws"]})
+    named = ledger.name_by_maker(rows)
+    assert list(named["model"]) == ["timesfm-2.5", "seldon-laws", "timesfm-2.5", "seldon", "seldon-laws"]
+    assert list(rows["model"])[1] == "seldon"  # the file's own rows are left as they are
+
+
+def test_desk_note_for_any_market(tmp_path):
+    from psychohistory import desk
+    spec = desk.spec_for("MSFT")
+    assert spec.domain == "markets" and spec.params == {"ticker": "MSFT"} and spec.freq == "B"
+    assert desk.spec_for("ETH-USD").freq == "D" and desk.spec_for("gold").id == "gold"
+    assert desk.spec_for("gold", horizon=5).horizon == 5
+    dates = pd.bdate_range("2021-01-04", periods=700)
+    prices = pd.Series(100 * np.exp(np.cumsum(np.random.default_rng(3).normal(0.0003, 0.01, 700))), index=dates)
+    from psychohistory.seldon import SeldonForecaster
+    note = desk.build(desk.spec_for("ACME", horizon=10), prices, DriftForecaster(), [SeldonForecaster(), NaiveForecaster()],
+                      levels=[prices.iloc[-1] * 1.5], windows=6)
+    assert len(note.table) == 10 and {"drift_q50", "seldon_q90", "seldon-laws_p_up"} <= set(note.table)
+    assert note.windows == 6 and {"drift", "seldon", "seldon-laws", "naive"} <= set(note.record["model"])
+    top = note.levels.iloc[-1]
+    assert top["level"] == pytest.approx(prices.iloc[-1] * 1.5) and top["drift"] <= 0.05 + 1e-9  # far above: tail is capped at 5%
+    assert note.levels["drift"].is_monotonic_decreasing
+    assert 0.05 < note.vol["realized"] < 0.3 and 0.05 < note.vol["drift"] < 0.5  # about 16% a year was simulated
+    files = desk.write(note, tmp_path)
+    text = files[0].read_text()
+    assert "## Track record on this asset" in text and "Not investment advice" in text
+    assert pd.read_csv(files[1]).shape[0] == 10
+    import json
+    assert json.loads(files[2].read_text())["ticker"] == "ACME"
+
+
+def test_implied_vol_reads_a_lognormal_range():
+    from psychohistory import desk
+    sigma, steps = 0.2 / np.sqrt(252), 20  # 20% a year
+    q10, q90 = 100 * np.exp(-1.2816 * sigma * np.sqrt(steps)), 100 * np.exp(1.2816 * sigma * np.sqrt(steps))
+    assert desk.implied_vol(q10, q90, steps, "B") == pytest.approx(0.2, rel=1e-3)
+    assert desk.implied_vol(-1, 5, steps, "B") is None
+
+
+def test_markets_desk_data_lists_every_market_with_its_models():
+    from psychohistory import web
+    payload = web.demo_payload()
+    markets = payload["markets"]
+    assert set(markets) == {s.id for s in catalog.CATALOG if s.domain == "markets"}
+    gold = markets["gold"]
+    assert gold["ticker"] == "GC=F" and gold["freq"] == "B"
+    skills = [r[1] for r in gold["models"] if r[1] is not None]
+    assert skills == sorted(skills, reverse=True)
+
+
+def _weekly_ledger(weeks: int, model: str, noise: float, band: float, seed: int = 0) -> pd.DataFrame:
+    """A scored ledger of ``weeks`` weekly batches on two random-walk series: the model's middle is
+    the truth plus ``noise`` (in units of a day's move) and its 80% range is +-``band`` of that."""
+    rng = np.random.default_rng(seed)
+    rows = []
+    for sid in ("a", "b"):
+        dates = pd.date_range("2024-01-01", periods=weeks * 7 + 40, freq="D")
+        values = 100 + np.cumsum(rng.normal(0, 1, len(dates)))
+        for w in range(weeks):
+            t = w * 7 + 10
+            for step in range(1, 15):
+                actual, last = values[t + step], values[t]
+                mid = actual + rng.normal(0, noise)
+                rows.append({"made_on": dates[t].date().isoformat(), "model": model, "series_id": sid, "domain": "markets",
+                             "scale": "individual", "last_date": dates[t].date().isoformat(), "last_value": last, "step": step,
+                             "target_date": dates[t + step].date().isoformat(), "q10": mid - band, "q50": mid, "q90": mid + band,
+                             "point": mid, "p_up": 0.5, "actual": actual})
+    frame = pd.DataFrame(rows)
+    frame["abs_error"] = (frame["actual"] - frame["point"]).abs()
+    frame["naive_abs_error"] = (frame["actual"] - frame["last_value"]).abs()
+    frame["in_band80"] = (frame["actual"] >= frame["q10"]) & (frame["actual"] <= frame["q90"])
+    frame["direction_correct"] = 1.0
+    frame["brier"] = 0.25
+    return frame
+
+
+def test_monitor_tells_skill_from_luck_and_raises_drift_alarms():
+    from psychohistory import monitor
+    sharp = _weekly_ledger(20, "good", noise=0.3, band=0.1, seed=1)  # far better than "no change", range too narrow
+    tests = monitor.vs_naive(sharp).set_index("domain")
+    assert tests.loc["all", "verdict"] == "better than no change" and tests.loc["all", "p"] < 0.01
+    assert monitor.vs_naive(sharp.head(14 * 2)).loc[0, "verdict"].startswith("too early")
+    raised = monitor.alarms(sharp)
+    assert set(raised["alarm"]) == {"range too narrow"} and set(raised["series_id"]) == {"a", "b"}
+    months = monitor.by_month(sharp)
+    mine = months[(months["model"] == "good") & (months["domain"] == "all")]
+    assert len(mine) >= 4 and (mine["skill"] > 0.5).all()
+    assert mine["cum_forecasts"].is_monotonic_increasing and mine["cum_forecasts"].iloc[-1] == len(sharp)
+    honest = _weekly_ledger(20, "wide", noise=0.3, band=50, seed=2)
+    assert set(monitor.alarms(honest)["alarm"]) == {"range too wide"}
+    backtest = pd.DataFrame({"model": ["bad"], "series_id": ["a"], "skill": [0.3]})
+    bad = _weekly_ledger(20, "bad", noise=8, band=12, seed=3)  # much worse than "no change"
+    kinds = set(monitor.alarms(bad, backtest)["alarm"])
+    assert {"edge lost", "worse than no change"} <= kinds
+    payload = monitor.payload(pd.concat([sharp, bad]), backtest.assign(domain="markets", coverage80=0.8))
+    assert payload["forecasts"] == len(sharp) + len(bad) and payload["months"] and payload["alarms"] and payload["expected"]
+
+
+def test_diebold_mariano_is_the_t_test_without_lags_and_alarms_control_false_discoveries():
+    from psychohistory import monitor
+    d = np.random.default_rng(0).normal(0.5, 1, 400)
+    stat, p = monitor.diebold_mariano(d, 0)
+    assert stat == pytest.approx(d.mean() / np.sqrt(d.var(ddof=1) / len(d)), rel=1e-9) and p < 1e-6
+    assert monitor.t_sf(2.0, 3) == pytest.approx(0.0696, abs=1e-4)  # Student's t, not the normal curve
+    assert monitor.t_sf(2.776, 4) == pytest.approx(0.025, abs=1e-4)
+    assert monitor.diebold_mariano(d[:4], 3) != monitor.diebold_mariano(d[:4], 3)  # four batches cannot carry three lags
+    assert monitor.false_discoveries([0.001, 0.03, 0.04, 0.045, 0.9]) == 0.001  # each later one misses its 0.05 * k/5
+    assert monitor.false_discoveries([0.001, 0.02, 0.03, 0.04, 0.9]) == 0.04  # step-up: 0.04 <= 0.05 * 4/5 lets all four through
+    assert monitor.false_discoveries([0.5, 0.9]) == -1
+    assert monitor.diebold_mariano(np.r_[1.0], 0)[1] != monitor.diebold_mariano(np.r_[1.0], 0)[1]  # NaN: not enough data
+
+
+def test_sealed_batches_are_fingerprinted_and_edits_are_caught(tmp_path):
+    series = synthetic(200)
+    spec = SeriesSpec("demo", "tech", "wikipedia", freq="D", horizon=5)
+    first = ledger.predict([spec], {"demo": series.iloc[:-20]}, NaiveForecaster(), made_on=date(2024, 1, 1))
+    path, seals = tmp_path / "ledger.csv", tmp_path / "seals.csv"
+    entries = ledger.append(first, path)
+    ledger.write_seals(pd.read_csv(path), seals, today="2024-01-01")
+    second = ledger.predict([spec], {"demo": series.iloc[:-10]}, DriftForecaster(), made_on=date(2024, 1, 8))
+    ledger.append(second, path)
+    ledger.write_seals(pd.read_csv(path), seals, today="2024-01-08")
+    checked = ledger.verify(pd.read_csv(path), seals)
+    assert list(checked["status"]) == ["ok", "ok"] and list(checked["fingerprinted_on"]) == ["2024-01-01", "2024-01-08"]
+    tampered = pd.read_csv(path)
+    tampered.loc[(tampered["made_on"] == "2024-01-01") & (tampered["step"] == 3), "q50"] += 0.001
+    assert list(ledger.verify(tampered, seals)["status"]) == ["changed", "ok"]
+    assert list(ledger.verify(tampered[tampered["made_on"] != "2024-01-01"], seals)["status"]) == ["missing", "ok"]
+    # Re-fingerprinting never rewrites an old batch's seal, so the edit stays visible.
+    ledger.write_seals(tampered, seals, today="2024-01-09")
+    assert list(ledger.verify(tampered, seals)["status"]) == ["changed", "ok"]
+    assert len(entries) == 5
+
+
+def seldon_min_pool():
+    from psychohistory import seldon
+    return seldon.MIN_POOL
 
 
 def test_head_to_head_counts_series_won_on_the_same_windows():
@@ -690,3 +890,224 @@ def test_opened_forecasts_flag_values_sealed_before_release(tmp_path, capsys):
     assert "1 of 2 inside the 80% range" in out and "before the value was published" in out
     with pytest.raises(SystemExit):
         cli.main(["record", "gold", "--scored", str(tmp_path / "scored.csv"), "--out-dir", str(tmp_path / "none"), "--model", "drift"])
+
+
+def _garch_prices(n=900, alpha=0.10, beta=0.85, seed=3, start="2020-01-01", freq="B"):
+    """Prices whose daily log returns follow a GARCH(1,1) with daily variance 1e-4 in the long run."""
+    rng = np.random.default_rng(seed)
+    var, h, r = 1e-4, 1e-4, np.empty(n)
+    for t in range(n):
+        r[t] = np.sqrt(h) * rng.standard_normal()
+        h = var * (1 - alpha - beta) + alpha * r[t] ** 2 + beta * h
+    prices = 100 * np.exp(np.concatenate([[0.0], r.cumsum()]))
+    return pd.Series(prices, index=pd.date_range(start, periods=n + 1, freq=freq))
+
+
+def test_garch_finds_clustering_and_beats_last_months_volatility():
+    from psychohistory import volatility
+
+    prices = _garch_prices()
+    fit = volatility.fit_garch(volatility.log_returns(prices.to_numpy()))
+    assert 0.85 <= fit["alpha"] + fit["beta"] < 1 and 0.03 <= fit["alpha"] <= 0.2
+    # Far ahead, the forecast decays to the long-run variance.
+    assert volatility.garch_variance(fit, 2000) == pytest.approx(fit["var"], rel=0.05)
+    # A 10% / 90% range of exp(+-1.2816 x 0.02 x sqrt(4)) implies a per-step volatility of 0.02.
+    q10, q90 = np.exp(-1.2815516 * 0.04), np.exp(1.2815516 * 0.04)
+    assert volatility.implied_variance(q10, q90, 4) == pytest.approx(0.02 ** 2, rel=1e-6)
+    spec = SeriesSpec("demo_market", "markets", "yahoo", freq="B", horizon=21)
+    rows = volatility.backtest(spec, prices)
+    table = volatility.summarize(rows).set_index(["series_id", "span", "model"])
+    assert table.loc[("all", "1 month", "garch"), "skill"] > 0.05
+    assert table.loc[("all", "1 week", "last-month"), "skill"] == 0
+    assert set(rows["span"]) == {"1 week", "1 month"}
+
+
+def test_volatility_backtest_never_sees_the_future():
+    from psychohistory import volatility
+
+    prices = _garch_prices(600)
+    spec = SeriesSpec("demo_market", "markets", "yahoo", freq="B", horizon=21)
+    origin = prices.index[400]
+    changed = prices.copy()
+    changed.iloc[402:] *= np.exp(np.linspace(0, 1.5, len(changed) - 402))  # a storm after the origin
+    before = volatility.backtest(spec, prices)
+    after = volatility.backtest(spec, changed)
+    key = (before["origin"] == origin.date().isoformat())
+    assert key.any()
+    pd.testing.assert_series_equal(before.loc[key, "vol"].reset_index(drop=True),
+                                   after.loc[after["origin"] == origin.date().isoformat(), "vol"].reset_index(drop=True))
+
+
+def test_volatility_forecasts_are_sealed_fingerprinted_and_scored(tmp_path):
+    from psychohistory import volatility
+
+    prices = _garch_prices(500)
+    spec = SeriesSpec("demo_market", "markets", "yahoo", freq="B", horizon=21)
+    sealed = ledger.predict([spec], {"demo_market": prices.iloc[:-30]}, DriftForecaster(), made_on=date(2024, 1, 1))
+    rows = volatility.forecast_rows([spec], {"demo_market": prices.iloc[:-30]}, sealed, made_on=date(2024, 1, 1))
+    assert set(rows["model"]) == {"garch", "ewma", "last-month", "drift"} and set(rows["horizon"]) == {5, 21}
+    path, seals = tmp_path / "vol_ledger.csv", tmp_path / "vol_seals.csv"
+    entries = volatility.append(rows, path)
+    ledger.write_seals(entries, seals, today="2024-01-01", **volatility.LAYOUT)
+    assert list(ledger.verify(pd.read_csv(path), seals, **volatility.LAYOUT)["status"]) == ["ok"] * 4
+    tampered = pd.read_csv(path)
+    tampered.loc[tampered["model"] == "garch", "vol"] *= 0.9
+    assert (ledger.verify(tampered, seals, **volatility.LAYOUT).set_index("model")["status"]["garch"]) == "changed"
+    scored = volatility.score(entries, {"demo_market": prices}, {"demo_market": "B"})
+    assert len(scored) == len(entries) and (scored["qlike"] >= 0).all()
+    # Scoring uses only the window after the seal: the returns from last_date to target_date.
+    window = prices[(prices.index >= pd.Timestamp(scored["last_date"].iloc[0])) & (prices.index <= pd.Timestamp(scored["target_date"].iloc[0]))]
+    expected = volatility.annual(float(np.mean(np.diff(np.log(window.to_numpy())) ** 2)), "B")
+    assert scored["realized"].iloc[0] == pytest.approx(expected)
+    live = volatility.live_record(scored)
+    assert set(live["verdict"]) <= {"the baseline", "too early: 1 of 4 weekly batches"}
+
+
+def test_world_wire_keeps_last_weeks_headlines_when_a_topic_fails(tmp_path):
+    from psychohistory import web, wire
+
+    specs = [catalog.by_id("gold"), catalog.by_id("news_war"), catalog.by_id("adoption_internet")]
+    asked = []
+
+    def fetcher(query, records):
+        asked.append(query)
+        if query == '"war"':
+            raise RuntimeError("GDELT busy")
+        return [{"title": "Gold edges up", "url": "https://example.org/a", "domain": "example.org", "country": "UK", "seen": "2026-10-26T08:00Z"}]
+
+    path = tmp_path / "wire.json"
+    first = wire.fetch(specs, fetcher=lambda q, records: [{"title": f"Old {q}", "url": "https://example.org/old"}])
+    wire.write(first, path)
+    news = wire.fetch(specs, fetcher=fetcher)
+    assert asked == ['"gold price"', '"war"'] and "adoption_internet" not in news["topics"]  # no query, no fetch
+    assert set(news["failed"]) == {"news_war"}
+    wire.write(news, path)
+    saved = wire.read(path)
+    assert saved["topics"]["news_war"]["stale"] and saved["topics"]["news_war"]["articles"][0]["title"] == 'Old "war"'
+    assert saved["topics"]["gold"]["articles"][0]["title"] == "Gold edges up"
+    app = web.wire_payload(saved)
+    assert app["topics"]["gold"]["articles"][0][:3] == ["Gold edges up", "https://example.org/a", "example.org"]
+    assert app["topics"]["news_war"]["stale"] is True
+    assert web.wire_payload(None) == {"fetched": None, "topics": {}}
+
+
+def test_terminal_ships_with_the_app():
+    site = Path(__file__).resolve().parents[1] / "site"
+    index = (site / "app" / "index.html").read_text()
+    assert 'id="view-terminal"' in index and "js/terminal.js" in index
+    assert "app/js/terminal.js" in (site / "sw.js").read_text()
+    js = (site / "app" / "js" / "terminal.js").read_text()
+    assert "wp-calls-v1" in js and "settled" in js  # the book is the Studio's, and settled calls keep their outcome
+
+
+def test_event_odds_read_the_tails_and_need_no_future():
+    from psychohistory import events
+
+    # A split normal on three quantiles: the 90% quantile itself is a 10% event, the middle a 50% one.
+    assert events.probability(1.0, 2.0, 4.0, 4.0, above=True) == pytest.approx(0.10, abs=1e-6)
+    assert events.probability(1.0, 2.0, 4.0, 1.0, above=False) == pytest.approx(0.10, abs=1e-6)
+    assert events.probability(1.0, 2.0, 4.0, 2.0, above=True) == pytest.approx(0.5, abs=1e-6)
+    assert events.probability(1.0, 2.0, 4.0, 40.0, above=True) < 0.01  # the tail goes on past q90
+    series = synthetic(900, seed=4).abs() + 5
+    spec = SeriesSpec("demo_news", "news", "gdelt", freq="D", horizon=28)
+    origins = series.index[[400, 500, 600, 700]]
+    paths = pd.DataFrame([{"series_id": "demo_news", "model": "demo", "origin": o.date().isoformat(), "step": 28,
+                           "q10": series[o] * 0.8, "q50": series[o], "q90": series[o] * 1.2,
+                           "actual": series.iloc[series.index.get_loc(o) + 28]} for o in origins])
+    rows = events.backtest(spec, series, paths)
+    assert set(rows["model"]) == {"demo", "climatology", "persistence"} and set(rows["event"]) == {"spike", "lull"}
+    assert len(rows) == 4 * 2 * 3 and rows["p"].between(0, 1).all()
+    assert rows[rows["model"] == "climatology"]["p"].between(0.08, 0.12).all()  # one day in ten, by construction
+    changed = series.copy()
+    changed.iloc[701:] *= 3  # the future after the last origin changes; its threshold and odds must not
+    paths2 = paths.assign(actual=[changed.iloc[changed.index.get_loc(o) + 28] for o in origins])
+    again = events.backtest(spec, changed, paths2)
+    pd.testing.assert_series_equal(rows["threshold"], again["threshold"])
+    pd.testing.assert_series_equal(rows["p"], again["p"])
+    table = events.summarize(rows)
+    assert {"all", "news", "demo_news"} <= set(table["scope"])
+    clim = table[(table["scope"] == "all") & (table["model"] == "climatology")]
+    assert (clim["skill_clim"] == 0).all()
+
+
+def test_event_odds_are_sealed_fingerprinted_and_scored(tmp_path):
+    from psychohistory import events
+
+    series = synthetic(600, seed=5).abs() + 5
+    spec = SeriesSpec("demo_news", "news", "gdelt", freq="D", horizon=28)
+    sealed = ledger.predict([spec], {"demo_news": series.iloc[:-40]}, DriftForecaster(), made_on=date(2024, 1, 1))
+    rows = events.forecast_rows([spec], {"demo_news": series}, sealed)
+    assert set(rows["model"]) == {"drift", "climatology", "persistence"} and set(rows["event"]) == {"spike", "lull"}
+    assert (rows["last_date"] == series.index[-41].date().isoformat()).all()  # thresholds from the history up to the forecast
+    path, seals = tmp_path / "event_ledger.csv", tmp_path / "event_seals.csv"
+    entries = events.append(rows, path)
+    ledger.write_seals(entries, seals, today="2024-01-01", **events.LAYOUT)
+    assert list(ledger.verify(pd.read_csv(path), seals, **events.LAYOUT)["status"]) == ["ok"] * 3
+    tampered = pd.read_csv(path)
+    tampered.loc[tampered["model"] == "drift", "p"] = 0.99
+    assert ledger.verify(tampered, seals, **events.LAYOUT).set_index("model")["status"]["drift"] == "changed"
+    scored = events.score(entries, {"demo_news": series}, {"demo_news": "news"})
+    assert len(scored) == len(rows) and scored["outcome"].isin([0.0, 1.0]).all()
+    assert ((scored["p"] - scored["outcome"]) ** 2).round(12).equals(scored["brier"].round(12))
+    assert events.live_record(scored)["verdict"].str.startswith(("too early", "a baseline")).all()
+
+
+def test_year_ledger_dashes_untracked_days_and_compares_on_common_days():
+    from psychohistory import yearbook
+
+    days = pd.date_range("2026-01-01", "2026-03-31", freq="D")
+    gold = pd.Series(np.linspace(100, 130, len(days)), index=days)
+    models = ["timesfm-2.5", yearbook.SELDON, yearbook.LAWS]
+    # Backtest paths: TimesFM and the laws for every day of March, Seldon only for half of it.
+    rows = []
+    for d in pd.date_range("2026-03-01", "2026-03-31"):
+        for m, bump in (("timesfm-2.5", 1.0), (yearbook.LAWS, 2.0)) + (((yearbook.SELDON, 0.5),) if d.day <= 15 else ()):
+            rows.append({"series_id": "gold", "model": m, "origin": "2026-02-28", "date": d, "q50": gold[d] + bump})
+    paths = pd.DataFrame(rows)
+    # A sealed forecast for 10 March beats the backtest one.
+    sealed = pd.DataFrame([{"series_id": "gold", "model": "timesfm-2.5", "made_on": "2026-03-02", "target_date": "2026-03-10",
+                            "q50": 999.0, "last_value": 120.0}])
+    t = yearbook.series_table("gold", gold, paths, sealed, models, 2026)
+    assert len(t["a"]) == 365 and t["a"][days.get_loc("2026-02-01")] is not None and t["a"][100] is None  # April on: dashes
+    i10 = (pd.Timestamp("2026-03-10") - pd.Timestamp("2026-01-01")).days
+    assert t["timesfm-2.5"][i10] == 999.0 and t["src"][i10] == "s" and t["o"][i10] == 120.0
+    assert t["timesfm-2.5"][0] is None and t["src"][0] == "-"  # nobody forecast 1 January
+    s = yearbook.compare(t, models)
+    assert s["days"] == 14  # days all three forecast from the same kind of record (10 March: sealed vs backtest, left out)
+    assert s["models"][yearbook.SELDON]["mape"] < s["models"][yearbook.LAWS]["mape"]
+    assert s["models"][yearbook.SELDON]["closest"] > 0.9
+    assert "p" not in s["models"]["timesfm-2.5"] and s["models"][yearbook.LAWS]["dm"] is not None
+    lagged = yearbook.compare(t, models, lag=3)
+    assert lagged["models"][yearbook.LAWS]["mape"] == s["models"][yearbook.LAWS]["mape"]
+    book = yearbook.build({"gold": gold}, paths, None, "timesfm-2.5", year=2026, today=date(2026, 3, 31))
+    assert [g["key"] for g in book["groups"]][:3] == ["gold", "silver", "bonds"]
+    bonds = next(g for g in book["groups"] if g["key"] == "bonds")
+    assert {x["id"] for x in bonds["series"]} == {"us10y", "tlt"} and all(x["stats"]["days"] == 0 for x in bonds["series"])
+    lead = {x["model"]: x for x in book["leaders"]}
+    assert lead["timesfm-2.5"]["beats"] is None and lead[yearbook.SELDON]["beats"] == 1 and lead[yearbook.LAWS]["beats"] == 0
+    assert lead["timesfm-2.5"]["better"] is None and lead[yearbook.LAWS]["better"] == 0
+    frame = yearbook.table_frame(book)
+    assert set(frame["series_id"]) == {"gold"} and len(frame) == 90 and frame["actual"].notna().all()
+
+
+def test_radiant_learns_only_from_the_past_and_earns_its_weights():
+    from psychohistory import radiant
+
+    y = np.exp(np.cumsum(np.random.default_rng(3).normal(0.001, 0.01, 400))) * 100
+    f, beta = radiant.core_predict(y[:300], 21)
+    assert beta is not None and f.quantiles.shape == (21, 9) and np.all(np.diff(f.quantiles, axis=1) >= 0)
+    changed = y.copy()
+    changed[300:] *= 3  # the future is different: the forecast from the first 300 points must not move
+    assert np.allclose(radiant.core_predict(changed[:300], 21)[0].point, f.point)
+    assert radiant.core_predict(y[:20], 21)[1] is None  # too little history: no change
+    # The mix starts with most of the weight on the model and moves it to whichever expert was right.
+    assert np.allclose(radiant.weights([]), radiant.PRIOR)
+    actual = np.full(5, 100.0)
+
+    def window(day, good):
+        paths = {e: actual + (0.0 if e == good else 5.0) for e in radiant.EXPERTS}
+        return radiant.Window("markets", pd.Timestamp("2026-01-01") + pd.Timedelta(days=day), paths, actual)
+    learned = radiant.weights([window(d, "core") for d in range(6)], "markets")
+    assert learned[radiant.EXPERTS.index("core")] > 0.9
+    assert np.allclose(radiant.weights([window(d, "core") for d in range(6)], "markets", "2025-12-31"), radiant.PRIOR)
+    assert np.allclose(radiant.weights([window(d, "core") for d in range(6)], "news"), radiant.PRIOR)  # other areas do not count

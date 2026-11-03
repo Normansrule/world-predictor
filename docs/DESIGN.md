@@ -102,9 +102,11 @@ Type scale: 11, 12, 13, 14, 16, 20, 28, 40, 54 pixels. Spacing scale: 4, 8, 12, 
   - **Small touches.** Section reveals (rise, unblur), a gliding tape that pauses on hover or focus, a
     pointer spotlight on panels, and primary buttons that lean slightly towards the pointer.
   - **Under reduced motion** the story is a static list beside its finished chart, and nothing moves.
-- **The terminal stays a workbench.** Panels settle in, one after another (50ms apart), when a view opens,
-  and a faint periwinkle light follows the pointer across them. Nothing else in the terminal moves unless
-  it means something.
+- **The terminal stays a workbench.** Panels settle in, one after another (50ms apart), on the first view
+  of a visit, and a faint periwinkle light follows the pointer across them. After that a view opens at
+  once: people switch views by key dozens of times a session, and motion there only reads as lag. A click
+  gets a short crossfade; a key gets none. The World terminal's chart never replays its drawing when you
+  move from one series to the next. Nothing else moves unless it means something.
 
 ### States
 
@@ -137,6 +139,30 @@ both themes, horizontal overflow on all twelve views and the landing page at 390
 wide in both themes, a Lab round played with the keyboard only, the tab order, reduced motion, and the
 demo data. The fixes it led to (a darker seal red for contrast, the level line drawn in grey rather than seal red, a shorter Lab chart on
 phones, labels nudged apart when lines end close together) are in the same change.
+
+### The November 2026 audit
+
+A second pass against the same guides plus Apple's Human Interface Guidelines (through the
+apple-design and Apple-HIG-Designer skill packs) and WCAG 2.2, run on the rendered app in a headless
+browser in both themes at 1440 and 390 pixels. What it found and what changed:
+
+- **Contrast.** Red and green figures on the World terminal's selected row fell to 3.9:1, and the faint
+  names in Seldon's council bar to 1.7:1. The selected row is now a lighter tint with a 2px marker, and
+  the council's shares are tints with the names in full ink. Every text in every view now passes 4.5:1
+  (3:1 for large text) in both themes.
+- **Type floor.** 91 labels in the terminal and dozens elsewhere were set at 10.4 to 10.8px. Nothing in
+  the app is smaller than 11px now.
+- **Coloured side stripes** on alarms, the duel's area cards and the terminal's codes became a tinted
+  ground with a small swatch, so state colour sits on a shape, not a 3px line.
+- **Drift alarms** had grown to 67 entries and an 8,700px Monitor page. The test was the problem as
+  much as the layout: it read four batches off the normal curve and ran hundreds of tests with no
+  correction. It now uses Student's t, the Harvey-Leybourne-Newbold small-sample correction and a
+  Benjamini-Hochberg cut, and the 23 alarms left are grouped by kind and series (2,760px).
+- **Touch.** On touch screens every button, key and field is at least 40px tall (the HIG asks 44pt,
+  WCAG 2.2 at least 24px).
+- **Browser surfaces.** The caret, checkboxes and sliders take the palette (`accent-color`,
+  `caret-color`); hover effects in the terminal only run where a pointer can hover; its keys press to
+  `scale(.97)`.
 
 ## Basis and references
 

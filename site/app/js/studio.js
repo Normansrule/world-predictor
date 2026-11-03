@@ -35,11 +35,16 @@
     }
   }
 
-  // The real value on the call's date (or the first one after it, for weekends and holidays).
+  // The real value on the call's date (or the first one within a week after it, for weekends and
+  // holidays). Once found it is kept in the call (``settled``, see terminal.js), because a data file
+  // a year from now will no longer carry this week's values.
   function outcome(call, D) {
-    const o = D.outlook.find((x) => x.id === call.series);
-    const hist = o ? o.history : [];
-    const hit = hist.find((p) => p[0] >= call.date);
+    let hit = call.settled ? [call.settled.on, call.settled.actual] : null;
+    if (!hit) {
+      const o = D.outlook.find((x) => x.id === call.series);
+      const near = (o ? o.history : []).find((p) => p[0] >= call.date);
+      if (near && (Date.parse(near[0]) - Date.parse(call.date)) / DAY <= 7) hit = near;
+    }
     if (!hit) return null;
     const actual = hit[1], err = (v) => Math.abs(v - actual);
     const inside = (r) => actual >= r[0] && actual <= r[2];

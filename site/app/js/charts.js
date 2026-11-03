@@ -279,20 +279,23 @@
   const icon = (name) => `<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[name]}</svg>`;
 
   // Seldon's council (src/psychohistory/seldon.py): which laws it trusted for one forecast.
-  const LAW_TEXT = { inertia: "inertia", drift: "drift", momentum: "momentum", reversion: "reversion" };
+  const LAW_TEXT = { timesfm: "TimesFM", inertia: "inertia", drift: "drift", momentum: "momentum", reversion: "reversion" };
   function council(c) {
-    if (!c) return "Seldon is our own forecaster: four laws of crowd behaviour voting by how well each predicted this series before, plus its weekly rhythm.";
+    if (!c) return "Seldon is our own forecaster: TimesFM and four laws of crowd behaviour in one council, each voter with the share it earned on finished windows.";
+    if (c.share !== undefined && c.share === 0) return "Seldon gave TimesFM the whole vote here: in this area its crowd laws have not yet beaten TimesFM on the finished windows, so it does not move away from it.";
     if (!c.replays) return "Seldon had too little history to replay here, so every law got an equal vote.";
     const votes = Object.entries(c.weights).sort((a, b) => b[1] - a[1]).map(([k, w]) => `${LAW_TEXT[k] || k} ${Math.round(w * 100)}%`).join(", ");
     const mood = c.vol < 0.95 ? "calmer than usual, so its range is narrower" : c.vol > 1.05 ? "wilder than usual, so its range is wider" : "about as calm as usual";
     const rhythm = c.cycle ? `, with the weekly rhythm laid on top` : "";
-    return `Seldon replayed ${c.replays} earlier dates of this series and split its vote: ${votes}${rhythm}. Right now the series is ${mood} (${c.vol.toFixed(2)}×).`;
+    const lead = c.share !== undefined ? `Seldon split its vote between TimesFM and its crowd laws by what did best on this area's finished windows: ${votes}${rhythm}.`
+      : `Seldon replayed ${c.replays} earlier dates of this series and split its vote: ${votes}${rhythm}.`;
+    return `${lead} Right now the series is ${mood} (${c.vol.toFixed(2)}×).`;
   }
   function councilBar(c) {
     if (!c || !c.weights) return "";
     const parts = Object.entries(c.weights).sort((a, b) => b[1] - a[1]);
     return `<span class="council" role="img" aria-label="${esc(council(c))}">` + parts.map(([k, w], i) =>
-      `<i style="--w:${(w * 100).toFixed(1)}%;--o:${(1 - i * 0.17).toFixed(2)}" title="${esc(LAW_TEXT[k] || k)} ${Math.round(w * 100)}%"><b>${esc(LAW_TEXT[k] || k)}</b></i>`).join("") + "</span>";
+      `<i class="${k === "timesfm" ? "tfm" : ""}" style="--w:${(w * 100).toFixed(1)}%;--o:${(1 - i * 0.17).toFixed(2)}" title="${esc(LAW_TEXT[k] || k)} ${Math.round(w * 100)}%"><b>${esc(LAW_TEXT[k] || k)}</b></i>`).join("") + "</span>";
   }
   function esc(s) { return String(s).replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch])); }
 

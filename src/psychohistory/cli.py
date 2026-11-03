@@ -1,4 +1,4 @@
-"""Command line interface: ``psychohistory run | fetch | backtest | predict | ask | score | report | simulate | export | site | app``."""
+"""Command line interface: ``psychohistory run | fetch | backtest | predict | ask | desk | monitor | vol | events | wire | verify | score | report | simulate | export | site | app``."""
 
 from __future__ import annotations
 
@@ -6,13 +6,14 @@ import argparse
 import json
 import logging
 import os
+import time
 from datetime import date, datetime, timezone
 from pathlib import Path
 
 import pandas as pd
 
-from . import ask, backtest, catalog, dashboard, data, ledger, report, seldon, simulate, story, web
-from .models import BASELINES, CHALLENGER, classical_available, load_model
+from . import ask, backtest, catalog, dashboard, data, desk, events, ledger, monitor, radiant, report, seldon, simulate, story, volatility, web, wire, yearbook
+from .models import BASELINES, LAWS, classical_available, load_model
 
 log = logging.getLogger("psychohistory")
 
@@ -62,21 +63,24 @@ def cmd_backtest(args) -> None:
     specs = catalog.select(args.domain, args.series)
     series = _load(specs, args.data_dir, status=args.out_dir / "run_status.json", stage="backtest")
     names = [args.model] + [m for m in args.compare if m != args.model]
-    names += [m for m in (CHALLENGER, *BASELINES) if m not in names]  # Seldon faces every model on the same windows
+    names += [m for m in (LAWS, radiant.CORE, *BASELINES) if m not in names]  # Seldon and Radiant face every model on the same windows
     if classical_available() and "auto-ets" not in names:
         names.append("auto-ets")  # the strongest classical baseline, when statsforecast is installed
     models = [load_model(name) for name in names]
     members = ensemble_members(args) if args.ensemble else None
-    frames, step_rows, path_rows = [], [], []
+    frames, step_rows, path_rows, kept = [], [], [], []
     for spec in specs:
         if spec.id in series:
             log.info("backtesting %s", spec.id)
             frames.append(
                 backtest.backtest_series(
                     spec, series[spec.id], models, windows=args.windows, step_rows=step_rows, ensemble_of=members,
-                    path_rows=path_rows, paths_for=(args.model, seldon.NAME),
+                    path_rows=path_rows, paths_for=(args.model, seldon.NAME, LAWS, radiant.CORE), keep=kept,
                 )
             )
+    # The full Seldon learns across series (per area), so it is scored once every series is in.
+    frames.append(backtest.add_seldon(kept, args.model, step_rows, path_rows, paths_for=(seldon.NAME,)))
+    frames.append(backtest.add_radiant(kept, args.model, step_rows, path_rows, paths_for=(radiant.NAME,)))
     frames = [f for f in frames if not f.empty]
     if not frames:
         print("No series had enough data to backtest. Try `psychohistory fetch` first.")
@@ -86,6 +90,9 @@ def cmd_backtest(args) -> None:
     results.to_csv(args.out_dir / "backtest_windows.csv", index=False)
     summary = backtest.summarize(results)
     summary.to_csv(args.out_dir / "backtest_summary.csv", index=False)
+    # Each backtest overwrites the last, so its verdict is also kept by date: how the record evolves over the years.
+    (args.out_dir / "history").mkdir(parents=True, exist_ok=True)
+    summary.assign(run=date.today().isoformat()).to_csv(args.out_dir / "history" / f"backtest-{date.today().isoformat()}.csv", index=False)
     by_step = backtest.skill_by_step(pd.DataFrame(step_rows))
     by_step.to_csv(args.out_dir / "skill_by_step.csv", index=False)
     pd.DataFrame(path_rows).to_csv(args.out_dir / "backtest_paths.csv", index=False)
@@ -93,18 +100,67 @@ def cmd_backtest(args) -> None:
     _write_report(args, results, summary)
 
 
+def seldon_shares(args, data: dict[str, pd.Series]) -> list:
+    """The finished windows the full Seldon learns its per-area shares from: the model under
+    test's saved backtest paths, with the crowd laws rerun on the data up to each origin."""
+    paths_file = args.out_dir / "backtest_paths.csv"
+    paths = pd.read_csv(paths_file) if paths_file.exists() and paths_file.stat().st_size > 1 else None
+    domains = {s.id: s.domain for s in catalog.CATALOG}
+    return seldon.windows_from_paths(paths, data, args.model, domains)
+
+
+def seldon_builder(args, data: dict[str, pd.Series]):
+    """For ``ledger.predict``: the full Seldon from the model's forecast and the same context."""
+    windows = seldon_shares(args, data)
+
+    def build(spec, base, context):
+        laws, _ = seldon.predict(context, len(base.point))
+        return seldon.blend(base, laws, seldon.share_for(windows, spec.domain))
+    return build
+
+
+def radiant_builder(args, data: dict[str, pd.Series]):
+    """For ``ledger.predict``: the full Radiant from the model's forecast and the same context,
+    mixed with the weights its area's finished backtest windows earned."""
+    paths_file = args.out_dir / "backtest_paths.csv"
+    paths = pd.read_csv(paths_file) if paths_file.exists() and paths_file.stat().st_size > 1 else None
+    windows = radiant.windows_from_paths(paths, data, args.model, radiant.domains_of(catalog.CATALOG))
+
+    def build(spec, base, context):
+        h = len(base.point)
+        experts = {"model": base, "laws": seldon.predict(context, h)[0], "core": radiant.core_predict(context, h)[0],
+                   "naive": radiant.naive_forecast(context, h)}
+        return radiant.mix(experts, radiant.weights(windows, spec.domain))
+    return build
+
+
 def cmd_predict(args) -> None:
     specs = catalog.select(args.domain, args.series)
     series = _load(specs, args.data_dir, refresh=args.refresh, status=args.out_dir / "run_status.json", stage="predict")
-    # The model under test, Seldon and any --compare rivals, so the ledger becomes a head-to-head record.
-    names = list(dict.fromkeys([args.model, CHALLENGER, *args.compare]))
+    # The model under test, both Seldons and any --compare rivals, so the ledger becomes a head-to-head record.
+    names = list(dict.fromkeys([args.model, LAWS, radiant.CORE, *args.compare]))
     if args.ensemble:
         names = list(dict.fromkeys(names + ensemble_members(args)))
-    rows = pd.concat([ledger.predict(specs, series, load_model(name)) for name in names], ignore_index=True)
+    full = {seldon.NAME: seldon_builder(args, series), radiant.NAME: radiant_builder(args, series)}
+    rows = pd.concat([ledger.predict(specs, series, load_model(name), extras=full if name == args.model else None)
+                      for name in names], ignore_index=True)
     if args.ensemble:
         rows = pd.concat([rows, ledger.ensemble_rows(rows, ensemble_members(args))], ignore_index=True)
-    ledger.append(rows, args.ledger)
+    entries = ledger.append(rows, args.ledger)
+    ledger.write_seals(entries, args.ledger.parent / ledger.SEALS.name)
     print(f"Recorded {len(rows)} predictions for {rows['series_id'].nunique()} series in {args.ledger}")
+    # Volatility: GARCH, EWMA, last month's and what each model's fresh range implies, sealed beside it.
+    vol_rows = volatility.forecast_rows(specs, series, rows)
+    if not vol_rows.empty:
+        vol_entries = volatility.append(vol_rows, _vol_path(args, "ledger"))
+        ledger.write_seals(vol_entries, _vol_path(args, "seals"), **volatility.LAYOUT)
+        print(f"Recorded {len(vol_rows)} volatility forecasts for {vol_rows['series_id'].nunique()} markets in {_vol_path(args, 'ledger')}")
+    # Event odds: the chance of a spike or a lull four weeks ahead, read off the same sealed ranges.
+    event_rows = events.forecast_rows(specs, series, rows)
+    if not event_rows.empty:
+        event_entries = events.append(event_rows, _event_path(args, "ledger"))
+        ledger.write_seals(event_entries, _event_path(args, "seals"), **events.LAYOUT)
+        print(f"Recorded {len(event_rows)} event odds for {event_rows['series_id'].nunique()} series in {_event_path(args, 'ledger')}")
     for series_id, group in rows[rows["model"] == args.model].groupby("series_id"):
         spec = catalog.by_id(series_id)
         report.plot_fan(series[series_id], group, spec.description, args.out_dir)
@@ -130,13 +186,12 @@ def cmd_ask(args) -> None:
             raise SystemExit(f"Could not load {spec.id}: {exc}. Run `psychohistory fetch` with a network connection first.") from None
         series_id, freq, horizon = spec.id, args.freq or spec.freq, args.horizon or spec.horizon
     model = load_model(args.model)
-    rival = None if args.model == CHALLENGER else load_model(CHALLENGER)
-    table = ask.ask(series, model, horizon, freq, challenger=rival, above=args.above)
+    share = seldon.share_for(seldon_shares(args, {spec.id: series}), spec.domain) if spec is not None else 0.0
+    table, council = ask.ask(series, model, horizon, freq, share=share, above=args.above)
     name = "TimesFM" if args.model.startswith("timesfm") else args.model
     print(f"{spec.description if spec else series_id}: {len(series)} values up to {series.index[-1].date()}\n")
     print(ask.describe(table, float(series.iloc[-1]), name, args.above))
-    if rival is not None and rival.councils:
-        print("\n" + seldon.explain(rival.councils[0]))
+    print("\n" + seldon.explain_full(council, share, name))
     if args.save:
         args.save.parent.mkdir(parents=True, exist_ok=True)
         table.to_csv(args.save, index=False)
@@ -149,11 +204,160 @@ def cmd_ask(args) -> None:
         print(f"Sealed {len(rows)} rows in {args.ledger}; `psychohistory score` checks them as the dates pass.")
 
 
+def cmd_desk(args) -> None:
+    """A forecast desk note for each named market: catalog ids, Yahoo tickers or --csv files."""
+    targets = [(t, None) for t in args.targets] + [(p.stem, p) for p in args.csv or []]
+    if not targets:
+        raise SystemExit("Name at least one market, e.g. `psychohistory desk gold MSFT ETH-USD`, or pass --csv FILE.")
+    model = load_model(args.model)
+    others = [load_model(name) for name in dict.fromkeys([LAWS, "naive", "drift", *args.compare]) if name != args.model]
+    for target, path in targets:
+        if path is not None:
+            series = ask.read_csv(path)
+            spec = catalog.SeriesSpec(f"desk_{target}", "markets", "csv", {"ticker": path.name},
+                                      ask.guess_freq(series), args.horizon or 20, "individual", path.stem)
+        else:
+            spec = desk.spec_for(target, args.horizon)
+            cached = data.cache_path(spec, args.data_dir)
+            stale = cached.exists() and time.time() - cached.stat().st_mtime > 12 * 3600  # a desk wants today's prices
+            try:
+                series = data.fetch(spec, args.data_dir, refresh=args.refresh or stale)
+            except Exception as exc:  # no cache and no network, or an unknown ticker
+                print(f"Could not load {target}: {exc}")
+                continue
+        note = desk.build(spec, series, model, others, levels=args.level, windows=args.windows)
+        files = desk.write(note, args.desk_dir)
+        print(desk.note(note))
+        print("Wrote " + ", ".join(str(f) for f in files) + "\n")
+
+
+def cmd_monitor(args) -> None:
+    """The long-term record: every sealed forecast that came due, by model and area, the test
+    against "no change" and the drift alarms."""
+    scored = ledger.read(args.scored)
+    results, _ = _results(args)
+    summary = backtest.summarize(results) if results is not None else None
+    print(monitor.describe(scored, args.model, summary))
+    if args.save and scored is not None:
+        args.save.parent.mkdir(parents=True, exist_ok=True)
+        monitor.by_month(scored).to_csv(args.save, index=False)
+        print(f"\nSaved the month-by-month record to {args.save}")
+
+
+def _vol_path(args, kind: str) -> Path:
+    """The volatility ledger's files sit beside the main ledger."""
+    name = {"ledger": volatility.VOL_LEDGER, "scored": volatility.VOL_SCORED, "seals": volatility.VOL_SEALS}[kind].name
+    return args.ledger.parent / name
+
+
+def _vol_seals(args) -> pd.DataFrame | None:
+    entries = volatility.read(_vol_path(args, "ledger"))
+    return ledger.verify(entries, _vol_path(args, "seals"), **volatility.LAYOUT) if entries is not None else None
+
+
+def cmd_vol(args) -> None:
+    """Volatility forecasts: the backtest across markets (``--backtest`` reruns it from the data and
+    the saved paths) and the sealed volatility record so far."""
+    if args.backtest:
+        specs = [s for s in catalog.select(args.domain, args.series) if volatility.horizons(s.freq) and s.domain == "markets"]
+        series = _load(specs, args.data_dir)
+        paths = _results(args)[1]
+        frames = [volatility.backtest(spec, series[spec.id], paths) for spec in specs if spec.id in series]
+        rows = pd.concat([f for f in frames if not f.empty], ignore_index=True) if frames else pd.DataFrame()
+        if rows.empty:
+            print("No market had enough data for a volatility backtest. Try `psychohistory fetch` first.")
+            return
+        args.out_dir.mkdir(parents=True, exist_ok=True)
+        rows.to_csv(args.out_dir / "vol_backtest.csv", index=False)
+        volatility.summarize(rows).to_csv(args.out_dir / "vol_summary.csv", index=False)
+    summary_file = args.out_dir / "vol_summary.csv"
+    summary = pd.read_csv(summary_file) if summary_file.exists() else None
+    print(volatility.describe(summary, volatility.live_record(volatility.read(_vol_path(args, "scored")))))
+
+
+def _event_path(args, kind: str) -> Path:
+    """The event ledger's files sit beside the main ledger."""
+    name = {"ledger": events.EVENT_LEDGER, "scored": events.EVENT_SCORED, "seals": events.EVENT_SEALS}[kind].name
+    return args.ledger.parent / name
+
+
+def _event_seals(args) -> pd.DataFrame | None:
+    entries = events.read(_event_path(args, "ledger"))
+    return ledger.verify(entries, _event_path(args, "seals"), **events.LAYOUT) if entries is not None else None
+
+
+def _event_now(args, data: dict[str, pd.Series] | None = None) -> pd.DataFrame | None:
+    """The newest sealed event odds; before the first sealed batch, the odds the newest sealed
+    forecasts imply (computed from the same sealed quantiles and the history up to their last day)."""
+    entries = events.read(_event_path(args, "ledger"))
+    if entries is not None and not entries.empty:
+        return entries[entries["made_on"] == entries["made_on"].max()]
+    main = ledger.read(args.ledger)
+    if main is None or main.empty:
+        return None
+    latest = main[main["made_on"] == main["made_on"].max()]
+    specs = [s for s in catalog.CATALOG if events.eligible(s) and s.id in set(latest["series_id"])]
+    data = data if data is not None else _load(specs, args.data_dir)
+    return events.forecast_rows(specs, data, latest)
+
+
+def cmd_events(args) -> None:
+    """Event odds: the chance of a spike or a lull in world news and technology attention four weeks
+    ahead, the backtest (``--backtest`` reruns it from the data and the saved paths) and the sealed
+    record so far."""
+    specs = [s for s in catalog.select(args.domain, args.series) if events.eligible(s)]
+    series = _load(specs, args.data_dir)
+    if args.backtest:
+        paths = _results(args)[1]
+        frames = [events.backtest(spec, series[spec.id], paths) for spec in specs if spec.id in series]
+        rows = pd.concat([f for f in frames if not f.empty], ignore_index=True) if frames else pd.DataFrame()
+        if rows.empty:
+            print("No series had enough data and saved backtest paths for event odds. Run `psychohistory backtest` first.")
+        else:
+            args.out_dir.mkdir(parents=True, exist_ok=True)
+            rows.to_csv(args.out_dir / "event_backtest.csv", index=False)
+            events.summarize(rows).to_csv(args.out_dir / "event_summary.csv", index=False)
+    summary_file = args.out_dir / "event_summary.csv"
+    summary = pd.read_csv(summary_file) if summary_file.exists() else None
+    print(events.describe(summary, events.live_record(events.read(_event_path(args, "scored"))), _event_now(args, series)))
+
+
+def cmd_wire(args) -> None:
+    """The world wire: the newest headlines for every topic, for the app's World terminal."""
+    specs = catalog.select(args.domain, args.series)
+    news = wire.fetch(specs, records=args.records)
+    path = wire.write(news, args.out_dir / wire.WIRE.name)
+    count = sum(len(t["articles"]) for t in news["topics"].values())
+    print(f"Wrote {count} headlines for {len(news['topics'])} topics to {path}" + (f"; {len(news['failed'])} topics failed" if news["failed"] else ""))
+
+
+def cmd_verify(args) -> None:
+    """Check every fingerprinted batch of the ledgers is exactly as it was sealed."""
+    entries = ledger.read(args.ledger)
+    seals = args.ledger.parent / ledger.SEALS.name
+    if entries is None:
+        raise SystemExit(f"No ledger at {args.ledger}.")
+    raw = pd.read_csv(args.ledger)  # the file as written, not renamed for display
+    checks = [("forecast", ledger.verify(raw, seals), seals), ("volatility", _vol_seals(args), _vol_path(args, "seals")),
+              ("event", _event_seals(args), _event_path(args, "seals"))]
+    failed = False
+    for kind, checked, path in checks:
+        if checked is None or checked.empty:
+            print(f"No {kind} fingerprints yet in {path}; `psychohistory predict` writes them with every batch.")
+            continue
+        bad = checked[checked["status"] != "ok"]
+        print(f"{len(checked) - len(bad)} of {len(checked)} sealed {kind} batches match their fingerprints ({checked['rows'].sum()} rows).")
+        for r in bad.itertuples():
+            print(f"  {r.made_on} {r.model}: {r.status}")
+        failed |= not bad.empty
+    if failed:
+        raise SystemExit(1)
+
+
 def cmd_record(args) -> None:
     """Print one series' track record: every backtest window and every opened sealed forecast."""
-    windows_file = args.out_dir / "backtest_windows.csv"
-    windows = pd.read_csv(windows_file) if windows_file.exists() else None
-    scored = pd.read_csv(args.scored) if args.scored.exists() else None
+    windows, _ = _results(args)
+    scored = ledger.read(args.scored)
     known = set(windows["series_id"]) if windows is not None else set()
     if scored is not None:
         known |= set(scored["series_id"])
@@ -167,7 +371,7 @@ def cmd_score(args) -> None:
     if not args.ledger.exists():
         print(f"No ledger at {args.ledger}; run `psychohistory predict` first.")
         return
-    entries = pd.read_csv(args.ledger)
+    entries = ledger.read(args.ledger)
     specs = [s for s in catalog.CATALOG if s.id in set(entries["series_id"])]
     series = _load(specs, args.data_dir, refresh=args.refresh)
     scored = ledger.score(entries, series)
@@ -176,6 +380,20 @@ def cmd_score(args) -> None:
     story.plot_track_record(scored, args.model, args.out_dir)
     table = ledger.ledger_summary(scored)
     print(table.to_string(index=False) if not table.empty else "No predictions have reached their target date yet.")
+    vol_entries = volatility.read(_vol_path(args, "ledger"))
+    if vol_entries is not None:
+        vol_specs = [s for s in catalog.CATALOG if s.id in set(vol_entries["series_id"])]
+        vol_data = {**series, **_load([s for s in vol_specs if s.id not in series], args.data_dir)}
+        vol_scored = volatility.score(vol_entries, vol_data, {s.id: s.freq for s in vol_specs})
+        vol_scored.to_csv(_vol_path(args, "scored"), index=False)
+        print(f"Scored {len(vol_scored)} sealed volatility forecasts.")
+    event_entries = events.read(_event_path(args, "ledger"))
+    if event_entries is not None:
+        event_specs = [s for s in catalog.CATALOG if s.id in set(event_entries["series_id"])]
+        event_data = {**series, **_load([s for s in event_specs if s.id not in series], args.data_dir)}
+        event_scored = events.score(event_entries, event_data, {s.id: s.domain for s in event_specs})
+        event_scored.to_csv(_event_path(args, "scored"), index=False)
+        print(f"Scored {len(event_scored)} sealed event odds.")
 
 
 def cmd_run(args) -> None:
@@ -188,33 +406,50 @@ def cmd_run(args) -> None:
             cmd_report(args)
     else:
         cmd_backtest(args)
+    args.backtest = True
+    cmd_vol(args)
+    cmd_events(args)
+    args.records = wire.RECORDS
+    cmd_wire(args)
     args.demo = False
     cmd_export(args)
 
 
+def _results(args) -> tuple[pd.DataFrame | None, pd.DataFrame | None]:
+    """The saved backtest windows and paths, a run from before the full Seldon brought up to date
+    (``backtest.upgrade_run``)."""
+    read = lambda p: pd.read_csv(p) if p.exists() and p.stat().st_size > 1 else None  # noqa: E731
+    results, paths = read(args.out_dir / "backtest_windows.csv"), read(args.out_dir / "backtest_paths.csv")
+    if results is not None and paths is not None:
+        results, paths, upgraded = backtest.upgrade_run(results, paths, args.model)
+        if upgraded:
+            log.info("this run's Seldon was the crowd laws alone: renamed seldon-laws, full Seldon replayed from its paths")
+    return results, paths
+
+
 def cmd_report(args) -> None:
-    path = args.out_dir / "backtest_windows.csv"
-    if not path.exists():
-        print(f"No backtest results at {path}; run `psychohistory backtest` first.")
+    results, _ = _results(args)
+    if results is None:
+        print(f"No backtest results in {args.out_dir}; run `psychohistory backtest` first.")
         return
-    results = pd.read_csv(path)
     summary = backtest.summarize(results)
     _write_report(args, results, summary)
 
 
 def _write_report(args, results: pd.DataFrame, summary: pd.DataFrame) -> None:
     ledger_table = None
-    if args.scored.exists():
-        ledger_table = ledger.ledger_summary(pd.read_csv(args.scored))
-    latest = ledger.latest(pd.read_csv(args.ledger)) if args.ledger.exists() else None
+    scored, entries = ledger.read(args.scored), ledger.read(args.ledger)
+    if scored is not None:
+        ledger_table = ledger.ledger_summary(scored)
+    latest = ledger.latest(entries) if entries is not None else None
     steps_path = args.out_dir / "skill_by_step.csv"
     by_step = pd.read_csv(steps_path) if steps_path.exists() else None
     report.plot_skill(summary, args.out_dir, args.model)
     story.write_scorecards(
         args.out_dir, story.scorecard(summary, args.model, by_step, results), args.model, date.today().isoformat()
     )
-    paths_file = args.out_dir / "backtest_paths.csv"
-    paths = pd.read_csv(paths_file) if paths_file.exists() and paths_file.stat().st_size > 1 else pd.DataFrame()
+    paths = _results(args)[1]
+    paths = pd.DataFrame() if paths is None else paths
     headline = story.pick_headline_series(paths)
     headline_data = _load([catalog.by_id(headline)], args.data_dir) if headline else {}
     if headline in headline_data:
@@ -224,9 +459,8 @@ def _write_report(args, results: pd.DataFrame, summary: pd.DataFrame) -> None:
         )
     if by_step is not None:
         report.plot_horizon(by_step, args.model, args.out_dir)
-    path = report.write_report(results, summary, args.model, ledger_table, args.out_dir, latest, by_step)
+    path = report.write_report(results, summary, args.model, ledger_table, args.out_dir, latest, by_step, scored)
     print(f"Report written to {path}")
-    entries = pd.read_csv(args.ledger) if args.ledger.exists() else None
     data_for_fans = {}
     if latest is not None and not latest.empty:
         specs = [s for s in catalog.CATALOG if s.id in set(latest["series_id"])]
@@ -236,7 +470,7 @@ def _write_report(args, results: pd.DataFrame, summary: pd.DataFrame) -> None:
     board = dashboard.write_dashboard(
         results, summary, args.model, args.out_dir, by_step, latest, entries, data_for_fans,
         paths=paths[paths["series_id"] == headline] if headline else None, headline=headline,
-        scored=pd.read_csv(args.scored) if args.scored.exists() else None,
+        scored=scored,
     )
     if board:
         print(f"Dashboard written to {board}")
@@ -260,8 +494,8 @@ def _payload(args, demo: bool = False) -> dict | None:
     if not windows.exists() and not args.ledger.exists():
         return None
     read = lambda p: pd.read_csv(p) if p.exists() and p.stat().st_size > 1 else None  # noqa: E731
-    results, by_step, paths = read(windows), read(args.out_dir / "skill_by_step.csv"), read(args.out_dir / "backtest_paths.csv")
-    entries, scored = read(args.ledger), read(args.scored)
+    (results, paths), by_step = _results(args), read(args.out_dir / "skill_by_step.csv")
+    entries, scored = ledger.read(args.ledger), ledger.read(args.scored)
     ids = set()
     for frame in (paths, entries):
         if frame is not None:
@@ -269,7 +503,14 @@ def _payload(args, demo: bool = False) -> dict | None:
     specs = [s for s in catalog.CATALOG if s.id in ids]
     status = args.out_dir / "run_status.json"
     run = json.loads(status.read_text()) if status.exists() else None
-    return web.build_payload(args.model, results, by_step, paths, entries, scored, _load(specs, args.data_dir), run_status=run)
+    seals = ledger.verify(pd.read_csv(args.ledger), args.ledger.parent / ledger.SEALS.name) if args.ledger.exists() else None
+    vol = {"summary": read(args.out_dir / "vol_summary.csv"), "ledger": volatility.read(_vol_path(args, "ledger")),
+           "scored": volatility.read(_vol_path(args, "scored")), "seals": _vol_seals(args)}
+    data = _load(specs, args.data_dir)
+    event = {"summary": read(args.out_dir / "event_summary.csv"), "now": _event_now(args, data),
+             "scored": events.read(_event_path(args, "scored")), "seals": _event_seals(args)}
+    return web.build_payload(args.model, results, by_step, paths, entries, scored, data, run_status=run,
+                             seals=seals, vol=vol, wire=wire.read(args.out_dir / wire.WIRE.name), events=event)
 
 
 def cmd_export(args) -> None:
@@ -280,6 +521,8 @@ def cmd_export(args) -> None:
         return
     path = web.write_data_js(payload, args.out_dir / "web" / "data.js")
     print(f"App data written to {path}")
+    if not args.demo and payload.get("year"):
+        print(f"Year ledger written to {yearbook.write_csv(payload['year'], args.out_dir)}")
 
 
 def cmd_site(args) -> None:
@@ -357,6 +600,40 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--save", type=Path, metavar="FILE", help="write every step to a CSV")
     p.add_argument("--seal", action="store_true", help="write the forecast to the prediction ledger to be scored later")
     p.set_defaults(func=cmd_ask)
+
+    p = sub.add_parser("desk", help="forecast desk note for any market: catalog id or Yahoo ticker, with odds, volatility and a track record")
+    common(p)
+    p.add_argument("targets", nargs="*", help="catalog ids or Yahoo Finance tickers, e.g. gold MSFT ^FTSE ETH-USD EURUSD=X")
+    p.add_argument("--csv", type=Path, nargs="+", help="your own price history: CSVs of date,value rows")
+    p.add_argument("--horizon", type=int, help="steps ahead (default: the series' own, 20 trading days for a ticker)")
+    p.add_argument("--level", type=float, nargs="+", help="price levels to give the chance of ending above")
+    p.add_argument("--windows", type=int, default=8, help="past windows to backtest each model on (default 8)")
+    p.add_argument("--desk-dir", type=Path, default=Path("results/desk"), help="where the notes go (default results/desk)")
+    p.set_defaults(func=cmd_desk)
+
+    p = sub.add_parser("monitor", help="the long-term record of sealed forecasts against reality, with drift alarms")
+    common(p)
+    p.add_argument("--save", type=Path, metavar="FILE", help="also write the month-by-month record to a CSV")
+    p.set_defaults(func=cmd_monitor)
+
+    p = sub.add_parser("vol", help="volatility forecasts (GARCH, EWMA, TimesFM-implied) against what happened")
+    common(p)
+    p.add_argument("--backtest", action="store_true", help="rerun the volatility backtest from the data and the saved paths")
+    p.set_defaults(func=cmd_vol)
+
+    p = sub.add_parser("events", help="event odds: the chance of a spike or a lull in news and tech attention, against climatology")
+    common(p)
+    p.add_argument("--backtest", action="store_true", help="rerun the event-odds backtest from the data and the saved paths")
+    p.set_defaults(func=cmd_events)
+
+    p = sub.add_parser("wire", help="the newest headlines for every topic, from GDELT, for the World terminal")
+    common(p)
+    p.add_argument("--records", type=int, default=wire.RECORDS, help="headlines per topic (default 6)")
+    p.set_defaults(func=cmd_wire)
+
+    p = sub.add_parser("verify", help="check every sealed batch of the ledgers still matches its fingerprint")
+    common(p)
+    p.set_defaults(func=cmd_verify)
 
     p = sub.add_parser("record", help="print one series' track record: past windows and opened sealed forecasts")
     common(p)

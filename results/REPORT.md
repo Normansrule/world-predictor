@@ -5,7 +5,7 @@ _Generated 2026-11-02 with model `timesfm-2.5`. Skill = 1 - MAE(model) / MAE(nai
 ## In plain English
 
 - timesfm-2.5 beat the simple guess "tomorrow looks like today" in 2 of 3 areas: world news (21% less error), technology (44% less error).
-- Seldon, our own forecaster built from five laws of crowd behaviour, won none of the 3 areas against timesfm-2.5, with lower error on 7 of 29 series.
+- Seldon, our own forecaster (crowd laws with timesfm-2.5 as one voter), won none of the 3 areas against timesfm-2.5, with lower error on 0 of 29 series and higher on 2.
 - Hari Seldon's bet did not hold here: aggregates were not easier to predict than individual series (18% vs 25% skill).
 - In world news, its edge lasts up to about 28 days ahead.
 - In markets, it had no edge at any distance ahead.
@@ -18,14 +18,27 @@ _Each frame is a forecast made in the past: the orange band is what the model ex
 
 ## Seldon vs timesfm-2.5: the duel
 
-Seldon is this project's own forecaster (`src/psychohistory/seldon.py`): five simple laws of crowd behaviour (inertia, drift, momentum, reversion, a weekly rhythm), each voting by how well it predicted the same series before. It forecasts the same windows as TimesFM and is scored by the same code. A series is won by whichever had the lower average error there. Skill is against "no change" (positive is better); range skill scores the whole 80% range (pinball loss).
+Seldon is this project's own forecaster (`src/psychohistory/seldon.py`): four laws of crowd behaviour (inertia, drift, momentum, reversion, on top of the weekly rhythm) with TimesFM as one more voter, the laws' share learned per area from finished windows only. It forecasts the same windows as TimesFM and is scored by the same code. A series is won by whichever had the lower average error there; a series where the full Seldon gave TimesFM the whole vote is a tie. Skill is against "no change" (positive is better); range skill scores the whole 80% range (pinball loss).
 
-| Area | Series | Seldon won | TimesFM won | Skill: TimesFM / Seldon | Range skill: TimesFM / Seldon | In 80% range: TimesFM / Seldon | Winner |
-|---|---|---|---|---|---|---|---|
-| Stock and value markets | 12 | 6 | 6 | -1% / -0% | +1% / +1% | 77% / 77% | tie |
-| World events in the news | 6 | 0 | 6 | +21% / +15% | +21% / +15% | 76% / 79% | timesfm-2.5 |
-| New technologies | 11 | 1 | 10 | +44% / +19% | +42% / +24% | 74% / 68% | timesfm-2.5 |
-| **All areas** | 29 | 7 | 22 | +18% / +6% | +16% / +11% | 76% / 74% | timesfm-2.5 |
+**The full Seldon** (crowd laws and TimesFM in one council)
+
+| Area | Series | Seldon won | TimesFM won | Seldon's error vs TimesFM | Skill: TimesFM / Seldon | Range skill: TimesFM / Seldon | In 80% range: TimesFM / Seldon | Winner |
+|---|---|---|---|---|---|---|---|---|
+| Stock and value markets | 12 | 0 | 0 | +0% | -1% / -1% | +1% / +1% | 77% / 77% | tie |
+| World events in the news | 6 | 0 | 0 | +0% | +21% / +21% | +21% / +21% | 76% / 76% | tie |
+| New technologies | 11 | 0 | 2 | +3% | +44% / +43% | +42% / +35% | 74% / 72% | timesfm-2.5 |
+| **All areas** | 29 | 0 | 2 | +1% | +18% / +18% | +16% / +16% | 76% / 75% | timesfm-2.5 |
+
+_This run recorded TimesFM and the crowd laws but not the full Seldon, so the full Seldon was replayed from their recorded paths, learning its shares from earlier windows only (`backtest.replay_seldon`). Errors, wins and the 80% range are exact; range skill is close._
+
+**The crowd laws alone** (`seldon-laws`, no TimesFM vote)
+
+| Area | Series | Laws won | TimesFM won | Laws' error vs TimesFM | Skill: TimesFM / Laws | Range skill: TimesFM / Laws | In 80% range: TimesFM / Laws | Winner |
+|---|---|---|---|---|---|---|---|---|
+| Stock and value markets | 12 | 6 | 6 | -2% | -1% / -0% | +1% / +1% | 77% / 77% | tie |
+| World events in the news | 6 | 0 | 6 | +10% | +21% / +15% | +21% / +15% | 76% / 79% | timesfm-2.5 |
+| New technologies | 11 | 1 | 10 | +27% | +44% / +19% | +42% / +24% | 74% / 68% | timesfm-2.5 |
+| **All areas** | 29 | 7 | 22 | +12% | +18% / +6% | +16% / +11% | 76% / 74% | timesfm-2.5 |
 
 ## 1. Can the future be predicted?
 
@@ -43,7 +56,8 @@ Seldon is this project's own forecaster (`src/psychohistory/seldon.py`): five si
 | markets  | ensemble     |       12 |         -0.015 |         4.493 |       0.516 |        0.777 |   0.258 |
 | markets  | mean         |       12 |         -1.074 |         8.451 |       0.477 |        0.511 |   0.400 |
 | markets  | naive        |       12 |          0.000 |         4.694 |     nan     |        0.619 |   0.250 |
-| markets  | seldon       |       12 |         -0.005 |         4.699 |       0.460 |        0.772 |   0.253 |
+| markets  | seldon       |       12 |         -0.012 |         4.744 |       0.454 |        0.766 |   0.269 |
+| markets  | seldon-laws  |       12 |         -0.005 |         4.699 |       0.460 |        0.772 |   0.253 |
 | markets  | timesfm-2.5  |       12 |         -0.012 |         4.744 |       0.454 |        0.766 |   0.269 |
 | news     | auto-ets     |        6 |         -0.060 |         1.577 |       0.625 |        0.881 |   0.240 |
 | news     | chronos-bolt |        6 |          0.205 |         1.195 |       0.708 |        0.738 |   0.207 |
@@ -51,7 +65,8 @@ Seldon is this project's own forecaster (`src/psychohistory/seldon.py`): five si
 | news     | ensemble     |        6 |          0.179 |         1.280 |       0.653 |        0.843 |   0.213 |
 | news     | mean         |        6 |          0.171 |         1.305 |       0.694 |        0.679 |   0.209 |
 | news     | naive        |        6 |          0.000 |         1.556 |     nan     |        0.806 |   0.250 |
-| news     | seldon       |        6 |          0.146 |         1.333 |       0.639 |        0.785 |   0.215 |
+| news     | seldon       |        6 |          0.215 |         1.228 |       0.681 |        0.761 |   0.202 |
+| news     | seldon-laws  |        6 |          0.146 |         1.333 |       0.639 |        0.785 |   0.215 |
 | news     | timesfm-2.5  |        6 |          0.215 |         1.228 |       0.681 |        0.761 |   0.202 |
 | tech     | auto-ets     |       11 |          0.066 |         1.577 |       0.598 |        0.817 |   0.220 |
 | tech     | bass         |        3 |         -1.365 |       108.159 |       0.333 |        0.000 |   0.602 |
@@ -60,7 +75,8 @@ Seldon is this project's own forecaster (`src/psychohistory/seldon.py`): five si
 | tech     | ensemble     |       11 |          0.361 |         0.989 |       0.659 |        0.852 |   0.190 |
 | tech     | mean         |       11 |          0.139 |         1.179 |       0.348 |        0.522 |   0.502 |
 | tech     | naive        |       11 |          0.000 |         1.433 |     nan     |        0.653 |   0.297 |
-| tech     | seldon       |       11 |          0.194 |         0.935 |       0.742 |        0.683 |   0.181 |
+| tech     | seldon       |       11 |          0.428 |         0.801 |       0.750 |        0.724 |   0.162 |
+| tech     | seldon-laws  |       11 |          0.194 |         0.935 |       0.742 |        0.683 |   0.181 |
 | tech     | timesfm-2.5  |       11 |          0.441 |         0.801 |       0.750 |        0.745 |   0.161 |
 
 ## 2. Seldon's law of large numbers: aggregates vs individuals
@@ -109,17 +125,17 @@ _Predictions are sealed with a date before the future happens and opened when it
 | markets  | auto-ets     |       12 |           443 |         -0.002 |       0.482 |        0.887 |   0.253 |
 | markets  | chronos-bolt |       12 |           443 |         -0.100 |       0.462 |        0.830 |   0.274 |
 | markets  | ensemble     |       12 |           443 |         -0.036 |       0.468 |        0.851 |   0.256 |
-| markets  | seldon       |       12 |           176 |         -0.019 |       0.342 |        0.777 |   0.259 |
+| markets  | seldon-laws  |       12 |           176 |         -0.019 |       0.342 |        0.777 |   0.259 |
 | markets  | timesfm-2.5  |       12 |           443 |          0.000 |       0.497 |        0.847 |   0.252 |
 | news     | auto-ets     |        6 |           111 |          0.019 |       0.568 |        0.793 |   0.240 |
 | news     | chronos-bolt |        6 |           111 |          0.072 |       0.606 |        0.681 |   0.244 |
 | news     | ensemble     |        6 |           111 |          0.036 |       0.608 |        0.762 |   0.240 |
-| news     | seldon       |        6 |            36 |          0.002 |       0.606 |        0.500 |   0.269 |
+| news     | seldon-laws  |        6 |            36 |          0.002 |       0.606 |        0.500 |   0.269 |
 | news     | timesfm-2.5  |        6 |           111 |          0.046 |       0.551 |        0.688 |   0.279 |
 | tech     | auto-ets     |        8 |           400 |         -0.231 |       0.520 |        0.960 |   0.253 |
 | tech     | chronos-bolt |        8 |           400 |          0.480 |       0.768 |        0.713 |   0.150 |
 | tech     | ensemble     |        8 |           400 |          0.243 |       0.715 |        0.945 |   0.156 |
-| tech     | seldon       |        8 |           152 |          0.305 |       0.724 |        0.737 |   0.157 |
+| tech     | seldon-laws  |        8 |           152 |          0.305 |       0.724 |        0.737 |   0.157 |
 | tech     | timesfm-2.5  |        8 |           400 |          0.535 |       0.792 |        0.677 |   0.133 |
 
 ## 5. How far ahead can it see?
@@ -269,3 +285,88 @@ Latest forecasts recorded in the ledger (made with data up to each series' last 
 ![wiki_humanoid](plots/wiki_humanoid.png)
 ![wiki_llm](plots/wiki_llm.png)
 ![wiki_quantum](plots/wiki_quantum.png)
+
+## 9. The long-term monitor
+
+Every sealed forecast that has come due, scored against what really happened. Unlike the backtest, none of these could have been fitted to the outcome. Run `psychohistory monitor` for the same in the terminal; the app's Monitor view draws it month by month.
+
+| Model | Forecasts | Weekly batches | Skill vs "no change" | In 80% range | Right direction | Brier |
+|---|---|---|---|---|---|---|
+| auto-ets | 954 | 5 | -0.2% | 91% | 51% | 0.251 |
+| chronos-bolt | 954 | 5 | +7.2% | 76% | 60% | 0.219 |
+| ensemble | 954 | 5 | -0.2% | 88% | 58% | 0.212 |
+| seldon-laws | 364 | 3 | +0.1% | 73% | 52% | 0.217 |
+| timesfm-2.5 | 954 | 5 | +5.6% | 76% | 63% | 0.205 |
+
+**Is timesfm-2.5 really better than "no change"?** A Diebold-Mariano test on the weekly batches (Newey-West variance, as the batches' horizons overlap, with the Harvey-Leybourne-Newbold small-sample correction and Student's t):
+
+- All areas: not distinguishable from no change (p = 0.25)
+- Stock and value markets: not distinguishable from no change (p = 0.83)
+- World events in the news: not distinguishable from no change
+- New technologies: not distinguishable from no change (p = 0.47)
+
+**Drift alarms** (forecasts due in the last 13 weeks): 24 raised. Every forecaster is tested on every series at once, so alarms must pass a Benjamini-Hochberg false-discovery cut of 5%.
+- auto-ets on aapl: range too wide
+- auto-ets on bitcoin: range too wide
+- auto-ets on copper: range too wide
+- auto-ets on news_pandemic: edge lost
+- auto-ets on wiki_quantum: range too wide
+- chronos-bolt on aapl: range too wide
+- chronos-bolt on aapl: edge lost
+- chronos-bolt on msci_world: range too wide
+- chronos-bolt on news_election: edge lost
+- chronos-bolt on xom: range too wide
+- ensemble on aapl: range too wide
+- ensemble on aapl: edge lost
+- ensemble on news_election: edge lost
+- ensemble on wiki_humanoid: edge lost
+- ensemble on wiki_quantum: range too wide
+- timesfm-2.5 on aapl: range too wide
+- timesfm-2.5 on bitcoin: range too wide
+- timesfm-2.5 on news_election: edge lost
+- timesfm-2.5 on tsla: edge lost
+- timesfm-2.5 on xom: range too wide
+- auto-ets on wiki_crispr: range too wide
+- auto-ets on wiki_llm: range too wide
+- chronos-bolt on copper: range too wide
+- ensemble on copper: range too wide
+
+## 10. Volatility forecasts
+
+Each market's volatility over the next week and month, forecast at every weekly origin from 2025-11-28 to 2026-10-22 and scored with QLIKE against the volatility that followed. Skill is against last month's volatility carried forward, on the same windows; p is a Diebold-Mariano test.
+
+| Forecaster | Ahead | Windows | Skill | Beat it in | Typical miss | p |
+|---|---|---|---|---|---|---|
+| garch | 1 week | 378 | +12.7% | 10 of 12 markets | 32% | 0.282 |
+| ewma | 1 week | 378 | +10.5% | 12 of 12 markets | 28% | 0.036 |
+| last-month | 1 week | 437 | baseline |  | 30% |  |
+| timesfm-2.5 | 1 week | 132 | -12.5% | 5 of 12 markets | 25% | 0.928 |
+| seldon | 1 week | 132 | -16.9% | 4 of 12 markets | 29% | 0.689 |
+| seldon-laws | 1 week | 132 | -82.4% | 1 of 12 markets | 33% | 0.004 |
+| ewma | 1 month | 341 | +12.0% | 10 of 12 markets | 19% | 0.302 |
+| garch | 1 month | 341 | +10.7% | 8 of 12 markets | 22% | 0.389 |
+| last-month | 1 month | 400 | baseline |  | 22% |  |
+| seldon | 1 month | 132 | -19.6% | 5 of 12 markets | 23% | 0.558 |
+| timesfm-2.5 | 1 month | 132 | -20.9% | 5 of 12 markets | 20% | 0.606 |
+| seldon-laws | 1 month | 132 | -123.0% | 3 of 12 markets | 30% | 0.412 |
+
+Sealed volatility forecasts are in `predictions/vol_ledger.csv`, fingerprinted in `predictions/vol_seals.csv` and scored in `predictions/vol_scored.csv`.
+
+## 11. Event odds
+
+The chance that a news or technology series reaches, four weeks ahead, a level it reaches only one day in ten (a spike: above the 90th percentile of its last two years) or falls to a low it sees one day in ten (a lull). Odds are scored with the Brier score; skill is against climatology (10%) and against persistence (what followed days like the origin), on the same forecasts. p is a Diebold-Mariano test of the edge over climatology.
+
+| Event | Forecaster | Forecasts | Happened | Said | Brier | vs climatology | vs persistence | p |
+|---|---|---|---|---|---|---|---|---|
+| lull | seldon | 70 | 40% | 35% | 0.1666 | +49.4% | +40.9% | 0.052 |
+| lull | timesfm-2.5 | 70 | 40% | 35% | 0.1696 | +48.5% | +39.9% | 0.060 |
+| lull | seldon-laws | 70 | 40% | 33% | 0.1936 | +41.2% | +31.4% | 0.095 |
+| lull | persistence | 70 | 40% | 15% | 0.2821 | +14.3% | baseline | 0.054 |
+| lull | climatology | 70 | 40% | 10% | 0.3293 | baseline | -16.7% |  |
+| spike | timesfm-2.5 | 70 | 10% | 8% | 0.0803 | +10.9% | +12.6% | 0.418 |
+| spike | seldon | 70 | 10% | 9% | 0.0831 | +7.8% | +9.6% | 0.612 |
+| spike | climatology | 70 | 10% | 10% | 0.0902 | baseline | +1.9% |  |
+| spike | persistence | 70 | 10% | 10% | 0.0919 | -2.0% | baseline | 0.543 |
+| spike | seldon-laws | 70 | 10% | 11% | 0.0920 | -2.0% | -0.0% | 0.880 |
+
+Sealed event odds are in `predictions/event_ledger.csv`, fingerprinted in `predictions/event_seals.csv` and scored in `predictions/event_scored.csv`.

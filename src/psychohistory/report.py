@@ -9,6 +9,7 @@ from pathlib import Path
 import pandas as pd
 
 from .backtest import calibration, crises, domain_table, head_to_head, horizon_table, scale_table
+from .models import LAWS
 
 log = logging.getLogger(__name__)
 
@@ -61,6 +62,7 @@ def write_report(
     out_dir: Path = Path("results"),
     latest: pd.DataFrame | None = None,
     by_step: pd.DataFrame | None = None,
+    scored: pd.DataFrame | None = None,
 ) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
     domains = domain_table(summary)
@@ -127,37 +129,54 @@ def write_report(
     lines += _calibration_section(results, model)
     lines += ["## 7. Every series", "", _fmt(summary[summary["model"] == model].round(3))]
     lines += _latest_section(latest, model, out_dir)
+    lines += _monitor_section(scored, summary, model)
+    lines += _volatility_section(out_dir)
+    lines += _events_section(out_dir)
     path = out_dir / "REPORT.md"
     path.write_text("\n".join(lines))
     return path
 
 
-def _duel_section(results: pd.DataFrame, model: str) -> list[str]:
-    """Seldon, our own forecaster, against the model under test on the same windows."""
-    duel = head_to_head(results, model)
-    if duel.empty:
-        return []
+def _duel_table(duel: pd.DataFrame, model: str, who: str) -> list[str]:
     pct = lambda x: "–" if pd.isna(x) else f"{x:+.0%}"  # noqa: E731
-    rows = ["| Area | Series | Seldon won | TimesFM won | Skill: TimesFM / Seldon | Range skill: TimesFM / Seldon "
-            "| In 80% range: TimesFM / Seldon | Winner |", "|---|---|---|---|---|---|---|---|"]
+    whose = who + ("'" if who.endswith("s") else "'s")
+    rows = [f"| Area | Series | {who} won | TimesFM won | {whose} error vs TimesFM | Skill: TimesFM / {who} "
+            f"| Range skill: TimesFM / {who} | In 80% range: TimesFM / {who} | Winner |", "|---|---|---|---|---|---|---|---|---|"]
     for r in duel.itertuples():
         name = "**All areas**" if r.domain == "all" else DOMAIN_TITLES.get(r.domain, r.domain)
-        winner = "Seldon" if r.winner == "seldon" else "tie" if r.winner == "tie" else model
-        rows.append(f"| {name} | {r.series} | {r.wins} | {r.losses} | {pct(r.model_skill)} / {pct(r.challenger_skill)} "
+        winner = "tie" if r.winner == "tie" else model if r.winner == model else who
+        rows.append(f"| {name} | {r.series} | {r.wins} | {r.losses} | {pct(r.error_change)} | {pct(r.model_skill)} / {pct(r.challenger_skill)} "
                     f"| {pct(r.model_prob_skill)} / {pct(r.challenger_prob_skill)} "
                     f"| {r.model_coverage80:.0%} / {r.challenger_coverage80:.0%} | {winner} |")
-    return [
+    return rows
+
+
+def _duel_section(results: pd.DataFrame, model: str) -> list[str]:
+    """Seldon, our own forecaster, against the model under test on the same windows: the full
+    Seldon, then its crowd laws alone."""
+    duel, laws = head_to_head(results, model), head_to_head(results, model, LAWS)
+    if duel.empty and laws.empty:
+        return []
+    lines = [
         f"## Seldon vs {model}: the duel",
         "",
-        "Seldon is this project's own forecaster (`src/psychohistory/seldon.py`): five simple laws of crowd behaviour "
-        "(inertia, drift, momentum, reversion, a weekly rhythm), each voting by how well it predicted the same series "
-        "before. It forecasts the same windows as TimesFM and is scored by the same code. A series is won by whichever "
-        "had the lower average error there. Skill is against \"no change\" (positive is better); range skill scores the "
-        "whole 80% range (pinball loss).",
-        "",
-        *rows,
+        "Seldon is this project's own forecaster (`src/psychohistory/seldon.py`): four laws of crowd behaviour "
+        "(inertia, drift, momentum, reversion, on top of the weekly rhythm) with TimesFM as one more voter, the laws' "
+        "share learned per area from finished windows only. It forecasts the same windows as TimesFM and is scored "
+        "by the same code. A series is won by whichever had the lower average error there; a series where the full "
+        "Seldon gave TimesFM the whole vote is a tie. Skill is against \"no change\" (positive is better); range "
+        "skill scores the whole 80% range (pinball loss).",
         "",
     ]
+    if not duel.empty:
+        lines += ["**The full Seldon** (crowd laws and TimesFM in one council)", "", *_duel_table(duel, model, "Seldon"), ""]
+        if results.attrs.get("replayed"):
+            lines += ["_This run recorded TimesFM and the crowd laws but not the full Seldon, so the full Seldon was "
+                      "replayed from their recorded paths, learning its shares from earlier windows only "
+                      "(`backtest.replay_seldon`). Errors, wins and the 80% range are exact; range skill is close._", ""]
+    if not laws.empty:
+        lines += ["**The crowd laws alone** (`seldon-laws`, no TimesFM vote)", "", *_duel_table(laws, model, "Laws"), ""]
+    return lines
 
 
 def _horizon_section(by_step: pd.DataFrame | None, model: str, out_dir: Path) -> list[str]:
@@ -189,6 +208,91 @@ def _calibration_section(results: pd.DataFrame, model: str) -> list[str]:
         "",
     ]
     return lines + [_fmt(calibration(results, model))]
+
+
+def _volatility_section(out_dir: Path) -> list[str]:
+    """How far markets swing: GARCH, EWMA and the models' ranges against last month's volatility
+    (see ``volatility.py``), from ``psychohistory vol --backtest``."""
+    from . import volatility
+
+    path = out_dir / "vol_summary.csv"
+    lines = ["## 10. Volatility forecasts", ""]
+    if not path.exists():
+        return lines + ["_No volatility backtest yet; run `psychohistory vol --backtest`._", ""]
+    table = pd.read_csv(path)
+    part = table[table["series_id"] == "all"]
+    pct = lambda x: "" if pd.isna(x) else f"{x:+.1%}"  # noqa: E731
+    lines += [f"Each market's volatility over the next week and month, forecast at every weekly origin from "
+              f"{table['first'].min()} to {table['last'].max()} and scored with QLIKE against the volatility that followed. "
+              "Skill is against last month's volatility carried forward, on the same windows; p is a Diebold-Mariano test.", "",
+              "| Forecaster | Ahead | Windows | Skill | Beat it in | Typical miss | p |", "|---|---|---|---|---|---|---|"]
+    for r in part.itertuples(index=False):
+        base = r.model == volatility.NAIVE
+        lines.append(f"| {r.model} | {r.span} | {r.windows} | {'baseline' if base else pct(r.skill)} | "
+                     f"{'' if base else f'{r.beaten} of {r.markets} markets'} | {r.miss:.0%} | {'' if base or pd.isna(r.p) else f'{r.p:.3f}'} |")
+    return lines + ["", "Sealed volatility forecasts are in `predictions/vol_ledger.csv`, fingerprinted in "
+                    "`predictions/vol_seals.csv` and scored in `predictions/vol_scored.csv`.", ""]
+
+
+def _events_section(out_dir: Path) -> list[str]:
+    """The odds of a spike or a lull in news and technology attention (see ``events.py``), from
+    ``psychohistory events --backtest``."""
+    from . import events
+
+    path = out_dir / "event_summary.csv"
+    lines = ["## 11. Event odds", ""]
+    if not path.exists():
+        return lines + ["_No event-odds backtest yet; run `psychohistory events --backtest`._", ""]
+    table = pd.read_csv(path)
+    part = table[table["scope"] == "all"]
+    if part.empty:
+        return lines + ["_No series had enough history for event odds yet._", ""]
+    pct = lambda x: "" if pd.isna(x) else f"{x:+.1%}"  # noqa: E731
+    lines += ["The chance that a news or technology series reaches, four weeks ahead, a level it reaches only one day in ten "
+              "(a spike: above the 90th percentile of its last two years) or falls to a low it sees one day in ten (a lull). "
+              "Odds are scored with the Brier score; skill is against climatology (10%) and against persistence (what followed "
+              "days like the origin), on the same forecasts. p is a Diebold-Mariano test of the edge over climatology.", "",
+              "| Event | Forecaster | Forecasts | Happened | Said | Brier | vs climatology | vs persistence | p |",
+              "|---|---|---|---|---|---|---|---|---|"]
+    for r in part.itertuples(index=False):
+        lines.append(f"| {r.event} | {r.model} | {r.forecasts} | {r.happened:.0%} | {r.said:.0%} | {r.brier:.4f} | "
+                     f"{'baseline' if r.model == events.CLIMATOLOGY else pct(r.skill_clim)} | "
+                     f"{'baseline' if r.model == events.PERSISTENCE else pct(r.skill_pers)} | {'' if pd.isna(r.p) else f'{r.p:.3f}'} |")
+    return lines + ["", "Sealed event odds are in `predictions/event_ledger.csv`, fingerprinted in "
+                    "`predictions/event_seals.csv` and scored in `predictions/event_scored.csv`.", ""]
+
+
+def _monitor_section(scored: pd.DataFrame | None, summary: pd.DataFrame, model: str) -> list[str]:
+    """Sealed forecasts against reality since the first seal, the test against "no change" and
+    the drift alarms (see ``monitor.py``)."""
+    from . import monitor
+
+    lines = ["## 9. The long-term monitor", ""]
+    record = monitor.overall(scored)
+    if record.empty:
+        return lines + ["_No sealed forecast has come due yet._", ""]
+    rows = record[record["domain"] == "all"]
+    lines += ["Every sealed forecast that has come due, scored against what really happened. Unlike the backtest, "
+              "none of these could have been fitted to the outcome. Run `psychohistory monitor` for the same in the "
+              "terminal; the app's Monitor view draws it month by month.", "",
+              "| Model | Forecasts | Weekly batches | Skill vs \"no change\" | In 80% range | Right direction | Brier |",
+              "|---|---|---|---|---|---|---|"]
+    for r in rows.itertuples():
+        lines.append(f"| {r.model} | {r.forecasts} | {r.batches} | {r.skill:+.1%} | {r.coverage80:.0%} | {r.direction:.0%} | {r.brier:.3f} |")
+    tests = monitor.vs_naive(scored)
+    mine = tests[tests["model"] == model]
+    if not mine.empty:
+        lines += ["", f"**Is {model} really better than \"no change\"?** A Diebold-Mariano test on the weekly batches "
+                  "(Newey-West variance, as the batches' horizons overlap, with the Harvey-Leybourne-Newbold small-sample correction "
+                  "and Student's t):", ""]
+        lines += [f"- {DOMAIN_TITLES.get(r.domain, 'All areas' if r.domain == 'all' else r.domain)}: {r.verdict}"
+                  + ("" if pd.isna(r.p) else f" (p = {r.p:.2f})") for r in mine.itertuples()]
+    raised = monitor.alarms(scored, summary)
+    lines += ["", f"**Drift alarms** (forecasts due in the last {monitor.RECENT_WEEKS} weeks): "
+              + (f"{len(raised)} raised" if len(raised) else "none")
+              + ". Every forecaster is tested on every series at once, so alarms must pass a Benjamini-Hochberg false-discovery cut of 5%."]
+    lines += [f"- {r.model} on {r.series_id}: {r.alarm}" for r in raised.itertuples()]
+    return lines + [""]
 
 
 def _latest_section(latest: pd.DataFrame | None, model: str, out_dir: Path) -> list[str]:

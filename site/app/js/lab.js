@@ -1,5 +1,5 @@
 // The Lab: make a blind call on a real past window, seal it, break the seal, and see how you did
-// against TimesFM and Seldon (our own forecaster from five laws of crowd behaviour, see src/psychohistory/seldon.py).
+// against TimesFM and Seldon (our own forecaster: crowd laws and TimesFM in one council, see src/psychohistory/seldon.py).
 // Reads window.WP_DATA.lab, built from the backtest paths by web.lab_payload. Both models made their
 // calls from the same history the visitor sees; nothing after the cut is drawn until the seal breaks.
 // Used by the app (#lab) and, in compact form, by the landing page's hero.
@@ -108,11 +108,11 @@
           <div class="card"><header class="ph"><h2>Your record</h2><button class="btn small lab-reset" style="margin:0">Reset</button></header><div class="lab-tally"></div></div>
           <div class="card"><header class="ph"><h2>${esc(modelName)} vs Seldon</h2><span class="pm">every past window</span></header><div class="lab-board"></div></div>
           <div class="card prose"><header class="ph"><h2>Who is Seldon?</h2></header>
-            <p class="learned">Our own forecaster, built to compete with TimesFM. Hari Seldon bet that crowds follow a few simple laws,
-              so Seldon has five: <b>inertia</b> (tomorrow looks like today), <b>drift</b> (the long-run course holds), <b>momentum</b>
-              (a move keeps going, then fades), <b>reversion</b> (excitement wears off) and the <b>weekly rhythm</b> of news and attention. Before each forecast it
-              replays the series' own past, gives each law a vote by how well it did, and sets its range from its own past misses.
-              No neural network, no pretraining. It is scored on the same windows as TimesFM and it is allowed to lose.</p></div>
+            <p class="learned">Our own forecaster, built to beat TimesFM. Hari Seldon bet that crowds follow a few simple laws,
+              so Seldon has four: <b>inertia</b> (tomorrow looks like today), <b>drift</b> (the long-run course holds), <b>momentum</b>
+              (a move keeps going, then fades) and <b>reversion</b> (excitement wears off), on top of the <b>weekly rhythm</b> of news and attention.
+              TimesFM sits in the same council. How much say the laws get is learned per area from every finished window: until they
+              have beaten TimesFM there, TimesFM keeps the vote. It is scored on the same windows as TimesFM and it is allowed to lose.</p></div>
         </div>
       </div>`;
     const q = (sel) => host.querySelector(sel);

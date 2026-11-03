@@ -38,15 +38,15 @@ def guess_freq(series: pd.Series) -> str:
     return "B" if len(days) > 10 and (days >= 5).sum() == 0 else "D"
 
 
-def ask(series: pd.Series, model: Forecaster, horizon: int, freq: str,
-        challenger: Forecaster | None = None, above: float | None = None,
-        max_context: int = 1024) -> pd.DataFrame:
-    """One row per step ahead: the model's q10 / q50 / q90, the challenger's (Seldon, when given)
-    and, with ``above``, each one's chance of ending above that level."""
-    context = [series.to_numpy(dtype=float)[-max_context:]]
-    versions: dict[str, Forecast] = {"model": model.forecast(context, horizon)[0]}
-    if challenger is not None:
-        versions["seldon"] = challenger.forecast(context, horizon)[0]
+def ask(series: pd.Series, model: Forecaster, horizon: int, freq: str, share: float = 0.0,
+        above: float | None = None, max_context: int = 1024) -> tuple[pd.DataFrame, seldon.Council]:
+    """One row per step ahead: the model's q10 / q50 / q90, the full Seldon's (the model and the
+    crowd laws, the laws holding ``share`` of the vote) and, with ``above``, each one's chance of
+    ending above that level. Also returns the crowd laws' council."""
+    context = series.to_numpy(dtype=float)[-max_context:]
+    base = model.forecast([context], horizon)[0]
+    laws, council = seldon.predict(context, horizon)
+    versions: dict[str, Forecast] = {"model": base, "seldon": seldon.blend(base, laws, share)}
     rows = []
     for step, target in enumerate(future_dates(series.index[-1], horizon, freq)):
         row = {"step": step + 1, "date": target.date().isoformat()}
@@ -55,7 +55,7 @@ def ask(series: pd.Series, model: Forecaster, horizon: int, freq: str,
             if above is not None:
                 row[f"{key}_p_above"] = prob_above(fc.quantiles[step], above)
         rows.append(row)
-    return pd.DataFrame(rows)
+    return pd.DataFrame(rows), council
 
 
 def describe(table: pd.DataFrame, last: float, model_name: str, above: float | None) -> str:
