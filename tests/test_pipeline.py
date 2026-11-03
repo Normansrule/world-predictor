@@ -1111,3 +1111,12 @@ def test_radiant_learns_only_from_the_past_and_earns_its_weights():
     assert learned[radiant.EXPERTS.index("core")] > 0.9
     assert np.allclose(radiant.weights([window(d, "core") for d in range(6)], "markets", "2025-12-31"), radiant.PRIOR)
     assert np.allclose(radiant.weights([window(d, "core") for d in range(6)], "news"), radiant.PRIOR)  # other areas do not count
+
+
+def test_wire_stops_at_its_time_budget():
+    from psychohistory import wire
+
+    ticks = iter(range(0, 10_000, 250))  # every look at the clock is 250 s later
+    specs = [s for s in catalog.CATALOG if wire.query_for(s)][:4]
+    out = wire.fetch(specs, fetcher=lambda q, records: [{"title": q}], budget=600, clock=lambda: next(ticks))
+    assert len(out["topics"]) == 2 and all("budget" in v for v in out["failed"].values()) and len(out["failed"]) == 2

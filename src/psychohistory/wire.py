@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import logging
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -39,12 +40,22 @@ def query_for(spec: catalog.SeriesSpec) -> str | None:
     return QUERIES.get(spec.id)
 
 
-def fetch(specs: list[catalog.SeriesSpec], records: int = RECORDS, fetcher=gdelt.headlines) -> dict:
-    """Headlines per series; a topic GDELT cannot answer is left out, never filled in."""
+BUDGET = 600.0  # seconds the whole wire may take: GDELT's back-off can otherwise stall a run for hours
+
+
+def fetch(specs: list[catalog.SeriesSpec], records: int = RECORDS, fetcher=gdelt.headlines,
+          budget: float = BUDGET, clock=time.monotonic) -> dict:
+    """Headlines per series; a topic GDELT cannot answer is left out, never filled in. Once
+    ``budget`` seconds have gone, the remaining topics are skipped (and keep their last headlines
+    when the wire is written with ``keep_old``)."""
     topics, failed = {}, {}
+    start = clock()
     for spec in specs:
         query = query_for(spec)
         if not query:
+            continue
+        if clock() - start > budget:
+            failed[spec.id] = "skipped: the wire's time budget ran out"
             continue
         try:
             articles = fetcher(query, records=records)

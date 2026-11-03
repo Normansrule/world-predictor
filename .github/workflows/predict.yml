@@ -61,6 +61,7 @@ jobs:
         run: psychohistory events --backtest
       - name: World wire (the newest headlines per topic, for the World terminal)
         continue-on-error: true
+        timeout-minutes: 15  # GDELT's back-off must never cost the run its results
         run: psychohistory wire
       - name: Refresh the web app data (including the year ledger)
         run: psychohistory export

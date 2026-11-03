@@ -624,6 +624,14 @@ TimesFM, sealed every week beside it, and scored in the year ledger, the bake-of
 verdicts. The VIX, the market's own fear gauge (Whaley, 2000), is now tracked too; feeding it to the
 core as a signal for other markets is the next step.
 
+**Its first official backtest** (the full CI run of 3 November 2026, 32 series, forecasts made blind
+at each origin): Radiant and TimesFM finished level. Average sMAPE was 10.24% for Radiant and 10.23%
+for TimesFM, and Radiant was closer on 17 of the 32 series (9 of 15 markets, 4 of 6 news topics,
+4 of 11 technology series). Its skill against "no change" was slightly higher (0.185 against 0.177).
+The behavioural core alone barely beat "no change" (skill 0.017). The best single model in that run
+was Chronos-Bolt (9.45%), which beat both on the slow technology series. So Radiant's small edge on
+the replayed year did not turn into a clear win on fresh windows. It is a tie, not a victory.
+
 ### Quick start
 
 On your own computer (Ubuntu shown, from any folder). No GPU (graphics processing unit) needed:
