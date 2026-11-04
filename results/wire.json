@@ -1,6 +1,53 @@
 {
- "fetched": "2026-11-03T03:02Z",
+ "fetched": "2026-11-04T03:22Z",
  "topics": {
+  "news_inflation": {
+   "query": "\"inflation\"",
+   "articles": [
+    {
+     "title": "Democratic Sen . Jon Ossoff cruises to re - election in Georgia",
+     "url": "https://www.nbcnewyork.com/elections/georgia-senate-race-2026/6567183/",
+     "domain": "nbcnewyork.com",
+     "country": "United States",
+     "seen": "2026-11-04T01:30Z"
+    },
+    {
+     "title": "US to cut Israel military aid by end of year , Trump says",
+     "url": "https://www.dw.com/en/us-to-cut-nearly-4-billion-in-israel-military-aid-trump-says/a-79848860",
+     "domain": "dw.com",
+     "country": "Germany",
+     "seen": "2026-11-04T01:30Z"
+    },
+    {
+     "title": "Hartford Insurance Group : 3 Key Takeaways for Long - Term Investors",
+     "url": "https://www.fool.com/earnings/takeaways/2026/11/03/hartford-insurance-group-3-key-takeaways-for-long-term-investors/?source=iedfolrf0000001",
+     "domain": "fool.com",
+     "country": "United States",
+     "seen": "2026-11-04T01:30Z"
+    },
+    {
+     "title": "Early Exit Polls Show Voters See Midterms As A Rebuke On Trump Administration",
+     "url": "https://wrak.iheart.com/content/2026-11-03-early-exit-polls-show-voters-see-midterms-as-a-rebuke-on-trump-administration/",
+     "domain": "wrak.iheart.com",
+     "country": "United States",
+     "seen": "2026-11-04T01:30Z"
+    },
+    {
+     "title": "Under - pressure Labor says saving  not simple exercise",
+     "url": "https://www.bluemountainsgazette.com.au/story/9385456/under-pressure-labor-says-saving-not-simple-exercise/",
+     "domain": "bluemountainsgazette.com.au",
+     "country": "Australia",
+     "seen": "2026-11-04T01:30Z"
+    },
+    {
+     "title": "Staggering midterm elections poll shows Donald Trump  worst President since polling began",
+     "url": "https://www.mirror.co.uk/news/politics/midterm-election-poll-donald-trump-37840389",
+     "domain": "mirror.co.uk",
+     "country": "United Kingdom",
+     "seen": "2026-11-04T01:30Z"
+    }
+   ]
+  },
   "oil_wti": {
    "query": "\"oil prices\"",
    "articles": [
@@ -46,7 +93,8 @@
      "country": "India",
      "seen": "2026-11-03T02:15Z"
     }
-   ]
+   ],
+   "stale": true
   },
   "wiki_llm": {
    "query": "\"language model\"",
@@ -58,7 +106,8 @@
      "country": "Canada",
      "seen": "2026-11-03T02:15Z"
     }
-   ]
+   ],
+   "stale": true
   },
   "wiki_ai": {
    "query": "\"artificial intelligence\"",
@@ -105,7 +154,8 @@
      "country": "Spain",
      "seen": "2026-11-03T02:15Z"
     }
-   ]
+   ],
+   "stale": true
   },
   "wiki_ev": {
    "query": "\"electric vehicles\"",
@@ -138,18 +188,39 @@
      "country": "United States",
      "seen": "2026-11-03T02:15Z"
     }
-   ]
+   ],
+   "stale": true
   }
  },
  "failed": {
-  "news_war": "JSONDecodeError: Expecting value: line 1 column 1 (char 0)",
-  "news_inflation": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22inflation%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sort=Da",
-  "sp500": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22S%26P+500%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sort=Da",
-  "msci_world": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22global+stocks%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sor",
-  "vix": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22stock+market%22+fear+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d",
-  "bitcoin": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=bitcoin+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sort=DateDesc",
-  "wiki_quantum": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22quantum+computing%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d",
-  "adoption_solar": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22solar+power%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sort=",
-  "adoption_wind": "ConnectTimeout: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Max retries exceeded with url: /api/v2/doc/doc?query=%22wind+power%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecor"
+  "news_war": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22war%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sort=DateDesc",
+  "news_election": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22election%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sort=Dat",
+  "news_climate": "skipped: the wire's time budget ran out",
+  "news_pandemic": "skipped: the wire's time budget ran out",
+  "news_protest": "skipped: the wire's time budget ran out",
+  "sp500": "skipped: the wire's time budget ran out",
+  "msci_world": "skipped: the wire's time budget ran out",
+  "nasdaq100": "skipped: the wire's time budget ran out",
+  "aapl": "skipped: the wire's time budget ran out",
+  "nvda": "skipped: the wire's time budget ran out",
+  "tsla": "skipped: the wire's time budget ran out",
+  "xom": "skipped: the wire's time budget ran out",
+  "gold": "skipped: the wire's time budget ran out",
+  "silver": "skipped: the wire's time budget ran out",
+  "us10y": "skipped: the wire's time budget ran out",
+  "tlt": "skipped: the wire's time budget ran out",
+  "vix": "skipped: the wire's time budget ran out",
+  "oil_wti": "skipped: the wire's time budget ran out",
+  "copper": "skipped: the wire's time budget ran out",
+  "bitcoin": "skipped: the wire's time budget ran out",
+  "wiki_llm": "skipped: the wire's time budget ran out",
+  "wiki_ai": "skipped: the wire's time budget ran out",
+  "wiki_quantum": "skipped: the wire's time budget ran out",
+  "wiki_crispr": "skipped: the wire's time budget ran out",
+  "wiki_ev": "skipped: the wire's time budget ran out",
+  "wiki_fusion": "skipped: the wire's time budget ran out",
+  "wiki_humanoid": "skipped: the wire's time budget ran out",
+  "adoption_solar": "skipped: the wire's time budget ran out",
+  "adoption_wind": "skipped: the wire's time budget ran out"
  }
 }
