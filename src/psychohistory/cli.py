@@ -75,7 +75,7 @@ def cmd_backtest(args) -> None:
             frames.append(
                 backtest.backtest_series(
                     spec, series[spec.id], models, windows=args.windows, step_rows=step_rows, ensemble_of=members,
-                    path_rows=path_rows, paths_for=(args.model, seldon.NAME, LAWS, radiant.CORE), keep=kept,
+                    path_rows=path_rows, paths_for=(args.model, seldon.NAME, LAWS, radiant.CORE, radiant.RIVAL), keep=kept,
                 )
             )
     # The full Seldon learns across series (per area), so it is scored once every series is in.
@@ -125,13 +125,30 @@ def radiant_builder(args, data: dict[str, pd.Series]):
     paths_file = args.out_dir / "backtest_paths.csv"
     paths = pd.read_csv(paths_file) if paths_file.exists() and paths_file.stat().st_size > 1 else None
     windows = radiant.windows_from_paths(paths, data, args.model, radiant.domains_of(catalog.CATALOG))
+    rival = _rival(args)
 
     def build(spec, base, context):
         h = len(base.point)
         experts = {"model": base, "laws": seldon.predict(context, h)[0], "core": radiant.core_predict(context, h)[0],
                    "naive": radiant.naive_forecast(context, h)}
-        return radiant.mix(experts, radiant.weights(windows, spec.domain))
+        if rival is not None:
+            try:
+                experts["rival"] = rival.forecast([context], h)[0]
+            except Exception as exc:  # the rival is optional: Radiant mixes without it
+                log.warning("Radiant's rival %s failed on %s: %s", radiant.RIVAL, spec.id, exc)
+        return radiant.mix(experts, radiant.weights(windows, radiant.area(spec)))
     return build
+
+
+def _rival(args):
+    """Radiant's rival model, when this run compares against it and it is installed."""
+    if radiant.RIVAL not in getattr(args, "compare", ()) or args.model == radiant.RIVAL:
+        return None
+    try:
+        return load_model(radiant.RIVAL)
+    except Exception as exc:
+        log.warning("Radiant runs without its rival: %s", exc)
+        return None
 
 
 def cmd_predict(args) -> None:

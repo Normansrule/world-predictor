@@ -124,6 +124,43 @@
       xDomain: [Y.start, `${Y.year}-12-31`], refs: [{ y: 0, label: "TimesFM", color: color(base) }, { x: Y.today, label: "today" }], lines });
   }
 
+  // How Radiant splits its vote: per area, the weights now (a bar) and how they moved after each
+  // finished backtest window (a stacked band, oldest left). Reads D.radiant_vote (web.radiant_vote_payload).
+  const EXPERT_COLORS = { model: "var(--tfm)", laws: "var(--hypo)", core: "var(--radiant)", naive: "var(--ink-3)", rival: "var(--rival)" };
+  function vote() {
+    const V = D.radiant_vote;
+    if (!V || !V.areas || !V.areas.length) return "";
+    const name = (k) => V.experts[V.keys.indexOf(k)];
+    const lead = (w) => V.keys[w.indexOf(Math.max(...w))];
+    const flow = (a) => {
+      const pts = a.points, n = pts.length, W = 300, H = 72;
+      if (n < 2) return "";
+      const x = (i) => (i / (n - 1)) * W;
+      let bands = "", below = new Array(n).fill(0);
+      V.keys.forEach((k, j) => {
+        if (pts.every((p) => !p[1][j])) return;
+        const top = below.map((b, i) => b + (pts[i][1][j] || 0));
+        const up = top.map((t, i) => `${x(i).toFixed(1)},${(H - t * H).toFixed(1)}`).join(" ");
+        const down = below.map((b, i) => `${x(i).toFixed(1)},${(H - b * H).toFixed(1)}`).reverse().join(" ");
+        bands += `<polygon points="${up} ${down}" fill="${EXPERT_COLORS[k]}" opacity=".85"><title>${esc(name(k))}</title></polygon>`;
+        below = top;
+      });
+      return `<svg class="rv-flow" viewBox="0 0 ${W} ${H + 12}" preserveAspectRatio="none" role="img" aria-label="${esc(a.title)}: Radiant's weights after each finished window, ${esc(pts[0][0])} to ${esc(pts[n - 1][0])}">${bands}
+        <text x="0" y="${H + 11}">${esc(pts[0][0].slice(0, 7))}</text><text x="${W}" y="${H + 11}" text-anchor="end">${esc(pts[n - 1][0].slice(0, 7))}</text></svg>`;
+    };
+    const areas = V.areas.map((a) => {
+      const top = lead(a.now), share = Math.round(Math.max(...a.now) * 100);
+      const bar = V.keys.map((k, j) => (a.now[j] >= 0.005 ? `<span style="width:${(a.now[j] * 100).toFixed(1)}%;background:${EXPERT_COLORS[k]};animation-delay:${j * 60}ms" title="${esc(name(k))} ${Math.round(a.now[j] * 100)}%"></span>` : "")).join("");
+      const moved = top === "model" ? "TimesFM has kept the vote" : `${esc(name(top))} has earned the largest share`;
+      return `<div class="rv-area"><h3>${esc(a.title)}</h3><p>${moved}: ${share}% now, after ${a.windows} finished windows${a.rival ? "" : " (Chronos has not run here yet)"}.</p>
+        <div class="rv-now" role="img" aria-label="${esc(V.keys.map((k, j) => `${name(k)} ${Math.round(a.now[j] * 100)}%`).join(", "))}">${bar}</div>${flow(a)}</div>`;
+    }).join("");
+    return `<div class="card"><header class="ph"><h2>How Radiant splits its vote</h2><span class="pm">exponential weights, learned per area from finished windows</span></header>
+      <p class="lede">Radiant starts with most of its weight on TimesFM. After every forecast window that finishes, each expert is charged its miss against TimesFM's and its weight shrinks by e<sup>−${V.eta} × charge</sup>, so a share has to be earned on forecasts the expert never saw. The bar is the split in use now, which this week's sealed Radiant forecasts were mixed with; the band below is how it moved.</p>
+      <div class="rv-grid">${areas}</div>
+      <p class="rv-legend">${V.keys.map((k) => `<span><i style="background:${EXPERT_COLORS[k]}"></i>${esc(name(k))}</span>`).join("")}</p></div>`;
+  }
+
   function leaders() {
     const L = Y.leaders || [], base = L.find((x) => x.model === Y.models[0]);
     if (!base || !base.days) return '<div class="empty">No day of this year has both a forecast and a real value yet.</div>';
@@ -162,6 +199,7 @@
         <p class="lede">Every day from 1 January to 31 December: what TimesFM, Radiant, Seldon and Seldon's crowd laws said was most likely, what really happened, and how far off each one was. Dashes are days nobody forecast or that have not happened yet. The goal: a forecaster of our own that beats TimesFM.</p></div>
       <div class="card"><header class="ph"><h2>Who is closest to reality in ${Y.year}</h2><span class="pm">every tracked series, on days all ${Y.models.length} forecast</span></header>${leaders()}
         <h3 class="yr-sub">The race through ${Y.year}: average miss so far, against TimesFM (below the line is beating it)</h3><div class="yr-race" id="yr-race-all"></div></div>
+      ${vote()}
       <div class="yr-bar-row">
         <div class="chips" role="group" aria-label="What is tracked" id="yr-groups">${Y.groups.map((x) => `<button class="chip" data-g="${esc(x.key)}" aria-pressed="${x.key === state.group}">${esc(x.title)}</button>`).join("")}</div>
         <div class="chips" role="group" aria-label="Rows" id="yr-grain">${[["day", "Every day"], ["week", "Weekly"], ["month", "Monthly"]].map(([k, l]) => `<button class="chip" data-k="${k}" aria-pressed="${k === state.grain}">${l}</button>`).join("")}</div>

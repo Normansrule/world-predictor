@@ -1113,6 +1113,73 @@ def test_radiant_learns_only_from_the_past_and_earns_its_weights():
     assert np.allclose(radiant.weights([window(d, "core") for d in range(6)], "news"), radiant.PRIOR)  # other areas do not count
 
 
+def test_radiant_rival_is_optional_and_earns_its_weight():
+    from psychohistory import radiant
+
+    # Without the rival, the mix starts exactly where it did before the rival joined.
+    assert np.allclose(radiant.present(radiant.weights([]), {"model", "laws", "core", "naive"})[:4], (0.7, 0.1, 0.1, 0.1))
+    actual = np.full(5, 100.0)
+    old = {e: actual + 5.0 for e in ("model", "laws", "core", "naive")}
+    absent = [radiant.Window("tech", pd.Timestamp("2026-01-01") + pd.Timedelta(days=d), old, actual) for d in range(6)]
+    assert np.allclose(radiant.weights(absent, "tech"), radiant.PRIOR)  # not charged or credited where it did not run
+    right = [radiant.Window("tech", pd.Timestamp("2026-01-01") + pd.Timedelta(days=d), old | {"rival": actual}, actual)
+             for d in range(6)]
+    assert radiant.weights(right, "tech")[radiant.EXPERTS.index("rival")] > 0.9
+    flat = Forecast(np.full(3, 1.0), np.ones((3, 3)))
+    mixed = radiant.mix({"model": flat, "laws": flat, "core": flat, "naive": flat}, radiant.weights(right, "tech"))
+    assert np.allclose(mixed.point, 1.0)  # a heavily weighted rival that did not run drops out cleanly
+
+
+def test_radiant_learns_yearly_series_apart_from_daily_ones():
+    from psychohistory import backtest, radiant
+
+    solar = next(s for s in catalog.CATALOG if s.source == "owid")
+    daily = next(s for s in catalog.CATALOG if s.domain == solar.domain and s.source != "owid")
+    assert radiant.area(solar) == radiant.YEARLY and radiant.area(daily) == daily.domain
+    assert radiant.domains_of(catalog.CATALOG)[solar.id] == radiant.YEARLY  # yearly series now take part
+    # In the backtest, a rival that is right on every yearly window earns weight there, step by step,
+    # and only from windows that had finished before each origin.
+    years = pd.date_range("1990-01-01", periods=40, freq="YS")
+    series = pd.Series(np.linspace(1.0, 40.0, 40), index=years)
+
+    def flat(v, h):
+        return Forecast(np.full(h, v), np.full((h, len(QUANTILES)), v))
+    kept = []
+    for t in range(10, 40 - solar.horizon + 1, solar.horizon):
+        h, truth = solar.horizon, series.to_numpy()[t: t + solar.horizon]
+        f = {n: flat(series.iloc[t - 1], h) for n in ("timesfm-2.5", backtest.LAWS, radiant.CORE, "naive")}
+        f[radiant.RIVAL] = Forecast(truth, np.column_stack([truth] * len(QUANTILES)))
+        kept.append({"spec": solar, "series": series, "t": t, "context": series.to_numpy()[:t], "forecasts": f})
+    rows = backtest.add_radiant(kept, "timesfm-2.5")
+    assert rows["weight_rival"].iloc[0] == pytest.approx(radiant.PRIOR[-1])  # nothing had finished yet
+    assert rows["weight_rival"].is_monotonic_increasing and rows["weight_rival"].iloc[-1] > 0.9
+
+
+def test_radiant_vote_shows_the_split_each_area_earned():
+    from psychohistory import radiant, web
+
+    gold = next(s for s in catalog.CATALOG if s.id == "gold")
+    days = pd.bdate_range("2025-01-01", periods=400)
+    series = pd.Series(np.linspace(100.0, 140.0, 400), index=days)
+    rows = []
+    for origin in range(200, 400 - 5, 5):  # back-to-back five-day windows: the laws are exact, TimesFM is 5% high
+        for step in range(1, 6):
+            real = float(series.iloc[origin + step])
+            for name, value in (("timesfm-2.5", real * 1.05), ("seldon-laws", real), (radiant.CORE, real * 1.05)):
+                rows.append({"series_id": gold.id, "model": name, "origin": days[origin].date().isoformat(),
+                             "date": days[origin + step].date().isoformat(), "step": step, "q10": value, "q50": value,
+                             "q90": value, "actual": real})
+    vote = web.radiant_vote_payload(pd.DataFrame(rows), {gold.id: series}, "timesfm-2.5")
+    markets = next(a for a in vote["areas"] if a["key"] == "markets")
+    laws = vote["keys"].index("laws")
+    assert vote["experts"][laws] == "Crowd laws" and not markets["rival"] and markets["windows"] == 39
+    assert markets["now"][laws] > 0.9 and markets["now"][vote["keys"].index("rival")] == 0  # Chronos never ran: no share
+    assert abs(sum(markets["now"]) - 1) < 0.01 and abs(sum(markets["start"]) - 1) < 0.01
+    shares = [p[1][laws] for p in markets["points"]]
+    assert [p[0] for p in markets["points"]] == sorted(p[0] for p in markets["points"]) and shares == sorted(shares)
+    assert web.radiant_vote_payload(None, {}, "timesfm-2.5") is None
+
+
 def test_wire_stops_at_its_time_budget():
     from psychohistory import wire
 

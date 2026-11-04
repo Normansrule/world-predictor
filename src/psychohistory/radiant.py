@@ -23,9 +23,9 @@ following steps, and a ridge regression (Hoerl & Kennard, 1970), shrunk hard tow
 turns them into a forecast of the log change. Nothing after the forecast date is used.
 
 **The full Radiant (``radiant``): a mix that has to earn its moves.** TimesFM, Seldon's crowd laws,
-the core and "no change" are mixed decile by decile with exponential weights (Freund & Schapire,
+the core, "no change" and a rival model (Chronos-Bolt, when it ran) are mixed decile by decile with exponential weights (Freund & Schapire,
 1997; Cesa-Bianchi & Lugosi, 2006): every finished forecast window of an area (markets, news,
-technology) charges each one its miss relative to TimesFM's, and its weight shrinks by
+technology, and the yearly adoption series on their own) charges each one its miss relative to TimesFM's, and its weight shrinks by
 ``exp(-ETA * charge)``. It starts with most of the weight on TimesFM (``PRIOR``), so a signal only
 gains a say by being right on forecasts it never saw while learning.
 
@@ -45,8 +45,11 @@ from .models import Forecast
 
 NAME = "radiant"  # the full mix
 CORE = "radiant-core"  # the behavioural core alone
-EXPERTS = ("model", "laws", "core", "naive")  # the model under test (TimesFM), Seldon's laws, the core, no change
-PRIOR = (0.7, 0.1, 0.1, 0.1)  # starting weights: TimesFM's record is the one to beat
+EXPERTS = ("model", "laws", "core", "naive", "rival")  # TimesFM, Seldon's laws, the core, no change, a rival model
+RIVAL = "chronos-bolt"  # the rival: best single model in the first official backtest, strongest on slow series
+# Starting weights: TimesFM's record is the one to beat. Without the rival they renormalise to exactly
+# 0.7 / 0.1 / 0.1 / 0.1, the weights Radiant started from before the rival joined.
+PRIOR = (0.63, 0.09, 0.09, 0.09, 0.10)
 ETA = 2.0  # how fast a weight shrinks per unit of extra miss, relative to the model's own
 LAMBDA = 10.0  # ridge penalty: the core is shrunk hard toward "no change"
 MIN_TRAIN = 60  # points of history a core training date needs before it
@@ -145,8 +148,10 @@ def charges(window: Window) -> np.ndarray:
     ok = np.isfinite(a) & (a != 0)
     if not ok.any():
         return np.zeros(len(EXPERTS))
-    miss = np.array([float(np.mean(np.abs(np.asarray(window.paths[e], float)[ok] - a[ok]) / np.abs(a[ok]))) for e in EXPERTS])
-    return miss / max(miss[0], 1e-12) - 1
+    miss = np.array([float(np.mean(np.abs(np.asarray(window.paths[e], float)[ok] - a[ok]) / np.abs(a[ok])))
+                     if e in window.paths else np.nan for e in EXPERTS])
+    out = miss / max(miss[0], 1e-12) - 1
+    return np.where(np.isfinite(out), out, 0.0)  # an expert that did not run on a window is neither charged nor credited
 
 
 def weights(windows: Sequence[Window], domain: str | None = None, at=None) -> np.ndarray:
@@ -164,10 +169,19 @@ def weights(windows: Sequence[Window], domain: str | None = None, at=None) -> np
 
 
 def mix(forecasts: dict, weight: np.ndarray) -> Forecast:
-    """The experts' forecasts averaged decile by decile with these weights."""
-    point = sum(weight[k] * np.asarray(forecasts[e].point, float) for k, e in enumerate(EXPERTS))
-    quantiles = np.sort(sum(weight[k] * np.asarray(forecasts[e].quantiles, float) for k, e in enumerate(EXPERTS)), axis=1)
+    """The experts' forecasts averaged decile by decile with these weights. An expert missing from
+    ``forecasts`` (the rival, when it did not run) drops out and the rest are scaled up to sum to one."""
+    weight = present(weight, forecasts)
+    use = [(k, e) for k, e in enumerate(EXPERTS) if e in forecasts]
+    point = sum(weight[k] * np.asarray(forecasts[e].point, float) for k, e in use)
+    quantiles = np.sort(sum(weight[k] * np.asarray(forecasts[e].quantiles, float) for k, e in use), axis=1)
     return Forecast(point, quantiles)
+
+
+def present(weight: np.ndarray, forecasts) -> np.ndarray:
+    """The weights with every expert absent from ``forecasts`` set to zero, rescaled to sum to one."""
+    w = np.array([weight[k] if e in forecasts else 0.0 for k, e in enumerate(EXPERTS)])
+    return w / w.sum()
 
 
 def naive_forecast(context: np.ndarray, horizon: int) -> Forecast:
@@ -176,10 +190,21 @@ def naive_forecast(context: np.ndarray, horizon: int) -> Forecast:
     return NaiveForecaster().forecast([context], horizon)[0]
 
 
+YEARLY = "yearly"  # the area of the yearly adoption series, which learn their weights apart from the daily ones
+
+
+def area(spec) -> str:
+    """The area a series' Radiant weights are learned in: its domain (markets, news, technology),
+    or ``"yearly"`` for the yearly adoption series. Those move on a different clock (a handful of
+    points, three years ahead), so one of their windows would swamp a month of daily ones, and what
+    works on daily attention data says little about them: in the first official backtest Chronos-Bolt
+    had almost all of its technology lead on these three series and none on the daily ones."""
+    return YEARLY if spec.source == "owid" else spec.domain
+
+
 def domains_of(catalog_specs) -> dict[str, str]:
-    """The areas Radiant learns in, per series. Yearly series (a handful of points, three steps
-    ahead) are left out: one of their windows would outweigh a month of daily ones."""
-    return {s.id: s.domain for s in catalog_specs if s.source != "owid"}
+    """The area Radiant learns in, per series (see ``area``)."""
+    return {s.id: area(s) for s in catalog_specs}
 
 
 def windows_from_paths(paths: pd.DataFrame | None, data: dict[str, pd.Series], model: str, domains: dict[str, str],
@@ -191,7 +216,7 @@ def windows_from_paths(paths: pd.DataFrame | None, data: dict[str, pd.Series], m
     if paths is None or paths.empty:
         return []
     kept = {}
-    for name in (*laws_names, CORE):
+    for name in (*laws_names, CORE, RIVAL):
         part = paths[paths["model"] == name]
         kept[name] = {k: g.sort_values("step")["q50"].to_numpy(float) for k, g in part.groupby(["series_id", "origin"])}
     out = []
@@ -210,9 +235,11 @@ def windows_from_paths(paths: pd.DataFrame | None, data: dict[str, pd.Series], m
         core = kept[CORE].get((series_id, origin))
         if core is None or len(core) != h:
             core = core_predict(context, h)[0].q(0.5)
-        out.append(Window(domains[series_id], pd.Timestamp(g["date"].max()),
-                          {"model": g["q50"].to_numpy(float), "laws": laws, "core": core, "naive": np.full(h, context[-1])},
-                          g["actual"].to_numpy(float)))
+        experts = {"model": g["q50"].to_numpy(float), "laws": laws, "core": core, "naive": np.full(h, context[-1])}
+        rival = kept[RIVAL].get((series_id, origin))
+        if rival is not None and len(rival) == h:
+            experts["rival"] = rival
+        out.append(Window(domains[series_id], pd.Timestamp(g["date"].max()), experts, g["actual"].to_numpy(float)))
     return out
 
 
@@ -226,6 +253,7 @@ def replay(paths: pd.DataFrame, data: dict[str, pd.Series], model: str, domains:
     if paths is None or paths.empty or NAME in set(paths["model"]):
         return pd.DataFrame()
     laws_kept = paths[paths["model"].isin(laws_names)]
+    rival_kept = paths[paths["model"] == RIVAL]
     windows = windows_from_paths(paths, data, model, domains, laws_names=laws_names)
     rows = []
     for (series_id, origin), g in paths[paths["model"] == model].groupby(["series_id", "origin"]):
@@ -240,7 +268,10 @@ def replay(paths: pd.DataFrame, data: dict[str, pd.Series], model: str, domains:
         lk = laws_kept[(laws_kept["series_id"] == series_id) & (laws_kept["origin"] == origin)].sort_values("step")
         laws = Forecast(lk["q50"].to_numpy(float), _three(lk)) if len(lk) == h else seldon.predict(context, h)[0]
         experts = {"model": base, "laws": laws, "core": core_predict(context, h)[0], "naive": naive_forecast(context, h)}
-        for e in EXPERTS:
+        rk = rival_kept[(rival_kept["series_id"] == series_id) & (rival_kept["origin"] == origin)].sort_values("step")
+        if len(rk) == h:
+            experts["rival"] = Forecast(rk["q50"].to_numpy(float), _three(rk))
+        for e in experts:
             experts[e] = _as_three(experts[e])
         f = mix(experts, weights(windows, domains[series_id], origin))
         for (_, r), mid, q in zip(g.iterrows(), f.point, f.quantiles):
@@ -263,7 +294,7 @@ def _as_three(f: Forecast) -> Forecast:
 
 def explain(weight: np.ndarray, beta: np.ndarray | None = None) -> str:
     """One sentence on how Radiant mixed a forecast."""
-    names = {"model": "TimesFM", "laws": "the crowd laws", "core": "the behavioural core", "naive": "no change"}
+    names = {"model": "TimesFM", "laws": "the crowd laws", "core": "the behavioural core", "naive": "no change", "rival": "Chronos-Bolt"}
     parts = ", ".join(f"{names[e]} {w:.0%}" for e, w in sorted(zip(EXPERTS, weight), key=lambda kv: -kv[1]))
     out = f"Radiant mixed {parts}."
     if beta is not None:

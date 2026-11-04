@@ -134,7 +134,7 @@ When a target date arrives, puts what really happened next to what was sealed.
 
 | | |
 |---|---|
-| **Code** | [`src/psychohistory/ledger.py` · score](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/ledger.py#L172)<br>[`src/psychohistory/story.py` · track_record](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/story.py#L336)<br>[`src/psychohistory/web.py` · opened_payload](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/web.py#L470) |
+| **Code** | [`src/psychohistory/ledger.py` · score](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/ledger.py#L172)<br>[`src/psychohistory/story.py` · track_record](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/story.py#L336)<br>[`src/psychohistory/web.py` · opened_payload](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/web.py#L500) |
 | **Takes** | Ledger rows and the newest data |
 | **Gives** | predictions/scored.csv: actual, abs_error, in_band80, direction_correct, brier |
 | **Rule** | A row is scored only once its target date is in the data. Brier compares the chance it gave with what happened. |
@@ -150,7 +150,7 @@ Replays the past: forecasts from old dates, scored against what followed, next t
 
 | | |
 |---|---|
-| **Code** | [`src/psychohistory/backtest.py` · backtest_series](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/backtest.py#L33)<br>[`src/psychohistory/backtest.py` · origins](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/backtest.py#L26)<br>[`src/psychohistory/backtest.py` · summarize](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/backtest.py#L259)<br>[`src/psychohistory/metrics.py` · score](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/metrics.py#L37) |
+| **Code** | [`src/psychohistory/backtest.py` · backtest_series](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/backtest.py#L33)<br>[`src/psychohistory/backtest.py` · origins](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/backtest.py#L26)<br>[`src/psychohistory/backtest.py` · summarize](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/backtest.py#L266)<br>[`src/psychohistory/metrics.py` · score](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/metrics.py#L37) |
 | **Takes** | Cached series and the models |
 | **Gives** | results/backtest_windows.csv, backtest_summary.csv, skill_by_step.csv, backtest_paths.csv |
 | **Rule** | 12 origins spaced one horizon apart. Skill = 1 - MAE(model) / MAE(naive). Under 2% either way counts as no edge. |
@@ -166,7 +166,7 @@ Packs the results into one file the web app reads, and GitHub Pages serves it.
 
 | | |
 |---|---|
-| **Code** | [`src/psychohistory/web.py` · build_payload](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/web.py#L74)<br>[`src/psychohistory/web.py` · track_payload](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/web.py#L436)<br>[`src/psychohistory/web.py` · write_data_js](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/web.py#L515)<br>[`src/psychohistory/story.py` · EDGE](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/story.py#L117)<br>[`.github/workflows/pages.yml`](https://github.com/Normansrule/world-predictor/blob/main/.github/workflows/pages.yml) |
+| **Code** | [`src/psychohistory/web.py` · build_payload](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/web.py#L103)<br>[`src/psychohistory/web.py` · track_payload](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/web.py#L466)<br>[`src/psychohistory/web.py` · write_data_js](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/web.py#L545)<br>[`src/psychohistory/story.py` · EDGE](https://github.com/Normansrule/world-predictor/blob/main/src/psychohistory/story.py#L117)<br>[`.github/workflows/pages.yml`](https://github.com/Normansrule/world-predictor/blob/main/.github/workflows/pages.yml) |
 | **Takes** | Results, ledger, scores and run status |
 | **Gives** | results/web/data.js (window.WP_DATA), copied to app/data/data.js on Pages |
 | **Rule** | Only numbers produced by a run are shown; demo data is marked as demo everywhere it appears. |

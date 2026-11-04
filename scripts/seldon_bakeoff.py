@@ -8,7 +8,8 @@ shows up as such.
 
     python scripts/seldon_bakeoff.py
 
-Ten combiners were tried in November 2026; none beat TimesFM overall. Radiant (radiant.py) was
+Ten combiners were tried in November 2026; none beat TimesFM overall. Two classical methods
+(Theta, damped trend) and an exponentiated-gradient mix were added on 3 November; neither did they. Radiant (radiant.py) was
 added to the same bake-off afterwards. The share rule that came
 closest replaced Seldon's old one (see README, "The bake-off").
 """
@@ -38,7 +39,9 @@ def windows() -> list[dict]:
     text = (ROOT / "results" / "web" / "data.js").read_text()
     series = rebuild_series(paths, "timesfm-2.5", json.loads(text[text.index("{"): text.rindex("}") + 1]))
     domain = {s.id: s.domain for s in catalog.CATALOG if s.source != "owid"}  # yearly series have 3 steps
-    laws = {k: g.sort_values("step") for k, g in paths[paths["model"] == "seldon"].groupby(["series_id", "origin"])}
+    # The crowd laws on their own ("seldon-laws") when the run kept them; older runs kept only Seldon's blend.
+    laws_name = "seldon-laws" if "seldon-laws" in set(paths["model"]) else "seldon"
+    laws = {k: g.sort_values("step") for k, g in paths[paths["model"] == laws_name].groupby(["series_id", "origin"])}
     out = []
     for (sid, origin), g in paths[paths["model"] == "timesfm-2.5"].groupby(["series_id", "origin"]):
         g, l = g.sort_values("step"), laws.get((sid, origin))
@@ -60,7 +63,9 @@ def _radiant_paths() -> dict:
     paths = pd.read_csv(ROOT / "results" / "backtest_paths.csv", parse_dates=["origin", "date"])
     text = (ROOT / "results" / "web" / "data.js").read_text()
     series = rebuild_series(paths, "timesfm-2.5", json.loads(text[text.index("{"): text.rindex("}") + 1]))
-    rows = radiant.replay(paths, series, "timesfm-2.5", radiant.domains_of(catalog.CATALOG))
+    rows = paths[paths["model"] == radiant.NAME]  # the run's own Radiant paths, when it kept them
+    if rows.empty:
+        rows = radiant.replay(paths, series, "timesfm-2.5", radiant.domains_of(catalog.CATALOG))
     return {k: g.sort_values("step")["q50"].to_numpy(float) for k, g in rows.groupby(["series_id", "origin"])}
 
 
@@ -167,6 +172,49 @@ def log_blend(w):
     return g(w, GRID[i] if e[i] <= e[0] * 0.98 else 0.0)
 
 
+def _ses(y: np.ndarray, alpha: float) -> float:
+    level = y[0]
+    for v in y[1:]:
+        level = alpha * v + (1 - alpha) * level
+    return level
+
+
+def theta(w):  # the Theta method (Assimakopoulos & Nikolopoulos, 2000), as SES with half the trend as drift (Hyndman & Billah, 2003)
+    y = _context(w)[-500:]
+    logs = bool((y > 0).all())
+    z = np.log(y) if logs else y
+    h, n = len(w["a"]), len(z)
+    if n < 30:
+        return naive(w)
+    slope = np.polyfit(np.arange(n), z, 1)[0]
+    alpha = min(np.linspace(0.05, 1, 20), key=lambda a: np.mean([(z[i] - _ses(z[:i], a)) ** 2 for i in range(max(2, n - 60), n)]))
+    f = _ses(z, alpha) + slope / 2 * (np.arange(1, h + 1) - 1 + 1 / alpha - (1 - alpha) ** n / alpha)
+    return np.exp(f) if logs else f
+
+
+def damped(w, phi=0.9):  # Holt's trend, damped (Gardner & McKenzie, 1985), fixed smoothing
+    y = _context(w)[-500:]
+    logs = bool((y > 0).all())
+    z = np.log(y) if logs else y
+    level, trend = z[0], 0.0
+    for v in z[1:]:
+        prev = level
+        level = 0.3 * v + 0.7 * (level + phi * trend)
+        trend = 0.1 * (level - prev) + 0.9 * phi * trend
+    f = level + np.cumsum(phi ** np.arange(1, len(w["a"]) + 1)) * trend
+    return np.exp(f) if logs else f
+
+
+def exp_gradient(w, eta=1.0):  # exponentiated gradient (Kivinen & Warmuth, 1997): learns the best mix, not the best one
+    p = np.array([0.8, 0.1, 0.1])
+    for v in sorted(past(w), key=lambda v: v["end"]):
+        m = np.vstack([v["tfm"], v["laws"], naive(v)])
+        g = (np.sign(p @ m - v["a"]) / np.abs(v["a"])) @ m.T / len(v["a"])
+        p = p * np.exp(-eta * g / max(float(np.mean(miss(v["tfm"], v))), 1e-9))
+        p /= p.sum()
+    return p @ np.vstack([w["tfm"], w["laws"], naive(w)])
+
+
 CANDIDATES = {
     "TimesFM": lambda w: w["tfm"],
     "Crowd laws alone": lambda w: w["laws"],
@@ -181,6 +229,9 @@ CANDIDATES = {
     "TimesFM with its median bias halved": bias_fix,
     "Best of four per area, 3% margin": gate,
     "Log-space blend": log_blend,
+    "Theta method": theta,
+    "Damped trend": damped,
+    "Exponentiated-gradient mix (TimesFM, laws, no change)": exp_gradient,
     "Radiant (behavioural core + exponential weights)": lambda w: RADIANT[(w["sid"], w["origin"])],
     "Radiant's behavioural core alone": lambda w: radiant.core_predict(
         _context(w), len(w["a"]))[0].q(0.5),
@@ -193,7 +244,7 @@ def _context(w):
 
 def main() -> None:
     print(f"{len(W)} windows. Average miss per day of the median (lower is better):\n")
-    print(f"{'forecaster':<48} {'all':>7} {'to Mar':>7} {'Apr on':>7} {'markets':>8} {'news':>7} {'tech':>7}")
+    print(f"{'forecaster':<56} {'all':>7} {'to Mar':>7} {'Apr on':>7} {'markets':>8} {'news':>7} {'tech':>7}")
     rows = []
     for name, f in CANDIDATES.items():
         per = [(w, float(np.mean(miss(f(w), w)))) for w in W]
@@ -201,7 +252,7 @@ def main() -> None:
         rows.append((pick(lambda w: True), name, pick(lambda w: w["origin"] < SPLIT), pick(lambda w: w["origin"] >= SPLIT),
                      *(pick(lambda w, d=d: w["dom"] == d) for d in ("markets", "news", "tech"))))
     for r in sorted(rows):
-        print(f"{r[1]:<48} {r[0]:6.2f}% {r[2]:6.2f}% {r[3]:6.2f}% {r[4]:7.2f}% {r[5]:6.2f}% {r[6]:6.2f}%")
+        print(f"{r[1]:<56} {r[0]:6.2f}% {r[2]:6.2f}% {r[3]:6.2f}% {r[4]:7.2f}% {r[5]:6.2f}% {r[6]:6.2f}%")
 
 
 if __name__ == "__main__":

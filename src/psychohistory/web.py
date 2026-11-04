@@ -71,6 +71,35 @@ def _with_radiant(paths: pd.DataFrame | None, data: dict[str, pd.Series], model:
     return paths if extra.empty else pd.concat([paths, extra], ignore_index=True)
 
 
+RADIANT_EXPERTS = {"model": "TimesFM", "laws": "Crowd laws", "core": "Behavioural core", "naive": "No change", "rival": "Chronos-Bolt"}
+RADIANT_AREAS = (("markets", "Markets"), ("news", "World news"), ("tech", "Technology"), (radiant.YEARLY, "Yearly adoption"))
+
+
+def radiant_vote_payload(paths: pd.DataFrame | None, data: dict[str, pd.Series], model: str, points: int = 60) -> dict | None:
+    """How Radiant splits its vote in each area, and how that split moved: its weights after each
+    finished backtest window (at most ``points`` of them per area), and the weights in use now, which
+    are the ones this week's sealed Radiant forecasts were mixed with."""
+    windows = radiant.windows_from_paths(paths, data, model, radiant.domains_of(catalog.CATALOG))
+    if not windows:
+        return None
+    areas = []
+    for key, title in RADIANT_AREAS:
+        mine = [w for w in windows if w.domain == key]
+        if not mine:
+            continue
+        ends = sorted({w.end for w in mine})
+        pick = [ends[round(i)] for i in np.linspace(0, len(ends) - 1, min(points, len(ends)))]
+        rival = any("rival" in w.paths for w in mine)
+        ran = set(radiant.EXPERTS) if rival else set(radiant.EXPERTS) - {"rival"}  # as the mix uses them: absent experts drop out
+
+        def split(at=None):
+            return [_num(v, 3) for v in radiant.present(radiant.weights(windows, key, at), ran)]
+        areas.append({"key": key, "title": title, "windows": len(mine), "rival": rival,
+                      "start": [_num(v, 3) for v in radiant.present(np.array(radiant.PRIOR), ran)],
+                      "points": [[d.date().isoformat(), split(d)] for d in pick], "now": split()})
+    return {"experts": [RADIANT_EXPERTS[e] for e in radiant.EXPERTS], "keys": list(radiant.EXPERTS), "eta": radiant.ETA, "areas": areas}
+
+
 def build_payload(
     model: str,
     results: pd.DataFrame | None,
@@ -108,6 +137,7 @@ def build_payload(
         "volatility": volatility_payload(**(vol or {}), data=data),
         "wire": wire_payload(wire),
         "events": events_payload(**(events or {})),
+        "radiant_vote": radiant_vote_payload(paths, data, model) if not demo else None,
         "year": yearbook.build(data, _with_radiant(paths, data, model, domains), ledger, model) if not demo else None,
     }
     if not payload["duel"] and payload["lab"]:

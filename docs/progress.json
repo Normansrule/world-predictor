@@ -32,6 +32,21 @@
           "evidence": "results/REPORT.md"
         },
         {
+          "title": "Chronos-Bolt joins Radiant's mix as an optional fifth expert that earns its weight",
+          "done": true,
+          "evidence": "src/psychohistory/radiant.py"
+        },
+        {
+          "title": "Yearly adoption series learn Radiant's weights in an area of their own, where Chronos-Bolt led",
+          "done": true,
+          "evidence": "src/psychohistory/radiant.py"
+        },
+        {
+          "title": "The Year ledger shows how Radiant splits its vote per area and how the split moved",
+          "done": true,
+          "evidence": "docs/assets/app-radiant-vote.png"
+        },
+        {
           "title": "Radiant: behavioural finance signals and an exponential-weights mix, scored against TimesFM in the bake-off, the year ledger and the weekly sealed ledger",
           "done": true,
           "evidence": "src/psychohistory/radiant.py"

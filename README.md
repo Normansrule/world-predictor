@@ -561,34 +561,51 @@ where a challenger is clearly better or clearly worse, and each table downloads 
 books. On 2026 so far only one lead passes: Radiant on Exxon (4.93% against 5.03%, p 0.001). Its other
 14 leads could be luck. The crowd laws are clearly worse on four technology series.
 
-**The bake-off: can anything here beat TimesFM?** Twelve forecasters built from TimesFM, the crowd laws
-and "no change" were replayed on all 286 recorded daily windows of 2025-26, each learning only from the
-windows of its area that had finished before its forecast (`python scripts/seldon_bakeoff.py`).
+**The bake-off: can anything here beat TimesFM?** Eighteen forecasters built from TimesFM, the crowd
+laws, "no change" and two classical methods were replayed on all 319 daily windows of the official backtest of 3 November 2026,
+each learning only from the windows of its area that had finished before its forecast
+(`python scripts/seldon_bakeoff.py`; Radiant's rows are the ones that run recorded, not a replay).
 Average miss per day of the most likely value:
 
 | Forecaster | All | To March | April on | Markets | News | Tech |
 |---|---|---|---|---|---|---|
-| **Radiant** | **8.77%** | **9.04%** | **8.61%** | 4.86% | 14.02% | **10.71%** |
-| TimesFM | 8.83% | 9.18% | **8.61%** | 4.87% | **13.99%** | 10.90% |
-| Seldon, new share rule (now in use) | 8.83% | 9.17% | **8.61%** | 4.87% | **13.99%** | 10.90% |
-| Seldon, old share rule | 8.97% | 9.47% | 8.67% | 4.86% | 14.64% | 10.90% |
-| Shrink TimesFM's predicted move | 8.97% | 9.54% | 8.62% | 4.84% | 14.28% | 11.19% |
-| TimesFM and the laws, half each | 9.13% | 9.31% | 9.01% | 4.84% | 14.40% | 11.62% |
-| Crowd laws alone | 9.94% | 10.07% | 9.87% | 4.83% | 15.73% | 13.27% |
-| Radiant's behavioural core alone | 12.03% | 12.92% | 11.47% | 4.96% | 18.14% | 18.04% |
-| "No change" | 12.22% | 13.03% | 11.71% | **4.81%** | 18.46% | 18.65% |
+| **TimesFM** | **8.64%** | 9.23% | **8.28%** | 5.25% | **13.93%** | **11.05%** |
+| **Radiant** | **8.64%** | **9.15%** | 8.33% | 5.25% | **13.93%** | **11.05%** |
+| **Best of four per area, 3% margin** | **8.64%** | 9.18% | 8.30% | 5.24% | **13.93%** | **11.05%** |
+| Seldon, new share rule (now in use) | 8.65% | 9.19% | 8.32% | 5.26% | **13.93%** | **11.05%** |
+| Log-space blend | 8.65% | 9.19% | 8.32% | 5.27% | **13.93%** | **11.05%** |
+| Exponentiated-gradient mix (TimesFM, laws, no change) | 8.66% | 9.22% | 8.31% | 5.20% | 14.03% | 11.12% |
+| TimesFM with its median bias halved | 8.75% | 9.44% | 8.32% | 5.27% | 14.02% | 11.33% |
+| Per-series share, shrunk to the area's | 8.82% | 9.59% | 8.33% | 5.24% | 14.26% | 11.44% |
+| Shrink TimesFM's predicted move | 8.85% | 9.67% | 8.34% | 5.29% | 14.22% | 11.51% |
+| Seldon, old share rule | 8.87% | 9.68% | 8.37% | 5.24% | 14.60% | 11.39% |
+| TimesFM and the laws, half each | 8.91% | 9.40% | 8.61% | **5.17%** | 14.31% | 11.89% |
+| Median of the three | 9.12% | 9.80% | 8.70% | 5.19% | 15.15% | 11.96% |
+| Inverse-MSE weights (no change, TimesFM, laws) | 9.15% | 9.96% | 8.65% | 5.21% | 15.01% | 12.15% |
+| Crowd laws alone | 9.71% | 10.20% | 9.41% | 5.20% | 15.62% | 13.72% |
+| Theta method | 11.19% | 11.83% | 10.80% | 5.34% | 16.74% | 18.00% |
+| Damped trend | 11.29% | 11.75% | 11.00% | 5.31% | 17.23% | 18.04% |
+| Radiant's behavioural core alone | 11.64% | 12.69% | 10.99% | 5.42% | 18.07% | 18.49% |
+| "No change" | 11.73% | 12.77% | 11.09% | 5.25% | 18.38% | 18.90% |
 
-The first ten combiners did not beat TimesFM. That is the "forecast combination puzzle" seen many
-times before: weights learned from a short record tend to lose to the best single forecast or a plain
-average, because estimating them adds more noise than they remove (Stock & Watson, 2004; Smith & Wallis,
-2009; Timmermann, 2006). The old Seldon rule handed the laws a share of the news vote too early and
-lost 0.65 points there, so it was replaced: Seldon now needs ten finished windows and a 2% lower
-average miss before the laws get any say, which on this year's data means it stays with TimesFM.
-Radiant, below, is the first to come out ahead, by 0.06 points. Read that with care: the gap is small,
-it was built and tuned after looking at this same year (four settings were tried for the core's
-penalty and two for the mix's learning rate), and its edge comes from the first half and from
-technology. Its first clean test is the next CI backtest, where its core learns from decades of
-history, and then every week's sealed forecasts. Research, not investment advice.
+Nothing beat TimesFM on these daily windows; the best three finished level. That is the "forecast
+combination puzzle" seen many times before: weights learned from a short record tend to lose to the
+best single forecast or a plain average, because estimating them adds more noise than they remove
+(Stock & Watson, 2004; Smith & Wallis, 2009; Timmermann, 2006). The old Seldon rule handed the laws a
+share of the news vote too early and lost 0.67 points there, so it was replaced: Seldon now needs ten
+finished windows and a 2% lower average miss before the laws get any say. Radiant's lead in the first,
+replayed version of this table (8.77% against 8.83%, on 286 windows and a year of history) did not
+survive fresh windows, and neither did a further sweep of its mixing rule (four learning rates, and
+"fixed share" forgetting; Herbster & Warmuth, 1998), which moved the total by 0.04 points at most.
+Two more ideas were tried on 3 November and also failed. An exponentiated-gradient mix (Kivinen &
+Warmuth, 1997), which learns the best *blend* of experts rather than the best single one, gained on
+markets (5.20% against 5.25%) but only in the first half of the year; from April on it was behind
+there too, and it lost on news. And two classical statistical forecasters, the Theta method that won
+the M3 competition (Assimakopoulos & Nikolopoulos, 2000; Hyndman & Billah, 2003) and a damped trend
+(Gardner & McKenzie, 1985), were far behind on news and technology, where TimesFM reads the weekly
+rhythm of attention data that they cannot. The mix is at its ceiling with these experts: to win it
+needs one that knows something TimesFM does not. (An earlier version of this table took Seldon's blend for the crowd laws, which hid how far apart
+they are; it now uses the laws alone. Research, not investment advice.)
 
 <img src="docs/assets/app-year.png" alt="The Year ledger: a leaderboard of TimesFM, Radiant, Seldon and the crowd laws for 2026 with a race chart of each challenger's gap to TimesFM, and gold's table with real-or-luck verdicts, a strip of the year coloured by the closest model and a row per week of real values, forecasts and percentage misses" width="100%">
 
@@ -615,8 +632,8 @@ change. Nothing after the forecast date is used. On its own the core loses, even
 the year of history this sandbox has: the signals are real in the literature but weak, and they need
 long histories to estimate. In GitHub Actions it sees decades.
 
-**The full Radiant (`radiant`)** mixes TimesFM, the crowd laws, the core and "no change" decile by
-decile, with exponential weights (Freund & Schapire, 1997; Cesa-Bianchi & Lugosi, 2006): every
+**The full Radiant (`radiant`)** mixes TimesFM, the crowd laws, the core, "no change" and, since
+3 November 2026, a rival model (Chronos-Bolt; Ansari et al., 2024) decile by decile, with exponential weights (Freund & Schapire, 1997; Cesa-Bianchi & Lugosi, 2006): every
 finished forecast window of an area charges each one its miss relative to TimesFM's, and its weight
 shrinks by e^(−2 × charge). It starts with 70% of the weight on TimesFM, so a signal only gains a say by
 being right on forecasts it never saw while learning. Both are backtested on the same windows as
@@ -631,6 +648,35 @@ for TimesFM, and Radiant was closer on 17 of the 32 series (9 of 15 markets, 4 o
 The behavioural core alone barely beat "no change" (skill 0.017). The best single model in that run
 was Chronos-Bolt (9.45%), which beat both on the slow technology series. So Radiant's small edge on
 the replayed year did not turn into a clear win on fresh windows. It is a tie, not a victory.
+
+**So Chronos-Bolt joined the mix.** It was the best model in that run, and it won where TimesFM is
+weakest (the slow technology series), so it is the expert most likely to add something TimesFM lacks.
+It starts with 10% of the weight and, like every other expert, only gains more by being right on
+finished windows. Where Chronos did not run (it is optional, and recorded backtest paths from before
+this change lack it), it is neither charged nor credited and drops out of the mix; without it Radiant
+is exactly the model it was before (checked on all 7,854 replayed forecasts). Its first scored test is
+the next full backtest.
+
+**Where Chronos's lead really was.** Broken down by series, almost all of Chronos-Bolt's technology
+lead in that run came from the three yearly adoption series (solar 24.7% against TimesFM's 42.1%, wind
+14.5% against 24.9%, internet 1.5% against 3.2%). On the eight daily technology series it was slightly
+behind on six, on news it was behind on five of six topics, and on markets it led on 8 of 15. But
+Radiant left the yearly series out of its learning and mixed them with the weights the daily
+technology series had earned, so Chronos could never have gained weight where it was good. Since this
+update the yearly series learn in an area of their own. Run on the per-window scores of that backtest,
+the same rule would have handed Chronos 75% of the yearly weight after four finished windows and
+over 95% after eight, which would have cut Radiant's yearly misses roughly to Chronos's. That is an
+estimate from window scores, not a scored forecast: the next full backtest, which records Chronos's
+paths, is the test. Without Chronos the change is neutral (solar better, wind slightly worse).
+
+**Watch it decide.** The Year ledger now shows how Radiant splits its vote in each area: the split in
+use now, which this week's sealed Radiant forecasts were mixed with, and how it moved after every
+finished window. On the official backtest it has moved most of its markets vote to the crowd laws
+(58%, with TimesFM at 25%), kept all of it on TimesFM for news and the daily technology series, and,
+on the yearly adoption series, started with the laws and handed the vote back to TimesFM by 2010.
+Chronos-Bolt's share appears as soon as a run records its forecasts.
+
+<img src="docs/assets/app-radiant-vote.png" alt="How Radiant splits its vote: for markets, world news, technology and the yearly adoption series, a bar of the weights in use now and a stacked band of how TimesFM, the crowd laws, the behavioural core, no change and Chronos-Bolt shared the vote after each finished window" width="100%">
 
 ### Quick start
 
@@ -703,7 +749,7 @@ psychohistory simulate    # the toy crowd, no downloads
 | `chronos-bolt`, `chronos-2` | Amazon's rival foundation models, [amazon/chronos-bolt-small](https://huggingface.co/amazon/chronos-bolt-small) and [amazon/chronos-2](https://huggingface.co/amazon/chronos-2) (install the `rivals` extra) | See each model card |
 | `seldon` | Our own psychohistory forecaster: the crowd laws below plus the model under test in one council, the laws' share learned per area from finished windows ([`seldon.py`](src/psychohistory/seldon.py)); always run alongside the main model | Apache-2.0 (this repo) |
 | `seldon-laws` | The crowd laws alone: four laws and a weekly rhythm, weighted by their record on each series; numpy only, no neural network | Apache-2.0 (this repo) |
-| `radiant` | Our attempt to beat TimesFM: TimesFM, the crowd laws, the behavioural core and "no change" mixed by exponential weights learned per area from finished windows ([`radiant.py`](src/psychohistory/radiant.py)); always run alongside the main model | Apache-2.0 (this repo) |
+| `radiant` | Our attempt to beat TimesFM: TimesFM, the crowd laws, the behavioural core, "no change" and Chronos-Bolt mixed by exponential weights learned per area from finished windows ([`radiant.py`](src/psychohistory/radiant.py)); always run alongside the main model | Apache-2.0 (this repo) |
 | `radiant-core` | Market psychology as statistics: momentum, overreaction, short-term reversal, momentum crashes and attention spikes, weighted by a ridge regression on each series' own past | Apache-2.0 (this repo) |
 | `ensemble` | Average of TimesFM, its `--compare` rivals and AutoETS (add `--ensemble`) | n/a |
 | `bass` | Bass diffusion S-curve (Bass, 1969), run automatically on technology-adoption series | Apache-2.0 (this repo) |
@@ -973,15 +1019,18 @@ World Predictor is Apache-2.0).
 
 <!-- progress:start -->
 
-**50 of 54 milestones done (93%).** Drawn from [`docs/progress.json`](docs/progress.json); tests check every ticked item against the repository.
+**53 of 57 milestones done (93%).** Drawn from [`docs/progress.json`](docs/progress.json); tests check every ticked item against the repository.
 
-<details><summary><b>📰 World news</b> · 11/11</summary>
+<details><summary><b>📰 World news</b> · 14/14</summary>
 
 - [x] GDELT news-attention loader
 - [x] Six news topics plus a news composite
 - [x] Rolling backtest against naive, drift, mean and AutoETS
 - [x] Weekly sealed forecasts in the prediction ledger
 - [x] First real TimesFM results published
+- [x] Chronos-Bolt joins Radiant's mix as an optional fifth expert that earns its weight
+- [x] Yearly adoption series learn Radiant's weights in an area of their own, where Chronos-Bolt led
+- [x] The Year ledger shows how Radiant splits its vote per area and how the split moved
 - [x] Radiant: behavioural finance signals and an exponential-weights mix, scored against TimesFM in the bake-off, the year ledger and the weekly sealed ledger
 - [x] Year ledger verdicts: a Diebold-Mariano test per series against TimesFM, cut with Benjamini-Hochberg, and a CSV of every table
 - [x] Bake-off: ten ways of combining TimesFM and the crowd laws replayed without peeking; Seldon's share rule replaced by the one that came closest
@@ -1064,6 +1113,7 @@ bibliography, with every model, data source, theory and design reference, is in
 - Ansari, A. F., Stella, L., Turkmen, C., Zhang, X., Mercado, P., Shen, H., Shchur, O., Rangapuram, S. S., Pineda Arango, S., Kapoor, S., Zschiegner, J., Maddix, D. C., Wang, H., Mahoney, M. W., Torkkola, K., Wilson, A. G., Bohlke-Schneider, M., & Wang, Y. (2024). Chronos: Learning the language of time series. *Transactions on Machine Learning Research*. https://arxiv.org/abs/2403.07815
 - Asimov, I. (1951). *Foundation*. Gnome Press.
 - Asimov, I. (1953). *Second Foundation*. Gnome Press.
+- Assimakopoulos, V., & Nikolopoulos, K. (2000). The theta model: A decomposition approach to forecasting. *International Journal of Forecasting, 16*(4), 521–530. https://doi.org/10.1016/S0169-2070(00)00066-2
 - Barber, B. M., & Odean, T. (2008). All that glitters: The effect of attention and news on the buying behavior of individual and institutional investors. *The Review of Financial Studies, 21*(2), 785–818. https://doi.org/10.1093/rfs/hhm079
 - Bates, J. M., & Granger, C. W. J. (1969). The combination of forecasts. *Operational Research Quarterly, 20*(4), 451–468. https://doi.org/10.1057/jors.1969.103
 - Benjamini, Y., & Hochberg, Y. (1995). Controlling the false discovery rate: A practical and powerful approach to multiple testing. *Journal of the Royal Statistical Society: Series B (Methodological), 57*(1), 289–300. https://doi.org/10.1111/j.2517-6161.1995.tb02031.x
@@ -1086,10 +1136,13 @@ bibliography, with every model, data source, theory and design reference, is in
 - Gneiting, T., & Raftery, A. E. (2007). Strictly proper scoring rules, prediction, and estimation. *Journal of the American Statistical Association, 102*(477), 359–378. https://doi.org/10.1198/016214506000001437
 - Google Research. (n.d.). *timesfm* [Computer software]. GitHub. https://github.com/google-research/timesfm
 - Harvey, D., Leybourne, S., & Newbold, P. (1997). Testing the equality of prediction mean squared errors. *International Journal of Forecasting, 13*(2), 281–291. https://doi.org/10.1016/S0169-2070(96)00719-4
+- Herbster, M., & Warmuth, M. K. (1998). Tracking the best expert. *Machine Learning, 32*(2), 151–178. https://doi.org/10.1023/A:1007424614876
 - Hoerl, A. E., & Kennard, R. W. (1970). Ridge regression: Biased estimation for nonorthogonal problems. *Technometrics, 12*(1), 55–67. https://doi.org/10.1080/00401706.1970.10488634
+- Hyndman, R. J., & Billah, B. (2003). Unmasking the Theta method. *International Journal of Forecasting, 19*(2), 287–290. https://doi.org/10.1016/S0169-2070(01)00143-1
 - Hyndman, R. J., & Koehler, A. B. (2006). Another look at measures of forecast accuracy. *International Journal of Forecasting, 22*(4), 679–688. https://doi.org/10.1016/j.ijforecast.2006.03.001
 - Jegadeesh, N., & Titman, S. (1993). Returns to buying winners and selling losers: Implications for stock market efficiency. *The Journal of Finance, 48*(1), 65–91. https://doi.org/10.1111/j.1540-6261.1993.tb04702.x
 - J.P. Morgan/Reuters. (1996). *RiskMetrics: Technical document* (4th ed.). Morgan Guaranty Trust Company.
+- Kivinen, J., & Warmuth, M. K. (1997). Exponentiated gradient versus gradient descent for linear predictors. *Information and Computation, 132*(1), 1–63. https://doi.org/10.1006/inco.1996.2612
 - koala73. (n.d.). *worldmonitor* [Computer software]. GitHub. https://github.com/koala73/worldmonitor
 - Koenker, R., & Bassett, G., Jr. (1978). Regression quantiles. *Econometrica, 46*(1), 33–50. https://doi.org/10.2307/1913643
 - Leetaru, K., & Schrodt, P. A. (2013, April). *GDELT: Global data on events, location, and tone, 1979–2012* [Paper presentation]. International Studies Association Annual Convention, San Francisco, CA, United States.

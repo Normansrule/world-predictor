@@ -137,27 +137,34 @@ def add_seldon(kept: list[dict], model: str, step_rows: list[dict] | None = None
 def add_radiant(kept: list[dict], model: str, step_rows: list[dict] | None = None,
                 path_rows: list[dict] | None = None, paths_for: Sequence[str] = ()) -> pd.DataFrame:
     """Score the full Radiant on every kept window: ``model``, the crowd laws, Radiant's core and
-    no change mixed with exponential weights learned per area only from windows that had finished
-    by this window's origin. See ``radiant.py``."""
-    need = (model, LAWS, radiant.CORE, "naive")
+    no change mixed with exponential weights learned per area (yearly series apart) only from windows that
+    had finished by this window's origin. See ``radiant.py``."""
+    need = dict(zip(radiant.EXPERTS, (model, LAWS, radiant.CORE, "naive", radiant.RIVAL)))
+    must = [need[e] for e in radiant.EXPERTS if e != "rival"]  # the rival joins only when it ran
+
+    def experts(f: dict) -> dict:
+        return {e: f[n] for e, n in need.items() if n in f}
+
     windows = []
     for k in kept:
         f = k["forecasts"]
-        if all(n in f for n in need) and k["spec"].source != "owid":
+        if all(n in f for n in must):
             spec, series, t = k["spec"], k["series"], k["t"]
             actual = series.to_numpy(dtype=float)[t : t + spec.horizon]
-            windows.append(radiant.Window(spec.domain, series.index[t + len(actual) - 1],
-                                          {e: f[n].q(0.5)[: len(actual)] for e, n in zip(radiant.EXPERTS, need)}, actual))
+            windows.append(radiant.Window(radiant.area(spec), series.index[t + len(actual) - 1],
+                                          {e: x.q(0.5)[: len(actual)] for e, x in experts(f).items()}, actual))
     rows = []
     for k in kept:
         f = k["forecasts"]
-        if not all(n in f for n in need):
+        if not all(n in f for n in must):
             continue
         spec, series, t = k["spec"], k["series"], k["t"]
-        w = radiant.weights(windows, spec.domain, series.index[t - 1])
-        mixed = radiant.mix({e: f[n] for e, n in zip(radiant.EXPERTS, need)}, w)
+        x = experts(f)
+        w = radiant.present(radiant.weights(windows, radiant.area(spec), series.index[t - 1]), x)
+        mixed = radiant.mix(x, w)
         rows.append(score_window(spec, series, t, k["context"], radiant.NAME, mixed, step_rows,
-                                 path_rows if radiant.NAME in paths_for else None) | {"weight_model": float(w[0])})
+                                 path_rows if radiant.NAME in paths_for else None)
+                    | {"weight_model": float(w[0]), "weight_rival": float(w[-1])})
     return pd.DataFrame(rows)
 
 
