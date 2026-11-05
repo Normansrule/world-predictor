@@ -1,5 +1,5 @@
 {
- "run_id": "41780564715",
+ "run_id": "41956728707",
  "recorded": "Rebuilt on 2026-10-19 from this run's outputs: the run predates run_status.json. Reasons come from reading the run log on 2026-10-18; both were fixed in commit 633e744 and the next weekly run retries every series.",
  "stages": {
   "predict": {
@@ -83,7 +83,7 @@
    }
   },
   "fetch": {
-   "at": "2026-11-04T06:00:12Z",
+   "at": "2026-11-05T03:10:05Z",
    "ok": [
     "aapl",
     "adoption_internet",
@@ -94,12 +94,10 @@
     "gold",
     "msci_world",
     "nasdaq100",
-    "news_climate",
     "news_composite",
     "news_election",
     "news_inflation",
     "news_pandemic",
-    "news_protest",
     "nvda",
     "oil_wti",
     "silver",
@@ -119,7 +117,9 @@
     "xom"
    ],
    "skipped": {
-    "news_war": "JSONDecodeError: Expecting value: line 1 column 1 (char 0)"
+    "news_climate": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22climate+change%22&mode=timelinevol&format=json&STARTDATETIME=20170101000000&ENDDATETIME=20261105024950&TIMELINESMOOTH=0",
+    "news_protest": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%28protest+OR+protests%29&mode=timelinevol&format=json&STARTDATETIME=20170101000000&ENDDATETIME=20261105025505&TIMELINESMOOTH=0",
+    "news_war": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22war%22&mode=timelinevol&format=json&STARTDATETIME=20170101000000&ENDDATETIME=20261105024158&TIMELINESMOOTH=0"
    }
   }
  }
