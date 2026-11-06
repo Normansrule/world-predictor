@@ -481,6 +481,52 @@ def test_owid_reads_short_lowercase_columns(monkeypatch):
     assert series.index[0].year == 2020
 
 
+def test_weather_sources_parse_their_published_formats(monkeypatch):
+    from psychohistory.data import weather
+
+    meteo = {"daily": {"time": ["2026-01-01", "2026-01-02", "2026-01-03"], "temperature_2m_max": [8.1, 9.4, None]}}
+    monkeypatch.setattr(weather, "get", lambda *a, **k: _Response(payload=meteo))
+    city = weather.city(51.51, -0.13)
+    assert list(city) == [8.1, 9.4]  # the archive's not-yet-filled last day is left out, not zero
+
+    reanalyzer = [{"name": "2024", "data": [13.0 + i / 1000 for i in range(366)]},
+                  {"name": "2025", "data": [13.5] * 200 + [None] * 166},
+                  {"name": "1982-2011 mean", "data": [12.0] * 366}]
+    world = weather.parse_reanalyzer(reanalyzer, start="2024-01-01")
+    assert world.index[0] == pd.Timestamp("2024-01-01") and world.index[365] == pd.Timestamp("2024-12-31")
+    assert len(world) == 366 + 200 and world.iloc[-1] == 13.5  # leap year kept whole, the climatology line skipped
+
+    ice = ("Year, Month, Day,     Extent,    Missing, Source Data\n"
+           " YYYY,    MM,  DD, 10^6 sq km, 10^6 sq km, Source data product web sites\n"
+           " 2025,    01,  01,     12.901,      0.000, ['x']\n"
+           " 2025,    01,  02,  -9999.000,      0.000, ['x']\n"
+           " 2025,    01,  03,     12.950,      0.000, ['x']\n")
+    extent = weather.parse_sea_ice(ice, start="2025-01-01")
+    assert list(extent) == [12.901, 12.95] and extent.index[-1] == pd.Timestamp("2025-01-03")
+
+
+def test_quake_counts_keep_quiet_days_as_zero():
+    from psychohistory.data import quakes
+
+    times = pd.Series(["2026-03-01T01:00:00.000Z", "2026-03-01T23:59:00.000Z", "2026-03-03T12:00:00.000Z"])
+    counts = quakes.daily_counts(times, "2026-03-01", "2026-03-04")
+    assert list(counts) == [2.0, 0.0, 1.0, 0.0]
+
+
+def test_new_domains_are_wired_through_every_view():
+    from psychohistory import events, radiant, report, story, web, yearbook
+
+    for domain in ("politics", "weather"):
+        specs = catalog.select([domain])
+        assert len(specs) >= 7 and all(data.source_url(s) or s.source == "composite" for s in specs)
+        assert domain in report.DOMAIN_TITLES and domain in story.DOMAIN_PLAIN
+        assert domain in dict(web.RADIANT_AREAS) and {radiant.area(s) for s in specs} == {domain}
+    assert events.eligible(catalog.by_id("politics_coup")) and not events.eligible(catalog.by_id("weather_london"))
+    grouped = {sid for _, _, ids in yearbook.GROUPS for sid in ids}
+    assert {s.id for s in catalog.select(["politics", "weather"])} <= grouped
+    assert all(s.horizon == 14 for s in catalog.WEATHER)
+
+
 def test_gdelt_retries_when_rate_limited(monkeypatch):
     from psychohistory.data import gdelt
 
@@ -1117,7 +1163,10 @@ def test_radiant_rival_is_optional_and_earns_its_weight():
     from psychohistory import radiant
 
     # Without the rival, the mix starts exactly where it did before the rival joined.
-    assert np.allclose(radiant.present(radiant.weights([]), {"model", "laws", "core", "naive"})[:4], (0.7, 0.1, 0.1, 0.1))
+    assert np.allclose(radiant.present(radiant.weights([], rival=False), {"model", "laws", "core", "naive"})[:4], (0.7, 0.1, 0.1, 0.1))
+    # With it, the two foundation models start level.
+    start = radiant.weights([])
+    assert start[radiant.EXPERTS.index("model")] == start[radiant.EXPERTS.index("rival")] and abs(start.sum() - 1) < 1e-9
     actual = np.full(5, 100.0)
     old = {e: actual + 5.0 for e in ("model", "laws", "core", "naive")}
     absent = [radiant.Window("tech", pd.Timestamp("2026-01-01") + pd.Timedelta(days=d), old, actual) for d in range(6)]
@@ -1180,6 +1229,49 @@ def test_radiant_vote_shows_the_split_each_area_earned():
     assert web.radiant_vote_payload(None, {}, "timesfm-2.5") is None
 
 
+def test_radiant_lab_replays_the_shipped_mix():
+    import importlib.util
+
+    from psychohistory import radiant
+
+    spec = importlib.util.spec_from_file_location("radiant_replay", Path(__file__).resolve().parents[1] / "scripts" / "radiant_replay.py")
+    lab = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(lab)
+    actual = np.full(5, 100.0)
+    windows = []
+    for day in range(8):
+        paths = {"model": actual + 4, "laws": actual + 9, "core": actual - 6, "naive": actual + 1, "rival": actual - 2 + day % 3}
+        w = radiant.Window("markets", pd.Timestamp("2026-01-05") + pd.Timedelta(days=7 * day), paths, actual)
+        w.series_id, w.origin = "gold", w.end - pd.Timedelta(days=6)
+        windows.append(w)
+    for w in windows:  # the lab's default mixer is Radiant exactly as it ships
+        flat = {e: Forecast(np.asarray(v, float), np.column_stack([v] * len(QUANTILES))) for e, v in w.paths.items()}
+        shipped = radiant.mix(flat, radiant.weights(windows, "markets", w.origin, rival=True)).point
+        assert np.allclose(lab.mixer()(w, windows), shipped)
+    assert lab.smape([100.0], [100.0]) == 0 and not lab.is_late(windows[0])
+
+
+def test_leaderboard_ranks_every_model_and_counts_wins_against_the_benchmark():
+    from psychohistory import web
+
+    ids = [s.id for s in catalog.CATALOG if s.source != "owid"][:4] + [next(s.id for s in catalog.CATALOG if s.source == "owid")]
+    rows = []
+    for k, sid in enumerate(ids):
+        spec = catalog.by_id(sid)
+        for m, err in (("timesfm-2.5", 0.10), ("radiant", 0.09 if k % 2 == 0 else 0.11), ("chronos-bolt", 0.095), ("bass", 0.5)):
+            if m == "bass" and k:
+                continue  # fits only one series: left off the board
+            rows.append({"series_id": sid, "domain": spec.domain, "scale": spec.scale, "model": m, "mae": err, "mase": 1, "smape": err,
+                         "direction": 0.5, "coverage80": 0.8, "pinball": 1, "brier": 0.25, "skill": 0.1, "prob_skill": 0.1})
+    board = web.leaderboard_payload(pd.DataFrame(rows), "timesfm-2.5")
+    names = [r["model"] for r in board["rows"]]
+    assert names == ["chronos-bolt", "radiant", "timesfm-2.5"] and "yearly" in board["areas"]
+    radiant_row = next(r for r in board["rows"] if r["model"] == "radiant")
+    assert radiant_row["beats"] == 3 and radiant_row["of"] == 5
+    assert next(r for r in board["rows"] if r["model"] == "timesfm-2.5")["beats"] is None
+    assert web.leaderboard_payload(None, "timesfm-2.5") is None
+
+
 def test_wire_stops_at_its_time_budget():
     from psychohistory import wire
 
@@ -1187,3 +1279,94 @@ def test_wire_stops_at_its_time_budget():
     specs = [s for s in catalog.CATALOG if wire.query_for(s)][:4]
     out = wire.fetch(specs, fetcher=lambda q, records: [{"title": q}], budget=600, clock=lambda: next(ticks))
     assert len(out["topics"]) == 2 and all("budget" in v for v in out["failed"].values()) and len(out["failed"]) == 2
+
+
+def test_alert_tiers_and_three_point_odds():
+    from psychohistory import frames
+
+    assert [frames.tier(p) for p in (0.74, 0.75, 0.86, 0.95, 0.99, None)] == [None, "watch", "major", "world", "world", None]
+    assert frames.p_up3(90, 100, 110, 100) == pytest.approx(0.5)
+    assert frames.p_up3(101, 110, 120, 100) == pytest.approx(0.95)  # the whole 80% range above today
+    assert frames.p_up3(80, 90, 99, 100) == pytest.approx(0.05)
+
+
+def test_long_view_widens_with_the_years_and_never_claims_certainty():
+    from psychohistory import frames
+
+    rng = np.random.default_rng(1)
+    values = 100 * np.exp(np.cumsum(0.07 + rng.normal(0, 0.15, 30)))
+    one, ten = frames.long_view(values, 1), frames.long_view(values, 10)
+    assert 0.5 < one["p"] < ten["p"] <= frames.P_CAP
+    assert ten["high"] - ten["low"] > one["high"] - one["low"]
+    assert frames.long_view(values[:4], 1) is None  # too few years to say anything
+    annual = frames.annual(pd.Series(1.0, index=pd.date_range("2020-03-01", "2022-12-31", freq="D")), "D")
+    assert list(annual.index) == [2021, 2022]  # 2020 is incomplete
+
+
+def test_confident_calls_are_tuned_early_and_checked_late():
+    from psychohistory import frames
+
+    rng = np.random.default_rng(0)
+    rows = []
+    for k in range(1600):
+        p = rng.uniform(0.2, 0.8)
+        up = float(rng.uniform() < p)  # honest odds: stronger leans are right more often
+        rows.append({"model": "m", "area": "news", "frame": "week", "p": p, "up": up, "late": k >= 800})
+    rule = frames.tune(pd.DataFrame(rows))[0]
+    assert rule["reached"] and rule["early_rate"] >= 0.70 and rule["lean"] > 0
+    assert rule["late_calls"] < rule["late_windows"]  # it abstains on the weak leans
+    assert rule["late_rate"] > rule["late_all_rate"]
+
+
+def test_today_payload_in_the_demo():
+    from psychohistory import web
+
+    F = web.demo_payload()["frames"]
+    assert {"frames", "tiers", "items", "alerts", "record", "rules", "target"} <= set(F)
+    assert [f for f, _ in F["frames"]] == ["day", "week", "month", "year", "y5", "y10"]
+    assert all(a["p"] >= 0.75 for a in F["alerts"])
+
+
+def test_app_shell_keeps_few_buttons_and_help():
+    root = Path(__file__).resolve().parents[1] / "site" / "app"
+    html = (root / "index.html").read_text()
+    assert 'id="help"' in html and 'id="help-btn"' in html
+    assert html.count('class="primary"') == 5
+    js = (root / "js" / "today.js").read_text()
+    for key in ("wp-watch-v1", "wp-tour-v1", "data-csv", "data-share", "fromOutlook"):
+        assert key in js
+
+
+def test_brief_scores_due_mind_changes_and_streaks():
+    from psychohistory import brief
+
+    def row(made_on, sid, step, target, last, q10, q50, q90, actual=None, model="timesfm-2.5"):
+        r = {"made_on": made_on, "model": model, "series_id": sid, "domain": "markets", "scale": "aggregate", "last_date": made_on,
+             "last_value": last, "step": step, "target_date": target, "q10": q10, "q50": q50, "q90": q90, "point": q50, "p_up": 0.6}
+        if actual is not None:
+            r |= {"actual": actual, "abs_error": abs(actual - q50), "naive_abs_error": abs(actual - last),
+                  "in_band80": q10 <= actual <= q90, "direction_correct": float((actual > last) == (q50 > last)), "brier": 0.1}
+        return r
+
+    # Five batches of next-step calls on "a": all right. On "b": all wrong, and the last one far outside its range.
+    scored = pd.DataFrame([row(f"2026-11-0{d}", "a", 1, f"2026-11-0{d + 1}", 100, 99, 101, 103, 102) for d in range(1, 6)]
+                          + [row(f"2026-11-0{d}", "b", 1, f"2026-11-0{d + 1}", 100, 99, 101, 103, 99.5) for d in range(1, 5)]
+                          + [row("2026-11-05", "b", 1, "2026-11-06", 100, 99, 101, 103, 80)])
+    due = brief.came_due(scored, "timesfm-2.5")
+    assert due["until"] == "2026-11-06" and due["models"][0][0] == "timesfm-2.5" and due["models"][0][1] == 10
+    assert due["surprises"][0]["id"] == "b" and due["surprises"][0]["miss"] == pytest.approx(19 / 4, rel=1e-3)
+    assert [c["id"] for c in due["nailed"]] == ["a"]  # inside its range and the right direction
+    st = brief.streaks(scored, "timesfm-2.5")
+    assert st["hot"][0]["id"] == "a" and st["hot"][0]["run"] == 5
+    assert st["cold"][0]["id"] == "b" and st["cold"][0]["run"] == 5
+
+    # A change of mind is read at today's level for both batches, so a new starting point alone is no change.
+    ledger_rows = pd.DataFrame([row("2026-11-04", "a", 2, "2026-11-06", 100, 95, 98, 101), row("2026-11-05", "a", 1, "2026-11-06", 100, 99, 102, 105),
+                                row("2026-11-04", "c", 2, "2026-11-06", 50, 45, 50, 55), row("2026-11-05", "c", 1, "2026-11-06", 60, 45, 50, 55)])
+    rev = brief.revisions(ledger_rows, "timesfm-2.5")
+    a = next(x for x in rev["items"] if x["id"] == "a")
+    assert a["p_old"] < 0.5 < a["p_new"] and a["flip"]
+    c = next(x for x in rev["items"] if x["id"] == "c")
+    assert c["shift"] == 0 and not c["flip"] and c["moved"] == pytest.approx(0.2)
+    b = brief.build(ledger_rows, scored, "timesfm-2.5")
+    assert "# The brief" in b["text"] and "changed its mind" in b["text"] and brief.build(None, None, "timesfm-2.5") is None

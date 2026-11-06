@@ -17,8 +17,10 @@ import pandas as pd
 from .backtest import calibration, domain_table
 from .report import DOMAIN_TITLES, GRID, SERIES_COLORS, SURFACE, TEXT, TEXT_SECONDARY, model_order
 
-DOMAINS = ("news", "markets", "tech")
-SOURCE = "Model: Google TimesFM. Data: GDELT, Yahoo Finance (yfinance), Wikimedia, Our World in Data."
+from .catalog import DOMAINS
+
+SOURCE = ("Model: Google TimesFM. Data: GDELT, Yahoo Finance (yfinance), Wikimedia, Our World in Data, "
+          "Open-Meteo, Climate Reanalyzer, NSIDC, USGS.")
 
 
 def _layout(fig, title: str, x_title: str = "", y_title: str = ""):

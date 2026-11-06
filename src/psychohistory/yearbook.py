@@ -45,7 +45,11 @@ GROUPS = [
     ("commodities", "Oil and copper", ["oil_wti", "copper"]),
     ("crypto", "Bitcoin", ["bitcoin"]),
     ("news", "World news", [s.id for s in catalog.NEWS]),
+    ("politics", "Politics", [s.id for s in catalog.POLITICS]),
     ("tech", "Technology", [s.id for s in catalog.TECH if s.source != "owid"]),
+    ("climate", "World climate", ["weather_world_air", "weather_world_sea", "weather_arctic_ice"]),
+    ("cities", "City weather", [s.id for s in catalog.WEATHER if s.source == "openmeteo"]),
+    ("quakes", "Earthquakes", ["quakes_m45"]),
 ]
 
 

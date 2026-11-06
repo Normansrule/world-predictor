@@ -6,7 +6,7 @@
   const HOLD_MS = 480;
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const DAY = 864e5;
-  const AREA_NAMES = { news: "World news", markets: "Markets", tech: "Technology" };
+  const AREA_NAMES = { news: "World news", politics: "Politics", markets: "Markets", tech: "Technology", weather: "Weather and Earth" };
 
   // The chance of ending above x, read off the 10th, 50th and 90th percentiles by linear interpolation.
   // Beyond them the forecast says nothing precise, so the tails are capped at 5% and 95%

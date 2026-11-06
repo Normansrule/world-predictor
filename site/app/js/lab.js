@@ -6,7 +6,7 @@
 (function () {
   const STORE = "wp-lab-v1";
   const HOLD_MS = 480;
-  const AREA = { news: "World news", markets: "Markets", tech: "Technology" };
+  const AREA = { news: "World news", politics: "Politics", markets: "Markets", tech: "Technology", weather: "Weather and Earth" };
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const reduce = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
   const instances = new Map();

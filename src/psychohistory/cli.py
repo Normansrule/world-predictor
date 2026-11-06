@@ -12,7 +12,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from . import ask, backtest, catalog, dashboard, data, desk, events, ledger, monitor, radiant, report, seldon, simulate, story, volatility, web, wire, yearbook
+from . import ask, backtest, brief, catalog, dashboard, data, desk, events, ledger, monitor, radiant, report, seldon, simulate, story, volatility, web, wire, yearbook
 from .models import BASELINES, LAWS, classical_available, load_model
 
 log = logging.getLogger("psychohistory")
@@ -136,7 +136,7 @@ def radiant_builder(args, data: dict[str, pd.Series]):
                 experts["rival"] = rival.forecast([context], h)[0]
             except Exception as exc:  # the rival is optional: Radiant mixes without it
                 log.warning("Radiant's rival %s failed on %s: %s", radiant.RIVAL, spec.id, exc)
-        return radiant.mix(experts, radiant.weights(windows, radiant.area(spec)))
+        return radiant.mix(experts, radiant.weights(windows, radiant.area(spec), rival="rival" in experts))
     return build
 
 
@@ -259,6 +259,14 @@ def cmd_monitor(args) -> None:
         args.save.parent.mkdir(parents=True, exist_ok=True)
         monitor.by_month(scored).to_csv(args.save, index=False)
         print(f"\nSaved the month-by-month record to {args.save}")
+
+
+def cmd_brief(args) -> None:
+    """What changed since the last run: forecasts that came due, changes of mind, streaks."""
+    out = brief.build(ledger.read(args.ledger), ledger.read(args.scored), args.model, web._title)
+    print(brief.text(out))
+    if args.write:
+        print(f"Saved to {brief.write(out, args.out_dir / brief.BRIEF.name)}")
 
 
 def _vol_path(args, kind: str) -> Path:
@@ -632,6 +640,11 @@ def main(argv: list[str] | None = None) -> None:
     common(p)
     p.add_argument("--save", type=Path, metavar="FILE", help="also write the month-by-month record to a CSV")
     p.set_defaults(func=cmd_monitor)
+
+    p = sub.add_parser("brief", help="what changed since the last run: forecasts that came due, changes of mind, streaks")
+    common(p)
+    p.add_argument("--write", action="store_true", help="also save it to results/BRIEF.md")
+    p.set_defaults(func=cmd_brief)
 
     p = sub.add_parser("vol", help="volatility forecasts (GARCH, EWMA, TimesFM-implied) against what happened")
     common(p)

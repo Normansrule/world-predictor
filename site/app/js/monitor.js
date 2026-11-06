@@ -6,7 +6,7 @@
 // Reads D.monitor (see src/psychohistory/monitor.py).
 (function () {
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-  const AREAS = [["all", "All areas"], ["news", "World news"], ["markets", "Markets"], ["tech", "Technology"]];
+  const AREAS = [["all", "All areas"], ["news", "World news"], ["politics", "Politics"], ["markets", "Markets"], ["tech", "Technology"], ["weather", "Weather"]];
   const METRICS = [["skill", "Skill vs \"no change\""], ["coverage80", "In 80% range"], ["direction", "Right direction"], ["brier", "Brier score"]];
   const OTHER = ["var(--markets)", "var(--you)", "var(--news)", "var(--tech)", "var(--ink-3)"];
   const state = { area: "all", metric: "skill", grain: null, running: true };

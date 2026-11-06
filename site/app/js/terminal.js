@@ -9,9 +9,11 @@
   const STORE = "wp-calls-v1"; // shared with the Forecast Studio
   const WATCH = "wp-watch-v1";
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-  const AREAS = { news: "NEWS", markets: "MKT", tech: "TECH" };
+  const AREAS = { news: "NEWS", politics: "POL", markets: "MKT", tech: "TECH", weather: "WX" };
   const CODES = { sp500: "SPX", msci_world: "MXWO", nasdaq100: "NDX", gold: "XAU", silver: "XAG", oil_wti: "WTI", copper: "HG", bitcoin: "BTC", us10y: "UST10", tlt: "TLT", vix: "VIX",
-    news_composite: "N:ALL", tech_composite: "T:ALL", adoption_internet: "T:NET", adoption_solar: "T:SOLAR", adoption_wind: "T:WIND" };
+    news_composite: "N:ALL", tech_composite: "T:ALL", adoption_internet: "T:NET", adoption_solar: "T:SOLAR", adoption_wind: "T:WIND",
+    adoption_ev: "T:EV", space_launches: "T:LAUNCH", politics_composite: "P:ALL", weather_world_air: "WX:AIR", weather_world_sea: "WX:SEA",
+    weather_arctic_ice: "WX:ICE", weather_new_delhi: "WX:DEL", weather_los_angeles: "WX:LA", quakes_m45: "WX:QUAKE" };
   const SETTLE_DAYS = 7; // a call settles on the first real value within a week of its date
   const state = { area: "all", focus: null, watchOnly: false, msg: "", allOdds: false };
   let D = null, host = null;
@@ -21,7 +23,7 @@
   const write = (key, v) => { try { localStorage.setItem(key, JSON.stringify(v)); return true; } catch (e) { return false; } };
 
   // ---------- numbers ----------
-  const code = (o) => CODES[o.id] || o.id.replace(/^news_/, "N:").replace(/^wiki_/, "T:").toUpperCase();
+  const code = (o) => CODES[o.id] || o.id.replace(/^news_/, "N:").replace(/^politics_/, "P:").replace(/^weather_/, "WX:").replace(/^wiki_/, "T:").toUpperCase();
   const name = () => (/^timesfm/.test(D.meta.model) ? "TimesFM" : D.meta.model);
   const lastOf = (o) => o.history[o.history.length - 1];
   const perWeek = (o) => (((D.markets || {})[o.id] || {}).freq === "B" ? 5 : 7);
@@ -118,7 +120,7 @@
           <label for="tm-in"><span class="tm-prompt">WP&gt;</span></label>
           <input id="tm-in" spellcheck="false" placeholder="type a code and press Enter: GOLD, SPX, N:WAR, BOOK, HELP" aria-describedby="tm-msg">
           <button class="tm-go" type="submit">GO</button>
-          <div class="tm-keys" role="group" aria-label="Screens">${[["all", "WORLD"], ["markets", "MKT"], ["news", "NEWS"], ["tech", "TECH"]].map(([k, l]) =>
+          <div class="tm-keys" role="group" aria-label="Screens">${[["all", "WORLD"], ["markets", "MKT"], ["news", "NEWS"], ["politics", "POL"], ["tech", "TECH"], ["weather", "WX"]].map(([k, l]) =>
             `<button type="button" class="tm-key" data-area="${k}" aria-pressed="${state.area === k && !state.watchOnly}">${l}</button>`).join("")}
             <button type="button" class="tm-key" data-watch="1" aria-pressed="${state.watchOnly}">WATCH</button>
             <button type="button" class="tm-key" data-cmd="ODDS">ODDS</button><button type="button" class="tm-key" data-cmd="BOOK">BOOK</button><button type="button" class="tm-key" data-cmd="HELP">HELP</button></div>
@@ -156,7 +158,7 @@
   function run(raw) {
     const text = String(raw || "").trim(), [head, ...rest] = text.toUpperCase().split(/\s+/);
     if (!head) return;
-    const area = { WORLD: "all", ALL: "all", MKT: "markets", MARKETS: "markets", NEWS: "news", TECH: "tech" }[head];
+    const area = { WORLD: "all", ALL: "all", MKT: "markets", MARKETS: "markets", NEWS: "news", POL: "politics", POLITICS: "politics", TECH: "tech", WX: "weather", WEATHER: "weather" }[head];
     if (area) { state.area = area; state.watchOnly = false; state.msg = ""; render(host, D); return; }
     if (head === "HELP" || head === "?") { say("Codes: SPX NDX MXWO AAPL NVDA TSLA XOM XAU XAG WTI HG BTC UST10 TLT VIX · N:WAR N:ELECTION … · T:AI T:LLM … · screens WORLD MKT NEWS TECH WATCH · ODDS (event odds) · WATCH / UNWATCH the focus · CALL <value> fills your call · BOOK · MON (monitor) · DESK (Markets desk) · <code> GO"); return; }
     if (head === "ODDS" || head === "EVENTS") { host.querySelector("#tm-events").scrollIntoView({ behavior: "smooth", block: "start" }); return; }

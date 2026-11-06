@@ -3,7 +3,7 @@
 // date has already arrived. Reads D.track (past windows) and D.opened (scored sealed forecasts).
 (function () {
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-  const AREA_NAMES = { news: "World news", markets: "Markets", tech: "Technology" };
+  const AREA_NAMES = { news: "World news", politics: "Politics", markets: "Markets", tech: "Technology", weather: "Weather and Earth" };
   const hue = (d) => (AREA_NAMES[d] ? `var(--${d})` : "var(--ink-3)");
   const DAY = 864e5;
   const state = { id: null, k: null };

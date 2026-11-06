@@ -38,6 +38,7 @@ import pandas as pd
 
 from .catalog import SeriesSpec
 
+ATTENTION = ("news", "politics", "tech")  # the domains event odds are given for
 EVENTS = {"spike": (0.9, True), "lull": (0.1, False)}  # event: (quantile of the past, above it?)
 CLIMATOLOGY = "climatology"
 PERSISTENCE = "persistence"
@@ -57,8 +58,10 @@ WORDS = {"spike": "a level it reaches only one day in ten", "lull": "a low it fa
 
 
 def eligible(spec: SeriesSpec) -> bool:
-    """News and technology attention series (daily); markets have the desk's level odds instead."""
-    return spec.domain in ("news", "tech") and spec.freq == "D"
+    """News, political and technology attention series (daily). Markets have the desk's level odds
+    instead, and weather is left out: a fixed "one day in ten" line is crossed every day of a hot
+    season, so the odds would measure the calendar, not the forecaster."""
+    return spec.domain in ATTENTION and spec.freq == "D"
 
 
 def _norm_cdf(z: float) -> float:

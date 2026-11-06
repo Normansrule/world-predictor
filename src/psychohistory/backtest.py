@@ -160,7 +160,7 @@ def add_radiant(kept: list[dict], model: str, step_rows: list[dict] | None = Non
             continue
         spec, series, t = k["spec"], k["series"], k["t"]
         x = experts(f)
-        w = radiant.present(radiant.weights(windows, radiant.area(spec), series.index[t - 1]), x)
+        w = radiant.present(radiant.weights(windows, radiant.area(spec), series.index[t - 1], rival="rival" in x), x)
         mixed = radiant.mix(x, w)
         rows.append(score_window(spec, series, t, k["context"], radiant.NAME, mixed, step_rows,
                                  path_rows if radiant.NAME in paths_for else None)

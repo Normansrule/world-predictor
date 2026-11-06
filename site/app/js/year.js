@@ -1,6 +1,6 @@
 // Year ledger: every day of the year, each model's most likely value against what really happened.
 // One table per tracked series, grouped (gold, silver, bonds, indices, stocks, oil and copper, Bitcoin,
-// world news, technology), from 1 January to 31 December; days nobody forecast, or that have not
+// world news, politics, technology, world climate, city weather, earthquakes), from 1 January to 31 December; days nobody forecast, or that have not
 // happened yet, are dashes. Reads D.year (src/psychohistory/yearbook.py).
 (function () {
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -156,7 +156,7 @@
         <div class="rv-now" role="img" aria-label="${esc(V.keys.map((k, j) => `${name(k)} ${Math.round(a.now[j] * 100)}%`).join(", "))}">${bar}</div>${flow(a)}</div>`;
     }).join("");
     return `<div class="card"><header class="ph"><h2>How Radiant splits its vote</h2><span class="pm">exponential weights, learned per area from finished windows</span></header>
-      <p class="lede">Radiant starts with most of its weight on TimesFM. After every forecast window that finishes, each expert is charged its miss against TimesFM's and its weight shrinks by e<sup>−${V.eta} × charge</sup>, so a share has to be earned on forecasts the expert never saw. The bar is the split in use now, which this week's sealed Radiant forecasts were mixed with; the band below is how it moved.</p>
+      <p class="lede">Radiant starts with TimesFM and Chronos-Bolt level (most of the weight on TimesFM where Chronos does not run). After every forecast window that finishes, each expert is charged its miss against TimesFM's and its weight shrinks by e<sup>−${V.eta} × charge</sup>, so a share has to be earned on forecasts the expert never saw. The bar is the split in use now, which this week's sealed Radiant forecasts were mixed with; the band below is how it moved.</p>
       <div class="rv-grid">${areas}</div>
       <p class="rv-legend">${V.keys.map((k) => `<span><i style="background:${EXPERT_COLORS[k]}"></i>${esc(name(k))}</span>`).join("")}</p></div>`;
   }

@@ -17,3 +17,6 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - run: pip install -e ".[classical,dev]"
       - run: pytest -q
+      - name: The app's JavaScript parses
+        if: matrix.python-version == '3.12'
+        run: for f in site/app/js/*.js site/assets/site.js site/sw.js; do node --check "$f"; done

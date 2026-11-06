@@ -26,7 +26,8 @@ turns them into a forecast of the log change. Nothing after the forecast date is
 the core, "no change" and a rival model (Chronos-Bolt, when it ran) are mixed decile by decile with exponential weights (Freund & Schapire,
 1997; Cesa-Bianchi & Lugosi, 2006): every finished forecast window of an area (markets, news,
 technology, and the yearly adoption series on their own) charges each one its miss relative to TimesFM's, and its weight shrinks by
-``exp(-ETA * charge)``. It starts with most of the weight on TimesFM (``PRIOR``), so a signal only
+``exp(-ETA * charge)``. It starts with TimesFM and Chronos-Bolt level (``PRIOR``; most of the weight on TimesFM when
+Chronos does not run), so a signal only
 gains a say by being right on forecasts it never saw while learning.
 
 It is scored on exactly the same windows, metrics and sealed ledger as TimesFM, and reported whether
@@ -47,9 +48,14 @@ NAME = "radiant"  # the full mix
 CORE = "radiant-core"  # the behavioural core alone
 EXPERTS = ("model", "laws", "core", "naive", "rival")  # TimesFM, Seldon's laws, the core, no change, a rival model
 RIVAL = "chronos-bolt"  # the rival: best single model in the first official backtest, strongest on slow series
-# Starting weights: TimesFM's record is the one to beat. Without the rival they renormalise to exactly
-# 0.7 / 0.1 / 0.1 / 0.1, the weights Radiant started from before the rival joined.
-PRIOR = (0.63, 0.09, 0.09, 0.09, 0.10)
+# Starting weights. With the rival running, the two foundation models start level: the backtest of
+# 4 November 2026 gave each a track record (TimesFM 10.07%, Chronos-Bolt 9.39% sMAPE), and neither
+# should be favoured before an area's own windows have spoken. Replayed on that run, this start
+# beat the old one on the early windows (10.07% against 10.41%) and made no difference later, once
+# the weights had learned (8.78% both). Without the rival Radiant starts as it always did:
+# PRIOR_SOLO renormalises to exactly 0.7 / 0.1 / 0.1 / 0.1.
+PRIOR = (0.35, 0.10, 0.10, 0.10, 0.35)
+PRIOR_SOLO = (0.63, 0.09, 0.09, 0.09, 0.10)
 ETA = 2.0  # how fast a weight shrinks per unit of extra miss, relative to the model's own
 LAMBDA = 10.0  # ridge penalty: the core is shrunk hard toward "no change"
 MIN_TRAIN = 60  # points of history a core training date needs before it
@@ -154,15 +160,21 @@ def charges(window: Window) -> np.ndarray:
     return np.where(np.isfinite(out), out, 0.0)  # an expert that did not run on a window is neither charged nor credited
 
 
-def weights(windows: Sequence[Window], domain: str | None = None, at=None) -> np.ndarray:
+def prior(rival: bool = True) -> np.ndarray:
+    """Where the weights start: level between TimesFM and the rival when the rival runs, else on TimesFM."""
+    return np.array(PRIOR if rival else PRIOR_SOLO, dtype=float)
+
+
+def weights(windows: Sequence[Window], domain: str | None = None, at=None, rival: bool = True) -> np.ndarray:
     """The experts' weights for a forecast in ``domain`` made at ``at`` (None: now), from that
-    area's windows that had finished by then."""
+    area's windows that had finished by then. ``rival``: whether the rival runs for this forecast,
+    which sets where the weights start (``prior``)."""
     at = None if at is None else pd.Timestamp(at)
     total = np.zeros(len(EXPERTS))
     for w in windows:
         if (domain is None or w.domain == domain) and (at is None or w.end <= at):
             total += charges(w)
-    logits = np.log(np.array(PRIOR)) - ETA * total
+    logits = np.log(prior(rival)) - ETA * total
     logits -= logits.max()
     out = np.exp(logits)
     return out / out.sum()
@@ -273,7 +285,7 @@ def replay(paths: pd.DataFrame, data: dict[str, pd.Series], model: str, domains:
             experts["rival"] = Forecast(rk["q50"].to_numpy(float), _three(rk))
         for e in experts:
             experts[e] = _as_three(experts[e])
-        f = mix(experts, weights(windows, domains[series_id], origin))
+        f = mix(experts, weights(windows, domains[series_id], origin, rival="rival" in experts))
         for (_, r), mid, q in zip(g.iterrows(), f.point, f.quantiles):
             rows.append({"series_id": series_id, "model": NAME, "origin": r["origin"], "date": r["date"], "step": r["step"],
                          "q10": q[0], "q50": mid, "q90": q[-1], "actual": r["actual"]})

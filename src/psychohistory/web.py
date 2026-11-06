@@ -21,7 +21,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from . import __version__, catalog, events, monitor, radiant, seldon, volatility, yearbook
+from . import __version__, brief, catalog, events, frames, monitor, radiant, seldon, volatility, yearbook
 from .backtest import MAX_CONTEXT, calibration, domain_table, head_to_head, summarize
 from .ledger import latest as ledger_latest
 from .simulate import CROWD_SIZES, crowd_predictability, simulate_crowd
@@ -72,7 +72,8 @@ def _with_radiant(paths: pd.DataFrame | None, data: dict[str, pd.Series], model:
 
 
 RADIANT_EXPERTS = {"model": "TimesFM", "laws": "Crowd laws", "core": "Behavioural core", "naive": "No change", "rival": "Chronos-Bolt"}
-RADIANT_AREAS = (("markets", "Markets"), ("news", "World news"), ("tech", "Technology"), (radiant.YEARLY, "Yearly adoption"))
+RADIANT_AREAS = (("markets", "Markets"), ("news", "World news"), ("politics", "Politics"), ("tech", "Technology"),
+                 ("weather", "Weather and Earth"), (radiant.YEARLY, "Yearly adoption"))
 
 
 def radiant_vote_payload(paths: pd.DataFrame | None, data: dict[str, pd.Series], model: str, points: int = 60) -> dict | None:
@@ -93,9 +94,9 @@ def radiant_vote_payload(paths: pd.DataFrame | None, data: dict[str, pd.Series],
         ran = set(radiant.EXPERTS) if rival else set(radiant.EXPERTS) - {"rival"}  # as the mix uses them: absent experts drop out
 
         def split(at=None):
-            return [_num(v, 3) for v in radiant.present(radiant.weights(windows, key, at), ran)]
+            return [_num(v, 3) for v in radiant.present(radiant.weights(windows, key, at, rival), ran)]
         areas.append({"key": key, "title": title, "windows": len(mine), "rival": rival,
-                      "start": [_num(v, 3) for v in radiant.present(np.array(radiant.PRIOR), ran)],
+                      "start": [_num(v, 3) for v in radiant.present(radiant.prior(rival), ran)],
                       "points": [[d.date().isoformat(), split(d)] for d in pick], "now": split()})
     return {"experts": [RADIANT_EXPERTS[e] for e in radiant.EXPERTS], "keys": list(radiant.EXPERTS), "eta": radiant.ETA, "areas": areas}
 
@@ -131,7 +132,12 @@ def build_payload(
         "run": run_status or {}, "evidence": evidence(results, model),
         "lab": lab_payload(paths, model, data, windows), "duel": duel_payload(results, model),
         "duel_laws": duel_payload(results, model, seldon.LAWS_NAME),
+        "duel_radiant": duel_payload(results, model, radiant.NAME),
+        "leaderboard": leaderboard_payload(summary, model),
         "track": track_payload(paths, model), "opened": opened_payload(scored, model),
+        "track_radiant": track_payload(paths, radiant.NAME, bands=False),
+        "frames": frames.payload(paths, ledger, scored, data, model),
+        "brief": brief.build(ledger, scored, model, _title),
         "markets": markets_payload(summary),
         "monitor": monitor.payload(scored, summary, seals),
         "volatility": volatility_payload(**(vol or {}), data=data),
@@ -203,6 +209,7 @@ def build_payload(
                 "history": _history(data[item.series_id], max(3 * len(fan), 60)),
                 "fan": [[r.target_date, _num(r.q10), _num(r.q50), _num(r.q90)] for r in fan.itertuples()],
                 "seldon": _seldon_outlook(ledger, data[item.series_id], item.series_id, item.domain, fan, windows, model),
+                "radiant": _sealed_fan(ledger, radiant.NAME, item.series_id, fan["made_on"].iloc[0]),
             })
     if scored is not None and not scored.empty:
         record = track_record(scored, model)
@@ -212,6 +219,15 @@ def build_payload(
             for r in record.itertuples()
         ]
     return payload
+
+
+def _sealed_fan(ledger: pd.DataFrame, name: str, series_id: str, made_on) -> list | None:
+    """Model ``name``'s forecast for one series sealed in the same weekly batch, as [date, q10, q50,
+    q90] rows, or None when that batch has none (Radiant is sealed only by runs since it joined)."""
+    rows = ledger[(ledger["model"] == name) & (ledger["series_id"] == series_id) & (ledger["made_on"] == made_on)]
+    if rows.empty:
+        return None
+    return [[r.target_date, _num(r.q10), _num(r.q50), _num(r.q90)] for r in rows.sort_values("step").itertuples()]
 
 
 def _seldon_at(series: pd.Series, at, horizon: int) -> tuple:
@@ -329,11 +345,11 @@ def events_payload(summary: pd.DataFrame | None = None, now: pd.DataFrame | None
             out["now"].append([series_id, event, _sig(first["threshold"]), _sig(first["last_value"]), str(first["target_date"]),
                                {r.model: _num(r.p, 3) for r in g.itertuples()}])
     if summary is not None and not summary.empty:
-        part = summary[~summary["scope"].isin(set(summary["scope"]) - {"all", "news", "tech"})]
+        part = summary[~summary["scope"].isin(set(summary["scope"]) - {"all", *events.ATTENTION})]
         out["backtest"] = [[r.scope, r.event, r.model, int(r.forecasts), _num(r.happened, 3), _num(r.said, 3), _num(r.brier, 4),
                             _num(r.skill_clim, 4), _num(r.skill_pers, 4), _num(r.p, 4), int(r.origins)] for r in part.itertuples()]
         out["series"] = {sid: {r.event + "|" + r.model: [_num(r.skill_clim, 3), int(r.forecasts)] for r in g.itertuples()}
-                         for sid, g in summary[~summary["scope"].isin(["all", "news", "tech"])].groupby("scope")}
+                         for sid, g in summary[~summary["scope"].isin(["all", *events.ATTENTION])].groupby("scope")}
     live = events.live_record(scored)
     if not live.empty:
         out["live"] = [[r.event, r.model, int(r.forecasts), int(r.origins), _num(r.skill_clim, 4), _num(r.skill_pers, 4), r.verdict]
@@ -354,6 +370,33 @@ def duel_payload(results: pd.DataFrame | None, model: str, challenger: str = sel
              "prob_skill": [_num(r.model_prob_skill, 4), _num(r.challenger_prob_skill, 4)],
              "coverage80": [_num(r.model_coverage80, 4), _num(r.challenger_coverage80, 4)], "winner": r.winner}
             for r in table.itertuples()]
+
+
+def leaderboard_payload(summary: pd.DataFrame | None, model: str) -> dict | None:
+    """Every model of the newest backtest on one board: average sMAPE per series, overall and per
+    area (yearly adoption series apart, as Radiant learns them), median skill against "no change",
+    how often reality landed in its 80% range, and on how many series it beat ``model``. A model
+    that forecast fewer than half the series (the Bass curve, which only fits adoption) is left out."""
+    if summary is None or summary.empty or model not in set(summary["model"]):
+        return None
+    yearly = {s.id for s in catalog.CATALOG if s.source == "owid"}
+    s = summary.assign(area=[radiant.YEARLY if i in yearly else d for i, d in zip(summary["series_id"], summary["domain"])])
+    base = s[s["model"] == model].set_index("series_id")["smape"]
+    n = s["series_id"].nunique()
+    rows = []
+    for m, g in s.groupby("model"):
+        if g["series_id"].nunique() < n / 2:
+            continue
+        mine = g.set_index("series_id")["smape"]
+        common = mine.index.intersection(base.index)
+        rows.append({
+            "model": m, "series": int(len(g)), "smape": _num(g["smape"].mean(), 5),
+            "areas": {a: _num(x["smape"].mean(), 5) for a, x in g.groupby("area")},
+            "skill": _num(g["skill"].median(), 4), "coverage80": _num(g["coverage80"].mean(), 4),
+            "beats": None if m == model else int((mine[common] < base[common]).sum()), "of": int(len(common)),
+        })
+    rows.sort(key=lambda r: (r["smape"] is None, r["smape"]))
+    return {"model": model, "areas": [a for a, _ in RADIANT_AREAS if a in set(s["area"])], "rows": rows}
 
 
 LAB_ROUNDS = 3  # past windows per series offered in the Lab
@@ -463,7 +506,7 @@ def _lab_duel(scores: list[dict], model: str) -> list[dict]:
     return out
 
 
-def track_payload(paths: pd.DataFrame | None, model: str) -> dict[str, dict]:
+def track_payload(paths: pd.DataFrame | None, model: str, bands: bool = True) -> dict[str, dict]:
     """Every backtest window of every series, for its series page: what the model said each time
     and what really happened. The windows sit back to back, so the actual values are stored once
     (``actual``, on the dates ``start`` plus ``days`` calendar days) and each window keeps its origin,
@@ -480,8 +523,9 @@ def track_payload(paths: pd.DataFrame | None, model: str) -> dict[str, dict]:
         windows = []
         for origin, g in part.groupby("origin", sort=True):
             g = g.sort_values("step")
+            mid = [_sig(v) for v in g["q50"]]
             windows.append([str(origin), at[_date(g["date"].iloc[0])],
-                            [_sig(v) for v in g["q10"]], [_sig(v) for v in g["q50"]], [_sig(v) for v in g["q90"]]])
+                            [_sig(v) for v in g["q10"]] if bands else None, mid, [_sig(v) for v in g["q90"]] if bands else None])
         out[series_id] = {"start": dates[0], "days": [int((d - stamps.iloc[0]).days) for d in stamps],
                           "actual": [_sig(v) for v in days["actual"]], "windows": windows}
     return out
@@ -576,7 +620,8 @@ def demo_payload(seed: int = 0) -> dict:
 
     rng = np.random.default_rng(seed)
     specs = [catalog.by_id(i) for i in ("sp500", "gold", "silver", "bitcoin", "aapl", "news_composite",
-                                         "news_war", "wiki_ai", "wiki_llm")]
+                                         "news_war", "wiki_ai", "wiki_llm", "politics_composite",
+                                         "weather_world_air", "weather_london")]
     data = {}
     for k, spec in enumerate(specs):
         n = 700

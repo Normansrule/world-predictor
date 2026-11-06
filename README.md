@@ -6,7 +6,7 @@
 </picture>
 
 **A forecasting terminal that keeps score.**<br>
-Google's open-source **TimesFM** against **Seldon**, our own psychohistory forecaster that gives TimesFM a seat in a council of crowd laws, on world news, markets and new technologies.
+Google's open-source **TimesFM** against **Seldon**, our own psychohistory forecaster that gives TimesFM a seat in a council of crowd laws, on world news, politics, markets, new technologies and the weather.
 Every forecast is sealed before the future happens and scored when it arrives. Then it's your turn, in the Lab.
 
 [![Play the Lab](https://img.shields.io/badge/Play-the_Lab-c4412a?style=for-the-badge&logo=googlechrome&logoColor=white)](https://normansrule.github.io/world-predictor/app/#lab)
@@ -21,6 +21,7 @@ Every forecast is sealed before the future happens and scored when it arrives. T
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-2343b5)](LICENSE)
 ![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-1baf7a)
 [![Model: TimesFM 2.5](https://img.shields.io/badge/model-TimesFM_2.5-2343b5)](https://github.com/google-research/timesfm)
+[![Challenger: Radiant](https://img.shields.io/badge/challenger-Radiant-8a4a00)](src/psychohistory/radiant.py)
 [![Challenger: Seldon](https://img.shields.io/badge/challenger-Seldon-08615f)](src/psychohistory/seldon.py)
 ![No server](https://img.shields.io/badge/server-none-1baf7a)
 ![No API keys](https://img.shields.io/badge/API_keys-none-1baf7a)
@@ -29,6 +30,9 @@ Every forecast is sealed before the future happens and scored when it arrives. T
 [Features](#key-features) ·
 [Screenshots](#screenshots) ·
 [Results](#latest-results) ·
+[Today](#today-alerts-time-frames-and-the-70-club) ·
+[Radiant](#radiant-market-psychology-and-statistics-against-timesfm) ·
+[Weather and politics](#weather-politics-and-the-next-technologies) ·
 [Seldon vs TimesFM](#seldon-vs-timesfm) ·
 [Setup](#setup-and-usage) ·
 [How it works](#how-it-works) ·
@@ -49,11 +53,14 @@ In Isaac Asimov's *Foundation*, Hari Seldon can't predict what any one person wi
 *psychohistory* can predict what billions of people will do together. World Predictor runs a small,
 honest version of that bet: every week it asks [**TimesFM**](https://github.com/google-research/timesfm)
 (Time Series Foundation Model, Google Research's open-source forecaster) what happens next in world
-news, markets and new technology, seals each forecast with a date, and scores it in public once the
+news, politics, markets, new technology and the weather, seals each forecast with a date, and scores it in public once the
 future shows up. Against it runs **Seldon**, this project's own forecaster: a council of simple laws of
 crowd behaviour with TimesFM as one more voter, each voter's share earned on forecasts that already came
-true. Its laws-only twin, **Seldon laws**, has no neural network at all. All three are scored by the same
-code on the same windows, so the question "can psychohistory rules match or beat a 200-million-parameter
+true. Its laws-only twin, **Seldon laws**, has no neural network at all. And **Radiant**, named after the
+Prime Radiant, mixes TimesFM, Amazon's Chronos-Bolt, the crowd laws and a core of behavioural-finance
+signals by weights each area has to earn on finished forecasts; in the full backtest of 4 November 2026
+it beat TimesFM (9.56% average miss against 10.07%). All of them are scored by the same code on the
+same windows, so the question "can psychohistory rules match or beat a 200-million-parameter
 foundation model?" gets a real answer. In the
 **Lab** you can make your own blind call on a real past window and see whether you'd have beaten them both. It's for anyone curious how far AI (artificial intelligence) forecasting really
 reaches: people who follow markets or the news, data-science learners who want a worked, open example
@@ -64,10 +71,28 @@ Nothing here is financial advice, and most of the interesting results are about 
 |---|---|---|
 | **World events in the news** | Share of world news coverage about war, elections, inflation, climate, disease outbreaks and protests | [GDELT](https://www.gdeltproject.org/) (Global Database of Events, Language and Tone) |
 | **Markets and stores of value** | S&P 500 (Standard & Poor's 500), Nasdaq-100, MSCI World (Morgan Stanley Capital International), Apple, NVIDIA, Tesla, Exxon, **gold**, **silver**, **bonds** (US 10-year Treasury yield, TLT), oil, copper, Bitcoin | Yahoo Finance via [yfinance](https://github.com/ranaroussi/yfinance) |
-| **New technologies** | Attention to large language models, AI, quantum computing, CRISPR (clustered regularly interspaced short palindromic repeats) gene editing, electric vehicles, fusion and humanoid robots; adoption of solar, wind and the internet | [Wikimedia Pageviews](https://wikitech.wikimedia.org/wiki/Analytics/AQS/Pageviews), [Our World in Data](https://ourworldindata.org/) |
+| **Political events** | Share of world news coverage about sanctions, tariffs, ceasefires and peace talks, coups and martial law, impeachments and no-confidence votes, and referendums | [GDELT](https://www.gdeltproject.org/) |
+| **New technologies** | Attention to large language models, AI, quantum computing, CRISPR (clustered regularly interspaced short palindromic repeats) gene editing, electric vehicles, fusion, humanoid robots, solid-state batteries, gene therapy, self-driving cars and SpaceX's Starship; adoption of solar, wind, the internet and electric cars; objects launched into space each year | [Wikimedia Pageviews](https://wikitech.wikimedia.org/wiki/Analytics/AQS/Pageviews), [Our World in Data](https://ourworldindata.org/) (with the IEA and UNOOSA) |
+| **Weather and the planet** | The world's mean air temperature and sea surface temperature, Arctic sea ice extent, the daily high in London, New Delhi, Tokyo, Sydney and Los Angeles, and earthquakes of magnitude 4.5 or more | [Open-Meteo](https://open-meteo.com/), [Climate Reanalyzer](https://climatereanalyzer.org/) (ERA5, NOAA OISST), [NSIDC Sea Ice Index](https://nsidc.org/data/g02135), [USGS](https://earthquake.usgs.gov/) |
 
 ## Key features
 
+- **Today: one screen that says what happens next, and how sure.** Rise alerts in three tiers (75%,
+  85% and 95% or more chance of going higher), each carrying its own record of how often calls like it
+  came true; every series read at six time frames, from tomorrow to ten years out; a history chart of
+  every past forecast laid over what really happened; and a "who to trust" board with the 70% club.
+  [Open it](https://normansrule.github.io/world-predictor/app/).
+- **Five kinds of prediction, one scoreboard.** World news, politics, markets, new technologies, and
+  the weather and the planet: 55 series, every one fetched from free open data, forecast by the same
+  models, sealed the same way and scored against what really happened. Weather is forecast two weeks
+  ahead and settled against thermometers and satellites; earthquakes are the honest control, a series
+  nobody should be able to predict. [What's new](#weather-politics-and-the-next-technologies).
+- **Radiant, our forecaster that beat TimesFM.** TimesFM, Chronos-Bolt, Seldon's crowd laws, a
+  behavioural core (momentum, overreaction, reversal, momentum crashes, attention spikes) and "no change",
+  mixed by exponential weights that each area (markets, news, technology, yearly adoption) earns on
+  forecasts that already came true. Sealed every week beside TimesFM, shown on a leaderboard of every
+  model in the app, and replayed by its own lab (`scripts/radiant_replay.py`) on every full backtest so a
+  change only ships if it holds up on windows it was not tuned on. [How it works](#radiant-market-psychology-and-statistics-against-timesfm).
 - **The World terminal, the whole world on one screen.** A command line (`GOLD`, `SPX`, `N:WAR`,
   `WATCH`, `BOOK`), and every series in one dense board: last value, the week's move, how unusual it was
   in σ, the sealed forecast and its 80% range, the chance of rising, TimesFM's backtest record and its
@@ -75,10 +100,10 @@ Nothing here is financial advice, and most of the interesting results are about 
   sealed forecasts that just opened against what happened, a focus panel with the chart, both models'
   forecasts and volatility, and a live scoreboard. [Open it](https://normansrule.github.io/world-predictor/app/#terminal).
 - **A year ledger, Jan 1 to Dec 31.** One table per tracked group (gold, silver, bonds, indices, stocks,
-  oil and copper, Bitcoin, news, technology), a row for every day: the real value against the most
-  likely value of TimesFM, Seldon and the crowd laws, each one's miss in percent, dashes where nothing
+  oil and copper, Bitcoin, news, politics, technology, world climate, city weather, earthquakes), a row for every day: the real value against the most
+  likely value of TimesFM, Radiant, Seldon and the crowd laws, each one's miss in percent, dashes where nothing
   was tracked, and a leaderboard of who is closest. Refreshed every weekday. [Open it](https://normansrule.github.io/world-predictor/app/#year).
-- **Event odds for world news and technology.** "The chance election coverage, four weeks from now,
+- **Event odds for world news, politics and technology.** "The chance election coverage, four weeks from now,
   is at a level it reaches only one day in ten": a spike or a lull, for every news and technology
   series, read off TimesFM's and Seldon's sealed ranges, scored with the Brier score against
   climatology ("10%, as usual") and persistence ("what followed days like this one"), and sealed every
@@ -164,6 +189,23 @@ Nothing here is financial advice, and most of the interesting results are about 
 
 ## Screenshots
 
+**Today.** The home screen: how many calls reach each alert tier, then the alerts themselves, each with
+its chance, its range, the model that made it and the tier's own record.
+
+<img src="docs/assets/app-today.png" alt="The Today screen: a headline, three counters for Tell the world, Big priority and Priority alerts, and the three alert lanes with ring gauges showing each chance of going higher" width="100%">
+
+**How right were they?** Every past TimesFM forecast of the S&P 500 over what really happened, its
+most certain quarter in pink, and Radiant's paths dashed, with the average miss, range coverage and
+direction record above.
+
+<img src="docs/assets/app-history.png" alt="History chart for the S&P 500: the real index as a white line, TimesFM's past forecast paths and 80% ranges, its narrowest ranges highlighted, Radiant's dashed paths, and five accuracy tiles" width="100%">
+
+**Every model on one board.** The desk ranks every forecaster of the newest full backtest by its
+average miss, overall and per area, with how often each one beat TimesFM, and puts Radiant's head-to-head
+against TimesFM above Seldon's.
+
+<img src="docs/assets/app-leaderboard.png" alt="The desk's leaderboard: Chronos-Bolt, Radiant, TimesFM, Seldon, the ensemble, the crowd laws and the classical baselines ranked by average miss, with markets, news, technology and yearly columns, skill, range coverage and series closer than TimesFM" width="100%">
+
 **One real forecast, sealed and scored as you scroll.** The landing page pins a single real S&P 500
 forecast (the newest finished window, not a hand-picked one) and plays it out with the scroll: what
 TimesFM could see, the range it sealed, reality arriving day by day, and the score.
@@ -223,8 +265,20 @@ The landing page, slate and light. The Lab is the first thing you see, already l
 
 ## Latest results
 
-Everything in this section is redrawn by every forecast run and committed by the weekly GitHub
-Action. **Latest full run: 22 October 2026**, TimesFM 2.5 on 29 live series (6 news topics, 12
+**Newest full backtest: 4 November 2026**, 32 series, every forecast made blind at its origin and
+scored against what happened (average sMAPE, lower is better). Radiant, the project's own forecaster,
+beat TimesFM for the first time. [How Radiant works](#radiant-market-psychology-and-statistics-against-timesfm).
+
+| Forecaster | All | Markets | News | Technology (daily) | Yearly adoption |
+|---|---|---|---|---|---|
+| Chronos-Bolt (Amazon) | **9.39%** | 4.93% | 15.17% | 11.87% | **13.55%** |
+| **Radiant** (this repo) | 9.56% | 4.88% | 14.50% | 11.65% | 17.57% |
+| TimesFM 2.5 (Google) | 10.07% | 4.89% | **14.47%** | **11.47%** | 23.39% |
+| Seldon (this repo) | 10.40% | 4.98% | **14.47%** | **11.47%** | 26.54% |
+| Ensemble of all models | 10.82% | **4.79%** | 15.24% | 16.36% | 17.33% |
+
+The table and the duel just below are the project's **first full run (22 October 2026)**, kept as the
+record it set; the charts further down are redrawn by every forecast run. That run had TimesFM 2.5 on 29 live series (6 news topics, 12
 markets, 11 technologies), each backtested over 12 past windows against what really happened:
 
 | Area | TimesFM vs "tomorrow looks like today" | Its 80% range caught reality | Edge lasts |
@@ -609,6 +663,138 @@ they are; it now uses the laws alone. Research, not investment advice.)
 
 <img src="docs/assets/app-year.png" alt="The Year ledger: a leaderboard of TimesFM, Radiant, Seldon and the crowd laws for 2026 with a race chart of each challenger's gap to TimesFM, and gold's table with real-or-luck verdicts, a strip of the year coloured by the closest model and a row per week of real values, forecasts and percentage misses" width="100%">
 
+### Today: alerts, time frames and the 70% club
+
+The app now opens on **Today**, built to answer three questions in a few seconds: what is likely to
+go up, over what time frame, and should I believe it?
+
+**Alerts in three tiers.** Every series and time frame where a forecaster gives a 75% or better chance
+of going higher becomes an alert: **Priority** from 75%, **Big priority** from 85%, and **Tell the
+world** from 95%. Radiant speaks first where it has a forecast, then TimesFM, then the long view, and
+the others' chances sit beside it. Every tier shows its own record, kept apart by source so one easy
+case cannot flatter the rest. In the 4 November backtest:
+
+| Tier | Past calls by the models (Radiant, TimesFM) that rose | Long-view calls that rose |
+|---|---|---|
+| Tell the world, 95%+ | 42 of 42 | 17 of 17 |
+| Big priority, 85% to 95% | 16 of 18 (89%) | 72 of 72 |
+| Priority, 75% to 85% | 54 of 62 (87%) | 61 of 61 |
+
+The long view's perfect record comes from the yearly adoption curves (solar, wind, the internet),
+which have only ever gone up. It says little about anything else until weather, markets and attention
+have six full years of their own in it. Sealed forecasts opened so far: 1 of 1 in the top tier rose
+and 3 of 5 in Priority, too few to judge yet.
+
+**Six time frames.** Pick any series and read it at a day, a week, a month, a year, 5 years and 10
+years. Day, week and month come straight from the weekly sealed forecasts. Year, 5 and 10 years come
+from the **long view** (`src/psychohistory/frames.py`): a random walk with drift on each series'
+yearly averages (in logs when it is always positive). Its range adds the doubt about the drift
+itself to the year-to-year swings and uses Student's t, so ten years ahead it is honestly wide. It
+needs six complete years of a series before it says anything, and it never claims more than 99%. No
+foundation model is asked for ten years of daily values; that would be a number, not a forecast.
+
+**How right were they?** For the chosen series, every past backtest forecast is drawn over what
+really happened: TimesFM's most likely path and 80% range, its most certain quarter (its narrowest
+ranges) highlighted, and Radiant's paths dashed. Above the chart: TimesFM's average miss, how often
+reality stayed in its range, how often it called the direction, how it did when it was most sure,
+and Radiant's average miss beside it.
+
+**The 70% club.** Each forecaster was tuned to be right on the direction at least 70% of the time.
+It learns, on the earlier half of the backtest, how far from 50% its chance has to lean before its up
+or down calls reach 70%, and it stays quiet below that. The table is the later half, which it never
+saw (share of windows that got a call in brackets):
+
+| Later windows | Markets | World news | Technology (daily) |
+|---|---|---|---|
+| TimesFM | 47% (no lean reached 70%) | **77%** (80% called) | 69% (61% called) |
+| Radiant | 49% (no lean reached 70%) | **77%** (80% called) | 69% (61% called) |
+| Chronos-Bolt | 63% (no lean reached 70%) | **81%** (34% called) | 66% (67% called) |
+| Seldon | 46% (no lean reached 70%) | **77%** (80% called) | 69% (61% called) |
+
+World news clears 70% on fresh windows for every model. Technology reached it on the early windows
+and slipped just under on the later ones. Markets never got there, for any model, at any lean:
+whether a market is up or down in a day, a week or a month stayed close to a coin toss, which is
+what the efficient-market hypothesis (Fama, 1970) says it should be. Radiant, TimesFM and Seldon
+share their numbers in news and technology because Radiant's weights there went fully to TimesFM.
+Politics and weather join the table after their first full backtest. The tuning runs again on every
+export, so the lean each model needs is always learned from its own past.
+
+**Simpler to use.** Five buttons instead of sixteen: Today, World, Markets, Scores and Your call. The
+other views are one tap away under More, and every keyboard shortcut still works. The status bar
+shows only what matters (live or demo, when it was updated, the next run).
+
+**Easier every day.** A handful of small things that make the app nicer to live with:
+
+| What | How |
+|---|---|
+| Your watchlist | Press **☆ Watch** on any series in the time-frame board. Starred series sit at the top of Today with their ring gauge for the frame you picked, and the World terminal shares the same list. Nothing leaves your browser. |
+| Links that open the exact view | **Copy link** gives a URL such as `#today/gold:week` that opens Today on gold's one-week call. Search (`/`) also finds "<series>: every time frame". |
+| Take the numbers with you | **CSV** downloads every series and time frame on screen: chance up, range, tier and model. |
+| Help on one key | Press **?** (or the ? button) for every shortcut. First-time visitors get three short tips, shown once. |
+| Phones | A bottom tab bar with the five main views and a **More** sheet, sized for thumbs. |
+| Never an empty screen | Until the first run with this version, Today builds its alerts and time frames from the forecasts already published, and says so. |
+
+<img src="docs/assets/app-phone.png" alt="Today on a phone: the watchlist with ring gauges at the top and a bottom tab bar with Today, World, Markets, Scores, Your call and More" width="45%">
+
+### Since the last run: the brief
+
+Every forecast run now ends with a brief, the morning paper of the ledger. It answers three questions
+from sealed forecasts only, and the same text is saved as [`results/BRIEF.md`](results/BRIEF.md), printed by
+`psychohistory brief` and shown on Today (with a **Copy as text** button):
+
+| Question | How it is answered |
+|---|---|
+| What came due? | Every sealed forecast whose date fell in the last week, per model: share inside the 80% range, share with the right direction, skill against "no change". The lead model's closest calls and its biggest surprises, measured in range widths outside the 80% range, each drawn as a strip: range, middle and what happened. |
+| Where did a model change its mind? | Its two newest sealed batches asked the *same* question: the chance of ending above today's level on the farthest date both cover. Holding the level fixed separates a change of mind from a change of starting point. A flip crosses 50% and lands at least 2 points past it. |
+| Who is on a streak? | TimesFM's next-step calls, one per sealed batch, so overlapping days never count twice; runs of three or more right or wrong. A short streak is weak evidence, which the brief says beside it. |
+
+On the first real week (30 October to 5 November 2026) Radiant had 70% of its directions right on 72 forecasts
+against TimesFM's 60% on 577, and Seldon the best skill (+12%); Apple, Exxon and gold were the biggest surprises.
+
+<img src="docs/assets/app-brief.png" alt="The brief on Today: a table of how each model did on the forecasts that came due, strips for the closest calls and surprises, changes of mind on a 0 to 100% track, and streak bars" width="100%">
+
+### Weather, politics and the next technologies
+
+Three more kinds of prediction, added on 4 November 2026 and built exactly like the first three: free
+open data, no API keys, the same forecasters (TimesFM, Chronos-Bolt, Seldon, Radiant and the
+baselines), the same rolling backtest and the same sealed weekly ledger. Each area learns its own
+Radiant weights, so a model that is good at weather earns its vote there without changing a market
+forecast.
+
+| Area | Series | Ahead | Settled against |
+|---|---|---|---|
+| **Weather and the planet** | World mean surface air temperature (ERA5), world sea surface temperature 60°S to 60°N (NOAA OISST v2.1), Arctic sea ice extent | 14 days | Climate Reanalyzer's daily files and the NSIDC Sea Ice Index |
+| | Daily high in London, New Delhi, Tokyo, Sydney and Los Angeles | 14 days | Open-Meteo's historical archive (ERA5 and national weather services) |
+| | Earthquakes of magnitude 4.5 or more per day, worldwide | 14 days | The USGS ComCat catalogue |
+| **Political events** | Coverage of sanctions, tariffs, ceasefires and peace talks, coups and martial law, impeachments and no-confidence votes, referendums, and their average | 28 days | GDELT, the same way as world news |
+| **Technological advances** | Wikipedia attention to solid-state batteries, gene therapy, self-driving cars and SpaceX's Starship | 28 days | Wikimedia Pageviews |
+| | Share of new cars sold that are electric; objects launched into space each year | 3 years | Our World in Data (IEA, UNOOSA) |
+
+Why these choices:
+
+- **Two weeks for weather.** Past about ten days the atmosphere forgets where it started
+  (Lorenz, 1963), so a longer forecast would only test who knows the calendar. Two weeks keeps a
+  little real weather in the test and lets the seasons show whether a model reads the annual cycle.
+  Weather is scored on MASE (mean absolute scaled error) as well as sMAPE: a London high near 0 °C
+  makes a percentage miss look huge when the forecast was off by a degree.
+- **Earthquakes as the control.** Single quakes have resisted every attempt at prediction
+  (Geller, 1997). The daily count should only reveal its average and its aftershock clusters, so a
+  forecaster that seems to beat "no change" there by a wide margin is a warning about the test, not a
+  discovery.
+- **Political events as attention, with odds.** GDELT measures how much of the world's news a topic
+  takes up, so "a coup somewhere" shows up as a spike in coverage. Political series get the same
+  spike-and-lull odds as world news ("the chance coverage of sanctions, four weeks from now, is at a
+  level it reaches only one day in ten"), scored with the Brier score against climatology and
+  persistence. Weather is left out of the odds on purpose: a fixed "one day in ten" heat line is
+  crossed every day of a hot summer, which would measure the calendar rather than the forecaster.
+- **Technology twice over.** Pageviews say when a technology is in the news; the yearly series say
+  whether it is actually spreading. Electric car sales only start in 2010, so their first backtest
+  has few windows; the space launch count runs from 1957.
+
+There are no results for these areas yet. They join the next weekly run, which seals their first
+forecasts, and the next full backtest, which scores them against the past. The tables here will be
+filled from those runs, whichever way they come out.
+
 ### Radiant: market psychology and statistics against TimesFM
 
 Radiant ([`radiant.py`](src/psychohistory/radiant.py)) is named after the Prime Radiant, the device
@@ -635,7 +821,8 @@ long histories to estimate. In GitHub Actions it sees decades.
 **The full Radiant (`radiant`)** mixes TimesFM, the crowd laws, the core, "no change" and, since
 3 November 2026, a rival model (Chronos-Bolt; Ansari et al., 2024) decile by decile, with exponential weights (Freund & Schapire, 1997; Cesa-Bianchi & Lugosi, 2006): every
 finished forecast window of an area charges each one its miss relative to TimesFM's, and its weight
-shrinks by e^(−2 × charge). It starts with 70% of the weight on TimesFM, so a signal only gains a say by
+shrinks by e^(−2 × charge). It starts with TimesFM and Chronos-Bolt level (35% each; 70% on TimesFM when
+Chronos does not run), so a signal only gains a say by
 being right on forecasts it never saw while learning. Both are backtested on the same windows as
 TimesFM, sealed every week beside it, and scored in the year ledger, the bake-off and the real-or-luck
 verdicts. The VIX, the market's own fear gauge (Whaley, 2000), is now tracked too; feeding it to the
@@ -669,12 +856,60 @@ over 95% after eight, which would have cut Radiant's yearly misses roughly to Ch
 estimate from window scores, not a scored forecast: the next full backtest, which records Chronos's
 paths, is the test. Without Chronos the change is neutral (solar better, wind slightly worse).
 
-**Watch it decide.** The Year ledger now shows how Radiant splits its vote in each area: the split in
-use now, which this week's sealed Radiant forecasts were mixed with, and how it moved after every
-finished window. On the official backtest it has moved most of its markets vote to the crowd laws
-(58%, with TimesFM at 25%), kept all of it on TimesFM for news and the daily technology series, and,
-on the yearly adoption series, started with the laws and handed the vote back to TimesFM by 2010.
-Chronos-Bolt's share appears as soon as a run records its forecasts.
+**Its second official backtest** (the full CI run of 4 November 2026, the first with Chronos-Bolt in
+the mix and the yearly series learning apart): **Radiant beat TimesFM**, 9.56% average sMAPE against
+10.07%, and was closer on 17 of the 32 series (10 of 15 markets, 3 of 6 news topics, 1 of 8 daily
+technology series and all 3 yearly ones). Most of the gap is the yearly adoption series (17.6%
+against 23.4%), where Chronos earned the vote as predicted. Chronos-Bolt alone was still best
+(9.39%), because Radiant needed a few yearly windows to find it: on the first ones it still followed
+TimesFM's 63%. On markets, news and the daily technology series Radiant and TimesFM stayed within two
+tenths of a point (4.88% against 4.89% on markets).
+
+**So the two foundation models now start level.** Each has an official record, so neither should be
+favoured before an area's windows have spoken: with Chronos running, Radiant now starts at 35% TimesFM,
+35% Chronos and 10% for each of the others (without Chronos it starts exactly as before). Replayed on
+the 4 November run's recorded paths, with weights learned only from finished windows, that took Radiant
+from 9.51% to 9.33%, ahead of both Chronos (9.39%) and TimesFM (10.11%) on the same windows. Read it
+with care: the start was chosen after seeing this run. Split in time, it helps only on the early
+windows (10.07% against 10.41%), before the weights have learned, and changes nothing on the later
+ones (8.78% both, against Chronos's 8.82% and TimesFM's 9.11%). Faster forgetting ("fixed share") and
+other learning rates were tried on the same split and did not help. The next full backtest is its test.
+
+**Radiant's lab** ([`scripts/radiant_replay.py`](scripts/radiant_replay.py)) rebuilds the whole mix
+from a recorded full backtest, each window learning only from its area's finished windows, and
+scores every change on the same 344 windows, split into an early half (little to learn from yet) and
+a late half (weights learned). A change ships only if it holds up on the late half. On the
+4 November run:
+
+| Variant | All | Early | Late | Markets | News | Tech | Yearly |
+|---|---|---|---|---|---|---|---|
+| **Radiant as shipped** (level start) | 9.33% | 10.07% | 8.78% | 4.93% | 14.79% | 11.16% | 15.55% |
+| Old start (63% TimesFM, 10% Chronos) | 9.51% | 10.41% | 8.78% | 4.94% | **14.75%** | **11.15%** | 17.57% |
+| Learning rate 4 instead of 2 | **9.31%** | **10.03%** | 8.78% | 4.91% | 14.78% | 11.16% | **15.41%** |
+| Learning rate 1 | 9.37% | 10.15% | 8.79% | 4.93% | 14.81% | 11.16% | 15.91% |
+| Fixed share 3%: forget old windows (Herbster & Warmuth, 1998) | 9.35% | 10.15% | 8.78% | 4.92% | 14.78% | 11.22% | 15.60% |
+| 25% always on TimesFM and Chronos | 9.34% | 10.16% | **8.76%** | 4.91% | 14.79% | 11.18% | 15.74% |
+| 50% always on TimesFM and Chronos | 9.39% | 10.27% | 8.77% | **4.90%** | 14.81% | 11.20% | 16.10% |
+| Chronos-Bolt alone | 9.39% | 10.32% | 8.82% | 5.03% | 15.31% | 11.55% | 13.55% |
+| TimesFM alone | 10.11% | 11.25% | 9.11% | 5.00% | 14.72% | 11.25% | 23.39% |
+
+None of these is worth shipping: on the late windows every variant is within 0.03 points of the
+shipped mix. Keeping half the vote on the two foundation models would fix the markets drift on the
+late windows (4.87% against 5.01%), but it costs as much on the yearly series and on the early
+windows. The lab also checks Radiant's 80% range. On the late windows it caught reality 74% of the
+time, a little short. A band width learned per area from the finished windows' misses (adaptive
+conformal inference; Gibbs & Candès, 2021) brings that to 79%, but its pinball loss is no better
+(2.91% of the level against 2.89%) and it overshoots on the few yearly windows. So the ranges stay as
+they are; like the volatility round's range test, it makes the range more honest without making the
+forecast better. Every future full backtest can be put through the lab the same way.
+
+**Watch it decide.** The Year ledger shows how Radiant splits its vote in each area: the split in use
+now, which this week's sealed Radiant forecasts were mixed with, and how it moved after every finished
+window. After the 4 November run it gives the yearly adoption series entirely to Chronos-Bolt and news
+and the daily technology series entirely to TimesFM. On markets, where every expert misses by about
+5% and the differences are small, it has drifted to "no change" (59%) and the behavioural core (40%);
+on the later markets windows that left it slightly behind both foundation models (5.01% against
+TimesFM's 4.97% and Chronos's 4.78%), the weakest spot to work on next.
 
 <img src="docs/assets/app-radiant-vote.png" alt="How Radiant splits its vote: for markets, world news, technology and the yearly adoption series, a bar of the weights in use now and a stacked band of how TimesFM, the crowd laws, the behavioural core, no change and Chronos-Bolt shared the vote after each finished window" width="100%">
 
@@ -713,6 +948,7 @@ psychohistory monitor     # the live record over time, the significance test and
 psychohistory verify      # check no sealed forecast was edited (SHA-256 per weekly batch)
 psychohistory vol         # volatility forecasts: GARCH, EWMA and TimesFM's range against last month's
 psychohistory events      # event odds: the chance of a spike or a lull in news and tech attention
+psychohistory brief       # since the last run: what came due, changes of mind, streaks (--write saves results/BRIEF.md)
 psychohistory wire        # the newest headlines per topic from GDELT, for the World terminal
 psychohistory export      # write the app's data file, results/web/data.js
 psychohistory site        # build the static app into build/site (what Pages serves)
@@ -790,6 +1026,7 @@ flowchart LR
     Y[Yahoo Finance] --> F
     W[Wikipedia views] --> F
     O[Our World in Data] --> F
+    WX[Open-Meteo · Climate Reanalyzer<br/>NSIDC · USGS] --> F
   end
   F[fetch + cache] --> M
   subgraph M [Forecasters]
@@ -912,6 +1149,7 @@ src/psychohistory/
   volatility.py          `psychohistory vol`: GARCH(1,1), EWMA and implied volatility, QLIKE, a sealed volatility ledger
   yearbook.py            the year ledger: every day of the year, each model's median against reality, sealed over backtest
   events.py              `psychohistory events`: odds of a spike or a lull, Brier skill vs climatology and persistence, a sealed event ledger
+  brief.py               `psychohistory brief`: what came due, changes of mind at a fixed level, streaks; results/BRIEF.md
   wire.py                `psychohistory wire`: the newest GDELT headlines per topic, for the World terminal
   ask.py                 `psychohistory ask`: TimesFM live on one series or your own CSV
   desk.py                `psychohistory desk`: a forecast desk note for any ticker, with odds, volatility and a per-asset track record
@@ -950,18 +1188,23 @@ honest about what it doesn't know. Its one big moment is the seal itself, in the
 
 | Colour | Means | Always backed by |
 |---|---|---|
-| Soft white ink (slate) / near-black ink (light) | What really happened | A solid line |
+| Soft white ink (dusk) / near-black ink (light) | What really happened | A solid line |
 | Periwinkle | TimesFM, the model under test | A hatched range |
 | Teal | Seldon, the challenger | A dotted range |
 | Violet | You, in the Lab and the Forecast Studio | Your name on the line |
 | Seal red | A forecast sealed before the future | The seal and its date |
 | Green / coral red | Better / worse than "no change" | A sign (+ or −) |
-| Orange, gold, orchid | World news, markets, technology | The area's name beside it |
+| Orange, rose, gold, orchid, sky blue | World news, politics, markets, technology, weather | The area's name beside it |
 | Gold | Warnings and gaps | Hatching and a "!" |
+| Yellow, orange, hot pink | Alert tiers: 75%, 85%, 95%+ chance of going higher | The tier's name and the percentage |
 
 Every text colour passes WCAG (Web Content Accessibility Guidelines) AA contrast, 4.5:1, on every
-surface in both themes. Slate (`#262d36`, panels `#2e3640`), a mid-tone that is neither glaring nor
-pitch-dark, is the default; the soft light theme uses grey paper (`#dfe4ea`) rather than white.
+surface in both themes. Dusk (`#272c48`, panels `#30365a`), a mid-tone indigo with a soft violet and
+pink aura, is the default. The choice follows colour psychology: blue reads as trust and competence,
+so it carries the base and TimesFM, while saturated warm colours raise attention and arousal, so they
+are kept for what should get attention (the alert tiers, Radiant and the headline gradient). Green and
+red keep their usual meaning of gain and loss (Elliot & Maier, 2014). The soft light theme uses
+lavender-grey paper (`#e6e8f6`) rather than white.
 Spacing is kept tight, terminal-style: 12-pixel gaps between panels and short, one-line introductions.
 
 **Type with jobs.** Newsreader, a newspaper serif, for headlines and the Lab's verdict; IBM Plex Sans
@@ -1019,9 +1262,9 @@ World Predictor is Apache-2.0).
 
 <!-- progress:start -->
 
-**53 of 57 milestones done (93%).** Drawn from [`docs/progress.json`](docs/progress.json); tests check every ticked item against the repository.
+**60 of 64 milestones done (94%).** Drawn from [`docs/progress.json`](docs/progress.json); tests check every ticked item against the repository.
 
-<details><summary><b>📰 World news</b> · 14/14</summary>
+<details><summary><b>📰 World news</b> · 17/17</summary>
 
 - [x] GDELT news-attention loader
 - [x] Six news topics plus a news composite
@@ -1031,6 +1274,9 @@ World Predictor is Apache-2.0).
 - [x] Chronos-Bolt joins Radiant's mix as an optional fifth expert that earns its weight
 - [x] Yearly adoption series learn Radiant's weights in an area of their own, where Chronos-Bolt led
 - [x] The Year ledger shows how Radiant splits its vote per area and how the split moved
+- [x] Radiant beats TimesFM in an official backtest (9.56% against 10.07% sMAPE, 4 November 2026)
+- [x] Radiant's lab replays its mix on every recorded backtest and tests changes on early and late windows
+- [x] A leaderboard of every model, Radiant's duel and its sealed forecasts on the desk and outlook; the lab runs after every full backtest
 - [x] Radiant: behavioural finance signals and an exponential-weights mix, scored against TimesFM in the bake-off, the year ledger and the weekly sealed ledger
 - [x] Year ledger verdicts: a Diebold-Mariano test per series against TimesFM, cut with Benjamini-Hochberg, and a CSV of every table
 - [x] Bake-off: ten ways of combining TimesFM and the crowd laws replayed without peeking; Seldon's share rule replaced by the one that came closest
@@ -1065,7 +1311,7 @@ World Predictor is Apache-2.0).
 
 </details>
 
-<details open><summary><b>🌐 Web app (GitHub Pages)</b> · 19/20</summary>
+<details open><summary><b>🌐 Web app (GitHub Pages)</b> · 23/24</summary>
 
 - [x] World terminal: command line, world board, movers, just-opened forecasts, focus and scoreboard
 - [x] Your book: sealed calls settled for good, running skill against TimesFM, export and import
@@ -1087,6 +1333,10 @@ World Predictor is Apache-2.0).
 - [ ] Live at normansrule.github.io/world-predictor
 - [x] Long-term monitor: live skill, coverage and calibration by month, with drift alarms
 - [x] Design audit: WCAG 2.2 contrast in both themes, an 11px type floor, 40px touch targets, keyboard-instant views
+- [x] Today home screen: rise alerts in three tiers (75%, 85%, 95%+), each with its own record
+- [x] Six time frames per series (day to ten years) with a long view for years
+- [x] The 70% club: direction calls tuned on early windows, checked on later ones
+- [x] Five-button navigation and the Dusk palette
 
 </details>
 
@@ -1124,22 +1374,31 @@ bibliography, with every model, data source, theory and design reference, is in
 - Cboe Global Markets. (n.d.-a). *Cboe 10-Year U.S. Treasury Note Yield Index (TNX)* [Data set]. Retrieved November 2, 2026, from https://www.cboe.com/
 - Cboe Global Markets. (n.d.-b). *Cboe Volatility Index (VIX)* [Data set]. Retrieved November 2, 2026, from https://www.cboe.com/tradable_products/vix/
 - Cesa-Bianchi, N., & Lugosi, G. (2006). *Prediction, learning, and games*. Cambridge University Press. https://doi.org/10.1017/CBO9780511546921
+- Climate Change Institute, University of Maine. (n.d.). *Climate Reanalyzer: Daily surface air and sea surface temperature* [Data set]. Retrieved November 4, 2026, from https://climatereanalyzer.org/
 - Da, Z., Engelberg, J., & Gao, P. (2011). In search of attention. *The Journal of Finance, 66*(5), 1461–1499. https://doi.org/10.1111/j.1540-6261.2011.01679.x
 - Daniel, K., & Moskowitz, T. J. (2016). Momentum crashes. *Journal of Financial Economics, 122*(2), 221–247. https://doi.org/10.1016/j.jfineco.2015.12.002
 - Das, A., Kong, W., Sen, R., & Zhou, Y. (2024). A decoder-only foundation model for time-series forecasting. In *Proceedings of the 41st International Conference on Machine Learning* (Proceedings of Machine Learning Research, Vol. 235). PMLR. https://arxiv.org/abs/2310.10688
 - De Bondt, W. F. M., & Thaler, R. (1985). Does the stock market overreact? *The Journal of Finance, 40*(3), 793–805. https://doi.org/10.1111/j.1540-6261.1985.tb05004.x
 - Diebold, F. X., & Mariano, R. S. (1995). Comparing predictive accuracy. *Journal of Business & Economic Statistics, 13*(3), 253–263. https://doi.org/10.1080/07350015.1995.10524599
+- Elliot, A. J., & Maier, M. A. (2014). Color psychology: Effects of perceiving color on psychological functioning in humans. *Annual Review of Psychology, 65*, 95–120. https://doi.org/10.1146/annurev-psych-010213-115035
 - Engle, R. F. (1982). Autoregressive conditional heteroscedasticity with estimates of the variance of United Kingdom inflation. *Econometrica, 50*(4), 987–1007. https://doi.org/10.2307/1912773
+- Fama, E. F. (1970). Efficient capital markets: A review of theory and empirical work. *The Journal of Finance, 25*(2), 383–417. https://doi.org/10.2307/2325486
+- Fetterer, F., Knowles, K., Meier, W. N., Savoie, M., & Windnagel, A. K. (2017). *Sea Ice Index* (Version 3) [Data set]. National Snow and Ice Data Center. https://doi.org/10.7265/N5K072F8
 - Freund, Y., & Schapire, R. E. (1997). A decision-theoretic generalization of on-line learning and an application to boosting. *Journal of Computer and System Sciences, 55*(1), 119–139. https://doi.org/10.1006/jcss.1997.1504
 - Gardner, E. S., Jr., & McKenzie, E. (1985). Forecasting trends in time series. *Management Science, 31*(10), 1237–1246. https://doi.org/10.1287/mnsc.31.10.1237
 - Garza, A., Mergenthaler Canseco, M., Challú, C., & Olivares, K. G. (2022). *StatsForecast: Lightning fast forecasting with statistical and econometric models* [Computer software]. GitHub. https://github.com/Nixtla/statsforecast
+- Geller, R. J. (1997). Earthquake prediction: A critical review. *Geophysical Journal International, 131*(3), 425–450. https://doi.org/10.1111/j.1365-246X.1997.tb06588.x
+- Gibbs, I., & Candès, E. (2021). Adaptive conformal inference under distribution shift. In *Advances in Neural Information Processing Systems 34* (pp. 1660–1672). https://arxiv.org/abs/2106.00170
 - Gneiting, T., & Raftery, A. E. (2007). Strictly proper scoring rules, prediction, and estimation. *Journal of the American Statistical Association, 102*(477), 359–378. https://doi.org/10.1198/016214506000001437
 - Google Research. (n.d.). *timesfm* [Computer software]. GitHub. https://github.com/google-research/timesfm
 - Harvey, D., Leybourne, S., & Newbold, P. (1997). Testing the equality of prediction mean squared errors. *International Journal of Forecasting, 13*(2), 281–291. https://doi.org/10.1016/S0169-2070(96)00719-4
 - Herbster, M., & Warmuth, M. K. (1998). Tracking the best expert. *Machine Learning, 32*(2), 151–178. https://doi.org/10.1023/A:1007424614876
+- Hersbach, H., Bell, B., Berrisford, P., Hirahara, S., Horányi, A., Muñoz-Sabater, J., Nicolas, J., Peubey, C., Radu, R., Schepers, D., Simmons, A., Soci, C., Abdalla, S., Abellan, X., Balsamo, G., Bechtold, P., Biavati, G., Bidlot, J., Bonavita, M., … Thépaut, J.-N. (2020). The ERA5 global reanalysis. *Quarterly Journal of the Royal Meteorological Society, 146*(730), 1999–2049. https://doi.org/10.1002/qj.3803
 - Hoerl, A. E., & Kennard, R. W. (1970). Ridge regression: Biased estimation for nonorthogonal problems. *Technometrics, 12*(1), 55–67. https://doi.org/10.1080/00401706.1970.10488634
+- Huang, B., Liu, C., Banzon, V., Freeman, E., Graham, G., Hankins, B., Smith, T., & Zhang, H.-M. (2021). Improvements of the Daily Optimum Interpolation Sea Surface Temperature (DOISST) version 2.1. *Journal of Climate, 34*(8), 2923–2939. https://doi.org/10.1175/JCLI-D-20-0166.1
 - Hyndman, R. J., & Billah, B. (2003). Unmasking the Theta method. *International Journal of Forecasting, 19*(2), 287–290. https://doi.org/10.1016/S0169-2070(01)00143-1
 - Hyndman, R. J., & Koehler, A. B. (2006). Another look at measures of forecast accuracy. *International Journal of Forecasting, 22*(4), 679–688. https://doi.org/10.1016/j.ijforecast.2006.03.001
+- International Energy Agency. (2025). *Global EV outlook 2025*. https://www.iea.org/reports/global-ev-outlook-2025
 - Jegadeesh, N., & Titman, S. (1993). Returns to buying winners and selling losers: Implications for stock market efficiency. *The Journal of Finance, 48*(1), 65–91. https://doi.org/10.1111/j.1540-6261.1993.tb04702.x
 - J.P. Morgan/Reuters. (1996). *RiskMetrics: Technical document* (4th ed.). Morgan Guaranty Trust Company.
 - Kivinen, J., & Warmuth, M. K. (1997). Exponentiated gradient versus gradient descent for linear predictors. *Information and Computation, 132*(1), 1–63. https://doi.org/10.1006/inco.1996.2612
@@ -1148,6 +1407,7 @@ bibliography, with every model, data source, theory and design reference, is in
 - Leetaru, K., & Schrodt, P. A. (2013, April). *GDELT: Global data on events, location, and tone, 1979–2012* [Paper presentation]. International Studies Association Annual Convention, San Francisco, CA, United States.
 - Lehmann, B. N. (1990). Fads, martingales, and market efficiency. *The Quarterly Journal of Economics, 105*(1), 1–28. https://doi.org/10.2307/2937816
 - Lichtendahl, K. C., Jr., Grushka-Cockayne, Y., & Winkler, R. L. (2013). Is it better to average probabilities or quantiles? *Management Science, 59*(7), 1594–1611. https://doi.org/10.1287/mnsc.1120.1667
+- Lorenz, E. N. (1963). Deterministic nonperiodic flow. *Journal of the Atmospheric Sciences, 20*(2), 130–141. https://doi.org/10.1175/1520-0469(1963)020<0130:DNF>2.0.CO;2
 - Makridakis, S., Spiliotis, E., & Assimakopoulos, V. (2020). The M4 Competition: 100,000 time series and 61 forecasting methods. *International Journal of Forecasting, 36*(1), 54–74. https://doi.org/10.1016/j.ijforecast.2019.04.014
 - Mandelbrot, B. (1963). The variation of certain speculative prices. *The Journal of Business, 36*(4), 394–419. https://doi.org/10.1086/294632
 - Moskowitz, T. J., Ooi, Y. H., & Pedersen, L. H. (2012). Time series momentum. *Journal of Financial Economics, 104*(2), 228–250. https://doi.org/10.1016/j.jfineco.2011.11.003
@@ -1163,10 +1423,13 @@ bibliography, with every model, data source, theory and design reference, is in
 - Tetlock, P. E., & Gardner, D. (2015). *Superforecasting: The art and science of prediction*. Crown.
 - The GDELT Project. (n.d.). *GDELT DOC 2.0 API* [Data set]. Retrieved October 20, 2026, from https://www.gdeltproject.org/
 - Timmermann, A. (2006). Forecast combinations. In G. Elliott, C. W. J. Granger, & A. Timmermann (Eds.), *Handbook of economic forecasting* (Vol. 1, pp. 135–196). Elsevier. https://doi.org/10.1016/S1574-0706(05)01004-9
+- United Nations Office for Outer Space Affairs. (n.d.). *Online index of objects launched into outer space* [Data set]. Retrieved November 4, 2026, from https://www.unoosa.org/oosa/osoindex/
+- U.S. Geological Survey. (2017). *Advanced National Seismic System (ANSS) comprehensive catalog of earthquake events and products* [Data set]. https://doi.org/10.5066/F7MS3QZH
 - Wallis, K. F. (2014). The two-piece normal, binormal, or double Gaussian distribution: Its origin and rediscoveries. *Statistical Science, 29*(1), 106–112. https://doi.org/10.1214/13-STS417
 - Whaley, R. E. (2000). The investor fear gauge. *The Journal of Portfolio Management, 26*(3), 12–17. https://doi.org/10.3905/jpm.2000.319728
 - Wikimedia Foundation. (n.d.). *Wikimedia REST API: Pageviews* [Data set]. Retrieved October 20, 2026, from https://wikimedia.org/api/rest_v1/
 - Yahoo. (n.d.). *Yahoo Finance* [Data set]. Retrieved October 20, 2026, from https://finance.yahoo.com/
+- Zippenfeld, P. (2023). *Open-Meteo.com weather API* [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.7970649
 
 World Monitor and its fork Terra Atlas are the basis for shipping one app two ways (ideas only, no
 code copied). The design-audit guides (Impeccable, taste-skill and Emil Kowalski's skills) and the

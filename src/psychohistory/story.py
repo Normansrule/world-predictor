@@ -19,8 +19,8 @@ from .report import GRID, SERIES_COLORS, SURFACE, TEXT, TEXT_SECONDARY
 
 log = logging.getLogger(__name__)
 
-DOMAIN_PLAIN = {"news": "world news", "markets": "markets", "tech": "technology"}
-STEP_UNIT = {"news": "days", "markets": "trading days", "tech": "days"}
+DOMAIN_PLAIN = {"news": "world news", "politics": "politics", "markets": "markets", "tech": "technology", "weather": "the weather"}
+STEP_UNIT = {"news": "days", "politics": "days", "markets": "trading days", "tech": "days", "weather": "days"}
 HEADLINE_SERIES = ("sp500", "gold", "news_composite", "wiki_ai")
 
 
@@ -37,7 +37,7 @@ def headlines(
     if not mine.empty:
         wins = [d for d in mine.index if mine.loc[d, "median_skill"] > 0.02]
         verdicts = []
-        for d in ("news", "markets", "tech"):
+        for d in DOMAIN_PLAIN:
             if d in mine.index:
                 skill = mine.loc[d, "median_skill"]
                 if skill > 0.02:
@@ -71,7 +71,7 @@ def headlines(
             )
 
     if by_step is not None and not by_step.empty:
-        for d in ("news", "markets", "tech"):
+        for d in DOMAIN_PLAIN:
             steps = edge_steps(by_step, model, d)
             if steps is None:
                 continue
@@ -139,7 +139,8 @@ SVG_THEMES = {  # the app's palette: cyan = less error than the simple guess, co
     "light": {"bg": "#f4f6fb", "text": "#0d1424", "muted": "#4f5a70", "grid": "#d6dce8", "good": "#0a7c93", "bad": "#c03d31", "dot": "#0d1424"},
     "dark": {"bg": "#060a16", "text": "#f2ede3", "muted": "#9aa6bc", "grid": "#1d2944", "good": "#5fd4e6", "bad": "#f07a63", "dot": "#f2ede3"},
 }
-DOMAIN_CARDS = (("news", "📰", "World news"), ("markets", "📈", "Markets"), ("tech", "🚀", "Technology"))
+DOMAIN_CARDS = (("news", "📰", "World news"), ("politics", "🏛️", "Politics"), ("markets", "📈", "Markets"),
+                ("tech", "🚀", "Technology"), ("weather", "🌦️", "Weather"))
 
 
 def scorecard(

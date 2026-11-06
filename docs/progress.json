@@ -47,6 +47,21 @@
           "evidence": "docs/assets/app-radiant-vote.png"
         },
         {
+          "title": "Radiant beats TimesFM in an official backtest (9.56% against 10.07% sMAPE, 4 November 2026)",
+          "done": true,
+          "evidence": "results/backtest_summary.csv"
+        },
+        {
+          "title": "Radiant's lab replays its mix on every recorded backtest and tests changes on early and late windows",
+          "done": true,
+          "evidence": "scripts/radiant_replay.py"
+        },
+        {
+          "title": "A leaderboard of every model, Radiant's duel and its sealed forecasts on the desk and outlook; the lab runs after every full backtest",
+          "done": true,
+          "evidence": "docs/assets/app-leaderboard.png"
+        },
+        {
           "title": "Radiant: behavioural finance signals and an exponential-weights mix, scored against TimesFM in the bake-off, the year ledger and the weekly sealed ledger",
           "done": true,
           "evidence": "src/psychohistory/radiant.py"
@@ -269,6 +284,26 @@
           "title": "Design audit: WCAG 2.2 contrast in both themes, an 11px type floor, 40px touch targets, keyboard-instant views",
           "done": true,
           "evidence": "docs/DESIGN.md"
+        },
+        {
+          "title": "Today home screen: rise alerts in three tiers (75%, 85%, 95%+), each with its own record",
+          "done": true,
+          "evidence": "site/app/js/today.js"
+        },
+        {
+          "title": "Six time frames per series (day to ten years) with a long view for years",
+          "done": true,
+          "evidence": "src/psychohistory/frames.py"
+        },
+        {
+          "title": "The 70% club: direction calls tuned on early windows, checked on later ones",
+          "done": true,
+          "evidence": "src/psychohistory/frames.py"
+        },
+        {
+          "title": "Five-button navigation and the Dusk palette",
+          "done": true,
+          "evidence": "site/app/index.html"
         }
       ]
     },

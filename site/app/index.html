@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>World Predictor · Terminal</title>
-  <meta name="description" content="A forecasting terminal: Google's TimesFM and Seldon, our own psychohistory forecaster, forecast world news, markets and technology. Every forecast is sealed before the future happens and scored when it arrives. Make your own call in the Lab.">
-  <meta name="theme-color" content="#262d36">
+  <meta name="description" content="A forecasting terminal: Google's TimesFM and Seldon, our own psychohistory forecaster, forecast world news, politics, markets, technology and the weather. Every forecast is sealed before the future happens and scored when it arrives. Make your own call in the Lab.">
+  <meta name="theme-color" content="#272c48">
   <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
   <link rel="manifest" href="../manifest.webmanifest">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,6 +22,7 @@
     <span>World Predictor</span>
   </a>
   <dl class="readouts" id="readouts"></dl>
+  <button class="icon-btn" id="help-btn" title="Shortcuts (?)" aria-label="Keyboard shortcuts" aria-haspopup="dialog">?</button>
   <button class="icon-btn" id="theme" title="Slate or light (T)" aria-label="Switch between the slate and light themes">
     <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg>
   </button>
@@ -39,26 +40,34 @@
 
 <div class="shell">
   <nav class="rail" aria-label="Views">
-    <a href="#terminal"><kbd>W</kbd>World terminal</a>
-    <a href="#desk"><kbd>1</kbd>Desk</a>
-    <a href="#markets"><kbd>M</kbd>Markets desk</a>
-    <a href="#monitor"><kbd>R</kbd>Monitor</a>
-    <a href="#year"><kbd>Y</kbd>Year ledger</a>
-    <a href="#lab"><kbd>2</kbd>Lab</a>
-    <a href="#studio"><kbd>3</kbd>Forecast Studio</a>
-    <a href="#outlook"><kbd>4</kbd>Outlook</a>
-    <a href="#trace"><kbd>5</kbd>Follow a result</a>
-    <a href="#replay"><kbd>6</kbd>Replay</a>
-    <a href="#horizon"><kbd>7</kbd>How far ahead</a>
-    <a href="#odds"><kbd>8</kbd>Honest odds</a>
-    <a href="#vault"><kbd>9</kbd>Time Vault</a>
-    <a href="#series"><kbd>0</kbd>All series</a>
-    <a href="#crowd"><kbd class="nokey" aria-hidden="true">0</kbd>Crowd lab</a>
-    <a href="#about"><kbd>?</kbd>About</a>
+    <a href="#today" class="primary"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg>Today</a>
+    <a href="#terminal" class="primary"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg>World</a>
+    <a href="#markets" class="primary"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg>Markets</a>
+    <a href="#desk" class="primary"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M12 20V4M19 20v-7"/></svg>Scores</a>
+    <a href="#lab" class="primary"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3"/></svg>Your call</a>
+    <details class="more-nav">
+      <summary>More</summary>
+      <div class="more-sheet">
+      <a href="#studio">Forecast Studio</a>
+      <a href="#year">Year ledger</a>
+      <a href="#monitor">Monitor</a>
+      <a href="#outlook">Outlook</a>
+      <a href="#series">All series</a>
+      <a href="#trace">Follow a result</a>
+      <a href="#replay">Replay</a>
+      <a href="#horizon">How far ahead</a>
+      <a href="#odds">Honest odds</a>
+      <a href="#vault">Time Vault</a>
+      <a href="#crowd">Crowd lab</a>
+      <a href="#about">About</a>
+      </div>
+    </details>
   </nav>
 
   <main id="main" tabindex="-1">
     <div id="demo"></div>
+
+    <section class="view" id="view-today" aria-labelledby="today-h"><div id="today-root"></div></section>
 
     <section class="view" id="view-terminal" aria-labelledby="terminal-h"><div id="terminal-root"></div></section>
 
@@ -71,7 +80,7 @@
     <section class="view" id="view-desk" aria-labelledby="desk-h">
       <div class="vhead">
         <h1 id="desk-h">Is anyone better than "no change"?</h1>
-        <p class="lede">Google's TimesFM against Seldon, our own forecaster: crowd laws with TimesFM as one voter. Both scored against "tomorrow looks like today" on windows neither model saw.</p>
+        <p class="lede">Google's TimesFM against this project's own forecasters, Radiant and Seldon, with Amazon's Chronos-Bolt and the classical baselines on the same board. All scored against "tomorrow looks like today" on windows none of them saw.</p>
       </div>
       <div class="desk">
         <div class="card span3" id="board-card">
@@ -79,6 +88,10 @@
           <div class="table-wrap"><table class="board" id="board"></table></div>
           <p class="note" id="board-note"></p>
           <div class="duel" id="duel"></div>
+        </div>
+        <div class="card span3" id="leader-card">
+          <header class="ph"><h2>Leaderboard</h2><span class="pm">every model on the newest backtest, best first</span></header>
+          <div id="leader"></div>
         </div>
         <div class="card span2">
           <header class="ph"><h2>Skill by area</h2><span class="pm">less error than "no change"; above zero is better</span></header>
@@ -290,6 +303,11 @@
 <footer class="foot" id="footer"></footer>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+<dialog id="help" aria-labelledby="help-h">
+  <header><h2 id="help-h">Shortcuts</h2><button class="icon-btn" data-close aria-label="Close">✕</button></header>
+  <div class="help-keys"></div>
+  <p>Everything is also one tap away: the five buttons on the left (at the bottom on a phone), and More for the rest. <a href="#about" data-close>About World Predictor</a></p>
+</dialog>
 <script src="data/data.js"></script>
 <script src="data/pipeline.js"></script>
 <script src="js/charts.js"></script>
@@ -301,6 +319,7 @@
 <script src="js/monitor.js"></script>
 <script src="js/terminal.js"></script>
 <script src="js/year.js"></script>
+<script src="js/today.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

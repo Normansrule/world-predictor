@@ -1,4 +1,4 @@
-"""Data loaders for the three domains. Every loader returns a ``pandas.Series`` indexed by date."""
+"""Data loaders for every domain. Every loader returns a ``pandas.Series`` indexed by date."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ from urllib.parse import quote
 import pandas as pd
 
 from ..catalog import SeriesSpec, by_id
-from . import gdelt, markets, owid, wikipedia
+from . import gdelt, markets, owid, quakes, weather, wikipedia
 
 log = logging.getLogger(__name__)
 
@@ -18,6 +18,10 @@ SOURCES = {
     "yahoo": markets.fetch,
     "wikipedia": wikipedia.fetch,
     "owid": owid.fetch,
+    "openmeteo": weather.city,
+    "reanalyzer": weather.world,
+    "seaice": weather.sea_ice,
+    "usgs": quakes.fetch,
 }
 
 DEFAULT_CACHE = Path("data")
@@ -38,6 +42,14 @@ def source_url(spec: SeriesSpec) -> str | None:
         return f"https://pageviews.wmcloud.org/?project=en.wikipedia.org&pages={quote(p['article'])}"
     if spec.source == "owid":
         return f"{owid.GRAPHER}/{p['slug']}"
+    if spec.source == "openmeteo":
+        return f"https://open-meteo.com/en/docs/historical-weather-api#latitude={p['latitude']}&longitude={p['longitude']}"
+    if spec.source == "reanalyzer":
+        return "https://climatereanalyzer.org/clim/t2_daily/" if p.get("dataset", "air") == "air" else "https://climatereanalyzer.org/clim/sst_daily/"
+    if spec.source == "seaice":
+        return "https://nsidc.org/arcticseaicenews/charctic-interactive-sea-ice-graph/"
+    if spec.source == "usgs":
+        return f"https://earthquake.usgs.gov/earthquakes/map/?extent=-89,-180&extent=89,180&magnitude={p.get('min_magnitude', 4.5)}"
     return None  # composites are built from the member series
 
 

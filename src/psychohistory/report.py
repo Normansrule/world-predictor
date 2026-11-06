@@ -9,12 +9,13 @@ from pathlib import Path
 import pandas as pd
 
 from .backtest import calibration, crises, domain_table, head_to_head, horizon_table, scale_table
+from .catalog import DOMAINS
 from .models import LAWS
 
 log = logging.getLogger(__name__)
 
 # Categorical palette, fixed order (validated for colour-vision deficiency separation).
-SERIES_COLORS = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100"]
+SERIES_COLORS = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#8c4bc9", "#c23a6b"]
 TEXT = "#0b0b0b"
 TEXT_SECONDARY = "#52514e"
 GRID = "#e4e3df"
@@ -33,8 +34,10 @@ def model_order(models, main: str) -> list[str]:
 
 DOMAIN_TITLES = {
     "news": "World events in the news",
+    "politics": "Political events",
     "markets": "Stock and value markets",
     "tech": "New technologies",
+    "weather": "Weather and the planet",
 }
 
 
@@ -93,7 +96,7 @@ def write_report(
     lines += ["## 1. Can the future be predicted?", ""]
     if (out_dir / "plots" / "skill_by_domain.png").exists():
         lines += ["![Skill by domain](plots/skill_by_domain.png)", ""]
-    for domain in ("news", "markets", "tech"):
+    for domain in DOMAINS:
         row = domains[(domains["domain"] == domain) & (domains["model"] == model)]
         if not row.empty:
             skill = float(row["median_skill"].iloc[0])
@@ -310,7 +313,7 @@ def _latest_section(latest: pd.DataFrame | None, model: str, out_dir: Path) -> l
         "today's (scored later with the Brier score: 0 is perfect, 0.25 is a coin flip).",
         "",
     ]
-    for domain in ("news", "markets", "tech"):
+    for domain in DOMAINS:
         part = rows[rows["domain"] == domain]
         if part.empty:
             continue
@@ -357,7 +360,7 @@ def plot_skill(summary: pd.DataFrame, out_dir: Path = Path("results"), main_mode
     table = domain_table(summary)
     table = table[table["model"] != "naive"]
     models = model_order(table["model"], main_model)
-    domains = [d for d in ("news", "markets", "tech") if d in set(table["domain"])]
+    domains = [d for d in DOMAINS if d in set(table["domain"])]
     fig, ax = plt.subplots(figsize=(7.5, 3.8), dpi=150)
     _style(ax)
     ax.grid(axis="y", visible=False)
@@ -424,7 +427,7 @@ def plot_horizon(by_step: pd.DataFrame, model: str, out_dir: Path = Path("result
         return None
     fig, ax = plt.subplots(figsize=(7.5, 3.6), dpi=150)
     _style(ax)
-    for i, domain in enumerate(d for d in ("news", "markets", "tech") if d in set(rows["domain"])):
+    for i, domain in enumerate(d for d in DOMAINS if d in set(rows["domain"])):
         part = rows[rows["domain"] == domain].sort_values("step")
         color = SERIES_COLORS[i]
         ax.plot(part["step"], part["skill"], color=color, linewidth=2, label=DOMAIN_TITLES[domain])

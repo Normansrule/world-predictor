@@ -4,15 +4,15 @@
   const D = window.WP_DATA;
   const { plot, bars, legend, fmt, icon, council, councilBar } = window.WPCharts;
   const $ = (id) => document.getElementById(id);
-  const AREAS = [["news", "World news", "GDELT attention"], ["markets", "Markets", "stocks, gold, silver, oil"], ["tech", "Technology", "Wikipedia and adoption"]];
+  const AREAS = [["news", "World news", "GDELT attention"], ["politics", "Politics", "sanctions, tariffs, coups, votes"], ["markets", "Markets", "stocks, gold, silver, oil"], ["tech", "Technology", "Wikipedia and adoption"], ["weather", "Weather and Earth", "temperature, sea ice, quakes"]];
   const AREA = Object.fromEntries(AREAS.map(([d, n]) => [d, n]));
   // Each area has its own colour, always next to its name.
   const hue = (d) => (AREA[d] ? `var(--${d})` : "var(--ink-3)");
   const tag = (d) => `<span class="tag" style="--c:${hue(d)}">${esc(AREA[d] || d)}</span>`;
-  const UNIT = { news: "days", markets: "trading days", tech: "days" };
-  const VIEWS = ["terminal", "desk", "markets", "monitor", "year", "lab", "studio", "outlook", "trace", "replay", "horizon", "odds", "vault", "crowd", "series", "about"];
-  const KEYS = { w: "terminal", W: "terminal", m: "markets", M: "markets", r: "monitor", R: "monitor", y: "year", Y: "year", 1: "desk", 2: "lab", 3: "studio", 4: "outlook", 5: "trace", 6: "replay", 7: "horizon", 8: "odds", 9: "vault", 0: "series", "?": "about" };
-  const NAMES = { terminal: "World terminal", desk: "Desk", markets: "Markets desk", monitor: "Monitor", year: "Year ledger", lab: "Lab", studio: "Forecast Studio", outlook: "Outlook", trace: "Follow a result", replay: "Replay", horizon: "How far ahead", odds: "Honest odds",
+  const UNIT = { news: "days", politics: "days", markets: "trading days", tech: "days", weather: "days" };
+  const VIEWS = ["today", "terminal", "desk", "markets", "monitor", "year", "lab", "studio", "outlook", "trace", "replay", "horizon", "odds", "vault", "crowd", "series", "about"];
+  const KEYS = { h: "today", H: "today", w: "terminal", W: "terminal", m: "markets", M: "markets", r: "monitor", R: "monitor", y: "year", Y: "year", 1: "desk", 2: "lab", 3: "studio", 4: "outlook", 5: "trace", 6: "replay", 7: "horizon", 8: "odds", 9: "vault", 0: "series", "?": "about" };
+  const NAMES = { today: "Today", terminal: "World terminal", desk: "Desk", markets: "Markets desk", monitor: "Monitor", year: "Year ledger", lab: "Lab", studio: "Forecast Studio", outlook: "Outlook", trace: "Follow a result", replay: "Replay", horizon: "How far ahead", odds: "Honest odds",
     vault: "Time Vault", crowd: "Crowd lab", series: "All series", about: "About" };
   // The workflow's schedule: new forecasts sealed Monday 06:00 UTC, live refresh every weekday 22:30 UTC.
   function nextRun(now = new Date()) {
@@ -32,20 +32,19 @@
   }
   const model = D.meta.model;
   const modelName = /^timesfm/.test(model) ? "TimesFM" : model;
-  const colorOf = (m) => (m === model || /^timesfm/.test(m) ? "var(--tfm)" : m === "seldon" ? "var(--seldon)" : m === "naive" ? "var(--ink-2)" : "var(--ink)");
-  const nameOf = (m) => (m === model ? modelName : m === "seldon" ? "Seldon" : m === "seldon-laws" ? "Seldon laws" : m);
+  const COLORS = { seldon: "var(--seldon)", "seldon-laws": "var(--hypo)", radiant: "var(--radiant)", "chronos-bolt": "var(--rival)", naive: "var(--ink-2)" };
+  const NAMES_OF = { seldon: "Seldon", "seldon-laws": "Seldon laws", radiant: "Radiant", "radiant-core": "Radiant core", "chronos-bolt": "Chronos-Bolt",
+    "auto-ets": "AutoETS", ensemble: "Ensemble", naive: "No change", drift: "Drift", mean: "Seasonal mean", bass: "Bass curve" };
+  const colorOf = (m) => (m === model || /^timesfm/.test(m) ? "var(--tfm)" : COLORS[m] || "var(--ink)");
+  const nameOf = (m) => (m === model ? modelName : NAMES_OF[m] || m);
   const skillCls = (v) => (v === null || v === undefined ? "dim" : Math.abs(v) < 0.02 ? "dim" : v > 0 ? "pos" : "neg");
   const signed = (v) => { const r = Math.round(v * 100); return r === 0 ? "0%" : (r > 0 ? "+" : "−") + Math.abs(r) + "%"; };
 
   // ---------- chrome: status readouts, tape, footer ----------
-  const sealed = D.outlook.length, lab = D.lab;
+  const lab = D.lab;
   $("readouts").innerHTML = [
     [D.meta.demo ? "demo" : "live", "Data", D.meta.demo ? "Demo · synthetic" : "Recorded run"],
-    ["", "Generated", D.meta.generated],
-    ["", "Model", model],
-    ["", "Challenger", "seldon"],
-    ["", "Series", String(D.series.length)],
-    ["", "Sealed", String(sealed)],
+    ["", "Updated", D.meta.generated],
     ["", "Next run", nextRun()],
   ].map(([c, k, v]) => `<div class="${c}"><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join("");
   $("tape").innerHTML = D.outlook.map((o) => {
@@ -116,17 +115,20 @@
           An underline marks the better of the two. ${fromRun ? "" : "This run predates Seldon's place in the backtest, so its numbers are Seldon run afterwards on the same past windows, from only the data before each one. It has no pretraining to leak the answer, but the next backtest makes it official."}`;
       }
       duel();
+      leaderboard();
       record();
       $("plain-body").innerHTML = D.headlines.length ? "<ul>" + D.headlines.map((h) => `<li>${esc(h)}</li>`).join("") + "</ul>"
         : '<p class="note" style="margin:0">The findings appear after the first forecast run.</p>';
       // The model, its challenger, and at most two rivals; simple baselines stay in the tables.
-      const others = [...new Set(D.domains.map((r) => r.model))].filter((m) => ![model, "seldon", "naive", "drift", "mean"].includes(m)).sort().slice(0, 2);
+      const PREFER = ["radiant", "chronos-bolt"];  // the project's own forecaster and the strongest rival come first
+      const others = [...new Set(D.domains.map((r) => r.model))].filter((m) => ![model, "seldon", "naive", "drift", "mean"].includes(m))
+        .sort((a, b) => ((PREFER.indexOf(a) + 1 || 99) - (PREFER.indexOf(b) + 1 || 99)) || a.localeCompare(b)).slice(0, 2);
       const models = [model, ...(D.domains.some((r) => r.model === "seldon") ? ["seldon"] : []), ...others];
       const RIVAL = ["var(--ink-3)", "var(--line-2)"];
       const groups = AREAS.filter(([d]) => D.domains.some((r) => r.domain === d));
       if (!groups.length) { $("skill-chart").innerHTML = '<div class="empty"><b>No backtest yet.</b>Appears after the first forecast run.</div>'; }
       else {
-        const series = models.map((m) => ({ name: nameOf(m), color: others.includes(m) ? RIVAL[others.indexOf(m)] : colorOf(m), values: groups.map(([d]) => (D.domains.find((r) => r.domain === d && r.model === m) || {}).skill ?? null) }));
+        const series = models.map((m) => ({ name: nameOf(m), color: others.includes(m) && !COLORS[m] ? RIVAL[others.indexOf(m)] : colorOf(m), values: groups.map(([d]) => (D.domains.find((r) => r.domain === d && r.model === m) || {}).skill ?? null) }));
         if (!models.includes("seldon") && lab) series.splice(1, 0, { name: "Seldon", color: "var(--seldon)", values: groups.map(([d]) => (pick(d, "seldon") || {}).skill ?? null) });
         const host = $("skill-chart"), card = host.closest(".card"), side = card.nextElementSibling;
         const draw = (height) => bars(host, { groups: groups.map((g) => g[1]), series, yFormat: fmt.pct, label: "Skill by area", height });
@@ -139,11 +141,12 @@
         if (spare > 24) draw(Math.min(560, 260 + spare));
       }
       const rows = D.outlook.slice(0, 10);
-      $("sealed").innerHTML = rows.length ? `<thead><tr><th>Series</th><th>Area</th><th>Last</th><th>${esc(modelName)} middle</th><th>Seldon middle</th><th>Chance higher</th><th>Opens</th></tr></thead><tbody>` +
+      $("sealed").innerHTML = rows.length ? `<thead><tr><th>Series</th><th>Area</th><th>Last</th><th>${esc(modelName)} middle</th><th>Radiant middle</th><th>Seldon middle</th><th>Chance higher</th><th>Opens</th></tr></thead><tbody>` +
         rows.map((o) => {
           const s = o.seldon && o.seldon.fan && o.seldon.fan.length ? o.seldon.fan[o.seldon.fan.length - 1][2] / o.history[o.history.length - 1][1] - 1 : null;
+          const r = o.radiant && o.radiant.length ? o.radiant[o.radiant.length - 1][2] / o.history[o.history.length - 1][1] - 1 : null;
           return `<tr><td><a href="#outlook/${esc(o.id)}">${esc(o.title)}</a></td><td>${tag(o.domain)}</td><td>${fmt.num(o.history[o.history.length - 1][1])}</td>
-          <td>${fmt.signedPct(o.change)}</td><td>${s === null ? "–" : fmt.signedPct(s)}</td>
+          <td>${fmt.signedPct(o.change)}</td><td style="color:var(--radiant)">${r === null ? "–" : fmt.signedPct(r)}</td><td>${s === null ? "–" : fmt.signedPct(s)}</td>
           <td class="p"><span class="pbar" style="--p:${Math.round((o.p_up || 0) * 100)}%;--c:${o.p_up > 0.55 ? "var(--up)" : o.p_up < 0.45 ? "var(--down)" : "var(--ink-3)"}"><i></i>${fmt.pct(o.p_up)}</span></td><td>${esc(o.target_date)}</td></tr>`;
         }).join("") + "</tbody>"
         : '<tr><td><div class="empty"><b>Nothing sealed yet.</b>Forecasts appear after the first run of <code>psychohistory predict</code>.</div></td></tr>';
@@ -153,6 +156,8 @@
 
     monitor() { window.WPMonitor.render($("monitor-root"), D); },
     year() { window.WPYear.render($("year-root"), D); },
+
+    today(arg) { window.WPToday.render($("today-root"), D, arg); },
 
     terminal(arg) { window.WPTerminal.render($("terminal-root"), D, arg); },
 
@@ -233,7 +238,7 @@
     },
 
     horizon() {
-      const DASH = { news: undefined, markets: "6 4", tech: "2 3" };
+      const DASH = { news: undefined, politics: "8 3 2 3", markets: "6 4", tech: "2 3", weather: "1 3" };
       const lines = AREAS.filter(([d]) => D.horizon.some((r) => r.domain === d)).map(([d, name]) => ({
         name, label: name, color: hue(d), dash: DASH[d], width: 2,
         points: D.horizon.filter((r) => r.domain === d).map((r) => [r.step, r.skill]),
@@ -244,7 +249,7 @@
     },
 
     odds() {
-      const STYLE = { news: { color: "var(--news)" }, markets: { color: "var(--markets)" }, tech: { color: "var(--tech)" } };
+      const STYLE = Object.fromEntries(AREAS.map(([d]) => [d, { color: `var(--${d})` }]));
       const dots = AREAS.filter(([d]) => D.calibration.some((r) => r.domain === d)).map(([d, name]) => ({
         name, r: 5.5, ...STYLE[d], stroke: STYLE[d].stroke || "var(--panel)", points: D.calibration.filter((r) => r.domain === d).map((r) => [r.said, r.happened]),
       }));
@@ -369,20 +374,21 @@
         <p class="note" style="margin:0">${esc(council(null))} The head-to-head count appears after the next backtest.</p>`;
       return;
     }
-    const laws = D.duel_laws || [];
-    host.innerHTML = duelBlock(rows, "Seldon", "The full Seldon: crowd laws and " + modelName + " in one council")
+    const laws = D.duel_laws || [], rad = D.duel_radiant || [];
+    host.innerHTML = (rad.length ? duelBlock(rad, "Radiant", "Radiant: " + modelName + ", Chronos-Bolt, the crowd laws, a behavioural core and no change, mixed by weights each area earned", false, "radiant") : "")
+      + duelBlock(rows, "Seldon", "The full Seldon: crowd laws and " + modelName + " in one council", rad.length > 0)
       + (laws.length ? duelBlock(laws, "Laws", "The crowd laws alone, without " + modelName, true) : "")
-      + `<p class="note" style="margin:10px 0 0">A series goes to whichever had the lower average error on the same windows; ties are left out. Seldon is our own forecaster: ${esc(modelName)} and four laws of crowd behaviour (inertia, drift, momentum, reversion, on top of the weekly rhythm) in one council, the laws' share of the vote learned per area from finished windows. Where the laws have not yet earned a share, Seldon follows ${esc(modelName)} and the series is a tie.</p>`;
+      + `<p class="note" style="margin:10px 0 0">A series goes to whichever had the lower average absolute error on the same windows (so the count can differ from the leaderboard's, which goes by percentage miss); ties are left out. Seldon is our own forecaster: ${esc(modelName)} and four laws of crowd behaviour (inertia, drift, momentum, reversion, on top of the weekly rhythm) in one council, the laws' share of the vote learned per area from finished windows. Where the laws have not yet earned a share, Seldon follows ${esc(modelName)} and the series is a tie.</p>`;
   }
 
-  function duelBlock(rows, who, label, second) {
+  function duelBlock(rows, who, label, second, challenger = "seldon") {
     const all = rows.find((r) => r.domain === "all"), areas = rows.filter((r) => r.domain !== "all");
     if (!all) return "";
     const name = (w) => (w === "tie" ? "Tie" : w === model ? modelName : who);
     const ties = all.series - all.wins - all.losses, tieText = ties ? `, ${ties} tied` : "";
     const verdict = all.wins > all.losses ? `${who} won ${all.wins} of ${all.series} series, ${modelName} ${all.losses}${tieText}.`
       : all.losses > all.wins ? `${modelName} won ${all.losses} of ${all.series} series, ${who} ${all.wins}${tieText}.` : `Dead heat: ${all.wins} series each${tieText}.`;
-    return `<div class="duel-block${second ? " second" : ""}"><div class="duel-head"><span class="who" style="--c:var(--tfm)">${esc(modelName)}</span><b>vs</b><span class="who" style="--c:var(--seldon)">${esc(who)}</span>
+    return `<div class="duel-block${second ? " second" : ""}" style="--cc:${colorOf(challenger)}"><div class="duel-head"><span class="who" style="--c:var(--tfm)">${esc(modelName)}</span><b>vs</b><span class="who" style="--c:var(--cc)">${esc(who)}</span>
         <small class="duel-label">${esc(label)}</small><p class="duel-verdict">${esc(verdict)}</p></div>
       <div class="duel-areas">${areas.map((r) => {
         const a = AREAS.find(([d]) => d === r.domain), share = r.series ? r.wins / r.series : 0;
@@ -391,6 +397,23 @@
           <span class="duel-bar" style="--s:${(share * 100).toFixed(1)}%" title="${esc(who)} won ${r.wins}, ${esc(modelName)} won ${r.losses}"><i></i></span>
           <small>${esc(who)} ${r.wins} · ${esc(modelName)} ${r.losses}</small><b class="${won ? "s" : r.winner === "tie" ? "" : "m"}">${esc(name(r.winner))}</b></div>`;
       }).join("")}</div></div>`;
+  }
+
+  // Every model of the newest backtest on one board, best first. Reads D.leaderboard (web.leaderboard_payload).
+  function leaderboard() {
+    const L = D.leaderboard, host = $("leader");
+    if (!host) return;
+    if (!L || !L.rows.length) { host.innerHTML = '<div class="empty"><b>No backtest yet.</b>The leaderboard fills in after the first full forecast run.</div>'; return; }
+    const AREA_NAMES = { markets: "Markets", news: "News", politics: "Politics", tech: "Tech", weather: "Weather", yearly: "Yearly" };
+    const best = (k) => Math.min(...L.rows.map((r) => (k ? r.areas[k] : r.smape)).filter((v) => v !== null && v !== undefined));
+    const cell = (v, k) => (v === null || v === undefined ? '<td class="dim">–</td>' : `<td class="${v === best(k) ? "lead" : ""}">${(v * 100).toFixed(2)}%</td>`);
+    const top = L.rows[0].smape, worst = Math.max(...L.rows.map((r) => r.smape));
+    host.innerHTML = `<div class="table-wrap"><table class="leader"><thead><tr><th>#</th><th>Model</th><th>Average miss</th>${L.areas.map((a) => `<th>${AREA_NAMES[a] || esc(a)}</th>`).join("")}<th>Skill</th><th>In range</th><th title="series where its average percentage miss was lower">Closer than ${esc(modelName)}</th></tr></thead><tbody>
+      ${L.rows.map((r, i) => `<tr class="${r.model === "radiant" ? "ours" : ""}" style="--c:${colorOf(r.model)}"><td class="rank">${i + 1}</td><th scope="row"><span class="who" style="--c:${colorOf(r.model)}">${esc(nameOf(r.model))}</span>${r.model === "radiant" || r.model === "seldon" ? '<small>this project</small>' : ""}</th>
+        <td class="miss${r.smape === top ? " lead" : ""}"><span class="lb-bar" style="--w:${(r.smape / worst).toFixed(3)}"></span>${(r.smape * 100).toFixed(2)}%</td>
+        ${L.areas.map((a) => cell(r.areas[a], a)).join("")}<td class="${skillCls(r.skill)}">${r.skill === null ? "–" : fmt.signedPct(r.skill)}</td>
+        <td>${r.coverage80 === null ? "–" : Math.round(r.coverage80 * 100) + "%"}</td><td>${r.beats === null ? '<span class="dim">the benchmark</span>' : `${r.beats} of ${r.of}`}</td></tr>`).join("")}</tbody></table></div>
+      <p class="note">Average sMAPE (symmetric mean absolute percentage error) of each model's most likely value, per series and then averaged, on the same blind backtest windows; lower is better and the best in each column is underlined. Yearly is the three yearly adoption curves (solar, wind, internet), which Radiant learns apart from the daily series. Skill is the median reduction in error against "no change"; in range is how often reality landed inside the 80% range (80% is honest).</p>`;
   }
 
   function record() {
@@ -411,12 +434,15 @@
     if (!o) { $("odetail").innerHTML = '<div class="empty">Nothing in this area.</div>'; return; }
     const last = o.history[o.history.length - 1], S = o.seldon && o.seldon.fan && o.seldon.fan.length ? o.seldon : null;
     const sEnd = S ? S.fan[S.fan.length - 1] : null, rel = (v) => v / last[1] - 1;
+    const Rf = o.radiant && o.radiant.length ? o.radiant : null, rEnd = Rf ? Rf[Rf.length - 1] : null;
     $("odetail").innerHTML = `<header class="ph"><h2>${esc(o.title)}</h2><span class="pm">sealed ${esc(o.made_on)} · opens ${esc(o.target_date)}</span></header>
       <dl class="facts">
         <div><dt>Chance higher</dt><dd class="big ${o.p_up > 0.55 ? "pos" : o.p_up < 0.45 ? "neg" : ""}">${fmt.pct(o.p_up)}</dd></div>
         <div><dt>Last value</dt><dd>${fmt.num(last[1])}</dd></div>
         <div><dt>${esc(modelName)} middle</dt><dd style="color:var(--tfm)">${fmt.signedPct(o.change)}</dd></div>
         <div><dt>${esc(modelName)} 80% range</dt><dd>${fmt.signedPct(o.low)} to ${fmt.signedPct(o.high)}</dd></div>
+        <div><dt>Radiant middle</dt><dd style="color:var(--radiant)">${Rf ? fmt.signedPct(rel(rEnd[2])) : "–"}</dd></div>
+        <div><dt>Radiant 80% range</dt><dd>${Rf ? `${fmt.signedPct(rel(rEnd[1]))} to ${fmt.signedPct(rel(rEnd[3]))}` : "–"}</dd></div>
         <div><dt>Seldon middle</dt><dd style="color:var(--seldon)">${S ? fmt.signedPct(rel(sEnd[2])) : "–"}</dd></div>
         <div><dt>Seldon 80% range</dt><dd>${S ? `${fmt.signedPct(rel(sEnd[1]))} to ${fmt.signedPct(rel(sEnd[3]))}` : "–"}</dd></div>
       </dl>
@@ -431,10 +457,12 @@
       bands: [{ points: [[last[0], last[1], last[1]]].concat(o.fan.map((f) => [f[0], f[1], f[3]])) }, ...bandsS],
       lines: [{ points: hist, color: "var(--ink)", width: 1.7, name: "value" },
         { points: [[last[0], last[1]]].concat(o.fan.map((f) => [f[0], f[2]])), color: "var(--tfm)", width: 2, name: modelName, label: modelName },
+        ...(Rf ? [{ points: [[last[0], last[1]]].concat(Rf.map((f) => [f[0], f[2]])), color: "var(--radiant)", width: 2, name: "Radiant", label: "Radiant" }] : []),
         ...(S ? [{ points: [[last[0], last[1]]].concat(S.fan.map((f) => [f[0], f[2]])), color: "var(--seldon)", width: 2, name: "Seldon", label: "Seldon" }] : [])],
       refs: [{ x: last[0], label: "sealed" }],
     });
     legend($("olegend"), [{ name: "History", color: "var(--ink)" }, { name: `${modelName} 80% range`, color: "var(--tfm)", kind: "band" },
+      ...(Rf ? [{ name: "Radiant middle", color: "var(--radiant)" }] : []),
       ...(S ? [{ name: "Seldon 80% range", color: "var(--seldon)", kind: "dash" }] : [])]);
   }
   function seldonNote(S) {
@@ -449,6 +477,7 @@
   // ---------- command palette ----------
   const cmd = $("cmd"), list = $("cmd-list");
   const entries = VIEWS.map((v) => ({ label: NAMES[v], hint: "view", go: "#" + v }))
+    .concat(D.outlook.map((o) => ({ label: `${o.title}: every time frame`, hint: "today", go: "#today/" + o.id })))
     .concat(D.outlook.map((o) => ({ label: o.title, hint: ticker(o), go: "#outlook/" + o.id })))
     .concat(D.outlook.map((o) => ({ label: `Ask about ${o.title}`, hint: "studio", go: "#studio/" + o.id })))
     .concat(D.outlook.map((o) => ({ label: `${o.title} in the World terminal`, hint: "terminal", go: "#terminal/" + o.id })))
@@ -489,23 +518,41 @@
   document.addEventListener("keydown", (e) => {
     if (e.metaKey || e.ctrlKey || e.altKey || /INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return;
     if (e.key === "/") { e.preventDefault(); cmd.focus(); return; }
+    if (e.key === "?") { e.preventDefault(); help(); return; }
     if (e.key === "t" || e.key === "T") { toggleTheme(); return; }
     if (KEYS[e.key] !== undefined && !(e.target.closest && e.target.closest(".lab-stage"))) { location.hash = "#" + KEYS[e.key]; }
   });
 
+  // ---------- shortcut help ----------
+  function help() {
+    const dlg = $("help"); if (!dlg) return;
+    const keys = Object.entries(KEYS).filter(([k]) => k !== "?" && !(k.length === 1 && k !== k.toLowerCase() && KEYS[k.toLowerCase()] === KEYS[k]));
+    dlg.querySelector(".help-keys").innerHTML = [["/", "Search every series and view"], ["?", "This list"], ["T", "Light or dusk theme"], ["Esc", "Close"]]
+      .concat(keys.map(([k, v]) => [k.toUpperCase(), NAMES[v]]))
+      .map(([k, n]) => `<div><kbd>${esc(k)}</kbd><span>${esc(n)}</span></div>`).join("");
+    if (dlg.open) dlg.close(); else dlg.showModal();
+  }
+  const helpBtn = $("help-btn");
+  if (helpBtn) helpBtn.onclick = help;
+  const dlg = $("help");
+  if (dlg) dlg.addEventListener("click", (e) => { if (e.target === dlg || e.target.closest("[data-close]")) dlg.close(); });
+
   // ---------- routing ----------
   const rendered = new Set();
-  let current = "desk";
+  let current = "today";
   function show(route) {
     let [name, arg] = String(route).split("/");
     if (name === "overview") name = "desk"; // old links
-    if (!views[name]) name = "desk";
+    if (!views[name]) name = "today";
     if (name !== "trace" && window.WPTrace) window.WPTrace.stop();
     if (name !== "replay" && views.replay.stop) views.replay.stop();
     current = name;
     document.querySelectorAll(".view").forEach((v) => v.classList.toggle("active", v.id === "view-" + name));
     document.querySelectorAll(".rail a").forEach((a) => (a.getAttribute("href") === "#" + name ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current")));
     const cur = document.querySelector('.rail a[aria-current="page"]');
+    const more = document.querySelector(".more-nav");
+    if (more) more.open = !!(cur && more.contains(cur)) && !matchMedia("(max-width: 860px)").matches;  // on a phone the sheet closes after a choice
+    if (more) more.classList.toggle("here", !!(cur && more.contains(cur)));
     if (cur && matchMedia("(max-width: 860px)").matches) cur.scrollIntoView({ block: "nearest", inline: "nearest" });
     document.title = `${NAMES[name]} · World Predictor`;
     if (!rendered.has(name) || arg || name === "series") { views[name](arg); rendered.add(name); }
@@ -525,7 +572,7 @@
   });
   // Settle any of your sealed calls whose day is in this data file, so your book outlives the data.
   if (window.WPTerminal && !D.meta.demo) try { window.WPTerminal.settleAll(D); } catch (e) {}
-  show(location.hash.slice(1) || "desk");
+  show(location.hash.slice(1) || "today");
   // Panels settle in on the first view only; after that, switching views is instant.
   setTimeout(() => document.documentElement.classList.add("settled"), 900);
 

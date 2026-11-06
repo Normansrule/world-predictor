@@ -33,6 +33,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Cache model weights (TimesFM, Chronos-Bolt)
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: hf-${{ runner.os }}-${{ hashFiles('pyproject.toml') }}
+          restore-keys: hf-${{ runner.os }}-
       - name: Install (CPU PyTorch)
         run: |
           pip install torch --index-url https://download.pytorch.org/whl/cpu
@@ -48,6 +56,8 @@ jobs:
         run: psychohistory -v score
       - name: Long-term monitor (sealed forecasts against reality, drift alarms)
         run: psychohistory monitor --save results/monitor.csv
+      - name: The brief (what came due, changes of mind, streaks)
+        run: psychohistory brief --write
       - name: Refresh report with new ledger scores
         run: if [ -f results/backtest_windows.csv ]; then psychohistory report; fi
       - name: Backtest
@@ -65,6 +75,10 @@ jobs:
         run: psychohistory wire
       - name: Refresh the web app data (including the year ledger)
         run: psychohistory export
+      - name: Radiant's lab (replay its mix on the new backtest, early against late windows)
+        if: github.event.schedule == '0 7 1 * *' || (github.event_name == 'workflow_dispatch' && inputs.backtest)
+        continue-on-error: true
+        run: python scripts/radiant_replay.py > results/radiant_lab.txt
       - name: Commit results
         run: |
           git config user.name "Normansrule"

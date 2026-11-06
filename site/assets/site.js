@@ -51,7 +51,7 @@
   // Scoreboard: TimesFM and Seldon against "no change", one row per area.
   function board(D, model, name) {
     const host = $("#board"); if (!host) return;
-    const areas = [["news", "World news", "GDELT attention"], ["markets", "Markets", "stocks, gold, silver, oil"], ["tech", "Technology", "Wikipedia and adoption"]].filter(([d]) => pick(D, d, model));
+    const areas = [["news", "World news", "GDELT attention"], ["politics", "Politics", "sanctions, tariffs, coups, votes"], ["markets", "Markets", "stocks, gold, silver, oil"], ["tech", "Technology", "Wikipedia and adoption"], ["weather", "Weather and Earth", "temperature, sea ice, quakes"]].filter(([d]) => pick(D, d, model));
     if (!areas.length) { host.innerHTML = '<tr><td><div class="empty"><b>No backtest yet.</b>The scoreboard fills in after the first forecast run.</div></td></tr>'; return; }
     const cell = (r, k) => (!r || r[k] === null || r[k] === undefined ? "–" : k === "skill" ? `<span class="${cls(r.skill)}">${signed(r.skill)}</span>` : pct(r[k]));
     host.innerHTML = `<thead><tr><th>Area</th><th class="m"><span class="who" style="--c:var(--tfm)">${esc(name)} skill</span></th><th><span class="who" style="--c:var(--seldon)">Seldon skill</span></th>
@@ -74,7 +74,7 @@
 
   // Areas the crowd laws alone (no TimesFM vote) won, in one sentence, or nothing.
   function lawsWon(rows, name) {
-    const titles = { markets: "markets", news: "world news", tech: "technology" };
+    const titles = { markets: "markets", news: "world news", politics: "politics", tech: "technology", weather: "the weather" };
     const won = rows.filter((r) => r.domain !== "all" && r.wins > r.losses);
     return won.length ? " Its crowd laws alone beat " + esc(name) + " in " + won.map((r) => `${titles[r.domain] || esc(r.domain)} (<b>${r.wins} of ${r.series}</b> series)`).join(" and ") + "." : "";
   }
