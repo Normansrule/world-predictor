@@ -16,26 +16,42 @@
 <g transform="translate(40,0)">
   <rect x="0" y="62" width="350" height="208" rx="12" class="card"/>
   <text x="22" y="98" class="name">📰  World news</text>
-  <text x="22" y="160" class="big" style="fill:#5fd4e6">+15%</text>
+  <text x="22" y="160" class="big" style="fill:#5fd4e6">+18%</text>
   <text x="22" y="186" class="cap">less error than the simple guess</text>
   <text x="22" y="222" class="k">Sees ahead</text><text x="328" y="222" class="v" text-anchor="end">about 28 days</text>
-  <text x="22" y="250" class="k">Right direction</text><text x="328" y="250" class="v" text-anchor="end">76% of the time</text>
+  <text x="22" y="250" class="k">Right direction</text><text x="328" y="250" class="v" text-anchor="end">64% of the time</text>
 </g>
 <g transform="translate(420,0)">
+  <rect x="0" y="62" width="350" height="208" rx="12" class="card"/>
+  <text x="22" y="98" class="name">🏛️  Politics</text>
+  <text x="22" y="160" class="big" style="fill:#5fd4e6">+22%</text>
+  <text x="22" y="186" class="cap">less error than the simple guess</text>
+  <text x="22" y="222" class="k">Sees ahead</text><text x="328" y="222" class="v" text-anchor="end">about 28 days</text>
+  <text x="22" y="250" class="k">Right direction</text><text x="328" y="250" class="v" text-anchor="end">61% of the time</text>
+</g>
+<g transform="translate(800,0)">
   <rect x="0" y="62" width="350" height="208" rx="12" class="card"/>
   <text x="22" y="98" class="name">📈  Markets</text>
   <text x="22" y="160" class="big" style="fill:#f07a63">−2%</text>
   <text x="22" y="186" class="cap">more error than the simple guess</text>
   <text x="22" y="222" class="k">Sees ahead</text><text x="328" y="222" class="v" text-anchor="end">no edge at any distance</text>
-  <text x="22" y="250" class="k">Right direction</text><text x="328" y="250" class="v" text-anchor="end">46% of the time</text>
+  <text x="22" y="250" class="k">Right direction</text><text x="328" y="250" class="v" text-anchor="end">51% of the time</text>
 </g>
-<g transform="translate(800,0)">
+<g transform="translate(1180,0)">
   <rect x="0" y="62" width="350" height="208" rx="12" class="card"/>
   <text x="22" y="98" class="name">🚀  Technology</text>
-  <text x="22" y="160" class="big" style="fill:#5fd4e6">+46%</text>
+  <text x="22" y="160" class="big" style="fill:#5fd4e6">+40%</text>
   <text x="22" y="186" class="cap">less error than the simple guess</text>
   <text x="22" y="222" class="k">Sees ahead</text><text x="328" y="222" class="v" text-anchor="end">about 28 days</text>
-  <text x="22" y="250" class="k">Right direction</text><text x="328" y="250" class="v" text-anchor="end">75% of the time</text>
+  <text x="22" y="250" class="k">Right direction</text><text x="328" y="250" class="v" text-anchor="end">78% of the time</text>
 </g>
-<text x="40" y="296" class="foot">Updated 2026-11-05 · 373 backtest forecasts scored · refreshed every week</text>
+<g transform="translate(1560,0)">
+  <rect x="0" y="62" width="350" height="208" rx="12" class="card"/>
+  <text x="22" y="98" class="name">🌦️  Weather</text>
+  <text x="22" y="160" class="big" style="fill:#5fd4e6">+27%</text>
+  <text x="22" y="186" class="cap">less error than the simple guess</text>
+  <text x="22" y="222" class="k">Sees ahead</text><text x="328" y="222" class="v" text-anchor="end">about 14 days</text>
+  <text x="22" y="250" class="k">Right direction</text><text x="328" y="250" class="v" text-anchor="end">76% of the time</text>
+</g>
+<text x="40" y="296" class="foot">Updated 2026-11-06 · 625 backtest forecasts scored · refreshed every week</text>
 </svg>

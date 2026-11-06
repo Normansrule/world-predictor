@@ -1,5 +1,5 @@
 {
- "fetched": "2026-11-05T03:25Z",
+ "fetched": "2026-11-06T03:23Z",
  "topics": {
   "news_inflation": {
    "query": "\"inflation\"",
@@ -46,7 +46,8 @@
      "country": "United Kingdom",
      "seen": "2026-11-04T01:30Z"
     }
-   ]
+   ],
+   "stale": true
   },
   "oil_wti": {
    "query": "\"oil prices\"",
@@ -195,9 +196,16 @@
  "failed": {
   "news_war": "JSONDecodeError: Expecting value: line 1 column 1 (char 0)",
   "news_election": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22election%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sort=Dat",
+  "news_inflation": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22inflation%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sort=Da",
   "news_climate": "skipped: the wire's time budget ran out",
   "news_pandemic": "skipped: the wire's time budget ran out",
   "news_protest": "skipped: the wire's time budget ran out",
+  "politics_sanctions": "skipped: the wire's time budget ran out",
+  "politics_tariffs": "skipped: the wire's time budget ran out",
+  "politics_ceasefire": "skipped: the wire's time budget ran out",
+  "politics_coup": "skipped: the wire's time budget ran out",
+  "politics_impeachment": "skipped: the wire's time budget ran out",
+  "politics_referendum": "skipped: the wire's time budget ran out",
   "sp500": "skipped: the wire's time budget ran out",
   "msci_world": "skipped: the wire's time budget ran out",
   "nasdaq100": "skipped: the wire's time budget ran out",

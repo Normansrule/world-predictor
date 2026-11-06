@@ -1,40 +1,40 @@
 # The brief
 
-## Came due, 2026-10-30 to 2026-11-05
+## Came due, 2026-10-31 to 2026-11-06
 
 | Model | Forecasts | Series | Inside 80% range | Right direction | Skill vs no change |
 |---|---:|---:|---:|---:|---:|
-| TimesFM | 577 | 29 | 60% | 60% | +5.0% |
-| Radiant | 72 | 29 | 61% | 70% | +4.2% |
-| Chronos-Bolt | 577 | 29 | 59% | 55% | -2.0% |
-| Seldon | 72 | 29 | 62% | 68% | +12.3% |
-| Seldon laws | 384 | 29 | 65% | 59% | +1.3% |
-| AutoETS | 577 | 29 | 83% | 47% | -0.0% |
-| Ensemble | 577 | 29 | 81% | 51% | -1.7% |
+| TimesFM | 781 | 29 | 56% | 58% | +0.4% |
+| Radiant | 149 | 29 | 56% | 57% | +1.6% |
+| Chronos-Bolt | 781 | 29 | 55% | 54% | -3.9% |
+| Seldon | 149 | 29 | 56% | 58% | +2.9% |
+| Seldon laws | 565 | 29 | 60% | 59% | +0.6% |
+| AutoETS | 781 | 29 | 78% | 46% | -0.5% |
+| Ensemble | 781 | 29 | 74% | 51% | -1.8% |
 
-**Radiant's closest calls:** CBOE Volatility Index (VIX, the fear gauge) (said -1.5%, was -1.5% by 2026-11-03); Wikipedia views: Humanoid robot (said +42.5%, was +42.7% by 2026-11-02); Wikipedia views: CRISPR (said +42.7%, was +42.5% by 2026-11-02); World news attention (said -15.6%, was -15.0% by 2026-11-03); Tesla Inc. (said -0.0%, was -0.3% by 2026-11-03).
+**Radiant's closest calls:** CBOE Volatility Index (VIX, the fear gauge) (said -1.5%, was -1.5% by 2026-11-03); Share of world news coverage mentioning protests (said -21.8%, was -21.6% by 2026-11-05); iShares 20+ Year Treasury Bond ETF (said +0.1%, was +0.1% by 2026-11-05); Wikipedia views: Humanoid robot (said +42.5%, was +42.7% by 2026-11-02); Wikipedia views: CRISPR (said +42.7%, was +42.5% by 2026-11-02).
 
-**Biggest surprises:** Apple Inc. (range -1.8% to +1.7%, was +5.3%, 1.0 range widths outside); Exxon Mobil Corp. (range -3.4% to +3.9%, was -9.6%, 0.9 range widths outside); CBOE Volatility Index (VIX, the fear gauge) (range -9.3% to +9.0%, was -20.3%, 0.6 range widths outside); Gold (USD/oz) (range -2.3% to +2.0%, was +4.4%, 0.6 range widths outside); WTI crude oil futures (range -5.5% to +5.5%, was -10.1%, 0.4 range widths outside).
+**Biggest surprises:** Share of world news coverage mentioning elections (range -26.4% to +12.9%, was +138.9%, 3.2 range widths outside); World news attention (range -13.9% to +5.6%, was +49.4%, 2.3 range widths outside); Share of world news coverage mentioning inflation (range -28.4% to +2.8%, was +39.5%, 1.2 range widths outside); Apple Inc. (range -1.8% to +1.7%, was +5.3%, 1.0 range widths outside); NVIDIA Corp. (range -3.6% to +4.7%, was -12.1%, 1.0 range widths outside).
 
-## Radiant changed its mind, 2026-11-03 to 2026-11-04
+## Radiant changed its mind, 2026-11-04 to 2026-11-06
 
-Chance of ending above today's level on the farthest date both batches cover. 2 of 32 series flipped side.
+Chance of ending above today's level on the farthest date both batches cover. 0 of 32 series flipped side.
 
 | Series | Target | Before | Now | Shift | Series moved |
 |---|---|---:|---:|---:|---:|
-| Exxon Mobil Corp. | 2026-11-30 | 75% | 50% | -25 pts | -5.2% |
-| Apple Inc. | 2026-11-30 | 73% | 52% | -20 pts | -3.7% |
-| iShares 20+ Year Treasury Bond ETF | 2026-11-30 | 65% | 50% | -16 pts | -0.9% |
-| World news attention | 2026-11-24 | 33% | 21% | -13 pts | -19.0% |
-| US 10-year Treasury yield (%) | 2026-12-01 | 40% | 52% | +12 pts | +1.2% |
-| Gold (USD/oz) (flip) | 2026-12-01 | 43% | 54% | +11 pts | +1.1% |
-| Share of world news coverage mentioning protests | 2026-11-24 | 49% | 38% | -11 pts | -30.2% |
-| iShares MSCI World ETF (global equities) | 2026-11-30 | 68% | 58% | -11 pts | -0.2% |
+| NVIDIA Corp. | 2026-12-02 | 95% | 48% | -47 pts | -12.1% |
+| CBOE Volatility Index (VIX, the fear gauge) | 2026-12-02 | 5% | 44% | +39 pts | +35.3% |
+| Nasdaq-100 index | 2026-12-02 | 88% | 50% | -38 pts | -5.5% |
+| Tesla Inc. | 2026-12-02 | 84% | 50% | -34 pts | -13.8% |
+| S&P 500 | 2026-12-02 | 84% | 50% | -34 pts | -2.8% |
+| iShares MSCI World ETF (global equities) | 2026-12-02 | 82% | 51% | -32 pts | -2.3% |
+| Share of world electricity from wind (OWID) | 2028-01-01 | 71% | 95% | +24 pts | +0.0% |
+| Exxon Mobil Corp. | 2026-12-02 | 73% | 51% | -22 pts | -6.9% |
 
 ## Streaks (TimesFM, next-step calls, one per sealed batch)
 
-**Right 3+ in a row:** Wikipedia views: Quantum computing (7 straight, 7 of 8 overall); Share of world news coverage mentioning elections (4 straight, 4 of 4 overall); Interest in AI (Wikipedia) (4 straight, 6 of 7 overall); Wikipedia views: CRISPR (4 straight, 6 of 7 overall).
+**Right 3+ in a row:** Wikipedia views: Quantum computing (7 straight, 7 of 8 overall); Interest in AI (Wikipedia) (5 straight, 7 of 8 overall); Wikipedia views: Humanoid robot (3 straight, 5 of 8 overall); Share of coverage about disease outbreaks (3 straight, 3 of 5 overall).
 
-**Wrong 3+ in a row:** NVIDIA Corp. (4 straight, 3 of 8 overall); Gold (USD/oz) (3 straight, 1 of 7 overall).
+**Wrong 3+ in a row:** NVIDIA Corp. (4 straight, 3 of 8 overall); Gold (USD/oz) (4 straight, 1 of 8 overall); Copper futures (3 straight, 2 of 8 overall); Silver (USD/oz) (3 straight, 2 of 8 overall).
 
 A streak of a few calls is weak evidence on its own; the Monitor's tests say whether a record is more than luck.
