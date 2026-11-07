@@ -1,53 +1,99 @@
 {
- "fetched": "2026-11-06T03:23Z",
+ "fetched": "2026-11-07T03:11Z",
  "topics": {
+  "news_election": {
+   "query": "\"election\"",
+   "articles": [
+    {
+     "title": "Housing market is seeing Black Friday deals now",
+     "url": "https://www.timescall.com/2026/11/06/housing-market-is-seeing-black-friday-deals-now/",
+     "domain": "timescall.com",
+     "country": "United States",
+     "seen": "2026-11-07T02:00Z"
+    },
+    {
+     "title": "FACT CHECK : Nebraska did not experience a  red wave  in the 2026 Midterm Election",
+     "url": "https://www.wowt.com/2026/11/07/fact-check-nebraska-did-not-experience-red-wave-2026-midterm-election/",
+     "domain": "wowt.com",
+     "country": "United States",
+     "seen": "2026-11-07T02:00Z"
+    },
+    {
+     "title": "Trump makes Stephen Miller his Chief of Staff",
+     "url": "https://politicaldog101.com/2026/11/trump-makes-stephen-miller-his-chief-of-staff/",
+     "domain": "politicaldog101.com",
+     "country": "United States",
+     "seen": "2026-11-07T02:00Z"
+    },
+    {
+     "title": "Israel Arab - led parties in spotlight after inconclusive election",
+     "url": "https://www.kawc.org/npr-news/2026-11-06/israels-arab-led-parties-in-spotlight-after-inconclusive-election",
+     "domain": "kawc.org",
+     "country": "United States",
+     "seen": "2026-11-07T02:00Z"
+    },
+    {
+     "title": "Blue wave a blessing and curse for Aussie data centres",
+     "url": "https://www.redlandcitybulletin.com.au/story/9387434/blue-wave-a-blessing-and-curse-for-aussie-data-centres/",
+     "domain": "redlandcitybulletin.com.au",
+     "country": "Australia",
+     "seen": "2026-11-07T02:00Z"
+    },
+    {
+     "title": "Drazan concedes Oregon governor race , says remaining ballots wont change outcome",
+     "url": "https://kcby.com/news/local/christine-drazan-concedes-oregon-governors-race-to-tina-kotek-says-remaining-ballots-wont-change-outcome",
+     "domain": "kcby.com",
+     "country": "United States",
+     "seen": "2026-11-07T02:00Z"
+    }
+   ]
+  },
   "news_inflation": {
    "query": "\"inflation\"",
    "articles": [
     {
-     "title": "Democratic Sen . Jon Ossoff cruises to re - election in Georgia",
-     "url": "https://www.nbcnewyork.com/elections/georgia-senate-race-2026/6567183/",
-     "domain": "nbcnewyork.com",
-     "country": "United States",
-     "seen": "2026-11-04T01:30Z"
-    },
-    {
-     "title": "US to cut Israel military aid by end of year , Trump says",
-     "url": "https://www.dw.com/en/us-to-cut-nearly-4-billion-in-israel-military-aid-trump-says/a-79848860",
-     "domain": "dw.com",
-     "country": "Germany",
-     "seen": "2026-11-04T01:30Z"
-    },
-    {
-     "title": "Hartford Insurance Group : 3 Key Takeaways for Long - Term Investors",
-     "url": "https://www.fool.com/earnings/takeaways/2026/11/03/hartford-insurance-group-3-key-takeaways-for-long-term-investors/?source=iedfolrf0000001",
-     "domain": "fool.com",
-     "country": "United States",
-     "seen": "2026-11-04T01:30Z"
-    },
-    {
-     "title": "Early Exit Polls Show Voters See Midterms As A Rebuke On Trump Administration",
-     "url": "https://wrak.iheart.com/content/2026-11-03-early-exit-polls-show-voters-see-midterms-as-a-rebuke-on-trump-administration/",
-     "domain": "wrak.iheart.com",
-     "country": "United States",
-     "seen": "2026-11-04T01:30Z"
-    },
-    {
-     "title": "Under - pressure Labor says saving  not simple exercise",
-     "url": "https://www.bluemountainsgazette.com.au/story/9385456/under-pressure-labor-says-saving-not-simple-exercise/",
-     "domain": "bluemountainsgazette.com.au",
-     "country": "Australia",
-     "seen": "2026-11-04T01:30Z"
-    },
-    {
-     "title": "Staggering midterm elections poll shows Donald Trump  worst President since polling began",
-     "url": "https://www.mirror.co.uk/news/politics/midterm-election-poll-donald-trump-37840389",
-     "domain": "mirror.co.uk",
+     "title": "My mortgage has gone up already : How rising interest rates are hitting people pockets",
+     "url": "https://www.bbc.co.uk/news/articles/c617kjqjvk12o",
+     "domain": "bbc.co.uk",
      "country": "United Kingdom",
-     "seen": "2026-11-04T01:30Z"
+     "seen": "2026-11-07T02:00Z"
+    },
+    {
+     "title": "Declining Gas Tax Revenue | JAMN 107 . 5",
+     "url": "https://jamn1075.iheart.com/content/2026-11-06-declining-gas-tax-revenue/",
+     "domain": "jamn1075.iheart.com",
+     "country": "United States",
+     "seen": "2026-11-07T02:00Z"
+    },
+    {
+     "title": "Hiring jumps : The economy added 165 , 000 jobs last month",
+     "url": "https://www.ideastream.org/npr-news/2026-11-06/hiring-jumps-the-economy-added-165-000-jobs-last-month",
+     "domain": "ideastream.org",
+     "country": "United States",
+     "seen": "2026-11-07T02:00Z"
+    },
+    {
+     "title": "How Much Did A Spotify Subscription Cost In 2016 Vs . 2026 ?",
+     "url": "https://www.bgr.com/2296756/spotify-subscription-cost-2016-vs-2026/",
+     "domain": "bgr.com",
+     "country": "United States",
+     "seen": "2026-11-07T02:00Z"
+    },
+    {
+     "title": "What next for Oklahoma Gov .- elect Mike Mazzei : Literacy plans , cabinet picks and more",
+     "url": "https://www.news9.com/oklahoma-governors-race-2026/mike-mazzei-oklahoma-governor-elect",
+     "domain": "news9.com",
+     "country": "United States",
+     "seen": "2026-11-07T02:00Z"
+    },
+    {
+     "title": "D St Lights Up , Ends Diwali Week with a Firecracker of a Friday",
+     "url": "https://economictimes.indiatimes.com/satet-front/d-st-lights-up-ends-diwali-week-with-a-firecracker-of-a-friday/articleshow/135621274.cms",
+     "domain": "economictimes.indiatimes.com",
+     "country": "India",
+     "seen": "2026-11-07T01:00Z"
     }
-   ],
-   "stale": true
+   ]
   },
   "oil_wti": {
    "query": "\"oil prices\"",
@@ -194,10 +240,8 @@
   }
  },
  "failed": {
-  "news_war": "JSONDecodeError: Expecting value: line 1 column 1 (char 0)",
-  "news_election": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22election%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sort=Dat",
-  "news_inflation": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22inflation%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sort=Da",
-  "news_climate": "skipped: the wire's time budget ran out",
+  "news_war": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22war%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sort=DateDesc",
+  "news_climate": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22climate+change%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&so",
   "news_pandemic": "skipped: the wire's time budget ran out",
   "news_protest": "skipped: the wire's time budget ran out",
   "politics_sanctions": "skipped: the wire's time budget ran out",
