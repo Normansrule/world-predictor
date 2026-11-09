@@ -1,6 +1,53 @@
 {
- "fetched": "2026-11-07T03:11Z",
+ "fetched": "2026-11-09T15:59Z",
  "topics": {
+  "news_inflation": {
+   "query": "\"inflation\"",
+   "articles": [
+    {
+     "title": "New 401k Gold IRA Investment Guide Explains the Best Way to Invest in Gold for Retirement ( 2026 Update )",
+     "url": "http://www.tennesseedaily.com/news/279421070/new-401k-gold-ira-investment-guide-explains-the-best-way-to-invest-in-gold-for-retirement-2026-update",
+     "domain": "tennesseedaily.com",
+     "country": "United States",
+     "seen": "2026-11-09T07:00Z"
+    },
+    {
+     "title": "RBA Hunter Warns AI Boom Could Lift Inflation and Interest Rates Before Productivity Gains Arrive",
+     "url": "https://www.actionforex.com/live-comments/660240-rbas-hunter-warns-ai-boom-could-lift-inflation-and-interest-rates-before-productivity-gains-arrive/",
+     "domain": "actionforex.com",
+     "country": "United Kingdom",
+     "seen": "2026-11-09T07:00Z"
+    },
+    {
+     "title": "Millions of households face severe cash crunch as 37 per cent deplete savings",
+     "url": "https://www.perthnow.com.au/lifestyle/personal-finance/millions-of-households-face-severe-cash-crunch-as-37-per-cent-deplete-savings-c-23110843",
+     "domain": "perthnow.com.au",
+     "country": "Australia",
+     "seen": "2026-11-09T07:00Z"
+    },
+    {
+     "title": "Missed opportunity for jobs and growth : Budget blamed for undermining employer confidence - London Business News",
+     "url": "https://londonlovesbusiness.com/missed-opportunity-for-jobs-and-growth-budget-blamed-for-undermining-employer-confidence/",
+     "domain": "londonlovesbusiness.com",
+     "country": "United Kingdom",
+     "seen": "2026-11-09T07:00Z"
+    },
+    {
+     "title": "Norris Wins in Brazil as Rate Cuts Stall",
+     "url": "https://www.riotimesonline.com/the-big-read-brazil-9-november-2026/",
+     "domain": "riotimesonline.com",
+     "country": "Brazil",
+     "seen": "2026-11-09T07:00Z"
+    },
+    {
+     "title": "A Bruising Week for the Australian Dollar",
+     "url": "https://www.actionforex.com/contributors/fundamental-analysis/660249-a-bruising-week-for-the-australian-dollar/",
+     "domain": "actionforex.com",
+     "country": "United Kingdom",
+     "seen": "2026-11-09T07:00Z"
+    }
+   ]
+  },
   "news_election": {
    "query": "\"election\"",
    "articles": [
@@ -46,54 +93,8 @@
      "country": "United States",
      "seen": "2026-11-07T02:00Z"
     }
-   ]
-  },
-  "news_inflation": {
-   "query": "\"inflation\"",
-   "articles": [
-    {
-     "title": "My mortgage has gone up already : How rising interest rates are hitting people pockets",
-     "url": "https://www.bbc.co.uk/news/articles/c617kjqjvk12o",
-     "domain": "bbc.co.uk",
-     "country": "United Kingdom",
-     "seen": "2026-11-07T02:00Z"
-    },
-    {
-     "title": "Declining Gas Tax Revenue | JAMN 107 . 5",
-     "url": "https://jamn1075.iheart.com/content/2026-11-06-declining-gas-tax-revenue/",
-     "domain": "jamn1075.iheart.com",
-     "country": "United States",
-     "seen": "2026-11-07T02:00Z"
-    },
-    {
-     "title": "Hiring jumps : The economy added 165 , 000 jobs last month",
-     "url": "https://www.ideastream.org/npr-news/2026-11-06/hiring-jumps-the-economy-added-165-000-jobs-last-month",
-     "domain": "ideastream.org",
-     "country": "United States",
-     "seen": "2026-11-07T02:00Z"
-    },
-    {
-     "title": "How Much Did A Spotify Subscription Cost In 2016 Vs . 2026 ?",
-     "url": "https://www.bgr.com/2296756/spotify-subscription-cost-2016-vs-2026/",
-     "domain": "bgr.com",
-     "country": "United States",
-     "seen": "2026-11-07T02:00Z"
-    },
-    {
-     "title": "What next for Oklahoma Gov .- elect Mike Mazzei : Literacy plans , cabinet picks and more",
-     "url": "https://www.news9.com/oklahoma-governors-race-2026/mike-mazzei-oklahoma-governor-elect",
-     "domain": "news9.com",
-     "country": "United States",
-     "seen": "2026-11-07T02:00Z"
-    },
-    {
-     "title": "D St Lights Up , Ends Diwali Week with a Firecracker of a Friday",
-     "url": "https://economictimes.indiatimes.com/satet-front/d-st-lights-up-ends-diwali-week-with-a-firecracker-of-a-friday/articleshow/135621274.cms",
-     "domain": "economictimes.indiatimes.com",
-     "country": "India",
-     "seen": "2026-11-07T01:00Z"
-    }
-   ]
+   ],
+   "stale": true
   },
   "oil_wti": {
    "query": "\"oil prices\"",
@@ -240,8 +241,9 @@
   }
  },
  "failed": {
-  "news_war": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22war%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sort=DateDesc",
-  "news_climate": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22climate+change%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&so",
+  "news_war": "JSONDecodeError: Expecting value: line 1 column 1 (char 0)",
+  "news_election": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22election%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sort=Dat",
+  "news_climate": "skipped: the wire's time budget ran out",
   "news_pandemic": "skipped: the wire's time budget ran out",
   "news_protest": "skipped: the wire's time budget ran out",
   "politics_sanctions": "skipped: the wire's time budget ran out",
