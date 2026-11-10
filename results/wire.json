@@ -1,6 +1,102 @@
 {
- "fetched": "2026-11-09T15:59Z",
+ "fetched": "2026-11-10T05:28Z",
  "topics": {
+  "news_election": {
+   "query": "\"election\"",
+   "articles": [
+    {
+     "title": "Cameroon sets date for twice - delayed legislative and local elections - Dominican Republic Post – Caribbean News , Business , Travel & Culture",
+     "url": "https://dominicanrepublicpost.com/cameroon-sets-date-for-twice-delayed-legislative-and-local-elections/",
+     "domain": "dominicanrepublicpost.com",
+     "country": "United States",
+     "seen": "2026-11-10T05:00Z"
+    },
+    {
+     "title": "Dana White Declines Trump Press Secretary Offer",
+     "url": "https://woc1420.iheart.com/content/2026-11-10-dana-white-declines-trumps-press-secretary-offer/",
+     "domain": "woc1420.iheart.com",
+     "country": "United States",
+     "seen": "2026-11-10T05:00Z"
+    },
+    {
+     "title": "Mood sours for business , consumers amid uncertainty",
+     "url": "https://www.muswellbrookchronicle.com.au/story/9389169/mood-sours-for-business-consumers-amid-uncertainty/",
+     "domain": "muswellbrookchronicle.com.au",
+     "country": "Australia",
+     "seen": "2026-11-10T05:00Z"
+    },
+    {
+     "title": "Ruto tells opposition Kenyans care about policies , not candidate count",
+     "url": "https://kenya-today.com/report-ruto-tells-opposition-kenyans-care-about-policies-not-candidate-count-24234/",
+     "domain": "kenya-today.com",
+     "country": "Kenya",
+     "seen": "2026-11-10T05:00Z"
+    },
+    {
+     "title": "Senate advances permitting bill despite concerns of tribes , majority of NM congressional delegation",
+     "url": "https://www.taosnews.com/news/politics/senate-advances-permitting-bill-despite-concerns-of-tribes-majority-of-nm-congressional-delegation/article_01120dbf-cc42-4788-a582-ea3b90cf0591.html",
+     "domain": "taosnews.com",
+     "country": "United States",
+     "seen": "2026-11-10T05:00Z"
+    },
+    {
+     "title": "Ferry Stuck In Ketchikan Has Engine Part Arrive - Daily Sitka Sentinel",
+     "url": "http://www.sitkasentinel.com/stories/ferry-stuck-in-ketchikan-has-engine-part-arrive,185092",
+     "domain": "sitkasentinel.com",
+     "country": "United States",
+     "seen": "2026-11-10T05:00Z"
+    }
+   ],
+   "fetched": "2026-11-10T05:27Z"
+  },
+  "news_climate": {
+   "query": "\"climate change\"",
+   "articles": [
+    {
+     "title": "Brazil to present plan for moving economies toward renewable energies at UN climate talks",
+     "url": "http://www.sitkasentinel.com/stories/brazil-to-present-plan-for-moving-economies-toward-renewable-energies-at-un-climate-talks,185099",
+     "domain": "sitkasentinel.com",
+     "country": "United States",
+     "seen": "2026-11-10T05:00Z"
+    },
+    {
+     "title": "Panchgaon tops pollution chart with AQI of 365 , Delhi ranks eleventh",
+     "url": "https://www.livemint.com/news/panchgaon-tops-pollution-chart-with-aqi-of-365-delhi-ranks-eleventh-emission-air-quality-11794278697261.html",
+     "domain": "livemint.com",
+     "country": "India",
+     "seen": "2026-11-10T05:00Z"
+    },
+    {
+     "title": "LETTER : Reverse the Pacific Island Forum partnership agreement with Israel | News",
+     "url": "https://www.guampdn.com/news/letter-reverse-the-pacific-island-forum-s-partnership-agreement-with-israel/article_9fa44419-d090-47c8-955c-dc4a03ddd758.html",
+     "domain": "guampdn.com",
+     "country": "Guam",
+     "seen": "2026-11-10T05:00Z"
+    },
+    {
+     "title": "Turkey hosts world climate summit , but some critics accuse it of  greenwashing",
+     "url": "https://www.hppr.org/npr-news/2026-11-09/turkey-hosts-world-climate-summit-but-some-critics-accuse-it-of-greenwashing",
+     "domain": "hppr.org",
+     "country": "United States",
+     "seen": "2026-11-10T05:00Z"
+    },
+    {
+     "title": "Stephen Miller promotion raises questions about the future of U . S . immigration policy and more UCLA media",
+     "url": "https://newsroom.ucla.edu/in-the-news/stephen-millers-promotion-raises-questions-about-the-future-of-u-s-immigration-policy-and-more-ucla-media",
+     "domain": "newsroom.ucla.edu",
+     "country": "United States",
+     "seen": "2026-11-10T05:00Z"
+    },
+    {
+     "title": "Heat - trapping carbon pollution drops , but scientists cite the Iran war rather than energy progress",
+     "url": "http://www.sitkasentinel.com/stories/heat-trapping-carbon-pollution-drops-but-scientists-cite-the-iran-war-rather-than-energy-progress,185097",
+     "domain": "sitkasentinel.com",
+     "country": "United States",
+     "seen": "2026-11-10T05:00Z"
+    }
+   ],
+   "fetched": "2026-11-10T05:28Z"
+  },
   "news_inflation": {
    "query": "\"inflation\"",
    "articles": [
@@ -45,53 +141,6 @@
      "domain": "actionforex.com",
      "country": "United Kingdom",
      "seen": "2026-11-09T07:00Z"
-    }
-   ]
-  },
-  "news_election": {
-   "query": "\"election\"",
-   "articles": [
-    {
-     "title": "Housing market is seeing Black Friday deals now",
-     "url": "https://www.timescall.com/2026/11/06/housing-market-is-seeing-black-friday-deals-now/",
-     "domain": "timescall.com",
-     "country": "United States",
-     "seen": "2026-11-07T02:00Z"
-    },
-    {
-     "title": "FACT CHECK : Nebraska did not experience a  red wave  in the 2026 Midterm Election",
-     "url": "https://www.wowt.com/2026/11/07/fact-check-nebraska-did-not-experience-red-wave-2026-midterm-election/",
-     "domain": "wowt.com",
-     "country": "United States",
-     "seen": "2026-11-07T02:00Z"
-    },
-    {
-     "title": "Trump makes Stephen Miller his Chief of Staff",
-     "url": "https://politicaldog101.com/2026/11/trump-makes-stephen-miller-his-chief-of-staff/",
-     "domain": "politicaldog101.com",
-     "country": "United States",
-     "seen": "2026-11-07T02:00Z"
-    },
-    {
-     "title": "Israel Arab - led parties in spotlight after inconclusive election",
-     "url": "https://www.kawc.org/npr-news/2026-11-06/israels-arab-led-parties-in-spotlight-after-inconclusive-election",
-     "domain": "kawc.org",
-     "country": "United States",
-     "seen": "2026-11-07T02:00Z"
-    },
-    {
-     "title": "Blue wave a blessing and curse for Aussie data centres",
-     "url": "https://www.redlandcitybulletin.com.au/story/9387434/blue-wave-a-blessing-and-curse-for-aussie-data-centres/",
-     "domain": "redlandcitybulletin.com.au",
-     "country": "Australia",
-     "seen": "2026-11-07T02:00Z"
-    },
-    {
-     "title": "Drazan concedes Oregon governor race , says remaining ballots wont change outcome",
-     "url": "https://kcby.com/news/local/christine-drazan-concedes-oregon-governors-race-to-tina-kotek-says-remaining-ballots-wont-change-outcome",
-     "domain": "kcby.com",
-     "country": "United States",
-     "seen": "2026-11-07T02:00Z"
     }
    ],
    "stale": true
@@ -242,8 +291,6 @@
  },
  "failed": {
   "news_war": "JSONDecodeError: Expecting value: line 1 column 1 (char 0)",
-  "news_election": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22election%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sort=Dat",
-  "news_climate": "skipped: the wire's time budget ran out",
   "news_pandemic": "skipped: the wire's time budget ran out",
   "news_protest": "skipped: the wire's time budget ran out",
   "politics_sanctions": "skipped: the wire's time budget ran out",
@@ -252,6 +299,19 @@
   "politics_coup": "skipped: the wire's time budget ran out",
   "politics_impeachment": "skipped: the wire's time budget ran out",
   "politics_referendum": "skipped: the wire's time budget ran out",
+  "wiki_llm": "skipped: the wire's time budget ran out",
+  "wiki_ai": "skipped: the wire's time budget ran out",
+  "wiki_quantum": "skipped: the wire's time budget ran out",
+  "wiki_crispr": "skipped: the wire's time budget ran out",
+  "wiki_ev": "skipped: the wire's time budget ran out",
+  "wiki_fusion": "skipped: the wire's time budget ran out",
+  "wiki_humanoid": "skipped: the wire's time budget ran out",
+  "wiki_battery": "skipped: the wire's time budget ran out",
+  "wiki_gene_therapy": "skipped: the wire's time budget ran out",
+  "wiki_self_driving": "skipped: the wire's time budget ran out",
+  "wiki_starship": "skipped: the wire's time budget ran out",
+  "adoption_solar": "skipped: the wire's time budget ran out",
+  "adoption_wind": "skipped: the wire's time budget ran out",
   "sp500": "skipped: the wire's time budget ran out",
   "msci_world": "skipped: the wire's time budget ran out",
   "nasdaq100": "skipped: the wire's time budget ran out",
@@ -267,14 +327,6 @@
   "oil_wti": "skipped: the wire's time budget ran out",
   "copper": "skipped: the wire's time budget ran out",
   "bitcoin": "skipped: the wire's time budget ran out",
-  "wiki_llm": "skipped: the wire's time budget ran out",
-  "wiki_ai": "skipped: the wire's time budget ran out",
-  "wiki_quantum": "skipped: the wire's time budget ran out",
-  "wiki_crispr": "skipped: the wire's time budget ran out",
-  "wiki_ev": "skipped: the wire's time budget ran out",
-  "wiki_fusion": "skipped: the wire's time budget ran out",
-  "wiki_humanoid": "skipped: the wire's time budget ran out",
-  "adoption_solar": "skipped: the wire's time budget ran out",
-  "adoption_wind": "skipped: the wire's time budget ran out"
+  "news_inflation": "skipped: the wire's time budget ran out"
  }
 }
