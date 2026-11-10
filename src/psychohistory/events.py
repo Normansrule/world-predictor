@@ -296,3 +296,26 @@ def describe(summary: pd.DataFrame | None, live: pd.DataFrame | None, now: pd.Da
 def _models(frame: pd.DataFrame) -> list[str]:
     models = list(dict.fromkeys(frame["model"]))
     return [m for m in models if m not in BASELINES] + [m for m in BASELINES if m in models]
+
+
+def skill_by_step(rows: pd.DataFrame | None, paths: pd.DataFrame | None, steps=(1, 7, 14, 28)) -> pd.DataFrame:
+    """Event odds a given number of days ahead, replayed on the backtest: the same thresholds as the
+    4-week backtest (``rows``, results/event_backtest.csv) read against each model's saved path at
+    ``step`` days instead. Brier skill against climatology per step, event and model."""
+    cols = ["step", "event", "model", "forecasts", "happened", "said", "brier", "skill_clim"]
+    if rows is None or rows.empty or paths is None or paths.empty:
+        return pd.DataFrame(columns=cols)
+    cuts = rows[rows["model"] == CLIMATOLOGY][["series_id", "origin", "event", "threshold", "p"]].rename(columns={"p": "clim"})
+    out = []
+    for step in steps:
+        part = paths[paths["step"] == step].merge(cuts, on=["series_id", "origin"])
+        if part.empty:
+            continue
+        above = part["event"].map(lambda e: EVENTS[e][1])
+        part = part.assign(p=[probability(a, b, c, t, ab) for a, b, c, t, ab in zip(part.q10, part.q50, part.q90, part.threshold, above)],
+                           y=np.where(above, part["actual"] > part["threshold"], part["actual"] < part["threshold"]).astype(float))
+        part = part.dropna(subset=["p", "actual"])
+        for (event, model), g in part.groupby(["event", "model"]):
+            b, bc = float(((g["p"] - g["y"]) ** 2).mean()), float(((g["clim"] - g["y"]) ** 2).mean())
+            out.append([step, event, model, len(g), float(g["y"].mean()), float(g["p"].mean()), b, 1 - b / bc if bc > 0 else float("nan")])
+    return pd.DataFrame(out, columns=cols)

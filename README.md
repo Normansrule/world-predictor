@@ -6,7 +6,7 @@
 </picture>
 
 **A forecasting terminal that keeps score.**<br>
-Google's open-source **TimesFM** against **Seldon**, our own psychohistory forecaster that gives TimesFM a seat in a council of crowd laws, on world news, politics, markets, new technologies and the weather.
+Google's open-source **TimesFM** against **Seldon**, our own psychohistory forecaster, a council of crowd laws and behavioural signals that leaves TimesFM out on purpose so it gives a second opinion, on world news, politics, markets, new technologies and the weather.
 Every forecast is sealed before the future happens and scored when it arrives. Then it's your turn, in the Lab.
 
 [![Play the Lab](https://img.shields.io/badge/Play-the_Lab-c4412a?style=for-the-badge&logo=googlechrome&logoColor=white)](https://normansrule.github.io/world-predictor/app/#lab)
@@ -55,8 +55,9 @@ honest version of that bet: every week it asks [**TimesFM**](https://github.com/
 (Time Series Foundation Model, Google Research's open-source forecaster) what happens next in world
 news, politics, markets, new technology and the weather, seals each forecast with a date, and scores it in public once the
 future shows up. Against it runs **Seldon**, this project's own forecaster: a council of simple laws of
-crowd behaviour with TimesFM as one more voter, each voter's share earned on forecasts that already came
-true. Its laws-only twin, **Seldon laws**, has no neural network at all. And **Radiant**, named after the
+crowd behaviour, a behavioural core, "no change" and Amazon's Chronos-Bolt, each voter's share earned on
+forecasts that already came true. TimesFM has no seat in it, so Seldon is a real second opinion rather
+than a copy. Its laws-only twin, **Seldon laws**, has no neural network at all. And **Radiant**, named after the
 Prime Radiant, mixes TimesFM, Amazon's Chronos-Bolt, the crowd laws and a core of behavioural-finance
 signals by weights each area has to earn on finished forecasts; in the full backtest of 4 November 2026
 it beat TimesFM (9.56% average miss against 10.07%). All of them are scored by the same code on the
@@ -87,6 +88,19 @@ Nothing here is financial advice, and most of the interesting results are about 
   models, sealed the same way and scored against what really happened. Weather is forecast two weeks
   ahead and settled against thermometers and satellites; earthquakes are the honest control, a series
   nobody should be able to predict. [What's new](#weather-politics-and-the-next-technologies).
+- **Coming up, and share any forecast.** A calendar of every sealed call by the day reality answers it,
+  your own included, that drops into Google, Apple or Outlook calendars as an `.ics` file; and a one-click
+  picture of any forecast to post or send. [Coming up](#coming-up-the-days-reality-answers).
+- **Compare, and which model wins where.** Up to four series' forecasts on one chart, and on every
+  series page each model's record there, with an honest test of whether that record predicts the next
+  winner (it mostly does not). [Compare](#compare-series-side-by-side).
+- **Follow it from anywhere.** A news feed for any feed reader, a free JSON API for spreadsheets and
+  scripts, and a live forecast card you can embed on your own web page, all rebuilt after every run.
+  [How](#follow-it-from-anywhere-news-feed-json-api-and-embeds).
+- **World events, and what people are betting will happen.** For every news, politics and technology topic,
+  the chance its coverage flares up, fades or grows next week and in four weeks, with the headlines; and
+  beside it, the most-traded questions on Polymarket, sealed every day and scored when they settle, so
+  the bettors get a track record too. [How it works](#betting-odds-what-people-expect-to-actually-happen).
 - **Radiant, our forecaster that beat TimesFM.** TimesFM, Chronos-Bolt, Seldon's crowd laws, a
   behavioural core (momentum, overreaction, reversal, momentum crashes, attention spikes) and "no change",
   mixed by exponential weights that each area (markets, news, technology, yearly adoption) earns on
@@ -158,9 +172,9 @@ Nothing here is financial advice, and most of the interesting results are about 
   future. `psychohistory record gold` prints the same record in the terminal.
 - **Seldon, our own algorithm, against TimesFM.** Four laws of crowd behaviour (inertia, long-run drift,
   fading momentum, reversion to normal) on top of the weekly rhythm of news and attention, each voting
-  by how well it predicted the series' own past, with TimesFM in the same council. The laws only get a
-  share of the vote in an area (news, markets, technology) once they have beaten TimesFM on that area's
-  finished windows. It runs beside TimesFM in the backtest, the weekly sealed forecasts, `ask` and the
+  by how well it predicted the series' own past. Since 10 November 2026 those laws sit in Seldon's own
+  council with a behavioural core, "no change" and Chronos-Bolt, and **no TimesFM**, each voter's share
+  earned on its area's finished windows, so Seldon disagrees with TimesFM where it has reason to. It runs beside TimesFM in the backtest, the weekly sealed forecasts, `ask` and the
   app, and every scoreboard says who won. [How it works](#seldon-vs-timesfm).
 - **A landing page that moves like a product launch.** A living field of possible futures behind the
   headline, the headline arriving word by word, a pinned scroll story of one real forecast, the record
@@ -314,16 +328,20 @@ TimesFM's 8.83%, so it was replaced; the new rule ties TimesFM on the same repla
 forecasts but not their blend, so it was rebuilt from them (`backtest.replay_seldon`); errors, wins
 and the 80% range are exact, range skill is close. The next full backtest scores it directly. Every
 table is in [results/REPORT.md](results/REPORT.md); rebuild the app's copy with
-`python scripts/rebuild_app_data.py`.
+`python scripts/rebuild_app_data.py`. Since 10 November 2026 Seldon no longer seats TimesFM at all and has
+become a real second opinion: [Seldon's own view](#seldons-own-view-a-second-opinion-not-a-copy).
 
 On public data neither model was tuned on, the 1,500 held-out daily series of the M4 competition,
 Seldon laws had the best range score of the four methods tried (pinball loss 1.144, against 1.146 for a
 drift line, 1.167 for "no change" and 1.170 for AutoETS) and beat "no change" on 62% of series
 (`python scripts/seldon_m4_check.py`). TimesFM was not run on M4 here.
 
-When it gave 70% or better odds of a rise, the rise happened 87% of the time (53 forecasts).
-Big aggregates such as indices beat single stocks (13% vs −3% skill in markets), just as Seldon would
-predict. Markets staying close to a random walk is the honest, expected result. Full tables are in
+In the 22 October run, when it gave 70% or better odds of a rise, the rise happened 87% of the time
+(53 forecasts); in the 4 November backtest it was 45 of 56 (80%). In markets the 4 November backtest
+has no edge at all: no market beat "no change" by more than about 1% (gold, +1.1%), and the big
+indices were furthest behind (S&P 500 −8.6%, Nasdaq-100 −6.9%, MSCI World −9.3%), so the earlier
+finding that indices beat single stocks did not hold up. Markets staying close to a random walk is the
+honest, expected result. Full tables are in
 [results/REPORT.md](results/REPORT.md), and the Time Vault fills in as sealed predictions come due.
 
 <picture>
@@ -349,11 +367,13 @@ silver to world news and AI. Each panel says, in words, the chance it ends highe
 <p align="center"><img src="results/plots/outlook.png" alt="Latest forecasts for the S&P 500, gold, silver, Bitcoin, world news and AI attention" width="95%"></p>
 
 **The Time Vault.** The real test. If the model is honest, the left line settles near 80% and the
-right line stays below the coin flip. As of 19 October 2026, the first 32 sealed TimesFM forecasts have
-opened, all one to three days ahead: 27 landed inside their 80% range (84%), and 23 of the 31 that leaned
-one way called the direction right. 24 of the 32 are Wikipedia attention values that were sealed after their date but before Wikipedia
-published them, so the model never saw them, but they aren't forecasts of the future in the strict
-sense; the app marks each one. It's an early, small sample, and the Time Vault lists every one.
+right line stays below the coin flip. In the recorded run of 4 November 2026, 1,226 sealed TimesFM
+forecasts had opened: 72% landed inside their 80% range, short of the 80% an honest range should
+reach, so the ranges are still somewhat too narrow; the odds score was 0.204 (a coin flip scores
+0.250). The first 32, opened by 19 October, had looked better (84% inside), a reminder that small early
+samples flatter. Values sealed after their date but before the source published them (Wikipedia and
+GDELT run a day or two behind) are marked in the app, since the model never saw them but they are not
+forecasts of the future in the strict sense.
 
 <p align="center"><img src="results/plots/track_record.png" alt="Time Vault: share of outcomes inside the 80% range and the odds score, as sealed predictions open" width="85%"></p>
 
@@ -600,9 +620,20 @@ the VIX are new: their rows stay dashes until the first run fetches them. A week
 22:30 UTC, after the US close, fetches the day's real values, rescores and republishes, so the ledger
 fills in day by day; new forecasts are still sealed once a week.
 
-The 2026 ledger so far, from the recorded actuals (6,437 like-for-like days over 26 series): Radiant
-missed by **9.29%** on an average day, TimesFM by 9.35%, Seldon by 9.35% and the crowd laws by 10.71%.
-Radiant was closer than TimesFM on 15 of the 26 series. A **race chart** above the tables draws each
+The 2026 ledger in the recorded run of 4 November (7,077 like-for-like days over 29 series): TimesFM
+missed by **8.94%** on an average day, Radiant by 8.95%, Seldon by 9.00% (9.22% with its own
+council since 10 November, replayed; see [Seldon's own view](#seldons-own-view-a-second-opinion-not-a-copy)) and the crowd laws by 10.72%.
+Radiant was closer than TimesFM on 21 of the 29 series, by margins too small to matter overall.
+
+**Close is not the same as right.** Most days in the ledger are forecasts made only a day or a few
+before, so every model's most likely value sits near the real one, and a row where TimesFM is off by
+0.01% does not mean it knew the future. The ledger now carries the yardstick that settles it: **no
+change**, the value each forecast started from. On the same 7,409 days, assuming nothing changed missed
+by 13.68% and TimesFM by 8.86%, so TimesFM is better overall, but almost all of that lead is in world
+news and Wikipedia attention. Series by series, TimesFM beat "no change" on 17 of 29: every news and
+attention series, but on markets only gold and the long-bond ETF (by two hundredths of a point) and
+the VIX (by 0.7); on the other 12 markets, copying the last price came closer. Each series card shows the "no
+change" miss beside the models, and each table has a No change column. A **race chart** above the tables draws each
 challenger's average miss so far, day by day, as its gap to TimesFM: below the line is beating it.
 
 **Real or luck?** A lead over 200 days can still be luck, so every challenger's gap on every series is
@@ -612,8 +643,8 @@ to a horizon (Newey & West, 1987) and is corrected for short records (Harvey et 
 series tested at once, the Benjamini-Hochberg cut keeps false calls to about one in twenty (Benjamini &
 Hochberg, 1995). Each series card says **real** or **could be luck**, the leaderboard counts the series
 where a challenger is clearly better or clearly worse, and each table downloads as a CSV for your own
-books. On 2026 so far only one lead passes: Radiant on Exxon (4.93% against 5.03%, p 0.001). Its other
-14 leads could be luck. The crowd laws are clearly worse on four technology series.
+books. In the 4 November run only one challenger lead passes (Radiant, on one series); every other lead could
+be luck, and the crowd laws are clearly worse on one series.
 
 **The bake-off: can anything here beat TimesFM?** Eighteen forecasters built from TimesFM, the crowd
 laws, "no change" and two classical methods were replayed on all 319 daily windows of the official backtest of 3 November 2026,
@@ -662,6 +693,56 @@ needs one that knows something TimesFM does not. (An earlier version of this tab
 they are; it now uses the laws alone. Research, not investment advice.)
 
 <img src="docs/assets/app-year.png" alt="The Year ledger: a leaderboard of TimesFM, Radiant, Seldon and the crowd laws for 2026 with a race chart of each challenger's gap to TimesFM, and gold's table with real-or-luck verdicts, a strip of the year coloured by the closest model and a row per week of real values, forecasts and percentage misses" width="100%">
+
+### Seldon's own view: a second opinion, not a copy
+
+<p align="center"><img src="docs/assets/app-seldon-own.png" alt="The S&P 500 outlook before and after: before, Seldon's line and range sat exactly on TimesFM's; after, Seldon's own council (no change 69%, behavioural core 30%, crowd laws 1%) draws a flat middle at 0.0% beside TimesFM's +1.9%, with its own 80% range" width="100%"></p>
+
+Until 10 November 2026 Seldon was a council of crowd laws with TimesFM as one more voter, and the laws
+only got a share of the vote once they beat TimesFM by 2% in an area. They almost never did, so on 15
+of 32 series Seldon *was* TimesFM, line for line (left above). Now Seldon leaves TimesFM out: its
+council is the crowd laws, Radiant's behavioural core, "no change" and Chronos-Bolt, each with a share
+earned on its area's finished windows. On the S&P 500 it now says "flat, 0.0%" (no change 69%, the
+behavioural core 30%) where TimesFM says +1.9%: a second opinion you can weigh, not an echo.
+
+Is the new view any good? Replayed on all 319 daily windows of the official backtest, every weight
+learned only from windows that had finished before the forecast (`python scripts/seldon_perspective.py`):
+
+| Forecaster | All | Markets | News | Tech | Away from TimesFM | Points the other way |
+|---|---|---|---|---|---|---|
+| **TimesFM** | **8.46%** | 4.97% | **13.99%** | **10.87%** | – | – |
+| Radiant (TimesFM in its council) | 8.47% | 4.98% | 14.00% | **10.87%** | 0.31% | 5% |
+| **Seldon, its own council (now)** | 8.77% | **4.91%** | 15.00% | 11.33% | 2.36% | 25% |
+| Chronos-Bolt alone | 8.79% | 5.05% | 14.91% | 11.23% | 2.33% | 30% |
+| Crowd laws alone | 9.83% | **4.91%** | 15.55% | 14.76% | 4.69% | 33% |
+| Laws, core and no change, inverse-error weights | 10.69% | 4.88% | 16.19% | 17.46% | 5.66% | 31% |
+| "No change" | 12.41% | 4.87% | 17.55% | 22.68% | 7.82% | 0% |
+
+*Average miss of the most likely value per day. Away from TimesFM: the average gap between the two
+middle lines, as a share of the real value. Points the other way: windows whose expected move has the
+opposite sign to TimesFM's. The script prints six more councils that were tried; this one was the best.*
+
+**The honest verdict: different, and better only in markets.** Seldon now disagrees with TimesFM on the
+direction of one window in four and sits 2.4% away from it on an average day, so it is a genuine second
+opinion. In **markets** it is closer than TimesFM (4.91% against 4.97%), and in the scoreboard's duel it
+**wins 12 of 15 markets** (the old Seldon won 9, by hair-thin margins). On news and technology it is
+behind, because TimesFM reads the weekly rhythm of attention data better than any voter here; overall
+it misses by 8.77% against TimesFM's 8.46%, a gap unlikely to be luck (paired t +2.6 over the windows,
+read loosely because windows overlap). Its 80% range is as honest as TimesFM's (76.6% of real values
+inside, against 76.4%). In the 2026 year ledger it is closer than TimesFM on 16 of 29 series, but its
+misses on news are bigger, so its average is 9.22% against 8.94%. Re-scored the same way, its range
+reads volatility a week ahead better than TimesFM's (+3.9% skill against last month's volatility, TimesFM
+−4.5%) but a month ahead worse (−100% against −50%), and its odds of a lull are weaker (+14% Brier skill
+against +26%). So read Seldon as the sceptic's view of a market and TimesFM as the better guide to news
+and technology. Research, not investment advice.
+
+How these numbers were made: the recorded run of 4 November 2026 kept every voter's 10th, 50th and 90th
+percentile paths, so `scripts/rebuild_app_data.py` replays Seldon's own council from them
+(`backtest.replay_own_seldon`), learning its weights only from windows that had finished before each
+forecast. The middle line and the 80% range are exact; range skill and the odds of a rise are read off
+a normal-shaped spread through those three. The next full backtest scores it directly. Forecasts sealed
+before 10 November came from the old council and stay in the ledger as sealed; until the next weekly
+run seals the own council's, the outlook shows its range computed from the same data and says so.
 
 ### Today: alerts, time frames and the 70% club
 
@@ -735,6 +816,238 @@ shows only what matters (live or demo, when it was updated, the next run).
 | Never an empty screen | Until the first run with this version, Today builds its alerts and time frames from the forecasts already published, and says so. |
 
 <img src="docs/assets/app-phone.png" alt="Today on a phone: the watchlist with ring gauges at the top and a bottom tab bar with Today, World, Markets, Scores, Your call and More" width="45%">
+
+### World events: what is likely to happen next
+
+The **World events** view (More, or key **E**) turns every news, politics and technology forecast into
+plain statements with probabilities, a week and four weeks ahead, and puts the week's headlines beside
+them. For each topic (elections, war, inflation, protests, climate, pandemics, sanctions, tariffs,
+ceasefires, coups, impeachment, referendums, AI, quantum computing and the rest):
+
+| Question | What it means |
+|---|---|
+| **Flares up** | Coverage reaches a level it reaches only one day in ten (the 90th percentile of its last two years). On a normal day the chance is 10%. |
+| **Fades** | Coverage falls to a low it reaches only one day in ten. |
+| **Grows** | Coverage is higher than today. |
+
+The odds come from the sealed forecasts, read as in [Event odds](#event-odds-spikes-and-lulls-in-world-news-and-technology):
+the four-week odds are sealed in the event ledger, and the one-week odds are read from the same sealed
+forecasts (their 7th day), so neither can change after the fact. The forecaster that speaks for each
+event is the one with the lowest Brier score on every past backtest window (Seldon, by a hair, on the
+7 November run). Its record is shown with the odds; replayed on the backtest's 300 windows per event:
+
+| Seldon's odds against "one day in ten" | 1 day | 1 week | 2 weeks | 4 weeks |
+|---|---:|---:|---:|---:|
+| Flares up (Brier skill) | +34% | +7% | +12% | +22% |
+| Fades (Brier skill) | +53% | +36% | +30% | +27% |
+
+Flare-ups a week ahead are the hardest (+7%): sudden news is sudden. Each card shows the topic's last
+three months with the flare-up and fade lines, whether it is heating up or cooling (the last week
+against the four before), and the headlines. Today shows the three likeliest flare-ups next week.
+These are odds about **coverage**, how much of the world's news mentions a topic or how many people
+read about it, not about the events themselves; headlines are context, and no model reads them. The
+World wire now asks GDELT for the topics with the oldest headlines first, so every topic is refreshed
+within a few runs even when GDELT throttles.
+
+<img src="docs/assets/app-world-events.png" alt="World events: cards with the chance each topic's coverage flares up next week, such as 86% for artificial intelligence and 77% for elections, each with a three-month chart, its flare-up line and the week's headlines" width="100%">
+
+### Would following the forecasts have made money?
+
+The bottom of the Markets desk (and `psychohistory follow`) answers the question every reader of a
+market forecast asks. It replays the backtest's market windows as trades: at every origin, each
+forecaster **holds** a market when it gives better than even odds of a rise and stays in cash
+otherwise, paying 0.1% each way; **long/short** also bets against the markets it calls lower. The
+yardstick is holding every market the whole time. Nothing here was tuned on the windows it is judged
+on, and the odds needed to buy are also tested out of sample: picked on the first half of the backtest
+from 50%, 55% or 60%, then traded on the second half (Bailey et al., 2014).
+
+On the 7 November backtest (15 markets, 165 windows per forecaster):
+
+| Holding a month | Called the direction | Return per window | Long/short | Against holding (t) |
+|---|---:|---:|---:|---:|
+| Hold every market | – | **+1.3%** | – | yardstick |
+| Follow Chronos-Bolt | 51% | +0.6% | +0.1% | −0.7 |
+| Follow TimesFM | 47% | +0.6% | −0.1% | −0.8 |
+| Follow Radiant | 45% | +0.4% | −0.5% | −0.8 |
+| Follow Seldon | 42% | +0.2% | −0.9% | −1.4 |
+
+Following the forecasts trailed simply holding for every forecaster, a week and a month ahead, and
+no gap was large enough to be more than luck. In the second half alone, Chronos-Bolt and TimesFM came
+out ahead (+0.7% a window against +0.3%), too few windows yet to tell from luck; the card will say
+when that changes. The reason is plain: markets mostly rise, so staying out on a "lower" call costs
+the rise, and the forecasts call the direction about as often as a coin (Fama, 1970). The forecasts'
+use is the range and the odds, not a trading signal. Testing a rule with costs and choosing its
+settings on training windows only follows Vibe-Trading's research lab (HKUDS, MIT licence); the code
+is our own. Research, not investment advice.
+
+### Betting odds: what people expect to actually happen
+
+The World events odds are about **coverage**. The section under them, **What people are betting will
+happen**, is about the events themselves: the most-traded open yes/no questions on
+[Polymarket](https://polymarket.com), a prediction market, where the price of "yes" is the crowd's
+chance (Wolfers & Zitzewitz, 2004). Every forecast run (`psychohistory bets`) reads them from
+Polymarket's public Gamma API, no key needed, and seals them like the project's own forecasts:
+
+| Step | What happens |
+|---|---|
+| Pick | Open yes/no questions settling in 3 to 400 days, with at least $50,000 traded, most traded first (40 a day). Sports games and short price bets are left out. Each is filed under politics, markets, technology, weather or world news. |
+| Seal | The day's prices go into `predictions/bet_ledger.csv`, with a SHA-256 fingerprint per day in `bet_seals.csv`. `psychohistory verify` checks them with the other ledgers. |
+| Score | When a question settles, every sealed price for it is opened and scored with the Brier score in `bet_scored.csv`. Each question counts twice at most: the first price sealed, and the last one sealed at least a week before it settled, so a question watched for months does not outweigh one watched for a week. |
+
+The app shows each question's chance, how it moved this week and since it was first sealed, when it
+settles and how much money is behind it, with a link to the market. Once questions settle, the
+section shows how often the favourite won and the bettors' Brier score against a coin flip, and the
+calibration table (said 70%, happened how often?) builds up in the data. A market price is a crowd's
+belief, not a chance anyone has checked (Manski, 2006), which is why it is sealed and scored like
+everything else. No model here reads these prices; they sit beside the forecasts for context.
+`psychohistory bets --show` prints the sealed odds and record without a connection.
+
+The idea of ranking Polymarket's open, forward-looking markets by volume comes from TradingAgents
+(Xiao et al., 2024; Apache-2.0); the code here is our own.
+
+### Coming up: the days reality answers
+
+**Coming up** (More, or key **C**) is a calendar of every sealed call by the day it is settled
+against what really happened: each series' forecast for the next week, month and year, the World
+events flare-ups at 15% or more, the betting questions, and the calls you sealed yourself in the
+Forecast Studio (kept in your browser only). Each day lists your calls and bets first, then the
+boldest forecasts, five at a time. Filter by kind or by the next two weeks, three months or year,
+then **Add to calendar** downloads the list as an `.ics` file (RFC 5545) that Google Calendar,
+Apple Calendar and Outlook open, each entry linking back to its forecast. Re-importing updates the
+same entries instead of duplicating them. Today shows the next three.
+
+<img src="docs/assets/app-coming-up.png" alt="Coming up: a calendar grouped by week, each day with its sealed forecasts and their chances, plus filters and an Add to calendar button" width="100%">
+
+### Share a forecast as an image
+
+Every series page has **Share as image**: a 1200 × 630 picture (the size social sites preview) of
+the sealed forecast, with the chance it ends higher, the middle forecast and its 80% range, three
+months of history with the range ahead, the day it was sealed and the address where anyone can check
+how it turned out. It is drawn in the browser in the theme you are using, works offline and sends
+nothing anywhere; on a phone that can share files it opens the share sheet.
+
+<img src="docs/assets/share-card.png" alt="A share card for gold: 50% chance it ends higher by 7 December 2026, middle +0.0%, 80% range −6.8% to +5.3%, with three months of history and the range ahead" width="70%">
+
+### Compare series side by side
+
+**Compare** (key <kbd>X</kbd>, or *Compare with others* on any series page) puts up to four series'
+newest sealed forecasts on one chart. Each is drawn as the change from the day it was sealed, so gold,
+Bitcoin and a news index on very different scales line up, with three months of history, the middle
+forecast and the 80% range ahead; a table gives the chance each ends higher, the middle, the range and
+the day it is judged. The picks live in the address (`#compare/gold,bitcoin,news_war`), so a comparison
+is a link you can send.
+
+<img src="docs/assets/app-compare.png" alt="Compare: gold, Bitcoin and the share of news mentioning war on one chart as change from the sealing day, with their 80% ranges ahead and a side-by-side table" width="100%">
+
+### Which model has been best on each series, and why that is not a tip
+
+Every series page ranks all the forecasters on that series' backtest by average error (sMAPE of the
+middle forecast), with how often each one's 80% range caught reality. The obvious next step would be to
+use each series' winner. We tested that on the official backtest before showing it
+([`champions.py`](src/psychohistory/champions.py)): pick each series' best model on the first half of
+its windows, then score that pick on the second half against using Radiant everywhere.
+
+| Hold-out test (31 series) | Result |
+|---|---|
+| Average error of the per-series pick | 9.45% |
+| Average error of Radiant everywhere | 9.37% |
+| Series where the pick did better / worse | 8 / 20 |
+| Series where the early winner was still the winner | 8 of 31 |
+
+So the pick is not shipped, and the card says so on every page: a lead on one series rarely lasts,
+which is also why Radiant learns its weights by area rather than by series. The numbers are recomputed
+after every run, and the card's wording follows them if that ever changes.
+
+<img src="docs/assets/app-best-model.png" alt="Which model has been best here: six models ranked by average error on gold, with the hold-out verdict below" width="100%">
+
+### Forecasts next to what really happened
+
+Every chart of a sealed forecast can now show it against reality. **Compare** (key <kbd>X</kbd>) opens
+on the earlier week whose forecasts have the most due days for the series you picked: the solid lines
+are the real values before and after the sealing day, the dashed lines the middle forecast and the
+shaded areas its 80% range, and every due day gets a dot, green when reality landed inside the range
+and red when it missed. A row of weeks switches between any sealed week and the newest one (not due
+yet), and a second row switches between TimesFM and Seldon. The table below says, per series, what the
+middle forecast said, what really happened, how many due days were inside the range and whether the
+direction matched. The same week picker sits on every series page above the sealed forecast chart.
+
+In the recorded run, TimesFM's forecasts sealed on 18 October for gold, silver, the S&P 500 and Bitcoin
+had 43 of 54 due days inside their ranges (80%), but the middle forecast got the direction wrong on
+three of the four: it said gold +0.4% and silver +0.4% by 4 November, and gold really went −4.2% and
+silver −10.3%.
+
+<img src="docs/assets/app-compare-actual.png" alt="Compare: gold, silver, the S&P 500 and Bitcoin forecasts sealed on 18 October, drawn as change from the sealing day, with the real values running on past it and green and red dots for due days inside and outside the 80% range" width="100%">
+
+### What the odds suggest, checked against the record
+
+Every market's page now turns its newest chance of rising into a lean: 60% or more leans **buy or
+keep holding**, 40% or less leans **sell now and buy back lower later**, anything between is no lean.
+That lean is only passed on as advice if it has worked: every TimesFM backtest window on every market
+where the forecast leaned the same way is counted, and the lean must have gone the right way clearly
+more often than a coin flip (at least 20 windows, one-sided binomial test, p < 0.05). Otherwise the
+card says **hold** and shows why.
+
+In the 4 November backtest neither lean passes. When TimesFM gave 60% or more, the market rose 14 of
+29 times (48%); when it gave 40% or less, the market fell only 4 of 13 times (31%). So every market
+currently says hold, which matches the earlier finding that following the forecasts trailed simply
+holding. This is a research tool, not financial advice.
+
+<img src="docs/assets/app-advice.png" alt="What the odds suggest on gold: TimesFM says 51% chance higher, no lean either way, hold, with the backtest record of each lean" width="100%">
+
+### The track record grid: every sealed forecast at a glance
+
+The Time Vault opens with a grid: every series down the side, every day a sealed forecast came due
+across the top. A square is green when reality landed inside the forecast's 80% range, red when it
+landed outside, and amber when only some of that day's forecasts did (each weekly batch reaches the
+same day from a different distance). The bottom row is the share of all series inside on each day, so
+a red column is a day the whole world surprised the model, and a red row is a series it does not
+understand yet. Rows are ranked by (hits + 1) / (forecasts + 2), so one lucky forecast cannot outrank
+sixty good ones, and series with fewer than five judged forecasts are greyed. Hover a square for the
+counts; click a row to open the series.
+
+In the recorded run of 4 November 2026 (17 days of real sealed TimesFM forecasts, 1,241 judged), 72%
+landed inside their 80% ranges, short of the 80% an honest range should reach. Bitcoin, the big stock
+indexes and oil sit near or above 80%; gold (67%), silver (50%) and Tesla (56%) less so; Wikipedia
+attention and news shares are where most misses cluster, with large language model pageviews the
+weakest at 38%.
+
+<img src="docs/assets/app-track-grid.png" alt="Track record grid: 29 series by 17 days, green, amber and red squares for inside, partly inside and outside the 80% range, with a daily share-inside bar row" width="100%">
+
+### Follow it from anywhere: news feed, JSON API and embeds
+
+You do not have to open the app to keep up. Every forecast run publishes three things beside it on
+GitHub Pages, built from the same data the app shows, so they always say exactly what the app says:
+
+| What | Address | For |
+|---|---|---|
+| **News feed** (Atom) | [`feed.xml`](https://normansrule.github.io/world-predictor/feed.xml) | Any feed reader. One entry for each newly sealed batch (its boldest calls), one for each week of forecasts that came due (how every model did, the closest calls, the biggest surprises) and one when the lead model changes its mind. Entry ids never change, so a reader shows each one once. |
+| **JSON API** | [`api/index.json`](https://normansrule.github.io/world-predictor/api/index.json) and `api/series/<id>.json` | Spreadsheets and scripts. Every series' newest sealed forecast (chance it ends higher, middle change, 80% range, sealing and judging dates) plus the record so far; each series file adds its recent history and the full forecast fan. |
+| **Embed** | `app/embed.html#<id>` | Your own web page. **Embed** on any series page copies an `<iframe>` that shows the forecast as a small live card, which updates by itself after every run. Add `?theme=light` or `?theme=dark` to fix its colours. |
+
+They are plain static files: nothing runs on a server, nothing is tracked, and there is no key to ask
+for. The feed and API are written by [`feeds.py`](src/psychohistory/feeds.py), which uses only the
+standard library so the Pages workflow runs it as a script; `psychohistory site` and `psychohistory app`
+write them into your local copy too. The feed follows the Atom format (Nottingham & Sayre, 2005).
+
+<img src="docs/assets/app-embed.png" alt="The embed card for gold: 50% chance it ends higher by 7 December 2026, two months of history and the 80% range ahead, middle +0.0%, 80% range −6.8% to +5.3%" width="460">
+
+```html
+<iframe src="https://normansrule.github.io/world-predictor/app/embed.html#gold" width="460" height="250"
+  style="border:0;border-radius:12px;max-width:100%" loading="lazy" title="Gold (USD/oz): World Predictor forecast"></iframe>
+```
+
+### Offline mode
+
+World Predictor works without a connection, three ways:
+
+| Where | How it works offline |
+|---|---|
+| The web app | After one visit, the browser keeps every app file and the newest forecasts (a service worker). With no connection it opens as usual, an **Offline** pill in the top bar says so, and the ? sheet says which day's forecasts are on screen. When a newer version arrives, a **Reload** button offers it. |
+| The offline copy | **Save the offline copy** in the ? sheet downloads `world-predictor-offline.html`: the whole app and its data in one file (about 2 MB). Double-click it on any computer, no internet, no install. GitHub Pages rebuilds it after every forecast run. |
+| Your own results | `psychohistory offline` writes the same file from your own runs (`build/world-predictor-offline.html`), and `psychohistory app` serves one beside the app. |
+
+Every view works offline; only the World terminal's live headlines need the network, and it says so.
+Your watchlist, sealed calls and theme stay in your browser as before.
 
 ### Since the last run: the brief
 
@@ -903,6 +1216,59 @@ conformal inference; Gibbs & Candès, 2021) brings that to 79%, but its pinball 
 they are; like the volatility round's range test, it makes the range more honest without making the
 forecast better. Every future full backtest can be put through the lab the same way.
 
+**Third lab round (7 November 2026 backtest, 576 windows).** Five more ways to mix were tried on the
+same windows: weights learned separately for the first, middle and last third of each forecast, or
+for its two halves; weights that also learn per series on top of the area; and the median of TimesFM,
+Chronos-Bolt and Radiant. All landed within 0.02 points of the shipped mix (12.89% average miss,
+against TimesFM's 13.36% and Chronos-Bolt's 13.06%), so none was shipped: on these windows the middle
+forecast has no more to give from mixing.
+
+The ranges did. Radiant's 80% range caught reality 76% of the time on the late windows, and only 58%
+on the yearly adoption curves. The shipped rule (`radiant.band_scale`) widens Radiant's range in an
+area only when TimesFM's own ranges there caught reality less than 70% of the time on finished
+windows, by the factor that would have made 80% of those misses fit (split conformal; Gibbs & Candès,
+2021). Learned from TimesFM's ranges, which Radiant never changes, it works the same in the backtest
+and live. Only the yearly curves qualify today:
+
+| Late windows | Inside the 80% range, before | After | Pinball loss, before | After |
+|---|---:|---:|---:|---:|
+| Yearly adoption curves | 58% | **81%** | 7.59% | **7.17%** |
+| Every area | 76% | **77%** | 4.017% | **4.000%** |
+
+Every other area is left exactly as it was. `python scripts/radiant_replay.py` prints both tables from
+any full backtest.
+
+**Fifth lab round: sharper chances of a rise? (9 November 2026).** The follow-the-forecasts replay
+showed every forecaster calls a market's direction about as often as a coin, so four ways to sharpen
+the chance of a rise were tried on all 14,168 market windows of the 7 November backtest. Each was
+fitted on the first half of the origins and judged on the second (Brier score, lower is better):
+
+| Late windows, markets | Brier |
+|---|---:|
+| Always the usual share of rises (from the early half) | 0.2539 |
+| Radiant, as shipped | 0.2520 |
+| Chronos-Bolt | 0.2477 |
+| Radiant pulled toward the usual share (weight fitted early) | 0.2539 |
+| Re-centred on the usual share, then pulled | 0.2539 |
+| Average of all four forecasters | 0.2521 |
+| **Average of Radiant and Chronos-Bolt** | **0.2458** |
+
+The pull toward the usual share chose to throw the forecast away (weight 0): markets rose in 55% of
+the early windows but only 49% of the late ones, so the "usual share" itself moved. The average of
+Radiant and Chronos-Bolt looked best, but per origin its gain over Radiant had t = 0.5 (and 1.1
+over Chronos-Bolt), and it helped only 7 of the 15 markets: luck-sized, so nothing was shipped. In
+world news the same ideas changed the Brier score in the fourth decimal. Averaging forecasts usually
+helps (Bates & Granger, 1969); here the forecasts have too little to average.
+
+**Fourth lab round: Buy, Hold and Sell ratings (9 November 2026).** TradingAgents (Xiao et al., 2024)
+ends each analysis with a five-tier rating: Buy, Overweight, Hold, Underweight, Sell. The same tiers
+were cut from each model's chance of a market ending higher (below 40%, 40–47%, 47–53%, 53–60%, above
+60%) and checked against what the 15 markets did next on the 7 November backtest. The tiers did not
+separate winners from losers. Four weeks ahead, the markets Radiant rated **Buy** rose after 2 of 6
+windows, and those it rated **Underweight** rose after 16 of 21; TimesFM and Seldon were no better.
+A rating that points the wrong way would mislead, so none was shipped: the Markets desk keeps showing
+the chance and the range, and says how often each was right.
+
 **Watch it decide.** The Year ledger shows how Radiant splits its vote in each area: the split in use
 now, which this week's sealed Radiant forecasts were mixed with, and how it moved after every finished
 window. After the 4 November run it gives the yearly adoption series entirely to Chronos-Bolt and news
@@ -948,6 +1314,7 @@ psychohistory monitor     # the live record over time, the significance test and
 psychohistory verify      # check no sealed forecast was edited (SHA-256 per weekly batch)
 psychohistory vol         # volatility forecasts: GARCH, EWMA and TimesFM's range against last month's
 psychohistory events      # event odds: the chance of a spike or a lull in news and tech attention
+psychohistory offline     # the whole app and your results in one HTML file that opens without internet
 psychohistory brief       # since the last run: what came due, changes of mind, streaks (--write saves results/BRIEF.md)
 psychohistory wire        # the newest headlines per topic from GDELT, for the World terminal
 psychohistory export      # write the app's data file, results/web/data.js
@@ -1062,8 +1429,8 @@ flowchart LR
 
 TimesFM is a 200-million-parameter neural network pretrained on billions of time points. **Seldon**
 ([`seldon.py`](src/psychohistory/seldon.py)) starts from the opposite bet, the one Hari Seldon made: a
-crowd follows a few simple laws, and the trick is knowing which law rules which crowd. Then, because
-the goal is to beat TimesFM rather than to be pure, it lets TimesFM vote too.
+crowd follows a few simple laws, and the trick is knowing which law rules which crowd. It deliberately
+does not let TimesFM vote: a second forecaster is only useful if it can disagree.
 
 | Law | The crowd behaviour | Forecast |
 |---|---|---|
@@ -1082,12 +1449,15 @@ the goal is to beat TimesFM rather than to be pure, it lets TimesFM vote too.
    the rate the replays show, and stretched or narrowed by how volatile the series is right now.
 4. **Never peek.** Every replay ends before the forecast date; a test changes a later window and checks
    no earlier Seldon forecast moves. Prices and attention are forecast on a log scale.
-5. **Seat TimesFM at the table.** That council is `seldon-laws`. The full `seldon` adds TimesFM as a
-   voter: in each area (news, markets, technology) it tries giving the laws 0%, 10%, … 100% of the vote
-   on every finished window of every series there, and keeps the best split only if it beat TimesFM
-   alone by at least 2% in average percentage miss. Pooling a whole area is Seldon's law of large
-   numbers turned on itself: one series' dozen windows are too few to learn from, a whole area's are
-   not. With fewer than ten finished windows, TimesFM keeps the whole vote.
+5. **Hold its own council, without TimesFM.** That council of laws is `seldon-laws`. The full `seldon`
+   puts it beside three more voters that do not lean on TimesFM: Radiant's behavioural core, "no
+   change" and Chronos-Bolt. Each area (news, markets, technology, yearly adoption) learns their shares
+   with exponential weights (Littlestone & Warmuth, 1994): equal at first, and every finished window
+   of every series there charges each voter its miss relative to the council's average. Pooling a whole
+   area is Seldon's law of large numbers turned on itself: one series' dozen windows are too few to
+   learn from, a whole area's are not. Until 10 November 2026 TimesFM had a seat too, and under the
+   rule that gave the laws a share only when they beat it by 2%, it kept nearly the whole vote, so
+   Seldon had become a copy of TimesFM. That rule (`learn_share`) is kept for the old runs it scored.
 
 Seldon is scored by exactly the same code as TimesFM, on the same windows, sealed in the same ledger,
 and the app's scoreboard, the Lab and every outlook show both. It is allowed to lose.
@@ -1134,6 +1504,8 @@ site/                    the app: one static folder for Pages, the download and 
   app/js/lab.js          the Lab, shared by the terminal and the landing page
   app/js/studio.js       the Forecast Studio: odds for any level, and your own sealed calls
   app/js/series.js       series pages: every past forecast against what happened, and the opened ones
+  app/embed.html         one forecast as a small card for any web page (an <iframe>)
+  app/js/compare.js      Compare: up to four series' sealed forecasts on one chart
   app/data/              data.js (this run's numbers) and pipeline.js (the stage inventory)
   sw.js                  offline support; manifest.webmanifest makes it installable
 src/psychohistory/
@@ -1149,6 +1521,12 @@ src/psychohistory/
   volatility.py          `psychohistory vol`: GARCH(1,1), EWMA and implied volatility, QLIKE, a sealed volatility ledger
   yearbook.py            the year ledger: every day of the year, each model's median against reality, sealed over backtest
   events.py              `psychohistory events`: odds of a spike or a lull, Brier skill vs climatology and persistence, a sealed event ledger
+  offline.py             `psychohistory offline`: the one-file offline copy (stdlib only, also run by the Pages workflow)
+  champions.py           each series' backtest ranking of every model, and the hold-out test of picking the winner
+  feeds.py               feed.xml (Atom) and api/ (JSON) next to the app (stdlib only, also run by the Pages workflow)
+  worldevents.py         the World events view: flare-up, fade and growth odds a week and four weeks ahead, with the wire's headlines
+  bets.py                betting odds: Polymarket's prices on real-world questions, sealed daily and scored when they settle
+  follow.py              would following the forecasts have made money? backtest windows as trades, with costs, against holding
   brief.py               `psychohistory brief`: what came due, changes of mind at a fixed level, streaks; results/BRIEF.md
   wire.py                `psychohistory wire`: the newest GDELT headlines per topic, for the World terminal
   ask.py                 `psychohistory ask`: TimesFM live on one series or your own CSV
@@ -1183,6 +1561,16 @@ after `psychohistory site`.
 *before* the future happens, then open it and keep score. So the design is a forecasting terminal built
 around that promise, in the spirit of a professional market terminal: dense, fast, keyboard-first, and
 honest about what it doesn't know. Its one big moment is the seal itself, in the Lab.
+
+**Accessibility floor, measured (round 6).** Every view was opened in both themes on a desktop and
+a 390 px phone, and every text element and control measured in the browser: text contrast against
+WCAG 2.2's 4.5:1 (3:1 for large text), control size against its 24 px minimum target (2.5.8),
+controls without a name, sideways scrolling and script errors. Fixed: the red seal buttons (4.1:1,
+now 5.1:1 with a deeper fill, while the red seal mark on charts keeps its colour), table sort
+headers (13 px tall, now 24), the compare boxes, movers, Export, Clear and Watch buttons, the
+footer links and the logo on phones. What remains under 24 px is text links inside sentences, which
+WCAG exempts. No view scrolls sideways, and none logs an error. The floor follows Hallmark's "never
+ship" gates and the earlier audit's skills (taste-skill, Apple's Human Interface Guidelines).
 
 **Colour means something, and only one thing.**
 
@@ -1364,6 +1752,7 @@ bibliography, with every model, data source, theory and design reference, is in
 - Asimov, I. (1951). *Foundation*. Gnome Press.
 - Asimov, I. (1953). *Second Foundation*. Gnome Press.
 - Assimakopoulos, V., & Nikolopoulos, K. (2000). The theta model: A decomposition approach to forecasting. *International Journal of Forecasting, 16*(4), 521–530. https://doi.org/10.1016/S0169-2070(00)00066-2
+- Bailey, D. H., Borwein, J. M., López de Prado, M., & Zhu, Q. J. (2014). Pseudo-mathematics and financial charlatanism: The effects of backtest overfitting on out-of-sample performance. *Notices of the American Mathematical Society, 61*(5), 458–471. https://doi.org/10.1090/noti1105
 - Barber, B. M., & Odean, T. (2008). All that glitters: The effect of attention and news on the buying behavior of individual and institutional investors. *The Review of Financial Studies, 21*(2), 785–818. https://doi.org/10.1093/rfs/hhm079
 - Bates, J. M., & Granger, C. W. J. (1969). The combination of forecasts. *Operational Research Quarterly, 20*(4), 451–468. https://doi.org/10.1057/jors.1969.103
 - Benjamini, Y., & Hochberg, Y. (1995). Controlling the false discovery rate: A practical and powerful approach to multiple testing. *Journal of the Royal Statistical Society: Series B (Methodological), 57*(1), 289–300. https://doi.org/10.1111/j.2517-6161.1995.tb02031.x
@@ -1379,6 +1768,7 @@ bibliography, with every model, data source, theory and design reference, is in
 - Daniel, K., & Moskowitz, T. J. (2016). Momentum crashes. *Journal of Financial Economics, 122*(2), 221–247. https://doi.org/10.1016/j.jfineco.2015.12.002
 - Das, A., Kong, W., Sen, R., & Zhou, Y. (2024). A decoder-only foundation model for time-series forecasting. In *Proceedings of the 41st International Conference on Machine Learning* (Proceedings of Machine Learning Research, Vol. 235). PMLR. https://arxiv.org/abs/2310.10688
 - De Bondt, W. F. M., & Thaler, R. (1985). Does the stock market overreact? *The Journal of Finance, 40*(3), 793–805. https://doi.org/10.1111/j.1540-6261.1985.tb05004.x
+- Desruisseaux, B. (Ed.). (2009). *Internet calendaring and scheduling core object specification (iCalendar)* (RFC 5545). Internet Engineering Task Force. https://doi.org/10.17487/RFC5545
 - Diebold, F. X., & Mariano, R. S. (1995). Comparing predictive accuracy. *Journal of Business & Economic Statistics, 13*(3), 253–263. https://doi.org/10.1080/07350015.1995.10524599
 - Elliot, A. J., & Maier, M. A. (2014). Color psychology: Effects of perceiving color on psychological functioning in humans. *Annual Review of Psychology, 65*, 95–120. https://doi.org/10.1146/annurev-psych-010213-115035
 - Engle, R. F. (1982). Autoregressive conditional heteroscedasticity with estimates of the variance of United Kingdom inflation. *Econometrica, 50*(4), 987–1007. https://doi.org/10.2307/1912773
@@ -1407,14 +1797,18 @@ bibliography, with every model, data source, theory and design reference, is in
 - Leetaru, K., & Schrodt, P. A. (2013, April). *GDELT: Global data on events, location, and tone, 1979–2012* [Paper presentation]. International Studies Association Annual Convention, San Francisco, CA, United States.
 - Lehmann, B. N. (1990). Fads, martingales, and market efficiency. *The Quarterly Journal of Economics, 105*(1), 1–28. https://doi.org/10.2307/2937816
 - Lichtendahl, K. C., Jr., Grushka-Cockayne, Y., & Winkler, R. L. (2013). Is it better to average probabilities or quantiles? *Management Science, 59*(7), 1594–1611. https://doi.org/10.1287/mnsc.1120.1667
+- Littlestone, N., & Warmuth, M. K. (1994). The weighted majority algorithm. *Information and Computation, 108*(2), 212–261. https://doi.org/10.1006/inco.1994.1009
 - Lorenz, E. N. (1963). Deterministic nonperiodic flow. *Journal of the Atmospheric Sciences, 20*(2), 130–141. https://doi.org/10.1175/1520-0469(1963)020<0130:DNF>2.0.CO;2
 - Makridakis, S., Spiliotis, E., & Assimakopoulos, V. (2020). The M4 Competition: 100,000 time series and 61 forecasting methods. *International Journal of Forecasting, 36*(1), 54–74. https://doi.org/10.1016/j.ijforecast.2019.04.014
 - Mandelbrot, B. (1963). The variation of certain speculative prices. *The Journal of Business, 36*(4), 394–419. https://doi.org/10.1086/294632
+- Manski, C. F. (2006). Interpreting the predictions of prediction markets. *Economics Letters, 91*(3), 425–429. https://doi.org/10.1016/j.econlet.2006.01.004
 - Moskowitz, T. J., Ooi, Y. H., & Pedersen, L. H. (2012). Time series momentum. *Journal of Financial Economics, 104*(2), 228–250. https://doi.org/10.1016/j.jfineco.2011.11.003
 - Newey, W. K., & West, K. D. (1987). A simple, positive semi-definite, heteroskedasticity and autocorrelation consistent covariance matrix. *Econometrica, 55*(3), 703–708. https://doi.org/10.2307/1913610
+- Nottingham, M., & Sayre, R. (Eds.). (2005). *The Atom syndication format* (RFC 4287). Internet Engineering Task Force. https://doi.org/10.17487/RFC4287
 - Normansrule. (n.d.). *worldmonitor (Terra Atlas)* [Computer software]. GitHub. https://github.com/Normansrule/worldmonitor
 - Our World in Data. (n.d.). *Our World in Data* [Data set]. Retrieved October 20, 2026, from https://ourworldindata.org/
 - Patton, A. J. (2011). Volatility forecast comparison using imperfect volatility proxies. *Journal of Econometrics, 160*(1), 246–256. https://doi.org/10.1016/j.jeconom.2010.03.034
+- Polymarket. (n.d.). *Gamma Markets API* [Data set]. Retrieved November 9, 2026, from https://docs.polymarket.com/
 - Shiller, R. J. (2000). *Irrational exuberance*. Princeton University Press.
 - Smith, J., & Wallis, K. F. (2009). A simple explanation of the forecast combination puzzle. *Oxford Bulletin of Economics and Statistics, 71*(3), 331–355. https://doi.org/10.1111/j.1468-0084.2008.00541.x
 - Stock, J. H., & Watson, M. W. (2004). Combination forecasts of output growth in a seven-country data set. *Journal of Forecasting, 23*(6), 405–430. https://doi.org/10.1002/for.928
@@ -1428,6 +1822,8 @@ bibliography, with every model, data source, theory and design reference, is in
 - Wallis, K. F. (2014). The two-piece normal, binormal, or double Gaussian distribution: Its origin and rediscoveries. *Statistical Science, 29*(1), 106–112. https://doi.org/10.1214/13-STS417
 - Whaley, R. E. (2000). The investor fear gauge. *The Journal of Portfolio Management, 26*(3), 12–17. https://doi.org/10.3905/jpm.2000.319728
 - Wikimedia Foundation. (n.d.). *Wikimedia REST API: Pageviews* [Data set]. Retrieved October 20, 2026, from https://wikimedia.org/api/rest_v1/
+- Wolfers, J., & Zitzewitz, E. (2004). Prediction markets. *Journal of Economic Perspectives, 18*(2), 107–126. https://doi.org/10.1257/0895330041371321
+- Xiao, Y., Sun, E., Luo, D., & Wang, W. (2024). *TradingAgents: Multi-agents LLM financial trading framework* (arXiv:2412.20138) [Preprint]. arXiv. https://arxiv.org/abs/2412.20138
 - Yahoo. (n.d.). *Yahoo Finance* [Data set]. Retrieved October 20, 2026, from https://finance.yahoo.com/
 - Zippenfeld, P. (2023). *Open-Meteo.com weather API* [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.7970649
 
@@ -1449,6 +1845,8 @@ This project stands on other people's work. Full attribution, licences and terms
   earlier "observatory" design (World Monitor, Metaculus, xyflow, Motion Canvas and others), all listed in
   [docs/DESIGN.md](docs/DESIGN.md).
 - **GDELT Project** for world news coverage data.
+- **Polymarket** Gamma API for the betting odds, and **TradingAgents** (Tauric Research, Apache-2.0) for the idea of reading them.
+- **Vibe-Trading** (HKUDS, MIT) for testing a trading rule with costs and out of sample.
 - **Yahoo Finance** data via the **yfinance** library by Ran Aroussi.
 - **Wikimedia Foundation** Pageviews API.
 - **Our World in Data** (CC BY 4.0, Creative Commons Attribution).

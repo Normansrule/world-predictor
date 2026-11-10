@@ -196,6 +196,58 @@ def present(weight: np.ndarray, forecasts) -> np.ndarray:
     return w / w.sum()
 
 
+# ---------- ranges that learn their width where they are too narrow ----------
+# Radiant's 80% range is the experts' ranges averaged. Where the benchmark model's own 80% ranges
+# caught reality less than 70% of the time on an area's finished windows, Radiant's range in that
+# area is widened by the factor that would have made 80% of those misses fit (a split conformal
+# step, in the spirit of Gibbs & Candes, 2021). The factor is learned from the benchmark's ranges,
+# which Radiant never changes, so it is the same in the backtest and in live forecasts. Replayed on
+# the 7 November 2026 backtest (late windows): only the yearly adoption curves qualify; their
+# coverage goes from 58% to 81% and their pinball loss from 7.59 to 7.17. Elsewhere nothing changes.
+WIDEN_BELOW = 0.70  # widen only where finished ranges caught reality less often than this
+WIDEN_TARGET = 0.80
+WIDEN_MIN = 20  # points of finished windows before a width is learned
+
+
+def band_ratios(q10, q50, q90, actual) -> np.ndarray:
+    """How far each outcome landed from the middle, in units of the range's half on its side (above
+    1: outside the 80% range)."""
+    q10, q50, q90, a = (np.asarray(x, float) for x in (q10, q50, q90, actual))
+    down, up = np.maximum(q50 - q10, 1e-12), np.maximum(q90 - q50, 1e-12)
+    r = np.where(a < q50, (q50 - a) / down, (a - q50) / up)
+    return r[np.isfinite(r)]
+
+
+def band_scale(ratios: Sequence[np.ndarray]) -> float:
+    """The widening factor for an area from its finished windows' ratios (1.0: leave as is)."""
+    r = np.concatenate([np.asarray(x, float) for x in ratios]) if len(ratios) else np.array([])
+    if len(r) < WIDEN_MIN or float(np.mean(r <= 1)) >= WIDEN_BELOW:
+        return 1.0
+    return max(1.0, float(np.quantile(r, WIDEN_TARGET)))
+
+
+def widen(forecast: Forecast, scale: float) -> Forecast:
+    """Every decile moved ``scale`` times as far from the middle; the middle stays."""
+    if scale == 1.0:
+        return forecast
+    q = np.asarray(forecast.quantiles, float)
+    mid = q[:, 4:5]
+    return Forecast(np.asarray(forecast.point, float), np.sort(mid + scale * (q - mid), axis=1))
+
+
+def scales_from_paths(paths: pd.DataFrame | None, model: str, domains: dict[str, str], at=None) -> dict[str, float]:
+    """The widening factor per area from ``model``'s recorded backtest windows that finished by ``at``."""
+    if paths is None or paths.empty:
+        return {}
+    at = None if at is None else pd.Timestamp(at)
+    ratios: dict[str, list] = {}
+    for (sid, _), g in paths[paths["model"] == model].groupby(["series_id", "origin"]):
+        if sid not in domains or (at is not None and pd.Timestamp(g["date"].max()) > at):
+            continue
+        ratios.setdefault(domains[sid], []).append(band_ratios(g["q10"], g["q50"], g["q90"], g["actual"]))
+    return {a: band_scale(r) for a, r in ratios.items()}
+
+
 def naive_forecast(context: np.ndarray, horizon: int) -> Forecast:
     from .models import NaiveForecaster
 

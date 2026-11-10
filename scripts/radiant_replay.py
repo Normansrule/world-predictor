@@ -12,7 +12,10 @@ learned band width (adaptive, in the spirit of Gibbs & Candès, 2021).
     python scripts/radiant_replay.py
 
 Run on the 4 November 2026 backtest, nothing beat the shipped mix overall (see README, "Radiant's
-lab").
+lab"). On the 7 November backtest (576 windows) weights per step, per-series weights and a median of
+TimesFM, Chronos and Radiant all landed within 0.02 points of it; the one change that paid was the
+range: "shipped rule" below widens Radiant's 80% range only where TimesFM's own ranges caught reality
+less than 70% of the time (the yearly adoption curves), and cut their pinball loss by about 5%.
 """
 
 from __future__ import annotations
@@ -116,6 +119,10 @@ def bands(paths: pd.DataFrame, model: str = radiant.NAME, target: float = 0.8, m
 
     def pinball(q, a, t):
         return np.mean(np.maximum(t * (a - q), (t - 1) * (a - q)))
+    bench = []  # the benchmark's own finished windows, for the shipped rule (radiant.band_scale)
+    for (sid, origin), g in paths[paths["model"] == MODEL].groupby(["series_id", "origin"]):
+        if sid in domains:
+            bench.append((domains[sid], pd.Timestamp(g["date"].max()), radiant.band_ratios(g["q10"], g["q50"], g["q90"], g["actual"])))
     rows = []
     for w in ws:
         late = w["origin"] >= LATE["yearly" if w["area"] == radiant.YEARLY else "daily"]
@@ -123,7 +130,9 @@ def bands(paths: pd.DataFrame, model: str = radiant.NAME, target: float = 0.8, m
             continue
         past = [ratio(v) for v in ws if v["area"] == w["area"] and v["end"] <= w["origin"]]
         r = np.concatenate(past) if past else np.array([])
-        for kind, s in (("as recorded", 1.0), ("learned width", float(np.quantile(r, target)) if len(r) >= min_points else 1.0)):
+        shipped = radiant.band_scale([x for a, end, x in bench if a == w["area"] and end <= w["origin"]])
+        for kind, s in (("as recorded", 1.0), ("learned width", float(np.quantile(r, target)) if len(r) >= min_points else 1.0),
+                        ("shipped rule", shipped)):
             lo, hi = w["mid"] - s * (w["mid"] - w["lo"]), w["mid"] + s * (w["hi"] - w["mid"])
             level = np.mean(np.abs(w["a"])) + 1e-12
             rows.append({"area": w["area"], "kind": kind, "cover": float(np.mean((w["a"] >= lo) & (w["a"] <= hi))),

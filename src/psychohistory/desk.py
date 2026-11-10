@@ -3,8 +3,8 @@
 Name a catalog series (``gold``), any Yahoo Finance ticker (``MSFT``, ``^FTSE``, ``EURUSD=X``,
 ``ETH-USD``) or your own CSV. For each one the desk
 
-1. forecasts the next ``horizon`` steps with the model under test and with Seldon (the crowd laws
-   with the model as one voter, the laws' share learned from this asset's own past windows),
+1. forecasts the next ``horizon`` steps with the model under test and with Seldon (its own council
+   without the model: crowd laws, behavioural core and no change, weighted by this asset's past windows),
 2. reads the odds of ending above price levels off each forecast's deciles,
 3. sets the volatility the forecast implies beside the volatility the market has shown, and
 4. backtests every model on this asset's own past windows, so you can see which one has earned
@@ -47,7 +47,7 @@ class Desk:
     last: float
     last_date: pd.Timestamp
     table: pd.DataFrame  # one row per step: date, each forecaster's deciles and chance of rising
-    share: float  # the crowd laws' share of the full Seldon's vote
+    share: float  # the crowd laws' share of Seldon's own vote
     levels: pd.DataFrame  # level, each forecaster's chance of ending above it
     vol: dict  # annualised volatility: realized, and implied by each forecaster's range
     record: pd.DataFrame  # one row per model: skill and calibration on this asset's past windows
@@ -117,9 +117,9 @@ def forecast_table(series: pd.Series, spec: SeriesSpec, versions: dict[str, Fore
 
 
 def track_record(spec: SeriesSpec, series: pd.Series, model: Forecaster, others: list[Forecaster],
-                 windows: int) -> tuple[pd.DataFrame, float, int]:
+                 windows: int) -> tuple[pd.DataFrame, np.ndarray, int]:
     """Backtest every model on this asset's own past windows. Returns one row per model (skill and
-    calibration, best first), the crowd laws' share for a forecast made now, and how many windows
+    calibration, best first), the weights of Seldon's own voters for a forecast made now, and how many windows
     were scored."""
     kept = []
     results = backtest.backtest_series(spec, series, [model, *others], windows=windows, keep=kept)
@@ -127,21 +127,24 @@ def track_record(spec: SeriesSpec, series: pd.Series, model: Forecaster, others:
         return pd.DataFrame(), 0.0, 0
     full = backtest.add_seldon(kept, model.name)
     results = pd.concat([results, full], ignore_index=True)
-    share = seldon.share_for(backtest.seldon_windows(kept, model.name), spec.domain)
+    from . import radiant
+    weights = seldon.own_weights(backtest.own_windows(backtest.own_voters(kept, model.name)), radiant.area(spec))
     summary = backtest.summarize(results)
     cols = ["model", "skill", "prob_skill", "coverage80", "direction", "brier", "mase"]
     record = summary[cols].sort_values("skill", ascending=False).reset_index(drop=True)
-    return record, share, int(results["origin"].nunique())
+    return record, weights, int(results["origin"].nunique())
 
 
 def build(spec: SeriesSpec, series: pd.Series, model: Forecaster, others: list[Forecaster],
           levels: list[float] | None = None, windows: int = 8, max_context: int = 1024) -> Desk:
     """The whole desk note for one asset, from its history alone."""
     context = series.to_numpy(dtype=float)[-max_context:]
-    record, share, scored = track_record(spec, series, model, others, windows)
+    record, weights, scored = track_record(spec, series, model, others, windows)
     base = model.forecast([context], spec.horizon)[0]
     laws, _ = seldon.predict(context, spec.horizon)
-    versions = {model.name: base, seldon.NAME: seldon.blend(base, laws, share), LAWS: laws}
+    own, used = seldon.own_mix(seldon.own_voters(context, spec.horizon, None, laws), weights)
+    share = float(used[0])
+    versions = {model.name: base, seldon.NAME: own, LAWS: laws}
     table = forecast_table(series, spec, versions)
     last = float(series.iloc[-1])
     end = len(table) - 1
@@ -207,8 +210,8 @@ def note(desk: Desk) -> str:
     ticker = spec.params.get("ticker", spec.id)
     out = [f"# Forecast desk: {spec.description or ticker} ({ticker})", "",
            f"Data through {desk.last_date.date()}, last value **{_num(last)}**. Forecasts by {display_name(m)} and "
-           f"Seldon (crowd laws with {display_name(m)} as one voter; the laws hold {desk.share:.0%} of the vote, "
-           f"learned from this asset's past windows).", "", "## Outlook", "",
+           f"Seldon (its own council without {display_name(m)}: crowd laws, behavioural core and no change; the laws hold "
+           f"{desk.share:.0%} of the vote, learned from this asset's past windows).", "", "## Outlook", "",
            f"| Ahead | Date | {display_name(m)} middle | Move | 80% range | Chance higher | Seldon middle | Seldon chance higher |",
            "|---|---|---|---|---|---|---|---|"]
     steps = sorted({s for s in CHECKPOINTS if s <= len(t)} | {len(t)})

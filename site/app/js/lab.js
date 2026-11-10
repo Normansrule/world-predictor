@@ -1,5 +1,5 @@
 // The Lab: make a blind call on a real past window, seal it, break the seal, and see how you did
-// against TimesFM and Seldon (our own forecaster: crowd laws and TimesFM in one council, see src/psychohistory/seldon.py).
+// against TimesFM and Seldon (our own forecaster: crowd laws, a behavioural core, no change and Chronos-Bolt, no TimesFM; see src/psychohistory/seldon.py).
 // Reads window.WP_DATA.lab, built from the backtest paths by web.lab_payload. Both models made their
 // calls from the same history the visitor sees; nothing after the cut is drawn until the seal breaks.
 // Used by the app (#lab) and, in compact form, by the landing page's hero.
@@ -111,8 +111,9 @@
             <p class="learned">Our own forecaster, built to beat TimesFM. Hari Seldon bet that crowds follow a few simple laws,
               so Seldon has four: <b>inertia</b> (tomorrow looks like today), <b>drift</b> (the long-run course holds), <b>momentum</b>
               (a move keeps going, then fades) and <b>reversion</b> (excitement wears off), on top of the <b>weekly rhythm</b> of news and attention.
-              TimesFM sits in the same council. How much say the laws get is learned per area from every finished window: until they
-              have beaten TimesFM there, TimesFM keeps the vote. It is scored on the same windows as TimesFM and it is allowed to lose.</p></div>
+              Since November 2026 TimesFM is not in its council, so Seldon is a second opinion rather than a copy: the laws vote with a
+              <b>behavioural core</b> (overreaction, momentum, reversal, attention spikes), <b>no change</b> and Amazon's <b>Chronos-Bolt</b>, each with the share it
+              earned on every finished window in its area. It is scored on the same windows as TimesFM and it is allowed to lose.</p></div>
         </div>
       </div>`;
     const q = (sel) => host.querySelector(sel);

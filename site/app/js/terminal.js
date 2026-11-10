@@ -360,6 +360,7 @@
   async function live(o, box) {
     const btn = box.querySelector("#tm-live"), q = LIVE_QUERY(o);
     if (!q) { btn.textContent = "No news query for this series"; return; }
+    if (!navigator.onLine) { btn.textContent = "Offline: live headlines need a connection; the wire below is from the last run"; return; }
     btn.disabled = true; btn.textContent = "Loading…";
     try {
       const url = "https://api.gdeltproject.org/api/v2/doc/doc?" + new URLSearchParams({ query: q + " sourcelang:english", mode: "ArtList", format: "json", maxrecords: "8", timespan: "2d", sort: "DateDesc" });

@@ -10,6 +10,11 @@ to date first, exactly as ``psychohistory report`` does it: those rows become ``
 the full Seldon is replayed from the recorded TimesFM and laws paths (``backtest.upgrade_run``).
 This prints both duels.
 
+A run scored before Seldon had its own council (its ``seldon`` rows blended TimesFM with the laws)
+is brought up to date the same way: Seldon is replayed from the recorded paths of the laws, the
+behavioural core and Chronos-Bolt plus "no change", learning its weights only from windows finished
+before each origin (``backtest.replay_own_seldon``), and the run's CSV files are rewritten to match.
+
 If the run has no volatility backtest yet, one is made from the same rebuilt series. With only a
 year of data, its first origin comes after 120 trading days instead of a year (``REBUILT_TRAIN``);
 the next ``psychohistory vol --backtest`` on the full history replaces it. The event-odds backtest is
@@ -26,7 +31,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from psychohistory import backtest, catalog, events, ledger, seldon, volatility, web, wire, yearbook
+from psychohistory import backtest, catalog, events, ledger, radiant, seldon, volatility, web, wire, yearbook
 
 ROOT = Path(__file__).resolve().parents[1]
 RESULTS = ROOT / "results"
@@ -58,6 +63,43 @@ def print_duel(rows: list[dict], model: str, who: str) -> None:
               f"{r['skill'][0]:+.1%} / {r['skill'][1]:+.1%}")
 
 
+def reprice_seldon(paths: pd.DataFrame) -> None:
+    """Seldon's rows in the saved event-odds and volatility backtests, read again off its replayed
+    paths. Every other row stays as the run made it, and so do the thresholds and realized
+    volatility Seldon is scored against (the run computed those on the full history)."""
+    mine = paths[paths["model"] == seldon.NAME].set_index(["series_id", "origin", "step"])
+    specs = {s.id: s for s in catalog.CATALOG}
+    ev = read_csv(RESULTS / "event_backtest.csv")
+    if ev is not None:
+        rows = []
+        for r in ev[ev["model"] == seldon.NAME].itertuples(index=False):
+            key = (r.series_id, str(r.origin), specs[r.series_id].horizon) if r.series_id in specs else None
+            if key is None or key not in mine.index:
+                continue
+            q = mine.loc[key]
+            p = events.probability(q["q10"], q["q50"], q["q90"], r.threshold, events.EVENTS[r.event][1])
+            if p is not None:
+                rows.append(r._asdict() | {"p": p, "brier": (p - r.outcome) ** 2})
+        ev = pd.concat([ev[ev["model"] != seldon.NAME], pd.DataFrame(rows)], ignore_index=True)
+        ev.to_csv(RESULTS / "event_backtest.csv", index=False)
+        events.summarize(ev).to_csv(RESULTS / "event_summary.csv", index=False)
+    vol = read_csv(RESULTS / "vol_backtest.csv")
+    if vol is not None:
+        rows = []
+        for r in vol[vol["model"] == seldon.NAME].itertuples(index=False):
+            key = (r.series_id, str(r.origin), int(r.horizon))
+            if r.series_id not in specs or key not in mine.index:
+                continue
+            q, freq = mine.loc[key], specs[r.series_id].freq
+            variance = volatility.implied_variance(float(q["q10"]), float(q["q90"]), int(r.horizon))
+            if variance:
+                realized = r.realized ** 2 / volatility.periods_per_year(freq)
+                rows.append(r._asdict() | {"vol": volatility.annual(variance, freq), "qlike": float(volatility.qlike(realized, variance))})
+        vol = pd.concat([vol[vol["model"] != seldon.NAME], pd.DataFrame(rows)], ignore_index=True)
+        vol.to_csv(RESULTS / "vol_backtest.csv", index=False)
+        volatility.summarize(vol).to_csv(RESULTS / "vol_summary.csv", index=False)
+
+
 def main() -> None:
     data_js = RESULTS / "web" / "data.js"
     text = data_js.read_text()
@@ -66,6 +108,12 @@ def main() -> None:
     results, paths = read_csv(RESULTS / "backtest_windows.csv"), read_csv(RESULTS / "backtest_paths.csv")
     results, paths, upgraded = backtest.upgrade_run(results, paths, model)
     series = rebuild_series(paths, model, previous)
+    results, paths, own = backtest.replay_own_seldon(results, paths, series, model, radiant.domains_of(catalog.CATALOG))
+    if own:  # keep the run's files in step with the app: Seldon's rows are its own council's from here on
+        results.to_csv(RESULTS / "backtest_windows.csv", index=False)
+        paths.to_csv(RESULTS / "backtest_paths.csv", index=False)
+        backtest.summarize(results).to_csv(RESULTS / "backtest_summary.csv", index=False)
+        reprice_seldon(paths)
     if not (RESULTS / "vol_summary.csv").exists():
         specs = [s for s in catalog.CATALOG if s.domain == "markets" and s.id in series]
         frames = [volatility.backtest(s, series[s.id], paths, min_train=REBUILT_TRAIN) for s in specs]
@@ -104,6 +152,7 @@ def main() -> None:
     web.write_data_js(payload, data_js)
     yearbook.write_csv(payload.get("year"), RESULTS)
     note = " (full Seldon replayed from the recorded paths)" if upgraded else ""
+    note += " (Seldon's own council replayed from the recorded paths)" if own else ""
     print(f"Rebuilt {data_js.relative_to(ROOT)} from {len(series)} series{note}.\n")
     print_duel(payload["duel"], model, "Seldon")
     print()

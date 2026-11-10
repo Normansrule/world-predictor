@@ -25,6 +25,23 @@
   }
   const off = (f, a) => (f === null || a === null || !a ? null : (f - a) / Math.abs(a));
 
+  // The yardstick every forecast has to beat: "no change", the value the forecast started from. Most
+  // days here are forecasts made only a day or so before, so every model sits close to reality and a
+  // small miss is not by itself skill. Pooled over the given series on the days the leaderboard counts
+  // (every model forecast, the real value and the starting value are in): each average miss, and how
+  // often the first model (TimesFM) came closer than no change.
+  function yardstick(items) {
+    const lead = Y.models[0];
+    let n = 0, naive = 0, model = 0, closer = 0, ties = 0;
+    items.forEach((item) => { const t = item.table; for (let i = 0; i < t.a.length; i++) {
+      const a = t.a[i], o = t.o[i];
+      if (a === null || !a || o === null || o === undefined || Y.models.some((m) => t[m][i] === null)) continue;
+      const en = Math.abs(o - a) / Math.abs(a), em = Math.abs(t[lead][i] - a) / Math.abs(a);
+      n++; naive += en; model += em; if (em < en) closer++; else if (em === en) ties++;
+    } });
+    return n ? { n, naive: naive / n, model: model / n, closer: closer / n, ties: ties / n } : null;
+  }
+
   // The rows to show: every day, or one per week or month (the last day in it with a real value,
   // else the last with a forecast, else its last day).
   function rowsOf(t) {
@@ -78,6 +95,7 @@
     const base = s.models[Y.models[0]].mape;
     return `<dl class="yr-stats">${Y.models.map((m) => { const x = s.models[m];
       return `<div><dt><i style="background:${color(m)}"></i>${esc(label(m))}</dt><dd><b>${(x.mape * 100).toFixed(2)}%</b> average miss${m !== Y.models[0] ? ` <span class="${x.mape < base ? "pos" : "neg"}">${x.mape < base ? "beats" : "behind"} TimesFM</span>${verdict(x)}` : ""}<small>closest on ${Math.round(x.closest * 100)}% of days · bias ${pct(x.bias, false)}</small></dd></div>`; }).join("")}
+      ${(() => { const y = yardstick([item]); return y ? `<div><dt><i style="background:var(--ink-2)"></i>No change</dt><dd><b>${(y.naive * 100).toFixed(2)}%</b> average miss <span class="${y.model < y.naive ? "pos" : "neg"}">TimesFM ${(y.model * 100).toFixed(2)}% on the same days: ${y.model < y.naive ? "beats it" : "behind it"}</span><small>copying the value each forecast started from · ${y.n} days with a starting value · TimesFM closer on ${Math.round(y.closer * 100)}%</small></dd></div>` : ""; })()}
       <div><dt>Compared on</dt><dd><b>${s.days}</b> days<small>where all of them forecast and the real value is in</small></dd></div></dl>`;
   }
 
@@ -87,11 +105,11 @@
       const d = dateOf(i), a = t.a[i], o = t.o[i], future = Date.parse(d) > today, best = closest(t, i), src = t.src[i];
       const cells = Y.models.map((m) => { const f = t[m][i];
         return `<td class="${best === m ? "yr-best" : ""}">${num(f)}${f !== null && o ? `<small>${pct(f / o - 1, false)}</small>` : ""}</td><td>${pct(off(f, a), false)}</td>`; }).join("");
-      return `<tr class="${future ? "yr-future" : ""}${d === Y.today ? " yr-now" : ""}" data-i="${i}"><th scope="row">${d}</th><td>${num(a)}</td><td>${a !== null && o ? pct(a / o - 1) : dash}</td>${cells}
+      return `<tr class="${future ? "yr-future" : ""}${d === Y.today ? " yr-now" : ""}" data-i="${i}"><th scope="row">${d}</th><td>${num(a)}</td><td>${a !== null && o ? pct(a / o - 1) : dash}</td>${cells}<td class="yr-naive">${num(o === undefined ? null : o)}</td><td class="yr-naive">${pct(off(o === undefined ? null : o, a), false)}</td>
         <td>${best ? `<span class="yr-who" style="--c:${color(best)}">${esc(label(best))}</span>` : dash}</td><td>${src === "s" ? '<span class="yr-seal" title="sealed before the day">sealed</span>' : src === "b" ? '<span class="dim" title="replayed rolling-origin backtest">backtest</span>' : dash}</td></tr>`;
     }).join("");
     return `<div class="yr-scroll"><table class="yr-table"><thead><tr><th>Date</th><th>Real</th><th title="the real change since the forecast was made">Real move</th>
-      ${Y.models.map((m) => `<th><i style="background:${color(m)}"></i>${esc(label(m))}</th><th>Off</th>`).join("")}<th>Closest</th><th>Source</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+      ${Y.models.map((m) => `<th><i style="background:${color(m)}"></i>${esc(label(m))}</th><th>Off</th>`).join("")}<th class="yr-naive" title="the value each forecast started from: what you get by assuming nothing changes">No change</th><th class="yr-naive">Off</th><th>Closest</th><th>Source</th></tr></thead><tbody>${rows}</tbody></table></div>`;
   }
 
   // The race: each model's average miss so far, day by day through the year, on the days all of
@@ -168,7 +186,9 @@
     const verdict = best.model === base.model
       ? `TimesFM leads ${Y.year} so far: its most likely value missed reality by ${(base.mape * 100).toFixed(2)}% on an average day. Radiant, Seldon and the crowd laws are still chasing it.`
       : `${label(best.model)} leads ${Y.year} so far, missing by ${(best.mape * 100).toFixed(2)}% on an average day against TimesFM's ${(base.mape * 100).toFixed(2)}%.`;
-    return `<p class="yr-verdict">${esc(verdict)}</p>
+    const y = yardstick(Y.groups.flatMap((x) => x.series));
+    const scale = y ? `For scale: on the same ${y.n.toLocaleString("en")} days, simply assuming nothing changed (repeating the value each forecast started from) missed by ${(y.naive * 100).toFixed(2)}%, and TimesFM by ${(y.model * 100).toFixed(2)}%. TimesFM came closer than that on ${Math.round(y.closer * 100)}% of days. Most of these forecasts were made a day or so before, so every model's line sits close to the real one: being close is the floor, beating "no change" is the test.` : "";
+    return `<p class="yr-verdict">${esc(verdict)}</p>${scale ? `<p class="yr-scale">${esc(scale)}</p>` : ""}
       <div class="table-wrap"><table class="yr-board"><thead><tr><th>Model</th><th>Average miss</th><th>Closest on</th><th>Beats TimesFM on</th><th title="Diebold-Mariano test on each series, Benjamini-Hochberg cut">Clearly better · worse</th><th>Days compared</th></tr></thead><tbody>
       ${L.map((x) => `<tr><th scope="row"><i style="background:${color(x.model)}"></i>${esc(label(x.model))}</th><td><span class="yr-bar" style="--w:${Math.min(100, (x.mape / Math.max(...L.map((q) => q.mape || 0))) * 100).toFixed(1)}%;--c:${color(x.model)}"></span>${(x.mape * 100).toFixed(2)}%</td>
         <td>${Math.round(x.closest * 100)}% of days</td><td>${x.beats === null ? '<span class="dim">the benchmark</span>' : `${x.beats} of ${x.series} series`}</td><td>${x.better === null || x.better === undefined ? '<span class="dim">–</span>' : `<span class="pos">${x.better}</span> · <span class="neg">${x.worse}</span>`}</td><td>${x.days.toLocaleString("en")}</td></tr>`).join("")}</tbody></table></div>`;
@@ -208,7 +228,7 @@
         ${stats(item)}<div class="yr-race small" data-race="${esc(item.id)}"></div>${strip(item)}
         <p class="yr-key">${Y.models.map((m) => `<span><i style="background:${color(m)}"></i>${esc(label(m))} closest</span>`).join("")}<span><i style="background:var(--line-2)"></i>forecast, real value not in</span><span><i style="background:var(--panel-2)"></i>not tracked</span></p>
         ${table(item)}</section>`).join("")}
-      <p class="note">Most likely means the median of each model's forecast. Off is (forecast − real) / real. Real move is the real change since the forecast was made, and the small figure under each forecast is the change it expected. A sealed forecast was written into the ledger before its day; a backtest one was made from the data up to its origin and replayed later. Closest compares them on each day. "Real" or "could be luck" is a Diebold-Mariano test of the daily misses against TimesFM, allowing for overlapping forecasts, cut with Benjamini-Hochberg for testing every series at once. Research, not investment advice.</p>`;
+      <p class="note">Most likely means the median of each model's forecast, never the real value: the Real column is the only real one. Each day shows the forecast made last before it, usually a day or a few before, so forecasts and reality are close and a tiny Off does not mean a model knew the future. No change is the value the forecast started from, the yardstick to beat. Off is (forecast − real) / real. Real move is the real change since the forecast was made, and the small figure under each forecast is the change it expected. A sealed forecast was written into the ledger before its day; a backtest one was made from the data up to its origin and replayed later. Closest compares them on each day. "Real" or "could be luck" is a Diebold-Mariano test of the daily misses against TimesFM, allowing for overlapping forecasts, cut with Benjamini-Hochberg for testing every series at once. Research, not investment advice.</p>`;
     drawRace(host.querySelector("#yr-race-all"), Y.groups.flatMap((x) => x.series), 230);
     host.querySelectorAll("[data-race]").forEach((el) => drawRace(el, g.series.filter((x) => x.id === el.dataset.race), 150));
     host.querySelectorAll("[data-csv]").forEach((b) => (b.onclick = () => download(g.series.find((x) => x.id === b.dataset.csv))));

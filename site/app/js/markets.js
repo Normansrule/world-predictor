@@ -11,7 +11,7 @@
   const HORIZONS = [[1, "1D"], [5, "1W"], [10, "2W"], [20, "1M"]];
   const Z90 = 1.2815516, Z75 = 0.6744898;
   const COMPARE = ["var(--tfm)", "var(--seldon)", "var(--markets)", "var(--you)"];
-  const state = { id: null, h: 20, who: "model", compare: [], sort: null, dir: -1, level: null };
+  const state = { id: null, h: 20, who: "model", compare: [], sort: null, dir: -1, level: null, fstep: 20 };
   let D = null, host = null;
 
   // ---------- numbers ----------
@@ -123,6 +123,7 @@
       </div>
       <div class="card" id="mk-vol"></div>
       <div class="card" id="mk-compare"></div>
+      <div class="card" id="mk-follow"></div>
       <p class="note">Forecasts are research, not investment advice. Markets sit close to a random walk: ${esc(marketsVerdict())} Chances beyond the forecast's 10th and 90th percentiles are a normal-shaped guess, capped at 2% and 98%.</p>`;
     host.querySelector("#mk-h").onclick = (e) => { const b = e.target.closest("button"); if (b) { state.h = +b.dataset.h; go(); } };
     host.querySelector("#mk-who").onclick = (e) => { const b = e.target.closest("button"); if (b) { state.who = b.dataset.who; go(); } };
@@ -132,6 +133,42 @@
     watch(list);
     detail(list.find((a) => a.id === state.id));
     compare(list);
+    follow();
+  }
+  // Would following the forecasts have made money? (D.follow, built by psychohistory.follow)
+  function follow() {
+    const box = host.querySelector("#mk-follow"), F = D.follow;
+    if (!F || !F.rows || !F.rows.length) { box.innerHTML = '<header class="ph"><h2>Would following the forecasts have made money?</h2></header><div class="empty">This appears after the first full backtest.</div>'; return; }
+    const { fmt } = window.WPCharts;
+    const steps = [...new Set(F.rows.map((r) => r.step))].sort((a, b) => a - b);
+    if (!steps.includes(state.fstep)) state.fstep = steps[steps.length - 1];
+    const W = { radiant: "Radiant", "timesfm-2.5": "TimesFM", seldon: "Seldon", "chronos-bolt": "Chronos-Bolt" };
+    const C = { radiant: "var(--radiant)", "timesfm-2.5": "var(--tfm)", seldon: "var(--seldon)", "chronos-bolt": "var(--rival)" };
+    const rows = F.rows.filter((r) => r.step === state.fstep).sort((a, b) => b.follow - a.follow);
+    const oos = (F.oos || []).filter((r) => r.step === state.fstep);
+    const word = (n) => (n === 5 ? "a week" : n === 20 ? "a month" : `${n} trading days`);
+    const sp = (v) => `<span class="${v > 0.0005 ? "pos" : v < -0.0005 ? "neg" : ""}">${fmt.signedPct(v)}</span>`;
+    const hold = rows.length ? rows[0].hold : 0;
+    const luck = (t) => (t === null || t === undefined ? "–" : Math.abs(t) >= 2 ? `<b>${t.toFixed(1)}</b>` : `${t.toFixed(1)} <small class="dim">luck</small>`);
+    box.innerHTML = `<header class="ph"><h2>Would following the forecasts have made money?</h2><span class="pm">${F.markets} markets · backtest ${esc(F.first)} to ${esc(F.last)} · ${fmt.pct(F.cost)} cost each way</span></header>
+      <div class="mk-bar"><div class="chips" role="group" aria-label="Holding period" id="mk-fstep">${steps.map((n) =>
+        `<button class="chip" data-fstep="${n}" aria-pressed="${n === state.fstep}">Hold ${word(n)}</button>`).join("")}</div></div>
+      <p class="mk-verdict">${esc(F.verdict)}</p>
+      <div id="mk-fchart"></div>
+      <div class="table-wrap"><table class="mk-voltab"><thead><tr><th>Follow</th><th>Right</th><th>Per window</th><th>Long/short</th><th>vs holding (t)</th></tr></thead><tbody>
+        <tr><td><span class="who" style="--c:var(--ink-3)">Hold every market</span></td><td class="dim">–</td><td>${sp(hold)}</td><td class="dim">–</td><td class="dim">yardstick</td></tr>
+        ${rows.map((r) => `<tr><td><span class="who" style="--c:${C[r.model] || "var(--ink-2)"}">${esc(W[r.model] || r.model)}</span></td><td>${fmt.pct(r.hit)}</td><td>${sp(r.follow)}</td><td>${sp(r.longshort)}</td><td>${luck(r.t)}</td></tr>`).join("")}
+      </tbody></table></div>
+      ${oos.length ? `<p class="note"><b>Out of sample.</b> Choosing the odds needed to buy (50%, 55% or 60%) on the first half of the backtest and trading the second half: ${oos.map((r) => `${esc(W[r.model] || r.model)} ${sp(r.follow)}`).join(", ")} a window, against ${sp(oos[0].hold)} for holding.</p>` : ""}
+      <p class="note">Each backtest window, every forecaster either held a market (its chance of a rise above 50%) or stayed in cash, paying ${fmt.pct(F.cost)} each way; long/short also bet against the markets it called lower. "Right" is how often it called the direction. The chart adds up what $100 staked on every window made. A t below 2 in size means the gap from holding could be luck. Following a forecast pays only if it is right more often than the market rises on its own: research, not investment advice.</p>`;
+    box.querySelector("#mk-fstep").onclick = (e) => { const b = e.target.closest("button"); if (b) { state.fstep = +b.dataset.fstep; follow(); } };
+    const curve = (F.curves || {})[String(state.fstep)] || {};
+    const dates = curve.dates || [];
+    const line = (k, color, label, dash) => ({ points: dates.map((d, i) => [d, curve[k][i]]), color, label, dash, width: k === "hold" ? 2.5 : 2 });
+    const chart = box.querySelector("#mk-fchart");
+    window.WPCharts.plot(chart, { x: "date", height: 240, right: 96, yFormat: (v) => `$${Math.round(v)}`,
+      refs: [{ y: 0 }],
+      lines: [line("hold", "var(--ink-2)", "Hold", "5 4"), ...Object.keys(W).filter((m) => curve[m]).map((m) => line(m, C[m], W[m]))] });
   }
   function go() { history.replaceState(null, "", `#markets/${state.id}:${state.h}`); render(host, D); }
 

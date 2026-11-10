@@ -29,9 +29,26 @@ QUERIES = {
     "wiki_llm": '"language model"', "wiki_ai": '"artificial intelligence"', "wiki_quantum": '"quantum computing"',
     "wiki_crispr": "CRISPR", "wiki_ev": '"electric vehicles"', "wiki_fusion": '"fusion energy"',
     "wiki_humanoid": '"humanoid robot"', "adoption_solar": '"solar power"', "adoption_wind": '"wind power"',
+    "wiki_battery": '"battery technology"', "wiki_gene_therapy": '"gene therapy"', "wiki_self_driving": '("self-driving" OR robotaxi)',
+    "wiki_starship": "Starship SpaceX",
 }
+FIRST = ("news", "politics", "tech")  # the world event predictor's topics come before markets
 
 log = logging.getLogger(__name__)
+
+
+def prioritize(specs: list[catalog.SeriesSpec], old: dict | None) -> list[catalog.SeriesSpec]:
+    """Who asks GDELT first. GDELT throttles hard, so a run seldom reaches every topic before the
+    time budget runs out; asking the topics with the oldest headlines first means every topic is
+    refreshed within a few runs instead of the same ones each time. Within equally old topics, the
+    world event predictor's (news, politics, technology) go before markets."""
+    topics = (old or {}).get("topics") or {}
+
+    def key(spec):
+        t = topics.get(spec.id) or {}
+        when = t.get("fetched") or ("" if t.get("stale") or not t else (old or {}).get("fetched", ""))
+        return (when, 0 if spec.domain in FIRST else 1)
+    return sorted(specs, key=key)
 
 
 def query_for(spec: catalog.SeriesSpec) -> str | None:
@@ -64,7 +81,8 @@ def fetch(specs: list[catalog.SeriesSpec], records: int = RECORDS, fetcher=gdelt
             failed[spec.id] = f"{type(exc).__name__}: {exc}"[:200]
             continue
         if articles:
-            topics[spec.id] = {"query": query, "articles": articles}
+            topics[spec.id] = {"query": query, "articles": articles,
+                               "fetched": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")}
     return {"fetched": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ"), "topics": topics, "failed": failed}
 
 

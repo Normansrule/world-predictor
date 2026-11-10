@@ -64,6 +64,12 @@ affiliated with or endorsed by Google.
 - Licence: CC BY 4.0. Underlying sources (Ember, Energy Institute Statistical Review of World
   Energy, International Telecommunication Union, World Bank) are credited on each OWID chart page.
 
+### Betting odds: Polymarket
+- Public Gamma Markets API: <https://docs.polymarket.com/>, read
+  without a key. Prices are shown with a link to each market and used under Polymarket's terms
+  (<https://polymarket.com/tos>). This project is not affiliated with Polymarket, and nothing here is
+  betting or financial advice.
+
 ## Software
 
 - NumPy (BSD-3-Clause) <https://numpy.org/>
@@ -111,6 +117,30 @@ Twenty open-source repositories and the modelling theories this project draws on
   (Uhlenbeck & Ornstein, 1930), and checked on the M4 competition's public daily series
   (Makridakis et al., 2020; data from <https://github.com/Mcompetitions/M4-methods>, not redistributed here).
 
+### Vibe-Trading, HKUDS
+- <https://github.com/HKUDS/Vibe-Trading> (MIT License). One idea, no code copied: test a trading rule
+  with costs and choose its settings on training windows only, then judge it on the rest
+  (`follow.py`, the Markets desk's "Would following the forecasts have made money?").
+- Also reviewed in the same batch and not used: AutoHedge (MIT; places live trades), FinceptTerminal
+  and Securo (AGPL-3.0, so nothing was taken), God's Eye View, Open Eagle Eye and OpenTrafficCamMap
+  (live cameras and aircraft, not forecastable series), changedetection.io, Firecrawl, SearXNG,
+  LibreTranslate, LibreChat and the skill and agent collections (superpowers and others).
+
+### Hallmark, Together AI
+- <https://www.usehallmark.com> (MIT License). Its "never ship" floor (contrast, focus, reduced motion,
+  phone layout) is the checklist for the round 6 accessibility measurement, with taste-skill and the Apple
+  design skills from the same batch. No code copied.
+
+### TradingAgents, Tauric Research
+- <https://github.com/TauricResearch/TradingAgents> (Apache License 2.0). Xiao, Y., Sun, E., Luo, D., &
+  Wang, W. (2024). *TradingAgents: Multi-agents LLM financial trading framework*. arXiv:2412.20138.
+- Two ideas, no code copied: reading Polymarket's open, forward-looking markets ranked by volume
+  (`bets.py`), and its five-tier Buy-to-Sell rating, which was tested on the backtest and not shipped
+  (see the README's fourth lab round).
+- Also reviewed for this round and not used: Argus (AGPL-3.0, so nothing was taken), the Playwright MCP
+  server (the app's checks use Playwright directly), ElevenLabs MCP, free-sfx, a SpaceX ISS docking
+  simulator, Anthropic's skills, awesome-claude-skills and claude-code-maestro.
+
 ## Methods
 
 Cited in APA style (7th edition); the full bibliography is in [REFERENCES.md](REFERENCES.md#bibliography-apa-7th-edition).
@@ -118,5 +148,6 @@ Cited in APA style (7th edition); the full bibliography is in [REFERENCES.md](RE
 - Mean absolute scaled error (MASE): Hyndman, R. J., & Koehler, A. B. (2006). Another look at measures of forecast accuracy. *International Journal of Forecasting, 22*(4), 679–688. https://doi.org/10.1016/j.ijforecast.2006.03.001
 - Pinball (quantile) loss: Koenker, R., & Bassett, G., Jr. (1978). Regression quantiles. *Econometrica, 46*(1), 33–50. https://doi.org/10.2307/1913643
 - Proper scoring and interval coverage: Gneiting, T., & Raftery, A. E. (2007). Strictly proper scoring rules, prediction, and estimation. *Journal of the American Statistical Association, 102*(477), 359–378. https://doi.org/10.1198/016214506000001437
+- Prediction markets as forecasts: Wolfers, J., & Zitzewitz, E. (2004). Prediction markets. *Journal of Economic Perspectives, 18*(2), 107–126. https://doi.org/10.1257/0895330041371321
 - Brier score for the odds: Brier, G. W. (1950). Verification of forecasts expressed in terms of probability. *Monthly Weather Review, 78*(1), 1–3. https://doi.org/10.1175/1520-0493(1950)078<0001:VOFEIT>2.0.CO;2
 - Rolling-origin backtests: Tashman, L. J. (2000). Out-of-sample tests of forecasting accuracy: An analysis and review. *International Journal of Forecasting, 16*(4), 437–450. https://doi.org/10.1016/S0169-2070(00)00065-0

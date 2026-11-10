@@ -10,9 +10,9 @@
   const hue = (d) => (AREA[d] ? `var(--${d})` : "var(--ink-3)");
   const tag = (d) => `<span class="tag" style="--c:${hue(d)}">${esc(AREA[d] || d)}</span>`;
   const UNIT = { news: "days", politics: "days", markets: "trading days", tech: "days", weather: "days" };
-  const VIEWS = ["today", "terminal", "desk", "markets", "monitor", "year", "lab", "studio", "outlook", "trace", "replay", "horizon", "odds", "vault", "crowd", "series", "about"];
-  const KEYS = { h: "today", H: "today", w: "terminal", W: "terminal", m: "markets", M: "markets", r: "monitor", R: "monitor", y: "year", Y: "year", 1: "desk", 2: "lab", 3: "studio", 4: "outlook", 5: "trace", 6: "replay", 7: "horizon", 8: "odds", 9: "vault", 0: "series", "?": "about" };
-  const NAMES = { today: "Today", terminal: "World terminal", desk: "Desk", markets: "Markets desk", monitor: "Monitor", year: "Year ledger", lab: "Lab", studio: "Forecast Studio", outlook: "Outlook", trace: "Follow a result", replay: "Replay", horizon: "How far ahead", odds: "Honest odds",
+  const VIEWS = ["today", "events", "calendar", "compare", "terminal", "desk", "markets", "monitor", "year", "lab", "studio", "outlook", "trace", "replay", "horizon", "odds", "vault", "crowd", "series", "about"];
+  const KEYS = { h: "today", H: "today", e: "events", E: "events", c: "calendar", C: "calendar", x: "compare", X: "compare", w: "terminal", W: "terminal", m: "markets", M: "markets", r: "monitor", R: "monitor", y: "year", Y: "year", 1: "desk", 2: "lab", 3: "studio", 4: "outlook", 5: "trace", 6: "replay", 7: "horizon", 8: "odds", 9: "vault", 0: "series", "?": "about" };
+  const NAMES = { today: "Today", events: "World events", calendar: "Coming up", compare: "Compare", terminal: "World terminal", desk: "Desk", markets: "Markets desk", monitor: "Monitor", year: "Year ledger", lab: "Lab", studio: "Forecast Studio", outlook: "Outlook", trace: "Follow a result", replay: "Replay", horizon: "How far ahead", odds: "Honest odds",
     vault: "Time Vault", crowd: "Crowd lab", series: "All series", about: "About" };
   // The workflow's schedule: new forecasts sealed Monday 06:00 UTC, live refresh every weekday 22:30 UTC.
   function nextRun(now = new Date()) {
@@ -159,6 +159,11 @@
 
     today(arg) { window.WPToday.render($("today-root"), D, arg); },
 
+    events() { window.WPEvents.render($("events-root"), D); },
+
+    calendar() { window.WPCalendar.render($("calendar-root"), D); },
+    compare() { window.WPCompare.render($("compare-root"), D); },
+
     terminal(arg) { window.WPTerminal.render($("terminal-root"), D, arg); },
 
     studio(arg) { window.WPStudio.render($("studio-root"), D, { start: arg, onSeal: () => rendered.delete("desk") }); },
@@ -274,6 +279,7 @@
         lines: [{ points: V.map((r) => [r.date, r.brier]), color: "var(--tfm)", name: "score" }], dots: [{ points: V.map((r) => [r.date, r.brier]), color: "var(--tfm)", r: 3 }],
         refs: [{ y: 0.25, label: "coin flip", color: "var(--ink-2)" }], height: 260 });
       const last = V[V.length - 1];
+      grid();
       opened();
       $("vault-note").textContent = `${last.opened.toLocaleString()} sealed predictions opened so far. ` +
         `${fmt.pct(last.inside80)} landed inside the 80% range; odds score ${last.brier.toFixed(3)} (a coin flip scores 0.250).`;
@@ -337,6 +343,54 @@
     about() {},
   };
 
+  // The track record grid: one row per series, one column per day a sealed forecast came due. Each
+  // cell is the share of that day's forecasts (one per week sealed, so up to a few) that landed
+  // inside their 80% range: green all in, amber some, red none. Rows sort by their hit rate.
+  function grid() {
+    const host = $("vault-grid");
+    if (!host) return;
+    const rows = (D.opened || []).filter((r) => r[1] === model && r[8] !== null);
+    if (!rows.length) { host.innerHTML = '<div class="empty"><b>Nothing opened yet.</b>The grid fills in as sealed forecasts come due.</div>'; return; }
+    const info = (id) => D.series.find((r) => r.id === id) || D.outlook.find((o) => o.id === id) || { title: id };
+    const days = [...new Set(rows.map((r) => r[3]))].sort();
+    const by = new Map();
+    rows.forEach((r) => {
+      const s = by.get(r[0]) || by.set(r[0], { id: r[0], cells: new Map(), n: 0, hit: 0 }).get(r[0]);
+      const c = s.cells.get(r[3]) || s.cells.set(r[3], { n: 0, hit: 0, right: 0, calls: 0 }).get(r[3]);
+      const inside = r[8] >= r[5] && r[8] <= r[7];
+      c.n++; s.n++; if (inside) { c.hit++; s.hit++; }
+      if (r[9] !== null && r[10] !== null && Math.abs(r[9] - 0.5) >= 0.005) { c.calls++; if ((r[9] > 0.5) === (r[10] === 1)) c.right++; }
+    });
+    const st = grid.st || (grid.st = { area: "all" });
+    // Sorted on (hits + 1) / (forecasts + 2), so one lucky forecast does not outrank twenty good ones.
+    const list = [...by.values()].map((s) => ({ ...s, ...info(s.id), rate: s.hit / s.n, rank: (s.hit + 1) / (s.n + 2) }))
+      .filter((s) => st.area === "all" || s.domain === st.area)
+      .sort((a, b) => b.rank - a.rank || (a.title > b.title ? 1 : -1));
+    const level = (c) => (c.hit === c.n ? "all" : c.hit === 0 ? "none" : "some");
+    const dayTotals = days.map((d) => list.reduce((t, s) => { const c = s.cells.get(d); if (c) { t.n += c.n; t.hit += c.hit; } return t; }, { n: 0, hit: 0 }));
+    // Short row labels so the squares get the room: "Wiki: CRISPR", "News: protests", "VIX".
+    const label = (t) => String(t).replace(/^Wikipedia views: /, "Wiki: ").replace(/^Share of (world news )?coverage (mentioning|about) /, "News: ")
+      .replace(/^Average of the technology pageview series.*/, "Tech interest, average").replace(/ \(.*\)$/, "").replace(/^CBOE Volatility Index$/, "VIX")
+      .replace(/^iShares 20\+ Year Treasury Bond ETF$/, "Long Treasury bonds").replace(/^iShares MSCI World ETF$/, "MSCI World");
+    const short = (d) => { const t = new Date(d + "T00:00:00Z"); return t.toLocaleString("en", { month: "short", day: "numeric", timeZone: "UTC" }); };
+    const tip = (s, d, c) => `${s.title}, ${short(d)}: ${c.hit} of ${c.n} forecast${c.n === 1 ? "" : "s"} inside the 80% range` + (c.calls ? `, direction right ${c.right} of ${c.calls}` : "");
+    const total = list.reduce((t, s) => { t.n += s.n; t.hit += s.hit; return t; }, { n: 0, hit: 0 });
+    $("vault-grid-meta").textContent = `${list.length} series × ${days.length} days · ${fmt.pct(total.n ? total.hit / total.n : null)} inside`;
+    host.style.setProperty("--days", days.length);
+    host.innerHTML = `<div class="tg-row tg-head" aria-hidden="true"><span class="tg-name"></span><span class="tg-cells">${days.map((d, i) =>
+        `<i>${(i === 0 && days.length - i > 3) || new Date(d + "T00:00:00Z").getUTCDay() === 1 ? short(d) : ""}</i>`).join("")}</span><span class="tg-rate">Inside</span></div>` +
+      list.map((s) => `<a class="tg-row" href="#series/${esc(s.id)}" style="--c:${hue(s.domain)}" aria-label="${esc(`${s.title}: ${s.hit} of ${s.n} inside the 80% range`)}">
+        <span class="tg-name" title="${esc(s.title)}">${esc(label(s.title))}</span><span class="tg-cells">${days.map((d) => { const c = s.cells.get(d);
+          return c ? `<i class="tg-${level(c)}" title="${esc(tip(s, d, c))}"></i>` : '<i class="tg-gap" title="No forecast due"></i>'; }).join("")}</span>
+        <span class="tg-rate ${s.n < 5 ? "dim" : s.rate >= 0.7 ? "pos" : s.rate < 0.5 ? "neg" : ""}" title="${s.hit} of ${s.n}">${fmt.pct(s.rate)}<small>${s.hit}/${s.n}</small></span></a>`).join("") +
+      `<div class="tg-row tg-foot"><span class="tg-name">Every series that day</span><span class="tg-cells">${dayTotals.map((t, i) =>
+        `<i title="${esc(`${short(days[i])}: ${t.hit} of ${t.n} inside`)}" style="--h:${t.n ? Math.round((t.hit / t.n) * 100) : 0}%"></i>`).join("")}</span><span class="tg-rate">${fmt.pct(total.n ? total.hit / total.n : null)}</span></div>`;
+    const areas = [...new Set([...by.values()].map((s) => info(s.id).domain))].filter(Boolean);
+    $("vault-grid-filter").innerHTML = [["all", "All"], ...AREAS.filter(([d]) => areas.includes(d))].map(([k, l]) =>
+      `<button class="chip" data-k="${k}" style="--c:${k === "all" ? "var(--tfm)" : hue(k)}" aria-pressed="${k === st.area}">${l}</button>`).join("");
+    $("vault-grid-filter").onclick = (e) => { const b = e.target.closest("button"); if (!b) return; st.area = b.dataset.k; grid(); };
+  }
+
   // The Time Vault's receipts: each opened forecast of the real future, newest first.
   function opened() {
     const rows = (D.opened || []).filter((r) => r[1] === model);
@@ -376,9 +430,9 @@
     }
     const laws = D.duel_laws || [], rad = D.duel_radiant || [];
     host.innerHTML = (rad.length ? duelBlock(rad, "Radiant", "Radiant: " + modelName + ", Chronos-Bolt, the crowd laws, a behavioural core and no change, mixed by weights each area earned", false, "radiant") : "")
-      + duelBlock(rows, "Seldon", "The full Seldon: crowd laws and " + modelName + " in one council", rad.length > 0)
+      + duelBlock(rows, "Seldon", "Seldon: its own council, without " + modelName, rad.length > 0)
       + (laws.length ? duelBlock(laws, "Laws", "The crowd laws alone, without " + modelName, true) : "")
-      + `<p class="note" style="margin:10px 0 0">A series goes to whichever had the lower average absolute error on the same windows (so the count can differ from the leaderboard's, which goes by percentage miss); ties are left out. Seldon is our own forecaster: ${esc(modelName)} and four laws of crowd behaviour (inertia, drift, momentum, reversion, on top of the weekly rhythm) in one council, the laws' share of the vote learned per area from finished windows. Where the laws have not yet earned a share, Seldon follows ${esc(modelName)} and the series is a tie.</p>`;
+      + `<p class="note" style="margin:10px 0 0">A series goes to whichever had the lower average absolute error on the same windows (so the count can differ from the leaderboard's, which goes by percentage miss); ties are left out. Seldon is our own forecaster and leaves ${esc(modelName)} out on purpose: four laws of crowd behaviour (inertia, drift, momentum, reversion, on top of the weekly rhythm), a behavioural core, "no change" and Chronos-Bolt in one council, each voter's share learned per area from finished windows. So where it wins or loses, that is a different view winning or losing, not a copy of ${esc(modelName)}.</p>`;
   }
 
   function duelBlock(rows, who, label, second, challenger = "seldon") {
@@ -466,7 +520,8 @@
       ...(S ? [{ name: "Seldon 80% range", color: "var(--seldon)", kind: "dash" }] : [])]);
   }
   function seldonNote(S) {
-    return council(S.council) + (S.source === "computed" ? " This run predates Seldon's sealed forecasts, so its range was computed afterwards from the same data TimesFM had; from the next weekly run Seldon is sealed in the ledger on its own." : "");
+    return council(S.council) + (S.source === "computed" ? " This run predates Seldon's sealed forecasts, so its range was computed afterwards from the same data TimesFM had; from the next weekly run Seldon is sealed in the ledger on its own."
+      : S.source === "recomputed" ? " This week's sealed Seldon still came from its old council, which leaned on TimesFM, so this range was computed afterwards from the same data by its own council. The old one stays in the ledger and is scored as sealed; from the next weekly run the own council is sealed." : "");
   }
 
   function padDomain(values) {
@@ -586,6 +641,5 @@
     }, { passive: true });
   }
 
-  // Offline support on the web (service workers need http(s), so this is skipped for file://).
-  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("../sw.js").catch(() => {});
+  // Offline support (the service worker, the offline pill and the offline copy) lives in offline.js.
 })();

@@ -118,9 +118,25 @@ def seldon_windows(kept: list[dict], model: str) -> list[seldon.Window]:
 
 def add_seldon(kept: list[dict], model: str, step_rows: list[dict] | None = None,
                path_rows: list[dict] | None = None, paths_for: Sequence[str] = ()) -> pd.DataFrame:
-    """Score the full Seldon on every kept window: ``model`` and the crowd laws in one council, the
-    laws' share learned per area only from windows (of any series in that area) that had finished
-    by this window's origin. See ``seldon.py``."""
+    """Score Seldon on every kept window: its own council without ``model`` (the crowd laws,
+    Radiant's behavioural core, no change, and Chronos-Bolt when it ran), weighted per area only by
+    windows (of any series in that area) that had finished by this window's origin. A voter the run
+    did not keep is made here from the window's context. See ``seldon.own_weights``."""
+    voters = own_voters(kept, model)
+    windows = own_windows(voters)
+    rows = []
+    for k, x in voters:
+        spec, series, t = k["spec"], k["series"], k["t"]
+        mixed, used = seldon.own_mix(x, seldon.own_weights(windows, radiant.area(spec), series.index[t - 1]))
+        rows.append(score_window(spec, series, t, k["context"], seldon.NAME, mixed, step_rows,
+                                 path_rows if seldon.NAME in paths_for else None) | {"share": float(used[0]), "own": 1.0})
+    return pd.DataFrame(rows)
+
+
+def add_seldon_blend(kept: list[dict], model: str) -> pd.DataFrame:
+    """The Seldon that ran before November 2026: ``model`` and the crowd laws blended, the laws'
+    share learned per area from finished windows. Kept because ``replay_seldon`` rebuilds exactly
+    this from runs that only recorded the two, and its test checks the rebuild against it."""
     windows = seldon_windows(kept, model)
     rows = []
     for k in kept:
@@ -129,9 +145,42 @@ def add_seldon(kept: list[dict], model: str, step_rows: list[dict] | None = None
             continue
         spec, series, t = k["spec"], k["series"], k["t"]
         share = seldon.share_for(windows, spec.domain, series.index[t - 1])
-        rows.append(score_window(spec, series, t, k["context"], seldon.NAME, seldon.blend(f[model], f[LAWS], share),
-                                 step_rows, path_rows if seldon.NAME in paths_for else None) | {"share": share})
+        rows.append(score_window(spec, series, t, k["context"], seldon.NAME, seldon.blend(f[model], f[LAWS], share))
+                    | {"share": share})
     return pd.DataFrame(rows)
+
+
+def own_voters(kept: list[dict], model: str) -> list[tuple[dict, dict]]:
+    """Each kept window with Seldon's voters' forecasts: the run's own when it kept them, else made
+    from the window's context (never ``model`` itself)."""
+    names = {"laws": LAWS, "core": radiant.CORE, "naive": "naive", "rival": radiant.RIVAL}
+    voters = []
+    for k in kept:
+        f, spec = k["forecasts"], k["spec"]
+        if model not in f:
+            continue
+        h = spec.horizon
+        x = {e: f[n] for e, n in names.items() if n in f and n != model}
+        c = k["context"]
+        if "laws" not in x:
+            x["laws"] = seldon.predict(c, h)[0]
+        if "core" not in x:
+            x["core"] = radiant.core_predict(c, h)[0]
+        if "naive" not in x:
+            x["naive"] = radiant.naive_forecast(c, h)
+        voters.append((k, x))
+    return voters
+
+
+def own_windows(voters: list[tuple[dict, dict]]) -> list:
+    """The kept windows as Seldon's own council learns from them: each voter's middle path."""
+    windows = []
+    for k, x in voters:
+        spec, series, t = k["spec"], k["series"], k["t"]
+        actual = series.to_numpy(dtype=float)[t : t + spec.horizon]
+        windows.append(radiant.Window(radiant.area(spec), series.index[t + len(actual) - 1],
+                                      {e: v.q(0.5)[: len(actual)] for e, v in x.items()}, actual))
+    return windows
 
 
 def add_radiant(kept: list[dict], model: str, step_rows: list[dict] | None = None,
@@ -153,6 +202,14 @@ def add_radiant(kept: list[dict], model: str, step_rows: list[dict] | None = Non
             actual = series.to_numpy(dtype=float)[t : t + spec.horizon]
             windows.append(radiant.Window(radiant.area(spec), series.index[t + len(actual) - 1],
                                           {e: x.q(0.5)[: len(actual)] for e, x in experts(f).items()}, actual))
+    # The benchmark's own range misses per finished window, for the widening rule (radiant.band_scale).
+    misses = []
+    for k in kept:
+        if model in k["forecasts"]:
+            spec, series, t, f = k["spec"], k["series"], k["t"], k["forecasts"][model]
+            actual = series.to_numpy(dtype=float)[t : t + spec.horizon]
+            n = len(actual)
+            misses.append((radiant.area(spec), series.index[t + n - 1], radiant.band_ratios(f.q(0.1)[:n], f.q(0.5)[:n], f.q(0.9)[:n], actual)))
     rows = []
     for k in kept:
         f = k["forecasts"]
@@ -161,7 +218,9 @@ def add_radiant(kept: list[dict], model: str, step_rows: list[dict] | None = Non
         spec, series, t = k["spec"], k["series"], k["t"]
         x = experts(f)
         w = radiant.present(radiant.weights(windows, radiant.area(spec), series.index[t - 1], rival="rival" in x), x)
-        mixed = radiant.mix(x, w)
+        at, where = series.index[t - 1], radiant.area(spec)
+        scale = radiant.band_scale([r for a, end, r in misses if a == where and end <= at])
+        mixed = radiant.widen(radiant.mix(x, w), scale)
         rows.append(score_window(spec, series, t, k["context"], radiant.NAME, mixed, step_rows,
                                  path_rows if radiant.NAME in paths_for else None)
                     | {"weight_model": float(w[0]), "weight_rival": float(w[-1])})
@@ -176,11 +235,11 @@ def _deciles(q10: np.ndarray, q50: np.ndarray, q90: np.ndarray) -> np.ndarray:
 
 
 def replay_seldon(results: pd.DataFrame, paths: pd.DataFrame, model: str) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """The full Seldon on a run that only recorded ``model`` and the crowd laws (``seldon-laws``).
+    """The old blend Seldon on a run that only recorded ``model`` and the crowd laws (``seldon-laws``).
 
     Both left their 10th / 50th / 90th percentile paths, and the full Seldon is a blend of the two
     with the laws' share learned per area from windows finished before each origin, so it can be
-    rebuilt without the data: exactly as ``add_seldon`` would for the point forecast (error, skill,
+    rebuilt without the data: exactly as ``add_seldon_blend`` would for the point forecast (error, skill,
     direction) and the 80% range. Range skill (pinball) and the odds of a rise use all nine deciles,
     which the paths do not keep; they are read off a normal-shaped spread through the three that are,
     and range skill is anchored to ``model``'s recorded value. Returns window rows and path rows."""
@@ -261,6 +320,82 @@ def upgrade_run(results: pd.DataFrame, paths: pd.DataFrame, model: str) -> tuple
     results = pd.concat([results, rows], ignore_index=True)
     results.attrs["replayed"] = True
     return results, pd.concat([paths, extra], ignore_index=True), True
+
+
+OWN_PATHS = {"laws": LAWS, "core": radiant.CORE, "rival": radiant.RIVAL}  # Seldon's voters as a run records them
+
+
+def replay_own_seldon(results: pd.DataFrame, paths: pd.DataFrame, series: dict[str, pd.Series], model: str,
+                      areas: dict[str, str], max_context: int = 2048) -> tuple[pd.DataFrame, pd.DataFrame, bool]:
+    """Seldon's own council (``add_seldon``) on a run whose ``seldon`` rows are still the old blend
+    with ``model``: rebuilt from the recorded 10th / 50th / 90th percentile paths of the crowd laws,
+    the behavioural core and Chronos-Bolt, plus "no change" from the data up to each origin, with the
+    weights learned per area (``areas``) only from windows that had finished by then. The middle path
+    and the 80% range are exact; range skill and the odds of a rise use all nine deciles, which the
+    paths do not keep, so they are read off a normal-shaped spread through the three that are. Error
+    is scaled like ``model``'s row for the same window. Returns the run with the ``seldon`` rows
+    replaced (marked ``own``), the paths likewise, and whether anything was replayed. Runs scored by
+    the own council already, or without the voters' paths, come back unchanged."""
+    mine = results[results["model"] == seldon.NAME]
+    done = "own" in results and mine["own"].notna().all()
+    if mine.empty or done or not {LAWS, radiant.CORE} <= set(paths["model"]):
+        return results, paths, False
+    raw, paths = paths, paths.assign(origin=pd.to_datetime(paths["origin"]), date=pd.to_datetime(paths["date"]))
+    by = {m: dict(tuple(g.groupby(["series_id", "origin"]))) for m, g in paths[paths["model"].isin([model, *OWN_PATHS.values()])].groupby("model")}
+    index = lambda m: results[results["model"] == m].assign(origin=lambda d: pd.to_datetime(d["origin"])).set_index(["series_id", "origin"])  # noqa: E731
+    base, naive = index(model), index("naive")
+    kept = []
+    for key, g in sorted(by.get(model, {}).items(), key=lambda kv: kv[0][1]):
+        sid, origin = key
+        if sid not in series or key not in base.index or any(key not in by.get(OWN_PATHS[e], {}) for e in ("laws", "core")):
+            continue
+        g = g.sort_values("step")
+        actual = g["actual"].to_numpy(float)
+        before = series[sid][series[sid].index <= origin].to_numpy(float)[-max_context:]
+        if not len(before):  # a series' first window: its origin value is the one "no change" scored with
+            if key not in naive.index:
+                continue
+            target = float(naive.loc[key, "mae"])
+            grid = np.linspace(actual.min() - 3 * target, actual.max() + 3 * target, 4001)
+            gap = np.abs(np.abs(grid[:, None] - actual).mean(axis=1) - target)
+            ups = (actual[-1] > grid) == bool(base.loc[key, "went_up"])
+            before = np.array([float(grid[np.argmin(np.where(ups, gap, np.inf))])])
+        h = len(g)
+        bands = {}
+        for e, name in OWN_PATHS.items():
+            v = by.get(name, {}).get(key)
+            if v is not None and len(v) == h:
+                v = v.sort_values("step")
+                bands[e] = tuple(v[c].to_numpy(float) for c in ("q10", "q50", "q90"))
+        if len(before) > 1:  # "no change" needs a little history for its range; without it, it sits out
+            nf = radiant.naive_forecast(before, h)
+            bands["naive"] = (nf.q(0.1), nf.q(0.5), nf.q(0.9))
+        kept.append({"sid": sid, "origin": origin, "g": g, "bands": bands, "before": before, "actual": actual,
+                     "row": base.loc[key], "window": radiant.Window(areas.get(sid, base.loc[key, "domain"]), g["date"].max(),
+                                                                    {e: b[1] for e, b in bands.items()}, actual)})
+    if not kept:
+        return results, paths, False
+    windows = [k["window"] for k in kept]
+    rows, extra = [], []
+    for k in kept:
+        weight = seldon.own_weights(windows, k["window"].domain, k["origin"])
+        used = np.array([weight[i] if e in k["bands"] else 0.0 for i, e in enumerate(seldon.OWN)])
+        used = used / used.sum()
+        lo, mid, hi = (sum(used[i] * k["bands"][e][j] for i, e in enumerate(seldon.OWN) if e in k["bands"]) for j in range(3))
+        deciles = _deciles(lo, mid, hi)
+        s = score(k["before"], k["actual"], Forecast(mid, deciles))
+        row, g = k["row"], k["g"]
+        scale = row["mae"] / row["mase"] if row["mase"] else naive_scale(k["before"])
+        s["pinball"] *= naive_scale(k["before"]) / scale
+        s["mase"] = s["mae"] / scale
+        rows.append({"series_id": k["sid"], "domain": row["domain"], "scale": row["scale"], "model": seldon.NAME,
+                     "origin": f"{k['origin']:%Y-%m-%d}", "horizon": row["horizon"], **s, "share": float(used[0]), "own": 1.0})
+        extra += [{"series_id": k["sid"], "model": seldon.NAME, "origin": f"{k['origin']:%Y-%m-%d}", "date": f"{d:%Y-%m-%d}", "step": st,
+                   "q10": a, "q50": b, "q90": c, "actual": y}
+                  for d, st, a, b, c, y in zip(g["date"], g["step"], lo, mid, hi, k["actual"])]
+    out = pd.concat([results[results["model"] != seldon.NAME], pd.DataFrame(rows)], ignore_index=True)
+    out.attrs["own_replayed"] = True
+    return out, pd.concat([raw[raw["model"] != seldon.NAME], pd.DataFrame(extra)], ignore_index=True), True
 
 
 def summarize(results: pd.DataFrame, baseline: str = "naive") -> pd.DataFrame:

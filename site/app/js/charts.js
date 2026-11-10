@@ -281,7 +281,12 @@
   // Seldon's council (src/psychohistory/seldon.py): which laws it trusted for one forecast.
   const LAW_TEXT = { timesfm: "TimesFM", inertia: "inertia", drift: "drift", momentum: "momentum", reversion: "reversion" };
   function council(c) {
-    if (!c) return "Seldon is our own forecaster: TimesFM and four laws of crowd behaviour in one council, each voter with the share it earned on finished windows.";
+    if (!c) return "Seldon is our own forecaster, with no TimesFM in it: four laws of crowd behaviour, a behavioural core, \"no change\" and Chronos-Bolt in one council, each voter with the share it earned on finished windows.";
+    if (c.own) {
+      const votes = Object.entries(c.weights).sort((a, b) => b[1] - a[1]).map(([k, w]) => `${k} ${Math.round(w * 100)}%`).join(", ");
+      const mood = c.vol < 0.95 ? "calmer than usual" : c.vol > 1.05 ? "wilder than usual" : "about as calm as usual";
+      return `Seldon votes without TimesFM, so it is a second opinion, not a copy: ${votes}, each share earned on this area's finished windows. Right now the series is ${mood} (${(c.vol || 1).toFixed(2)}×).`;
+    }
     if (c.share !== undefined && c.share === 0) return "Seldon gave TimesFM the whole vote here: in this area its crowd laws have not yet beaten TimesFM on the finished windows, so it does not move away from it.";
     if (!c.replays) return "Seldon had too little history to replay here, so every law got an equal vote.";
     const votes = Object.entries(c.weights).sort((a, b) => b[1] - a[1]).map(([k, w]) => `${LAW_TEXT[k] || k} ${Math.round(w * 100)}%`).join(", ");

@@ -413,3 +413,93 @@ def explain_full(council: Council, share: float, model_name: str) -> str:
                 f"{model_name} on the finished windows, so it does not move away from it.")
     return (f"Seldon gave {model_name} {1 - share:.0%} of the vote and its crowd laws {share:.0%}, the split that "
             f"did best on this area's finished windows. " + explain(council))
+
+
+# --------------------------------------------------------------------------------------------
+# Seldon's own council (from November 2026): no TimesFM in it.
+#
+# With TimesFM as a voter, the share rule above handed it the vote almost everywhere, so the full
+# Seldon sat 0.19% from TimesFM on an average day and pointed the other way on 6% of windows: a
+# second copy, not a second opinion. Seldon now votes without it. Its council is the four crowd laws
+# (``predict``), Radiant's behavioural core (overreaction, momentum, reversal, attention spikes),
+# "no change", and Chronos-Bolt when the run has it, each weighted per area by exponential weights
+# (Littlestone & Warmuth, 1994): level at first, and after every finished window each voter's weight
+# shrinks by e^(-OWN_ETA x its miss relative to the council's average miss on that window). Replayed on
+# the 319 recorded daily windows (scripts/seldon_perspective.py), it missed by 8.77% on an average day
+# against TimesFM's 8.46%: a little better in markets (4.91% against 4.97%), worse in news and
+# technology, and pointing the other way from TimesFM on 25% of windows.
+# --------------------------------------------------------------------------------------------
+
+OWN = ("laws", "core", "naive", "rival")  # Seldon's own voters; "rival" is Chronos-Bolt when it ran
+OWN_LABELS = {"laws": "crowd laws", "core": "behavioural core", "naive": "no change", "rival": "Chronos-Bolt"}
+OWN_ETA = 2.0
+OWN_SINCE = "2026-11-10"  # forecasts sealed before this day came from the old council, with TimesFM in it
+
+
+def own_weights(windows: Sequence, area: str | None = None, at=None) -> np.ndarray:
+    """The own council's weights (in ``OWN`` order) for a forecast in ``area`` made at ``at`` (None:
+    now), from that area's finished windows (``radiant.Window``: each voter's middle path). A voter
+    missing from a window is charged the council's average there, so it neither gains nor loses."""
+    at = None if at is None else pd.Timestamp(at)
+    total = np.zeros(len(OWN))
+    for w in windows:
+        if (area is not None and w.domain != area) or (at is not None and w.end > at):
+            continue
+        a = np.asarray(w.actual, float)
+        ok = np.isfinite(a) & (a != 0)
+        if not ok.any():
+            continue
+        miss = np.array([float(np.mean(np.abs(np.asarray(w.paths[e], float)[ok] - a[ok]) / np.abs(a[ok])))
+                         if e in w.paths else np.nan for e in OWN])
+        if not np.isfinite(miss).any():
+            continue
+        mean = float(np.nanmean(miss))
+        total += np.where(np.isfinite(miss), miss / max(mean, 1e-12), 1.0)
+    logits = -OWN_ETA * total
+    out = np.exp(logits - logits.max())
+    return out / out.sum()
+
+
+def own_mix(forecasts: dict, weight: np.ndarray) -> tuple[Forecast, np.ndarray]:
+    """The voters' forecasts averaged decile by decile with these weights; a voter absent from
+    ``forecasts`` (Chronos, when it did not run) drops out and the rest are scaled up. Returns the
+    forecast and the weights actually used."""
+    used = np.array([weight[k] if e in forecasts else 0.0 for k, e in enumerate(OWN)])
+    used = used / used.sum()
+    keys = [(k, e) for k, e in enumerate(OWN) if e in forecasts]
+    point = sum(used[k] * np.asarray(forecasts[e].point, float) for k, e in keys)
+    quantiles = np.sort(sum(used[k] * np.asarray(forecasts[e].quantiles, float) for k, e in keys), axis=1)
+    return Forecast(point, quantiles), used
+
+
+def own_voters(context: np.ndarray, horizon: int, rival: Forecast | None = None, laws: Forecast | None = None) -> dict:
+    """Every voter's forecast from this context: the laws, the core and no change, plus the rival."""
+    from . import radiant
+
+    out = {"laws": laws if laws is not None else predict(context, horizon)[0],
+           "core": radiant.core_predict(context, horizon)[0], "naive": radiant.naive_forecast(context, horizon)}
+    if rival is not None:
+        out["rival"] = rival
+    return out
+
+
+def own_forecast(context: np.ndarray, horizon: int, windows: Sequence, area: str, at=None,
+                 rival: Forecast | None = None) -> tuple[Forecast, np.ndarray, Council]:
+    """Seldon's forecast from its own council, the weights it used and the crowd laws' council."""
+    laws, council = predict(context, horizon)
+    return (*own_mix(own_voters(context, horizon, rival, laws), own_weights(windows, area, at)), council)
+
+
+def own_council(council: Council, used: np.ndarray) -> dict:
+    """The council the app shows for Seldon's own vote: each voter's share, and how the laws split."""
+    out = council_json(council)
+    out["laws"] = out.pop("weights")
+    out["weights"] = {OWN_LABELS[e]: round(float(w), 3) for e, w in zip(OWN, used) if w > 0}
+    out["own"] = True
+    return out
+
+
+def explain_own(used: np.ndarray) -> str:
+    """One sentence on how Seldon's own council voted."""
+    votes = ", ".join(f"{OWN_LABELS[e]} {w:.0%}" for e, w in sorted(zip(OWN, used), key=lambda kv: -kv[1]) if w > 0)
+    return (f"Seldon votes without TimesFM: {votes}, each share earned on this area's finished windows.")

@@ -701,7 +701,7 @@ def test_full_seldon_in_the_backtest_never_peeks():
     from psychohistory.seldon import SeldonForecaster
     backtest.backtest_series(spec, series, [DriftForecaster(), SeldonForecaster(), NaiveForecaster()], windows=10, keep=kept)
     first = backtest.add_seldon(kept, "drift").sort_values("origin")
-    assert len(first) == 10 and (first["share"].iloc[: seldon_min_pool()] == 0).all()
+    assert len(first) == 10 and np.isclose(first["share"].iloc[0], 1 / 3)  # laws, core, no change start equal
     changed = series.copy()
     changed.iloc[-14:] += 40
     kept2 = []
@@ -719,7 +719,7 @@ def test_full_seldon_replays_exactly_from_a_laws_only_run(tmp_path):
     kept, paths = [], []
     live = backtest.backtest_series(spec, series, [DriftForecaster(), SeldonForecaster(), NaiveForecaster()], windows=16,
                                     keep=kept, path_rows=paths, paths_for=("drift", "seldon-laws"))
-    truth = backtest.add_seldon(kept, "drift").sort_values("origin")
+    truth = backtest.add_seldon_blend(kept, "drift").sort_values("origin")
     assert (truth["share"] > 0).any()  # the laws earn a share, so the replay has something to blend
     old = {"seldon-laws": "seldon"}  # how the run named the laws back then
     live.replace({"model": old}).to_csv(tmp_path / "w.csv", index=False)
@@ -731,6 +731,22 @@ def test_full_seldon_replays_exactly_from_a_laws_only_run(tmp_path):
         assert np.allclose(replay[column].to_numpy(float), truth[column].to_numpy(float), equal_nan=True), column
     again, _, twice = backtest.upgrade_run(results, upgraded_paths, "drift")
     assert not twice and len(again) == len(results)
+
+
+def test_seldon_own_council_leaves_timesfm_out_and_learns_only_from_the_past():
+    from psychohistory import radiant, seldon
+    assert "timesfm-2.5" not in seldon.OWN and set(seldon.OWN) == {"laws", "core", "naive", "rival"}
+    real = np.full(5, 100.0)
+    good = {"laws": real + 1, "core": real + 6, "naive": real + 6, "rival": real + 6}
+    past = [radiant.Window("markets", pd.Timestamp("2026-01-0%d" % d), good, real) for d in range(1, 6)]
+    later = [radiant.Window("markets", pd.Timestamp("2026-03-01"), {**good, "laws": real + 50}, real)]
+    other = [radiant.Window("news", pd.Timestamp("2026-01-02"), {**good, "laws": real + 50}, real)]
+    assert np.allclose(seldon.own_weights([], "markets"), 0.25)
+    w = seldon.own_weights(past + later + other, "markets", "2026-02-01")
+    assert w[0] > 0.9 and np.allclose(w, seldon.own_weights(past, "markets", "2026-02-01"))
+    f = {e: Forecast(v, v[:, None] + np.linspace(-4, 4, 9)) for e, v in (("laws", real + 1), ("core", real + 6), ("naive", real))}
+    mixed, used = seldon.own_mix(f, np.array([0.5, 0.25, 0.25, 0.0]))
+    assert np.isclose(used.sum(), 1) and used[3] == 0 and np.allclose(mixed.q(0.5), 0.5 * 101 + 0.25 * 106 + 0.25 * 100)
 
 
 def test_sealed_laws_only_days_are_named_for_their_maker():
@@ -867,11 +883,6 @@ def test_sealed_batches_are_fingerprinted_and_edits_are_caught(tmp_path):
     ledger.write_seals(tampered, seals, today="2024-01-09")
     assert list(ledger.verify(tampered, seals)["status"]) == ["changed", "ok"]
     assert len(entries) == 5
-
-
-def seldon_min_pool():
-    from psychohistory import seldon
-    return seldon.MIN_POOL
 
 
 def test_head_to_head_counts_series_won_on_the_same_windows():
@@ -1370,3 +1381,388 @@ def test_brief_scores_due_mind_changes_and_streaks():
     assert c["shift"] == 0 and not c["flip"] and c["moved"] == pytest.approx(0.2)
     b = brief.build(ledger_rows, scored, "timesfm-2.5")
     assert "# The brief" in b["text"] and "changed its mind" in b["text"] and brief.build(None, None, "timesfm-2.5") is None
+
+
+def test_offline_copy_is_one_file_with_no_network(tmp_path):
+    import re
+
+    from psychohistory import offline, web
+
+    site = web.build_site(tmp_path / "site", payload=web.demo_payload())
+    copy = site / offline.FILE_NAME
+    assert copy.exists()  # build_site makes it, so the local app can hand it out
+    html = copy.read_text()
+    assert "<script src=" not in html and 'href="css/' not in html and "fonts.googleapis" not in html
+    assert "window.WP_DATA=" in html and "window.WP_OFFLINE" in html and "WPOffline" in html and "WPToday" in html
+    assert not re.search(r'(href|src)="\.\./', html)  # every link back to the site points at GitHub Pages
+    # A closing tag inside the data can never end an inlined script early.
+    (site / "app" / "data" / "data.js").write_text('window.WP_DATA={"meta":{"note":"</script><b>"}};')
+    assert "</script><b>" not in offline.bundle(site, tmp_path / "x.html").read_text()
+    sw = (Path(__file__).resolve().parents[1] / "site" / "sw.js").read_text()
+    assert "app/js/offline.js" in sw  # the service worker keeps the offline module too
+
+
+def test_radiant_ranges_widen_only_where_too_narrow():
+    from psychohistory import radiant
+    from psychohistory.models import Forecast
+
+    inside = [radiant.band_ratios([0] * 30, [1] * 30, [2] * 30, [1.5] * 30)]  # every outcome inside its range
+    outside = [radiant.band_ratios([0] * 30, [1] * 30, [2] * 30, [1.5] * 10 + [4.0] * 20)]  # two in three land 3 halves out
+    assert radiant.band_scale(inside) == 1.0 and radiant.band_scale([]) == 1.0
+    assert radiant.band_scale(outside) == pytest.approx(3.0)
+    f = Forecast(np.array([1.0]), np.array([[0.0, .25, .5, .75, 1.0, 1.25, 1.5, 1.75, 2.0]]))
+    wide = radiant.widen(f, 2.0)
+    assert wide.q(0.5)[0] == 1.0 and wide.q(0.1)[0] == -1.0 and wide.q(0.9)[0] == 3.0 and radiant.widen(f, 1.0) is f
+    paths = pd.DataFrame({"series_id": "s", "model": "m", "origin": "2026-01-01", "date": pd.date_range("2026-01-02", periods=30).astype(str),
+                          "step": range(1, 31), "q10": 0.0, "q50": 1.0, "q90": 2.0, "actual": [1.5] * 10 + [4.0] * 20})
+    assert radiant.scales_from_paths(paths, "m", {"s": "yearly"}) == {"yearly": pytest.approx(3.0)}
+    assert radiant.scales_from_paths(paths, "m", {"s": "yearly"}, at="2026-01-05") == {}  # that window had not finished
+
+
+def test_world_events_give_odds_a_week_and_a_month_ahead_with_the_news():
+    from psychohistory import events, worldevents
+
+    now = pd.DataFrame([
+        {"made_on": "2026-11-06", "model": m, "series_id": "news_election", "event": ev, "last_date": "2026-11-05", "last_value": 5.0,
+         "threshold": cut, "horizon": 28, "target_date": "2026-12-03", "p": p}
+        for ev, cut in (("spike", 6.0), ("lull", 3.0)) for m, p in (("timesfm-2.5", 0.4), ("seldon", 0.45), ("climatology", 0.1), ("persistence", 0.2))])
+    ledger_rows = pd.DataFrame([{"made_on": "2026-11-06", "model": m, "series_id": "news_election", "domain": "news", "step": s,
+                                 "target_date": f"2026-11-{6 + s:02d}" if s < 20 else "2026-12-03", "last_value": 5.0,
+                                 "q10": 4.5, "q50": 6.5 if s == 7 else 5.5, "q90": 9.0, "p_up": 0.7} for m in ("timesfm-2.5", "seldon") for s in (7, 28)])
+    summary = pd.DataFrame([{"scope": "all", "event": ev, "model": m, "brier": b, "skill_clim": 0.2, "forecasts": 300}
+                            for ev in ("spike", "lull") for m, b in (("timesfm-2.5", 0.06), ("seldon", 0.05))])
+    wire = {"fetched": "2026-11-07T03:00Z", "topics": {"news_election": {"articles": [
+        {"title": "A vote", "url": "https://example.org/a", "domain": "example.org"}, {"title": "bad", "url": "javascript:alert(1)"}]}}}
+    data = {"news_election": pd.Series(np.linspace(3, 5, 60), index=pd.date_range("2026-09-07", periods=60))}
+    out = worldevents.build(ledger_rows, now, summary, None, wire, data, "timesfm-2.5")
+    assert out["lead"] == {"spike": "seldon", "lull": "seldon"}  # the lowest backtest Brier speaks
+    it = out["items"][0]
+    assert it["month"]["spike"] == 0.45 and it["base"]["spike"]["climatology"] == 0.1
+    assert it["week"]["spike"] == pytest.approx(events.probability(4.5, 6.5, 9.0, 6.0, True), abs=1e-3) and it["week"]["spike"] > 0.5
+    assert it["week"]["higher"] > 0.5 and it["week_target"] == "2026-11-13"
+    assert [a["title"] for a in it["news"]] == ["A vote"]  # only http(s) links reach the page
+    assert len(it["trend"]) == 60 and it["momentum"] > 0
+    assert worldevents.build(None, None, None, None, None, {}, "timesfm-2.5") is None
+
+    rows = pd.DataFrame([{"series_id": "s", "origin": "2026-01-01", "event": "spike", "model": "climatology", "threshold": 10.0, "p": 0.1}])
+    paths = pd.DataFrame([{"series_id": "s", "model": "m", "origin": "2026-01-01", "step": 7, "q10": 9.0, "q50": 11.0, "q90": 13.0, "actual": 12.0}])
+    by = events.skill_by_step(rows, paths, steps=(7,))
+    assert by.iloc[0]["model"] == "m" and by.iloc[0]["skill_clim"] > 0  # said likely, and it happened
+
+
+def test_wire_asks_the_oldest_topics_first():
+    from psychohistory import catalog, wire
+
+    specs = [catalog.by_id(i) for i in ("sp500", "news_war", "news_election", "wiki_ai")]
+    old = {"fetched": "2026-11-07T03:00Z", "topics": {"news_election": {"fetched": "2026-11-07T03:00Z"}, "sp500": {"stale": True},
+                                                       "wiki_ai": {"fetched": "2026-11-01T03:00Z"}}}
+    order = [s.id for s in wire.prioritize(specs, old)]
+    assert order == ["news_war", "sp500", "wiki_ai", "news_election"]  # never fetched, stale, oldest, newest
+    assert [s.id for s in wire.prioritize(specs, None)][:3] == ["news_war", "news_election", "wiki_ai"]  # event topics before markets
+
+
+def _poly(i, q, p, vol=1e6, end="2026-12-31", closed=False):
+    return {"id": str(i), "question": q, "outcomes": '["Yes", "No"]', "outcomePrices": f'["{p}", "{round(1 - p, 4)}"]',
+            "volumeNum": vol, "endDate": end + "T00:00:00Z", "closed": closed, "active": True,
+            "oneWeekPriceChange": 0.03, "slug": f"m{i}", "events": [{"slug": f"ev{i}"}]}
+
+
+def test_betting_odds_are_sealed_and_scored_when_questions_settle(tmp_path):
+    from psychohistory import bets
+    markets = [_poly(1, "Will the Fed cut rates in December?", 0.62), _poly(2, "Lakers vs. Celtics", 0.5),
+               _poly(3, "Will Starship reach orbit in 2026?", 0.4, vol=2e6), _poly(4, "A thin market?", 0.3, vol=10),
+               _poly(5, "Will the incumbent win the election?", 0.8, end="2026-11-20"),
+               _poly(6, "Who wins?", 0.5) | {"outcomes": '["Alice", "Bob"]'}, _poly(7, "Settles tomorrow?", 0.5, end="2026-11-10")]
+
+    def get(path, params=None):
+        if path == "/markets":
+            return markets if params["offset"] == 0 else []
+        m = next(x for x in markets if x["id"] == path.split("/")[-1])
+        return m | {"closed": True, "outcomePrices": '["1", "0"]', "closedTime": "2026-11-21 10:00:00+00"} if m["id"] == "5" else m
+
+    # Only open yes/no questions with money behind them, settling in days not hours, no sports; most traded first.
+    picked = bets.pick(markets, date(2026, 11, 9))
+    assert [m["market_id"] for m in picked] == ["3", "1", "5"]
+    assert [m["area"] for m in picked] == ["tech", "markets", "politics"]
+    assert picked[0]["url"] == "https://polymarket.com/event/ev3" and picked[1]["p_yes"] == 0.62
+    assert bets.yes_price({"outcomes": "not json", "outcomePrices": "[]"}) is None
+    assert bets.outcome_of({"closed": True, "outcomePrices": '["0.5", "0.5"]', "outcomes": '["Yes", "No"]'}) is None  # void
+
+    files = [tmp_path / n for n in ("bet_ledger.csv", "bet_scored.csv", "bet_seals.csv")]
+    assert bets.run(*files, today=date(2026, 11, 9), get=get) == {"sealed": 3, "settled": 0, "days": 1}
+    bets.run(*files, today=date(2026, 11, 9), get=get)                       # a same-day re-run replaces the day
+    assert len(bets.read(files[0])) == 3
+    markets[4]["outcomePrices"] = '["0.9", "0.1"]'
+    bets.run(*files, today=date(2026, 11, 13), get=get)
+    done = bets.run(*files, today=date(2026, 11, 22), get=get)
+    assert done == {"sealed": 2, "settled": 1, "days": 3}
+
+    scored = bets.read(files[1])
+    assert sorted(scored["p_yes"]) == [0.8, 0.9] and set(scored["outcome"]) == {1.0}
+    record = bets.record(scored)
+    first, week = record["calls"]
+    assert first["call"] == "first seen" and first["brier"] == pytest.approx(0.04)
+    # 13 Nov (90%) is the last price sealed at least a week before it settled on 21 Nov
+    assert week["call"] == "a week out" and week["brier"] == pytest.approx(0.01)
+    assert bets.calls(scored).query("call == 'a week out'")["made_on"].item() == "2026-11-13"
+    assert (bets.verify(bets.read(files[0]), files[2])["status"] == "ok").all()
+
+    entries = bets.read(files[0])
+    entries.loc[0, "p_yes"] = 0.99                                            # an edit after sealing is caught
+    assert "changed" in set(bets.verify(entries, files[2])["status"])
+
+    app = bets.payload(bets.read(files[0]), scored)
+    assert app["made_on"] == "2026-11-22" and app["days"] == 3 and len(app["items"]) == 2
+    fed = next(i for i in app["items"] if i["id"] == "1")
+    assert fed["since"] == "2026-11-09" and fed["p0"] == 0.62
+    assert "Betting odds from Polymarket" in bets.describe(bets.read(files[0]), scored)
+    assert bets.payload(None, None) is None
+
+
+def test_following_the_forecasts_is_judged_against_holding_with_costs():
+    from psychohistory import follow
+    rng = np.random.default_rng(3)
+    rows = []
+    origins = pd.bdate_range("2025-01-01", periods=24, freq="25B")  # windows never end on another origin
+    for sid in ("sp500", "gold"):
+        level = 100.0
+        for o in origins:
+            ret = rng.normal(0.01, 0.03)                       # the market drifts up whatever is said
+            for model, mid in (("timesfm-2.5", -0.02), ("radiant", 0.02)):
+                q50 = level * (1 + mid)
+                rows.append({"series_id": sid, "model": model, "origin": o.date().isoformat(), "date": (o + pd.offsets.BDay(20)).date().isoformat(),
+                             "step": 20, "q10": q50 * 0.95, "q50": q50, "q90": q50 * 1.05, "actual": level * (1 + ret)})
+            rows.append({"series_id": sid, "model": "timesfm-2.5", "origin": "2024-12-01", "date": o.date().isoformat(), "step": 1,
+                         "q10": level, "q50": level, "q90": level, "actual": level})   # the close on each origin day
+            level *= 1 + rng.normal(0, 0.01)
+    w = follow.windows(pd.DataFrame(rows))
+    assert set(w["model"]) == {"timesfm-2.5", "radiant"} and len(w) == 2 * 2 * 24
+    r = follow.replay(w, cost=0.001)
+    by = {x["model"]: x for x in r["rows"]}
+    # Always out (says lower) earns nothing; always in pays the cost on top of the market's own return.
+    assert by["timesfm-2.5"]["follow"] == 0 and by["timesfm-2.5"]["inside"] == 0
+    assert by["radiant"]["follow"] == pytest.approx(by["radiant"]["hold"] - 0.002)
+    assert by["radiant"]["t"] < -2 or by["radiant"]["t"] is None   # a steady cost is a real (if small) loss
+    assert r["curves"]["20"]["hold"][-1] == pytest.approx(100 * w[w.model == "radiant"]["ret"].sum(), abs=0.1)
+    assert {o["model"] for o in r["oos"]} == {"timesfm-2.5", "radiant"} and all(o["origins"] == 12 for o in r["oos"])
+    assert "did not beat simply holding" in r["verdict"]
+    assert "Research, not investment advice." in follow.describe(r)
+    assert follow.payload(None) is None and follow.windows(pd.DataFrame(rows).assign(series_id="news_war")).empty
+
+
+def test_seal_buttons_and_sort_headers_meet_the_accessibility_floor():
+    import re
+    css = (Path(__file__).resolve().parents[1] / "site" / "app" / "css" / "app.css").read_text()
+
+    def lum(h):
+        c = [int(h[i:i + 2], 16) / 255 for i in (1, 3, 5)]
+        c = [x / 12.92 if x <= 0.03928 else ((x + 0.055) / 1.055) ** 2.4 for x in c]
+        return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]
+    fills = re.findall(r"--seal-fill: (#[0-9a-f]{6})", css)
+    inks = re.findall(r"--on-seal: (#[0-9a-f]{6})", css)
+    assert len(fills) == 2 and len(inks) == 2                      # dusk and light themes
+    for fill, ink in zip(fills, inks):
+        a, b = sorted((lum(fill), lum(ink)))
+        assert (b + 0.05) / (a + 0.05) >= 4.5, (fill, ink)      # WCAG AA for the seal buttons' text
+    assert "th button { all: unset; cursor: pointer; display: inline-flex; align-items: center; min-height: 24px" in css
+
+
+def test_coming_up_calendar_lists_settle_days_and_exports_ics():
+    import json
+    import shutil
+    import subprocess
+    if not shutil.which("node"):
+        pytest.skip("node is not installed")
+    root = Path(__file__).resolve().parents[1] / "site"
+    for js in ("calendar.js", "share.js"):
+        assert f"app/js/{js}" in (root / "sw.js").read_text() and f'src="js/{js}"' in (root / "app" / "index.html").read_text()
+    data = {"meta": {"model": "radiant", "generated": "2026-11-09"}, "outlook": [{"made_on": "2026-11-09"}],
+            "frames": {"items": [{"id": "gold", "title": "Gold", "area": "markets", "frames": {
+                "day": {"radiant": {"p": 0.5, "mid": 0, "low": -0.01, "high": 0.01, "date": "2026-11-10"}},
+                "week": {"radiant": {"p": 0.62, "mid": 0.01, "low": -0.02, "high": 0.03, "date": "2026-11-16", "sure": False}},
+                "month": {"radiant": {"p": 0.41, "mid": -0.01, "low": -0.05, "high": 0.04, "date": "2026-12-07"}}}}]},
+            "worldevents": {"items": [{"title": "War", "area": "news", "week_target": "2026-11-16", "month_target": "2026-12-07",
+                                       "week": {"spike": 0.31}, "month": {"spike": 0.05}}]},
+            "bets": {"items": [{"q": "Will it rain, settle; day?", "area": "weather", "url": "https://polymarket.com/event/x", "end": "2026-11-20", "p": 0.7}]}}
+    script = """
+global.window = {}; global.localStorage = { getItem: () => JSON.stringify([{ title: 'Silver', date: '2026-11-18', value: 30, lo: 29, hi: 31 }]) };
+global.location = { href: 'https://example.org/app/#calendar', host: 'example.org' };
+require(process.argv[1] + '/app/js/calendar.js');
+const C = window.WPCalendar; C.teaser(JSON.parse(process.argv[2]));
+const list = C.entries();
+console.log(JSON.stringify({ list: list.map((e) => [e.date, e.kind]), ics: C.ics(list) }));
+"""
+    out = json.loads(subprocess.run(["node", "-e", script, str(root), json.dumps(data)], capture_output=True, text=True, check=True).stdout)
+    # The next-day call is left out, the 5% flare-up is too small to note, and everything is in date order.
+    assert out["list"] == [["2026-11-16", "event"], ["2026-11-16", "forecast"], ["2026-11-18", "yours"], ["2026-11-20", "bet"], ["2026-12-07", "forecast"]]
+    ics = out["ics"]
+    assert ics.startswith("BEGIN:VCALENDAR\r\nVERSION:2.0") and ics.endswith("END:VCALENDAR\r\n") and ics.count("BEGIN:VEVENT") == 5
+    assert "DTSTART;VALUE=DATE:20261120" in ics and "DTEND;VALUE=DATE:20261121" in ics
+    assert r"Will it rain\, settle\; day?" in ics.replace("\r\n ", "")              # text escaped, then unfolded
+    assert all(len(line) <= 75 for line in ics.split("\r\n"))                     # folded lines (RFC 5545)
+    assert "https://example.org/app/#series/gold" in ics.replace("\r\n ", "")
+
+
+def test_feed_and_api_follow_the_app_data(tmp_path):
+    import json
+    import subprocess
+    import sys
+    import xml.etree.ElementTree as ET
+
+    from psychohistory import feeds, web
+
+    site = web.build_site(tmp_path / "site", payload=web.demo_payload())
+    D = feeds.read_data(site)
+    ns = {"a": "http://www.w3.org/2005/Atom"}
+    feed = ET.parse(site / "feed.xml").getroot()
+    entries = feed.findall("a:entry", ns)
+    ids = [e.findtext("a:id", namespaces=ns) for e in entries]
+    assert entries and len(ids) == len(set(ids)) and all(i.startswith(feeds.TAG) for i in ids)
+    for e in entries:  # RFC 4287 needs id, title, updated and a link or content in each entry
+        assert e.findtext("a:title", namespaces=ns) and e.find("a:content", ns).get("type") == "html"
+        assert len(e.findtext("a:updated", namespaces=ns)) == 20
+    updated = [e.findtext("a:updated", namespaces=ns) for e in entries]
+    assert updated == sorted(updated, reverse=True) and feed.findtext("a:updated", namespaces=ns) >= updated[0]
+    assert "demo data" in feed.findtext("a:title", namespaces=ns)  # a demo never passes for real forecasts
+    # The API says what the app says.
+    index = json.loads((site / "api" / "index.json").read_text())
+    assert [s["id"] for s in index["series"]] == [o["id"] for o in D["outlook"]]
+    first, o = index["series"][0], D["outlook"][0]
+    assert (first["chance_higher"], first["range80"], first["sealed_on"]) == (o["p_up"], [o["low"], o["high"]], o["made_on"])
+    doc = json.loads((site / "api" / "series" / f"{o['id']}.json").read_text())
+    assert len(doc["fan"]) == len(o["fan"]) and doc["fan"][0]["q50"] == o["fan"][0][2] and doc["history"][-1]["value"] == o["history"][-1][1]
+    assert index["record"]["forecasts_judged"] == D["vault"][-1]["opened"]
+    # Pages runs it as a plain script, without the package installed.
+    (site / "feed.xml").unlink()
+    run = subprocess.run([sys.executable, "-I", str(Path(feeds.__file__)), str(site)], capture_output=True, text=True)
+    assert run.returncode == 0, run.stderr
+    assert (site / "feed.xml").exists()
+    root = Path(__file__).resolve().parents[1]
+    assert "python3 src/psychohistory/feeds.py _site" in (root / ".github" / "workflows" / "pages.yml").read_text()
+
+
+def test_embed_card_is_listed_and_offered_on_series_pages():
+    root = Path(__file__).resolve().parents[1] / "site"
+    html = (root / "app" / "embed.html").read_text()
+    assert 'src="data/data.js"' in html and 'target="_top"' in html and "fonts.googleapis" not in html
+    assert "app/embed.html" in (root / "sw.js").read_text()
+    assert 'id="sp-embed"' in (root / "app" / "js" / "series.js").read_text()
+    for page, href in ((root / "index.html", 'href="feed.xml"'), (root / "app" / "index.html", 'href="../feed.xml"')):
+        assert 'type="application/atom+xml"' in page.read_text() and href in page.read_text()
+
+
+def test_champions_rank_models_per_series_and_test_the_pick_honestly():
+    import numpy as np
+
+    from psychohistory import champions
+
+    rng = np.random.default_rng(3)
+    rows = []
+    for s in range(6):
+        for o in range(8):
+            for model, noise in (("radiant", 1.0), ("seldon", 1.0 + 0.1 * (s % 2)), ("timesfm-2.5", 1.2)):
+                for step in (1, 2, 3):
+                    a = 100 + rng.normal()
+                    m = a + rng.normal(0, noise)
+                    rows.append((f"s{s}", model, f"2026-{o + 1:02d}-01", f"2026-{o + 1:02d}-0{step + 1}", step, m - 2, m, m + 2, a))
+    paths = pd.DataFrame(rows, columns=["series_id", "model", "origin", "date", "step", "q10", "q50", "q90", "actual"])
+    P = champions.payload(paths, "timesfm-2.5")
+    first = P["series"]["s0"]
+    assert [r[1] for r in first] == sorted(r[1] for r in first) and all(r[3] == 8 for r in first)  # best first, 8 windows
+    H = P["holdout"]
+    assert H["default"] == "radiant" and H["series"] == 6 and H["better"] + H["worse"] <= 6 and 0 <= H["kept"] <= 6
+    assert champions.payload(None) is None and champions.holdout(paths.iloc[:0]) is None
+
+
+def test_compare_view_is_wired_and_lines_up_series_from_their_sealing_day():
+    import json
+    import shutil
+    import subprocess
+    if not shutil.which("node"):
+        pytest.skip("node is not installed")
+    root = Path(__file__).resolve().parents[1] / "site"
+    assert "app/js/compare.js" in (root / "sw.js").read_text() and 'src="js/compare.js"' in (root / "app" / "index.html").read_text()
+    assert 'href="#compare"' in (root / "app" / "index.html").read_text() and '"compare"' in (root / "app" / "js" / "app.js").read_text()
+    o = {"id": "gold", "history": [["2026-11-06", 100.0], ["2026-11-09", 110.0]], "fan": [["2026-11-10", 99.0, 110.0, 121.0]]}
+    js = f"global.window={{}};require({json.dumps(str(root / 'app' / 'js' / 'compare.js'))});console.log(JSON.stringify(window.WPCompare.relative({json.dumps(o)})))"
+    out = json.loads(subprocess.run(["node", "-e", js], capture_output=True, text=True, check=True).stdout)
+    assert out["hist"][-1] == ["2026-11-09", 0] and abs(out["hist"][0][1] + 1 / 11) < 1e-9
+    assert out["band"][1][0] == "2026-11-10" and abs(out["band"][1][1] + 0.1) < 1e-9 and abs(out["band"][1][2] - 0.1) < 1e-9
+    assert out["mid"][0] == ["2026-11-09", 0]
+
+
+def test_vault_track_record_grid_is_wired():
+    root = Path(__file__).resolve().parents[1] / "site"
+    html = (root / "app" / "index.html").read_text()
+    js = (root / "app" / "js" / "app.js").read_text()
+    for hook in ('id="vault-grid"', 'id="vault-grid-meta"', 'id="vault-grid-filter"'):
+        assert hook in html
+    vault = js[js.index("    vault() {"):js.index("    crowd() {")]
+    assert "grid();" in vault                                   # drawn whenever the vault opens
+    assert "(s.hit + 1) / (s.n + 2)" in js                       # one lucky forecast cannot top the ranking
+    css = (root / "app" / "css" / "app.css").read_text()
+    assert all(c in css for c in (".tg-all", ".tg-some", ".tg-none", ".tg-gap"))
+
+
+def _node(script, *args):
+    import json
+    import shutil
+    import subprocess
+    if not shutil.which("node"):
+        pytest.skip("node is not installed")
+    return json.loads(subprocess.run(["node", "-e", script, *args], capture_output=True, text=True, check=True).stdout)
+
+
+def test_compare_draws_a_sealed_week_against_what_really_happened():
+    import json
+    root = Path(__file__).resolve().parents[1] / "site"
+    data = {"meta": {"model": "timesfm-2.5"},
+            "outlook": [{"id": "gold", "history": [["2026-10-15", 100.0], ["2026-10-16", 100.0], ["2026-10-19", 104.0], ["2026-10-20", 96.0]]}],
+            # [id, model, made_on, target, step, q10, q50, q90, actual, p_up, up, lag]
+            "opened": [["gold", "timesfm-2.5", "2026-10-18", "2026-10-19", 1, 98, 101, 103, 104, 0.6, 1, 0],
+                       ["gold", "timesfm-2.5", "2026-10-18", "2026-10-20", 2, 97, 102, 105, 96, 0.6, 0, 0],
+                       ["gold", "timesfm-2.5", "2026-10-18", "2026-10-21", 3, 96, 103, 106, 99, 0.6, 0, 0],
+                       ["gold", "seldon", "2026-10-18", "2026-10-19", 1, 98, 101, 103, 104, 0.6, 1, 0]]}
+    script = f"global.window={{}};require({json.dumps(str(root / 'app' / 'js' / 'compare.js'))});const C=window.WPCompare,D=JSON.parse(process.argv[1]);" \
+             "console.log(JSON.stringify({b:C.sealedBatch(D,'gold','timesfm-2.5','2026-10-18'),none:C.sealedBatch(D,'gold','timesfm-2.5','2026-10-25'),weeks:C.batchesOf(D,'seldon',['gold']),models:C.modelsOpened(D)}))"
+    out = _node(script, json.dumps(data))
+    b = out["b"]
+    assert b["start"] == ["2026-10-16", 100.0]                    # the last value before the first due day
+    assert [d["inside"] for d in b["days"]] == [False, False, True] and b["hits"] == 1
+    assert b["real"][-1] == ["2026-10-21", 99]                     # a due-day value past the history's end joins the real line
+    assert abs(b["said"] - 0.03) < 1e-9 and abs(b["did"] + 0.01) < 1e-9 and b["called"] is False
+    assert out["none"] is None and out["weeks"] == ["2026-10-18"] and out["models"] == ["timesfm-2.5", "seldon"]
+
+
+def test_odds_advice_is_held_back_unless_the_record_beats_a_coin_flip():
+    import json
+    root = Path(__file__).resolve().parents[1] / "site"
+    def market(id, windows):
+        # each window: (p_up, move); actual path from 100 to 100 * (1 + move)
+        actual, wins, ev = [100.0], [], []
+        for k, (p, move) in enumerate(windows):
+            at = len(actual)
+            actual += [100.0, 100.0 * (1 + move)]
+            actual.append(100.0)  # back to the base before the next window
+            wins.append([f"2025-{k // 28 + 1:02d}-{k % 28 + 1:02d}", at, [1, 1], [1, 1], [1, 1]])
+            ev.append([wins[-1][0], 1.0, 0, p, int(move > 0)])
+        return {"start": "2025-01-01", "days": list(range(len(actual))), "actual": actual, "windows": wins}, ev
+    good, ev_good = market("a", [(0.7, 0.02)] * 22 + [(0.7, -0.01)] * 3 + [(0.3, 0.01)] * 5 + [(0.5, 0.01)] * 4)
+    data = {"series": [{"id": "a", "domain": "markets"}, {"id": "n", "domain": "news"}], "track": {"a": good, "n": good}, "evidence": {"a": ev_good, "n": ev_good}}
+    script = f"global.window={{}};require({json.dumps(str(root / 'app' / 'js' / 'advice.js'))});const A=window.WPAdvice,D=JSON.parse(process.argv[1]);" \
+             "console.log(JSON.stringify({buy:A.advise(D,0.75),sell:A.advise(D,0.2),mid:A.advise(D,0.5),R:A.record(D),tail:A.binomTail(15,20)}))"
+    out = _node(script, json.dumps(data))
+    assert out["R"]["n"] == 34                                       # markets only: the news copy is ignored
+    assert out["R"]["buy"]["n"] == 25 and out["R"]["buy"]["right"] == 22 and out["R"]["buy"]["works"]
+    assert out["buy"]["action"] == "Buy or keep holding" and out["buy"]["backed"]
+    assert out["sell"]["action"] == "Hold" and not out["sell"]["backed"]   # 0 of 5 fell, and too few anyway
+    assert out["mid"]["tier"] == "hold" and out["mid"]["action"] == "Hold"
+    assert abs(out["tail"] - 0.020694732666015625) < 1e-12           # P(X >= 15), X ~ Bin(20, 1/2)
+    html = (root / "app" / "index.html").read_text()
+    assert html.index('src="js/advice.js"') < html.index('src="js/series.js"') and "app/js/advice.js" in (root / "sw.js").read_text()
+
+
+def test_year_ledger_shows_the_no_change_yardstick():
+    js = (Path(__file__).resolve().parents[1] / "site" / "app" / "js" / "year.js").read_text()
+    assert "function yardstick(" in js and 'title="the value each forecast started from' in js
+    assert "never the real value" in js                              # the note says a forecast is not reality

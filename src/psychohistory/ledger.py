@@ -101,7 +101,7 @@ def read(path: Path) -> pd.DataFrame | None:
 
 def name_by_maker(rows: pd.DataFrame) -> pd.DataFrame:
     """Name every sealed row for the forecaster that made it. Before the full Seldon (the crowd laws
-    with TimesFM as one more voter), ``seldon`` was the crowd laws alone; a day sealed since then
+    then with TimesFM as one more voter, and since November 2026 its own council without TimesFM), ``seldon`` was the crowd laws alone; a day sealed since then
     always carries ``seldon-laws`` rows too, so a day with ``seldon`` rows and none of those was
     sealed by the laws. The file itself is never edited."""
     if rows.empty or "made_on" not in rows:

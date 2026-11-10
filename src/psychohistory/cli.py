@@ -1,4 +1,4 @@
-"""Command line interface: ``psychohistory run | fetch | backtest | predict | ask | desk | monitor | vol | events | wire | verify | score | report | simulate | export | site | app``."""
+"""Command line interface: ``psychohistory run | fetch | backtest | predict | ask | desk | monitor | vol | events | bets | follow | wire | verify | score | report | simulate | export | site | app``."""
 
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from . import ask, backtest, brief, catalog, dashboard, data, desk, events, ledger, monitor, radiant, report, seldon, simulate, story, volatility, web, wire, yearbook
+from . import ask, backtest, bets, brief, catalog, follow, offline, dashboard, data, desk, events, ledger, monitor, radiant, report, seldon, simulate, story, volatility, web, wire, yearbook
 from .models import BASELINES, LAWS, classical_available, load_model
 
 log = logging.getLogger("psychohistory")
@@ -101,21 +101,28 @@ def cmd_backtest(args) -> None:
 
 
 def seldon_shares(args, data: dict[str, pd.Series]) -> list:
-    """The finished windows the full Seldon learns its per-area shares from: the model under
-    test's saved backtest paths, with the crowd laws rerun on the data up to each origin."""
+    """The finished windows Seldon's own council learns its per-area weights from: every voter's
+    middle path on the model under test's saved backtest windows (``radiant.Window``)."""
     paths_file = args.out_dir / "backtest_paths.csv"
     paths = pd.read_csv(paths_file) if paths_file.exists() and paths_file.stat().st_size > 1 else None
-    domains = {s.id: s.domain for s in catalog.CATALOG}
-    return seldon.windows_from_paths(paths, data, args.model, domains)
+    return radiant.windows_from_paths(paths, data, args.model, radiant.domains_of(catalog.CATALOG))
 
 
 def seldon_builder(args, data: dict[str, pd.Series]):
-    """For ``ledger.predict``: the full Seldon from the model's forecast and the same context."""
+    """For ``ledger.predict``: Seldon from its own council on the same context (the model under test
+    is not one of its voters), with Chronos-Bolt when this run has it."""
     windows = seldon_shares(args, data)
+    rival = _rival(args)
 
     def build(spec, base, context):
-        laws, _ = seldon.predict(context, len(base.point))
-        return seldon.blend(base, laws, seldon.share_for(windows, spec.domain))
+        h = len(base.point)
+        other = None
+        if rival is not None:
+            try:
+                other = rival.forecast([context], h)[0]
+            except Exception as exc:  # the rival is optional: the council votes without it
+                log.warning("Seldon's Chronos voter failed on %s: %s", spec.id, exc)
+        return seldon.own_forecast(context, h, windows, radiant.area(spec), rival=other)[0]
     return build
 
 
@@ -125,6 +132,7 @@ def radiant_builder(args, data: dict[str, pd.Series]):
     paths_file = args.out_dir / "backtest_paths.csv"
     paths = pd.read_csv(paths_file) if paths_file.exists() and paths_file.stat().st_size > 1 else None
     windows = radiant.windows_from_paths(paths, data, args.model, radiant.domains_of(catalog.CATALOG))
+    scales = radiant.scales_from_paths(paths, args.model, radiant.domains_of(catalog.CATALOG))
     rival = _rival(args)
 
     def build(spec, base, context):
@@ -136,19 +144,26 @@ def radiant_builder(args, data: dict[str, pd.Series]):
                 experts["rival"] = rival.forecast([context], h)[0]
             except Exception as exc:  # the rival is optional: Radiant mixes without it
                 log.warning("Radiant's rival %s failed on %s: %s", radiant.RIVAL, spec.id, exc)
-        return radiant.mix(experts, radiant.weights(windows, radiant.area(spec), rival="rival" in experts))
+        mixed = radiant.mix(experts, radiant.weights(windows, radiant.area(spec), rival="rival" in experts))
+        return radiant.widen(mixed, scales.get(radiant.area(spec), 1.0))
     return build
 
 
+_RIVAL_CACHE: dict = {}
+
+
 def _rival(args):
-    """Radiant's rival model, when this run compares against it and it is installed."""
+    """Radiant's (and Seldon's) rival model, when this run compares against it and it is installed.
+    Loaded once per run."""
     if radiant.RIVAL not in getattr(args, "compare", ()) or args.model == radiant.RIVAL:
         return None
-    try:
-        return load_model(radiant.RIVAL)
-    except Exception as exc:
-        log.warning("Radiant runs without its rival: %s", exc)
-        return None
+    if radiant.RIVAL not in _RIVAL_CACHE:
+        try:
+            _RIVAL_CACHE[radiant.RIVAL] = load_model(radiant.RIVAL)
+        except Exception as exc:
+            log.warning("Radiant and Seldon run without their rival: %s", exc)
+            _RIVAL_CACHE[radiant.RIVAL] = None
+    return _RIVAL_CACHE[radiant.RIVAL]
 
 
 def cmd_predict(args) -> None:
@@ -203,12 +218,13 @@ def cmd_ask(args) -> None:
             raise SystemExit(f"Could not load {spec.id}: {exc}. Run `psychohistory fetch` with a network connection first.") from None
         series_id, freq, horizon = spec.id, args.freq or spec.freq, args.horizon or spec.horizon
     model = load_model(args.model)
-    share = seldon.share_for(seldon_shares(args, {spec.id: series}), spec.domain) if spec is not None else 0.0
-    table, council = ask.ask(series, model, horizon, freq, share=share, above=args.above)
+    windows = seldon_shares(args, {spec.id: series}) if spec is not None else []
+    area = radiant.area(spec) if spec is not None else None
+    table, council, used = ask.ask(series, model, horizon, freq, windows=windows, area=area, above=args.above)
     name = "TimesFM" if args.model.startswith("timesfm") else args.model
     print(f"{spec.description if spec else series_id}: {len(series)} values up to {series.index[-1].date()}\n")
     print(ask.describe(table, float(series.iloc[-1]), name, args.above))
-    print("\n" + seldon.explain_full(council, share, name))
+    print("\n" + seldon.explain_own(used) + " " + seldon.explain(council))
     if args.save:
         args.save.parent.mkdir(parents=True, exist_ok=True)
         table.to_csv(args.save, index=False)
@@ -311,6 +327,20 @@ def _event_seals(args) -> pd.DataFrame | None:
     return ledger.verify(entries, _event_path(args, "seals"), **events.LAYOUT) if entries is not None else None
 
 
+def _bet_path(args, kind: str) -> Path:
+    """The betting ledger's files sit beside the main ledger too."""
+    name = {"ledger": bets.BET_LEDGER, "scored": bets.BET_SCORED, "seals": bets.BET_SEALS}[kind].name
+    return args.ledger.parent / name
+
+
+def _bets(args) -> dict | None:
+    entries = bets.read(_bet_path(args, "ledger"))
+    if entries is None:
+        return None
+    return {"entries": entries, "scored": bets.read(_bet_path(args, "scored")),
+            "seals": bets.verify(entries, _bet_path(args, "seals"))}
+
+
 def _event_now(args, data: dict[str, pd.Series] | None = None) -> pd.DataFrame | None:
     """The newest sealed event odds; before the first sealed batch, the odds the newest sealed
     forecasts imply (computed from the same sealed quantiles and the history up to their last day)."""
@@ -347,9 +377,26 @@ def cmd_events(args) -> None:
     print(events.describe(summary, events.live_record(events.read(_event_path(args, "scored"))), _event_now(args, series)))
 
 
+def cmd_bets(args) -> None:
+    """Betting odds: seal today's Polymarket prices on the most-traded real-world questions and
+    score the ones that have settled (``--show`` only prints what is already sealed)."""
+    paths = [_bet_path(args, k) for k in ("ledger", "scored", "seals")]
+    if not args.show:
+        done = bets.run(*paths)
+        print(f"Sealed the betting odds on {done['sealed']} questions in {paths[0]}; {done['settled']} questions settled so far.")
+    print(bets.describe(bets.read(paths[0]), bets.read(paths[1])))
+
+
+def cmd_follow(args) -> None:
+    """Would following the forecasts have made money? Replays the backtest's market windows as
+    trades, with costs, against simply holding the markets."""
+    paths = _results(args)[1]
+    print(follow.describe(follow.replay(follow.windows(paths), cost=args.cost) if paths is not None else None))
+
+
 def cmd_wire(args) -> None:
     """The world wire: the newest headlines for every topic, for the app's World terminal."""
-    specs = catalog.select(args.domain, args.series)
+    specs = wire.prioritize(catalog.select(args.domain, args.series), wire.read(args.out_dir / wire.WIRE.name))
     news = wire.fetch(specs, records=args.records)
     path = wire.write(news, args.out_dir / wire.WIRE.name)
     count = sum(len(t["articles"]) for t in news["topics"].values())
@@ -364,11 +411,12 @@ def cmd_verify(args) -> None:
         raise SystemExit(f"No ledger at {args.ledger}.")
     raw = pd.read_csv(args.ledger)  # the file as written, not renamed for display
     checks = [("forecast", ledger.verify(raw, seals), seals), ("volatility", _vol_seals(args), _vol_path(args, "seals")),
-              ("event", _event_seals(args), _event_path(args, "seals"))]
+              ("event", _event_seals(args), _event_path(args, "seals")),
+              ("betting", (_bets(args) or {}).get("seals"), _bet_path(args, "seals"))]
     failed = False
     for kind, checked, path in checks:
         if checked is None or checked.empty:
-            print(f"No {kind} fingerprints yet in {path}; `psychohistory predict` writes them with every batch.")
+            print(f"No {kind} fingerprints yet in {path}; `psychohistory {'bets' if kind == 'betting' else 'predict'}` writes them with every batch.")
             continue
         bad = checked[checked["status"] != "ok"]
         print(f"{len(checked) - len(bad)} of {len(checked)} sealed {kind} batches match their fingerprints ({checked['rows'].sum()} rows).")
@@ -434,6 +482,11 @@ def cmd_run(args) -> None:
     args.backtest = True
     cmd_vol(args)
     cmd_events(args)
+    args.show = False
+    try:  # betting odds need Polymarket; a run without it still finishes
+        cmd_bets(args)
+    except Exception as exc:
+        log.warning("betting odds skipped: %s", exc)
     args.records = wire.RECORDS
     cmd_wire(args)
     args.demo = False
@@ -532,10 +585,11 @@ def _payload(args, demo: bool = False) -> dict | None:
     vol = {"summary": read(args.out_dir / "vol_summary.csv"), "ledger": volatility.read(_vol_path(args, "ledger")),
            "scored": volatility.read(_vol_path(args, "scored")), "seals": _vol_seals(args)}
     data = _load(specs, args.data_dir)
-    event = {"summary": read(args.out_dir / "event_summary.csv"), "now": _event_now(args, data),
+    event = {"summary": read(args.out_dir / "event_summary.csv"), "now": _event_now(args, data), "rows": read(args.out_dir / "event_backtest.csv"),
              "scored": events.read(_event_path(args, "scored")), "seals": _event_seals(args)}
     return web.build_payload(args.model, results, by_step, paths, entries, scored, data, run_status=run,
-                             seals=seals, vol=vol, wire=wire.read(args.out_dir / wire.WIRE.name), events=event)
+                             seals=seals, vol=vol, wire=wire.read(args.out_dir / wire.WIRE.name), events=event,
+                             bet_odds=_bets(args))
 
 
 def cmd_export(args) -> None:
@@ -558,6 +612,19 @@ def cmd_site(args) -> None:
     print(f"Site built in {out}/ (open {out / 'app' / 'index.html'})")
 
 
+def cmd_offline(args) -> None:
+    """The whole app and your newest results in one HTML file that opens without internet."""
+    import tempfile
+
+    payload = _payload(args, args.demo)
+    if payload is None:
+        print("No local results yet, so the copy holds demo data. Run `psychohistory run` for real forecasts.")
+    with tempfile.TemporaryDirectory() as tmp:
+        site = web.build_site(Path(tmp) / "site", payload=payload)
+        path = offline.bundle(site, args.out)
+    print(f"Offline copy written to {path} ({path.stat().st_size / 1e6:.1f} MB). Double-click it to open; no internet needed.")
+
+
 def cmd_app(args) -> None:
     """The full local version: refresh the app's data from your own results and open it."""
     import functools
@@ -573,6 +640,7 @@ def cmd_app(args) -> None:
     server = http.server.ThreadingHTTPServer(("127.0.0.1", args.port), handler)
     url = f"http://127.0.0.1:{args.port}/app/"
     print(f"World Predictor is running at {url}  (Ctrl+C to stop)")
+    print(f"Offline copy (one file, opens without internet): {out / offline.FILE_NAME}")
     if not args.no_browser:
         threading.Timer(0.5, lambda: webbrowser.open(url)).start()
     try:
@@ -656,6 +724,16 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--backtest", action="store_true", help="rerun the event-odds backtest from the data and the saved paths")
     p.set_defaults(func=cmd_events)
 
+    p = sub.add_parser("bets", help="betting odds: seal Polymarket's prices on real-world questions and score them when they settle")
+    common(p)
+    p.add_argument("--show", action="store_true", help="only print the sealed betting odds and their record (no connection needed)")
+    p.set_defaults(func=cmd_bets)
+
+    p = sub.add_parser("follow", help="would following the forecasts have made money? the backtest's market windows as trades, with costs, against holding")
+    common(p)
+    p.add_argument("--cost", type=float, default=follow.COST, help="cost of each trade, each way (default 0.001 = 0.1%%)")
+    p.set_defaults(func=cmd_follow)
+
     p = sub.add_parser("wire", help="the newest headlines for every topic, from GDELT, for the World terminal")
     common(p)
     p.add_argument("--records", type=int, default=wire.RECORDS, help="headlines per topic (default 6)")
@@ -699,6 +777,12 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--site-dir", type=Path, default=Path("build/site"))
     p.add_argument("--demo", action="store_true", help="use illustrative demo data")
     p.set_defaults(func=cmd_site)
+
+    p = sub.add_parser("offline", help="the whole app and your results in one HTML file that opens without internet")
+    common(p)
+    p.add_argument("--demo", action="store_true", help="use demo data instead of your results")
+    p.add_argument("--out", type=Path, default=Path("build") / offline.FILE_NAME, help=f"where to write it (default build/{offline.FILE_NAME})")
+    p.set_defaults(func=cmd_offline)
 
     p = sub.add_parser("app", help="open the World Predictor app on this computer with your own results")
     common(p)

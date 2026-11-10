@@ -347,7 +347,7 @@
   }
 
   // The screen, top to bottom. Every change redraws it in place and keeps the scroll position.
-  const page = (F) => tour() + hero(F) + watchlist(F) + alerts(F) + brief(F) + frames(F) + history(F) + trust(F);
+  const page = (F) => tour() + hero(F) + watchlist(F) + (window.WPEvents ? window.WPEvents.teaser(D) : "") + (window.WPCalendar ? window.WPCalendar.teaser(D) : "") + alerts(F) + brief(F) + frames(F) + history(F) + trust(F);
   const link = () => `#today/${state.id}${state.frame !== "all" ? ":" + state.frame : ""}`;
 
   function render(host, data, arg) {

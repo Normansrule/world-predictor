@@ -21,7 +21,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from . import __version__, brief, catalog, events, frames, monitor, radiant, seldon, volatility, yearbook
+from . import __version__, brief, bets, catalog, champions, feeds, follow, offline, worldevents, events, frames, monitor, radiant, seldon, volatility, yearbook
 from .backtest import MAX_CONTEXT, calibration, domain_table, head_to_head, summarize
 from .ledger import latest as ledger_latest
 from .simulate import CROWD_SIZES, crowd_predictability, simulate_crowd
@@ -115,11 +115,16 @@ def build_payload(
     vol: dict | None = None,
     wire: dict | None = None,
     events: dict | None = None,
+    bet_odds: dict | None = None,
 ) -> dict:
-    """Everything the app needs, as plain JSON-ready values."""
+    """Everything the app needs, as plain JSON-ready values. ``bet_odds`` holds the betting ledger's
+    ``entries``, ``scored`` and ``seals`` (see bets.py)."""
     summary = summarize(results) if results is not None and not results.empty else None
     domains = {s.id: s.domain for s in catalog.CATALOG}
-    windows = seldon.windows_from_paths(paths, data, model, domains)  # what the full Seldon learns from
+    events = dict(events or {})
+    event_rows = events.pop("rows", None)  # the 4-week event backtest, replayed a week ahead below
+    event_steps = worldevents.events.skill_by_step(event_rows, paths)
+    windows = radiant.windows_from_paths(paths, data, model, radiant.domains_of(catalog.CATALOG))  # what Seldon's own council learns from
     payload: dict = {
         "meta": {
             "model": model, "generated": date.today().isoformat(), "version": __version__,
@@ -137,12 +142,16 @@ def build_payload(
         "track": track_payload(paths, model), "opened": opened_payload(scored, model),
         "track_radiant": track_payload(paths, radiant.NAME, bands=False),
         "frames": frames.payload(paths, ledger, scored, data, model),
+        "champions": champions.payload(paths, model),
         "brief": brief.build(ledger, scored, model, _title),
         "markets": markets_payload(summary),
+        "follow": follow.payload(paths, data) if not demo else None,
         "monitor": monitor.payload(scored, summary, seals),
         "volatility": volatility_payload(**(vol or {}), data=data),
         "wire": wire_payload(wire),
-        "events": events_payload(**(events or {})),
+        "events": events_payload(**events),
+        "worldevents": worldevents.build(ledger, events.get("now"), events.get("summary"), event_steps, wire, data, model, _title),
+        "bets": bets.payload(**bet_odds) if bet_odds else None,
         "radiant_vote": radiant_vote_payload(paths, data, model) if not demo else None,
         "year": yearbook.build(data, _with_radiant(paths, data, model, domains), ledger, model) if not demo else None,
     }
@@ -230,30 +239,36 @@ def _sealed_fan(ledger: pd.DataFrame, name: str, series_id: str, made_on) -> lis
     return [[r.target_date, _num(r.q10), _num(r.q50), _num(r.q90)] for r in rows.sort_values("step").itertuples()]
 
 
-def _seldon_at(series: pd.Series, at, horizon: int) -> tuple:
-    """Seldon's forecast from the data up to and including ``at``, exactly as the backtest and
-    ``predict`` make it (the same context length), and the council behind it."""
+def _area(series_id: str, domain: str) -> str:
+    """The area Seldon's own council learns its weights in (yearly series apart, as Radiant's)."""
+    return radiant.area(catalog.by_id(series_id)) if _known(series_id) else domain
+
+
+def _seldon_at(series: pd.Series, at, horizon: int, windows=(), area: str | None = None) -> tuple:
+    """Seldon's forecast from the data up to and including ``at``, as ``predict`` makes it (the same
+    context length; its own council weighted by ``area``'s windows finished by then, Chronos left
+    out because the app cannot run it), the crowd laws' council and the voters' weights."""
     context = series[series.index <= pd.Timestamp(at)].to_numpy(dtype=float)[-MAX_CONTEXT:]
-    return seldon.predict(context, horizon)
+    own, used, council = seldon.own_forecast(context, horizon, list(windows), area, at)
+    return own, council, used
 
 
 def _seldon_outlook(ledger: pd.DataFrame, series: pd.Series, series_id: str, domain: str, fan: pd.DataFrame,
                     windows: list, model: str) -> dict:
-    """The full Seldon's newest forecast for one outlook series. Runs since Seldon joined the ledger
-    carry their own sealed ``seldon`` rows; for older runs it is built here from the sealed TimesFM
-    range and the crowd laws run on the same data, and marked ``computed`` (made later, so not
-    sealed in advance)."""
+    """Seldon's newest forecast for one outlook series. Runs since its own council carry their own
+    sealed ``seldon`` rows; for older runs it is built here from the same data the sealed forecasts
+    had, and marked ``computed`` (none was sealed) or ``recomputed`` (the one sealed came from the
+    old council with TimesFM in it): made later, so not sealed in advance."""
     made_on, last_date = fan["made_on"].iloc[0], fan["last_date"].iloc[0]
-    laws, council = _seldon_at(series, last_date, len(fan))
-    share = seldon.share_for(windows, domain, last_date)
+    own, council, used = _seldon_at(series, last_date, len(fan), windows, _area(series_id, domain))
     sealed = ledger[(ledger["model"] == seldon.NAME) & (ledger["series_id"] == series_id) & (ledger["made_on"] == made_on)]
-    if not sealed.empty:
+    if not sealed.empty and str(made_on) >= seldon.OWN_SINCE:
         rows, source = sealed.sort_values("step"), "sealed"
         q10, q50, q90 = (rows[k].to_numpy(float) for k in ("q10", "q50", "q90"))
-    else:
-        rows, source = fan, "computed"
-        q10, q50, q90 = seldon.blend_bands([fan[k].to_numpy(float) for k in ("q10", "q50", "q90")], laws, share)
-    return {"source": source, "council": seldon.full_council(council, share, model),
+    else:  # no sealed Seldon yet, or the one sealed came from the old council with TimesFM in it
+        rows, source = fan, "computed" if sealed.empty else "recomputed"
+        q10, q50, q90 = own.q(0.1), own.q(0.5), own.q(0.9)
+    return {"source": source, "council": seldon.own_council(council, used),
             "fan": [[d, _num(a), _num(b), _num(e)] for d, a, b, e in zip(rows["target_date"], q10, q50, q90)]}
 
 
@@ -446,10 +461,9 @@ def lab_payload(paths: pd.DataFrame | None, model: str, data: dict[str, pd.Serie
             council = None
             path = mine[(mine["series_id"] == series_id) & (mine["origin"] == origin)].sort_values("step")
             if series_id in data:
-                laws, c = _seldon_at(data[series_id], origin, len(g))
-                share = seldon.share_for(windows or [], domain, origin)
-                council = seldon.full_council(c, share, model)
-                lo, mid, hi = seldon.blend_bands((q10, q50, q90), laws, share)
+                own, c, used = _seldon_at(data[series_id], origin, len(g), windows or [], _area(series_id, domain))
+                council = seldon.own_council(c, used)
+                lo, mid, hi = own.q(0.1), own.q(0.5), own.q(0.9)
             if len(path) == len(g):  # the backtest's own Seldon path, when this run has one
                 lo, mid, hi = (path[c].to_numpy(float) for c in ("q10", "q50", "q90"))
             elif series_id not in data:
@@ -608,6 +622,8 @@ def build_site(out: Path, data_js: Path | None = None, payload: dict | None = No
         shutil.copy(data_js, target)
     else:
         write_data_js(demo_payload(), target)
+    feeds.publish(out)  # feed.xml and api/: the forecasts for feed readers and other programs
+    offline.bundle(out)  # the one-file copy, so the local app can hand it out too
     return out
 
 
@@ -641,11 +657,10 @@ def demo_payload(seed: int = 0) -> dict:
     results = pd.concat(frames, ignore_index=True)
     by_step = skill_by_step(pd.DataFrame(step_rows))
     drift = load_model("drift")
-    windows = seldon.windows_from_paths(pd.DataFrame(path_rows), data, "drift", {s.id: s.domain for s in specs})
+    windows = radiant.windows_from_paths(pd.DataFrame(path_rows), data, "drift", radiant.domains_of(specs))
 
     def full(spec, base, context):
-        laws, _ = seldon.predict(context, len(base.point))
-        return seldon.blend(base, laws, seldon.share_for(windows, spec.domain))
+        return seldon.own_forecast(context, len(base.point), windows, radiant.area(spec))[0]
     sealed = []
     for cut in range(420, 690, 10):  # predictions "sealed" in the past, opened since
         past = {s: v.iloc[:cut] for s, v in data.items()}

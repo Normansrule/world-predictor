@@ -1,8 +1,8 @@
 // World Predictor service worker: the app works offline after one visit.
 // App files are served cache-first; the data file is network-first so new forecasts show up.
-const CACHE = "world-predictor-v14";
+const CACHE = "world-predictor-v25";
 const SHELL = ["./", "index.html", "manifest.webmanifest", "assets/icon.svg", "assets/banner-light.svg", "assets/banner-dark.svg",
-  "app/", "app/index.html", "app/css/app.css", "app/js/charts.js", "app/js/trace.js", "app/js/lab.js", "app/js/studio.js", "app/js/series.js", "app/js/markets.js", "app/js/monitor.js", "app/js/terminal.js", "app/js/year.js", "app/js/today.js", "app/js/app.js",
+  "app/", "app/index.html", "app/embed.html", "app/css/app.css", "app/js/charts.js", "app/js/trace.js", "app/js/lab.js", "app/js/studio.js", "app/js/advice.js", "app/js/series.js", "app/js/markets.js", "app/js/monitor.js", "app/js/terminal.js", "app/js/year.js", "app/js/events.js", "app/js/calendar.js", "app/js/compare.js", "app/js/share.js", "app/js/today.js", "app/js/app.js", "app/js/offline.js",
   "app/data/data.js", "app/data/pipeline.js"];
 
 self.addEventListener("install", (e) => e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting())));

@@ -164,10 +164,10 @@ def _duel_section(results: pd.DataFrame, model: str) -> list[str]:
         f"## Seldon vs {model}: the duel",
         "",
         "Seldon is this project's own forecaster (`src/psychohistory/seldon.py`): four laws of crowd behaviour "
-        "(inertia, drift, momentum, reversion, on top of the weekly rhythm) with TimesFM as one more voter, the laws' "
-        "share learned per area from finished windows only. It forecasts the same windows as TimesFM and is scored "
-        "by the same code. A series is won by whichever had the lower average error there; a series where the full "
-        "Seldon gave TimesFM the whole vote is a tie. Skill is against \"no change\" (positive is better); range "
+        "(inertia, drift, momentum, reversion, on top of the weekly rhythm), a behavioural core, \"no change\" and "
+        "Chronos-Bolt, each voter's weight learned per area from finished windows only. Since November 2026 TimesFM is "
+        "not one of its voters, so Seldon is a second opinion, not a copy. It forecasts the same windows as TimesFM and "
+        "is scored by the same code. A series is won by whichever had the lower average error there; an exact tie is a tie. Skill is against \"no change\" (positive is better); range "
         "skill scores the whole 80% range (pinball loss).",
         "",
     ]

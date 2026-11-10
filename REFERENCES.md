@@ -102,6 +102,7 @@ date", with the day they were retrieved; several undated works by one author are
 - Asimov, I. (1951). *Foundation*. Gnome Press.
 - Asimov, I. (1953). *Second Foundation*. Gnome Press.
 - Assimakopoulos, V., & Nikolopoulos, K. (2000). The theta model: A decomposition approach to forecasting. *International Journal of Forecasting, 16*(4), 521–530. https://doi.org/10.1016/S0169-2070(00)00066-2
+- Bailey, D. H., Borwein, J. M., López de Prado, M., & Zhu, Q. J. (2014). Pseudo-mathematics and financial charlatanism: The effects of backtest overfitting on out-of-sample performance. *Notices of the American Mathematical Society, 61*(5), 458–471. https://doi.org/10.1090/noti1105
 - Barber, B. M., & Odean, T. (2008). All that glitters: The effect of attention and news on the buying behavior of individual and institutional investors. *The Review of Financial Studies, 21*(2), 785–818. https://doi.org/10.1093/rfs/hhm079
 - Bass, F. M. (1969). A new product growth for model consumer durables. *Management Science, 15*(5), 215–227. https://doi.org/10.1287/mnsc.15.5.215
 - Bates, J. M., & Granger, C. W. J. (1969). The combination of forecasts. *Operational Research Quarterly, 20*(4), 451–468. https://doi.org/10.1057/jors.1969.103
@@ -146,6 +147,7 @@ date", with the day they were retrieved; several undated works by one author are
 - Lorenz, E. N. (1963). Deterministic nonperiodic flow. *Journal of the Atmospheric Sciences, 20*(2), 130–141. https://doi.org/10.1175/1520-0469(1963)020<0130:DNF>2.0.CO;2
 - Makridakis, S., Spiliotis, E., & Assimakopoulos, V. (2020). The M4 Competition: 100,000 time series and 61 forecasting methods. *International Journal of Forecasting, 36*(1), 54–74. https://doi.org/10.1016/j.ijforecast.2019.04.014
 - Mandelbrot, B. (1963). The variation of certain speculative prices. *The Journal of Business, 36*(4), 394–419. https://doi.org/10.1086/294632
+- Manski, C. F. (2006). Interpreting the predictions of prediction markets. *Economics Letters, 91*(3), 425–429. https://doi.org/10.1016/j.econlet.2006.01.004
 - Moskowitz, T. J., Ooi, Y. H., & Pedersen, L. H. (2012). Time series momentum. *Journal of Financial Economics, 104*(2), 228–250. https://doi.org/10.1016/j.jfineco.2011.11.003
 - Newey, W. K., & West, K. D. (1987). A simple, positive semi-definite, heteroskedasticity and autocorrelation consistent covariance matrix. *Econometrica, 55*(3), 703–708. https://doi.org/10.2307/1913610
 - Patton, A. J. (2011). Volatility forecast comparison using imperfect volatility proxies. *Journal of Econometrics, 160*(1), 246–256. https://doi.org/10.1016/j.jeconom.2010.03.034
@@ -162,6 +164,8 @@ date", with the day they were retrieved; several undated works by one author are
 - Wallis, K. F. (2014). The two-piece normal, binormal, or double Gaussian distribution: Its origin and rediscoveries. *Statistical Science, 29*(1), 106–112. https://doi.org/10.1214/13-STS417
 - Whaley, R. E. (2000). The investor fear gauge. *The Journal of Portfolio Management, 26*(3), 12–17. https://doi.org/10.3905/jpm.2000.319728
 - Wilks, D. S. (2011). *Statistical methods in the atmospheric sciences* (3rd ed.). Academic Press.
+- Wolfers, J., & Zitzewitz, E. (2004). Prediction markets. *Journal of Economic Perspectives, 18*(2), 107–126. https://doi.org/10.1257/0895330041371321
+- Xiao, Y., Sun, E., Luo, D., & Wang, W. (2024). *TradingAgents: Multi-agents LLM financial trading framework* (arXiv:2412.20138) [Preprint]. arXiv. https://arxiv.org/abs/2412.20138
 
 ### Models, software and data
 
@@ -174,9 +178,11 @@ date", with the day they were retrieved; several undated works by one author are
 - Cboe Global Markets. (n.d.-a). *Cboe 10-Year U.S. Treasury Note Yield Index (TNX)* [Data set]. Retrieved November 2, 2026, from https://www.cboe.com/
 - Cboe Global Markets. (n.d.-b). *Cboe Volatility Index (VIX)* [Data set]. Retrieved November 2, 2026, from https://www.cboe.com/tradable_products/vix/
 - Climate Change Institute, University of Maine. (n.d.). *Climate Reanalyzer: Daily surface air and sea surface temperature* [Data set]. Retrieved November 4, 2026, from https://climatereanalyzer.org/
+- Desruisseaux, B. (Ed.). (2009). *Internet calendaring and scheduling core object specification (iCalendar)* (RFC 5545). Internet Engineering Task Force. https://doi.org/10.17487/RFC5545
 - Fetterer, F., Knowles, K., Meier, W. N., Savoie, M., & Windnagel, A. K. (2017). *Sea Ice Index* (Version 3) [Data set]. National Snow and Ice Data Center. https://doi.org/10.7265/N5K072F8
 - Garza, A., Mergenthaler Canseco, M., Challú, C., & Olivares, K. G. (2022). *StatsForecast: Lightning fast forecasting with statistical and econometric models* [Computer software]. GitHub. https://github.com/Nixtla/statsforecast
 - Google Research. (n.d.). *timesfm* [Computer software]. GitHub. https://github.com/google-research/timesfm
+- HKUDS. (2026). *Vibe-Trading* [Computer software]. MIT License. https://github.com/HKUDS/Vibe-Trading
 - IBM. (n.d.). *IBM Plex* [Typeface]. GitHub. https://github.com/IBM/plex
 - International Energy Agency. (2025). *Global EV outlook 2025*. https://www.iea.org/reports/global-ev-outlook-2025
 - koala73. (n.d.). *worldmonitor* [Computer software]. GitHub. https://github.com/koala73/worldmonitor
@@ -190,6 +196,7 @@ date", with the day they were retrieved; several undated works by one author are
 - Normansrule. (n.d.). *worldmonitor (Terra Atlas)* [Computer software]. GitHub. https://github.com/Normansrule/worldmonitor
 - Our World in Data. (n.d.). *Our World in Data* [Data set]. Retrieved October 20, 2026, from https://ourworldindata.org/
 - Plotly. (n.d.). *plotly.py* [Computer software]. GitHub. https://github.com/plotly/plotly.py
+- Polymarket. (n.d.). *Gamma Markets API* [Data set]. Retrieved November 9, 2026, from https://docs.polymarket.com/
 - Production Type. (n.d.). *Newsreader* [Typeface]. Google Fonts. https://fonts.google.com/specimen/Newsreader
 - properscoring contributors. (n.d.). *properscoring* [Computer software]. GitHub. https://github.com/properscoring/properscoring
 - Salesforce AI Research. (n.d.-a). *gift-eval* [Computer software]. GitHub. https://github.com/SalesforceAIResearch/gift-eval
@@ -198,6 +205,7 @@ date", with the day they were retrieved; several undated works by one author are
 - sktime contributors. (n.d.). *sktime* [Computer software]. GitHub. https://github.com/sktime/sktime
 - statsmodels contributors. (n.d.). *statsmodels* [Computer software]. GitHub. https://github.com/statsmodels/statsmodels
 - Streamlit. (n.d.). *streamlit* [Computer software]. GitHub. https://github.com/streamlit/streamlit
+- TauricResearch. (2024). *TradingAgents* [Computer software]. Apache License 2.0. https://github.com/TauricResearch/TradingAgents
 - The GDELT Project. (n.d.). *GDELT DOC 2.0 API* [Data set]. Retrieved October 20, 2026, from https://www.gdeltproject.org/
 - time-series-foundation-models. (n.d.). *lag-llama* [Computer software]. GitHub. https://github.com/time-series-foundation-models/lag-llama
 - United Nations Office for Outer Space Affairs. (n.d.). *Online index of objects launched into outer space* [Data set]. Retrieved November 4, 2026, from https://www.unoosa.org/oosa/osoindex/
@@ -278,6 +286,7 @@ says what was taken from each one.
 - Teenage Engineering. (n.d.). *Teenage Engineering*. Retrieved October 20, 2026, from https://teenage.engineering/
 - Textualize. (n.d.). *rich* [Computer software]. GitHub. https://github.com/Textualize/rich
 - tldraw. (n.d.). *tldraw* [Computer software]. GitHub. https://github.com/tldraw/tldraw
+- Together AI. (2026). *Hallmark* [Computer software]. MIT License. https://www.usehallmark.com
 - Van Damme, B. (n.d.). *Scroll-driven animations*. Retrieved October 20, 2026, from https://scroll-driven-animations.style/
 - Vercel Inc. (n.d.). *Vercel*. Retrieved October 20, 2026, from https://vercel.com/
 - vis.gl contributors. (n.d.). *deck.gl* [Computer software]. GitHub. https://github.com/visgl/deck.gl

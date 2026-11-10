@@ -237,7 +237,8 @@
       case "seldon": {
         if (!o.seldon) return "No Seldon forecast in this run.";
         return `Seldon, our own forecaster, reads the same history and makes its own range (dotted). ${esc(WPCharts.council(o.seldon.council))}`
-            + (o.seldon.source === "computed" ? " This run predates Seldon's sealed forecasts, so its range was computed afterwards from the same data." : "");
+            + (o.seldon.source === "computed" ? " This run predates Seldon's sealed forecasts, so its range was computed afterwards from the same data."
+            : o.seldon.source === "recomputed" ? " This week's sealed Seldon came from its old council with TimesFM in it, so this range was computed afterwards by its own council from the same data." : "");
       }
       case "seal": return `Sealed on ${esc(o.made_on)}: middle guess ${signed(o.change)} by ${esc(o.target_date)}, 80% range ${signed(o.low)} to ${signed(o.high)}, ${fmt.pct(o.p_up)} chance it ends higher.`;
       case "score": return (D.vault || []).length ? `Its steps open from ${esc(o.fan[0][0])} to ${esc(o.target_date)}; opened forecasts so far are in the Time Vault.`
@@ -273,7 +274,7 @@
         const k = o.seldon.council || { weights: {}, replays: 0, vol: 1 }, e = o.seldon.fan[o.seldon.fan.length - 1];
         const top = Object.entries(k.weights).sort((a, b) => b[1] - a[1])[0];
         return kv([["past dates replayed", k.replays], ["strongest law", top ? `${esc(top[0])} ${Math.round(top[1] * 100)}%` : "–"], ["range scale now", k.vol.toFixed(2) + "×"],
-          ["last step", `${fmt.num(e[1])} / ${fmt.num(e[2])} / ${fmt.num(e[3])}`], ["in the ledger", o.seldon.source === "sealed" ? "sealed as model seldon" : "computed for this run"]]) + WPCharts.councilBar(k);
+          ["last step", `${fmt.num(e[1])} / ${fmt.num(e[2])} / ${fmt.num(e[3])}`], ["in the ledger", o.seldon.source === "sealed" ? "sealed as model seldon" : o.seldon.source === "recomputed" ? "computed by the own council (the sealed one was the old council's)" : "computed for this run"]]) + WPCharts.councilBar(k);
       }
       case "score": return o ? kv([["first step opens", esc(o.fan[0][0])], ["last step opens", esc(o.target_date)], ["opened so far", (D.vault || []).length ? "see the Time Vault" : "none yet"]]) : "";
       case "backtest": return s ? kv([["windows", ev.length], ["skill vs simple guess", fmt.pct(s.skill)], ["inside 80% range", fmt.pct(s.coverage80)], ["right direction", fmt.pct(s.direction)], ["odds score (Brier)", s.brier === null ? "–" : s.brier.toFixed(3)]]) + '<div id="trace-evidence"></div>' : "";

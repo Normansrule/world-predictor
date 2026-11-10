@@ -42,9 +42,13 @@ jobs:
           cp -r results/plots _site/results/ 2>/dev/null || true
           cp results/REPORT.md results/dashboard.html _site/results/ 2>/dev/null || true
           # Bump the offline cache name so returning visitors get the new version.
-          sed -i "s/world-predictor-v1/world-predictor-${GITHUB_SHA::8}/" _site/sw.js
+          sed -i "s/world-predictor-v[0-9]*/world-predictor-${GITHUB_SHA::8}/" _site/sw.js
           # Pin the app's code links to the exact commit being deployed.
           sed -i "s/__COMMIT__/$(git rev-parse HEAD)/" _site/app/data/pipeline.js
+          # The one-file offline copy: the whole app and this run's data, opens by double-click.
+          python3 src/psychohistory/offline.py _site
+          # The news feed (feed.xml) and the JSON API (api/), from the same data the app shows.
+          python3 src/psychohistory/feeds.py _site
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

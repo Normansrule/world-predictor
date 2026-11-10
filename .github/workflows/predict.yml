@@ -69,6 +69,10 @@ jobs:
       - name: Event odds backtest (spikes and lulls in news and tech attention against climatology)
         if: github.event.schedule != '30 22 * * 1-5'
         run: psychohistory events --backtest
+      - name: Betting odds (Polymarket's prices on real-world questions, sealed, scored when they settle)
+        continue-on-error: true
+        timeout-minutes: 10
+        run: psychohistory bets
       - name: World wire (the newest headlines per topic, for the World terminal)
         continue-on-error: true
         timeout-minutes: 15  # GDELT's back-off must never cost the run its results

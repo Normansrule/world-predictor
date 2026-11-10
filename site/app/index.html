@@ -8,6 +8,7 @@
   <meta name="theme-color" content="#272c48">
   <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
   <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="alternate" type="application/atom+xml" title="World Predictor: sealed forecasts and results" href="../feed.xml">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap">
   <link rel="stylesheet" href="css/app.css">
@@ -22,7 +23,8 @@
     <span>World Predictor</span>
   </a>
   <dl class="readouts" id="readouts"></dl>
-  <button class="icon-btn" id="help-btn" title="Shortcuts (?)" aria-label="Keyboard shortcuts" aria-haspopup="dialog">?</button>
+  <button class="net" id="net" hidden aria-live="polite"><i aria-hidden="true"></i><span>Offline</span></button>
+  <button class="icon-btn" id="help-btn" title="Shortcuts and offline use (?)" aria-label="Keyboard shortcuts and offline use" aria-haspopup="dialog">?</button>
   <button class="icon-btn" id="theme" title="Slate or light (T)" aria-label="Switch between the slate and light themes">
     <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg>
   </button>
@@ -48,6 +50,9 @@
     <details class="more-nav">
       <summary>More</summary>
       <div class="more-sheet">
+      <a href="#events">World events</a>
+      <a href="#calendar">Coming up</a>
+      <a href="#compare">Compare</a>
       <a href="#studio">Forecast Studio</a>
       <a href="#year">Year ledger</a>
       <a href="#monitor">Monitor</a>
@@ -68,6 +73,10 @@
     <div id="demo"></div>
 
     <section class="view" id="view-today" aria-labelledby="today-h"><div id="today-root"></div></section>
+
+    <section class="view" id="view-events" aria-labelledby="events-h"><div id="events-root"></div></section>
+    <section class="view" id="view-calendar" aria-labelledby="calendar-h"><div id="calendar-root"></div></section>
+    <section class="view" id="view-compare" aria-labelledby="compare-h"><div id="compare-root"></div></section>
 
     <section class="view" id="view-terminal" aria-labelledby="terminal-h"><div id="terminal-root"></div></section>
 
@@ -220,6 +229,13 @@
         <div class="card"><header class="ph"><h2>Odds score</h2><span class="pm">Brier, lower is better</span></header><div id="vault-brier"></div></div>
       </div>
       <p class="note" id="vault-note"></p>
+      <div class="card tg-card">
+        <header class="ph"><h2>Track record grid</h2><span class="pm" id="vault-grid-meta"></span></header>
+        <p class="note tg-lede">Every series down the side, every day a sealed forecast came due across the top. A square is green when reality landed inside the 80% range, red when it landed outside, amber when some of that day's forecasts did (each week's batch reaches the same day from a different distance). Hover a square for the count; click a row to open the series. The bottom row is the share of all series inside that day, so a red column is a day the whole world surprised the model.</p>
+        <div class="chips" id="vault-grid-filter" role="group" aria-label="Filter the grid by area"></div>
+        <div class="tg" id="vault-grid"></div>
+        <p class="tg-key" aria-hidden="true"><i class="tg-all"></i> all inside <i class="tg-some"></i> some inside <i class="tg-none"></i> outside <i class="tg-gap"></i> nothing due</p>
+      </div>
       <div class="card">
         <header class="ph"><h2>Every opened forecast</h2><span class="pm" id="vault-opened-meta"></span></header>
         <div class="chips" id="vault-filter" role="group" aria-label="Filter by area"></div>
@@ -304,9 +320,16 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <dialog id="help" aria-labelledby="help-h">
-  <header><h2 id="help-h">Shortcuts</h2><button class="icon-btn" data-close aria-label="Close">✕</button></header>
+  <header><h2 id="help-h">Shortcuts and offline</h2><button class="icon-btn" data-close aria-label="Close">✕</button></header>
   <div class="help-keys"></div>
   <p>Everything is also one tap away: the five buttons on the left (at the bottom on a phone), and More for the rest. <a href="#about" data-close>About World Predictor</a></p>
+  <div id="offline-box"></div>
+  <div id="follow-box">
+    <h3>Follow along</h3>
+    <p><a class="btn" href="../feed.xml" data-web="feed.xml">News feed</a> <a class="btn" href="../api/index.json" data-web="api/index.json">JSON API</a></p>
+    <p>The feed (Atom, for any feed reader) gets an entry for every newly sealed batch and every week of forecasts that came due.
+      The API is every series' newest sealed forecast as plain JSON, for spreadsheets and scripts. To put one forecast on your own web page, use <b>Embed</b> on its series page.</p>
+  </div>
 </dialog>
 <script src="data/data.js"></script>
 <script src="data/pipeline.js"></script>
@@ -314,12 +337,18 @@
 <script src="js/trace.js"></script>
 <script src="js/lab.js"></script>
 <script src="js/studio.js"></script>
+<script src="js/advice.js"></script>
 <script src="js/series.js"></script>
 <script src="js/markets.js"></script>
 <script src="js/monitor.js"></script>
 <script src="js/terminal.js"></script>
 <script src="js/year.js"></script>
+<script src="js/events.js"></script>
+<script src="js/calendar.js"></script>
+<script src="js/compare.js"></script>
+<script src="js/share.js"></script>
 <script src="js/today.js"></script>
 <script src="js/app.js"></script>
+<script src="js/offline.js"></script>
 </body>
 </html>
