@@ -54,15 +54,26 @@ def source_url(spec: SeriesSpec) -> str | None:
 
 
 def fetch(spec: SeriesSpec, cache_dir: Path = DEFAULT_CACHE, refresh: bool = False) -> pd.Series:
-    """Fetch one series, reading from / writing to a CSV cache so runs are reproducible."""
+    """Fetch one series, reading from / writing to a CSV cache so runs are reproducible. On a
+    refresh whose download fails, an earlier cached copy is returned with ``attrs["stale"]`` set."""
     path = cache_path(spec, cache_dir)
     if path.exists() and not refresh:
         return load_csv(path)
-    if spec.source == "composite":
-        # Members come earlier in the catalog, so a refresh has already updated their caches.
-        series = composite(_members(spec, cache_dir))
-    else:
-        series = SOURCES[spec.source](**spec.params)
+    try:
+        if spec.source == "composite":
+            # Members come earlier in the catalog, so a refresh has already updated their caches.
+            series = composite(_members(spec, cache_dir))
+        else:
+            series = SOURCES[spec.source](**spec.params)
+    except Exception as error:
+        if not path.exists():
+            raise
+        # The source failed but an earlier download is cached: use it, marked stale, rather than
+        # drop the series. Its forecast then starts from the last value that download had.
+        stale = load_csv(path)
+        stale.attrs["stale"] = f"{type(error).__name__}: {error}"[:300]
+        log.warning("%s: download failed (%s); using the cached copy through %s", spec.id, error, stale.index[-1].date())
+        return stale
     series = series.dropna().sort_index()
     series = series[~series.index.duplicated(keep="last")]
     series.name = spec.id

@@ -538,6 +538,42 @@ def test_gdelt_retries_when_rate_limited(monkeypatch):
     assert list(series) == [1.5, 2.0]
 
 
+def test_gdelt_stops_waiting_once_its_back_off_budget_is_spent(monkeypatch):
+    from psychohistory.data import gdelt
+
+    waits = []
+    monkeypatch.setattr(gdelt, "get", lambda *a, **k: _Response("Please limit requests to one every 5 seconds"))
+    monkeypatch.setattr(gdelt.time, "sleep", waits.append)
+    monkeypatch.setattr(gdelt, "_waited", 0.0)
+    monkeypatch.setattr(gdelt, "BUDGET", 50.0)
+    with pytest.raises(gdelt.Busy):
+        gdelt.fetch('"war"')
+    assert sum(w for w in waits if w >= 15) == 45.0  # 15 + 30, then the next 60 s would pass the budget
+    with pytest.raises(gdelt.Busy):  # and the next series does not start waiting again
+        gdelt.fetch('"peace"')
+    assert sum(w for w in waits if w >= 15) == 45.0
+
+
+def test_a_failed_download_falls_back_to_the_cached_copy(tmp_path, monkeypatch):
+    from psychohistory import cli
+
+    spec = catalog.by_id("news_election")
+    path = data.cache_path(spec, tmp_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    synthetic(120, seed=2).to_frame("value").to_csv(path, index_label="date")
+
+    def busy(**kwargs):
+        raise RuntimeError("GDELT still busy")
+
+    monkeypatch.setitem(data.SOURCES, "gdelt", busy)
+    series = data.fetch(spec, tmp_path, refresh=True)
+    assert len(series) == 120 and "busy" in series.attrs["stale"]
+    status = tmp_path / "run_status.json"
+    loaded = cli._load([spec, catalog.by_id("news_war")], tmp_path, refresh=True, status=status, stage="fetch")
+    stage = __import__("json").loads(status.read_text())["stages"]["fetch"]
+    assert list(loaded) == ["news_election"] and "news_election" in stage["stale"] and "news_war" in stage["skipped"]
+
+
 def test_composite_survives_a_missing_member(tmp_path, monkeypatch):
     composite_spec = catalog.by_id("news_composite")
     members = composite_spec.params["members"]

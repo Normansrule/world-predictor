@@ -19,19 +19,30 @@ from .http import get
 API = "https://api.gdeltproject.org/api/v2/doc/doc"
 MIN_GAP = 6.0  # GDELT asks for at most one request every 5 seconds
 BACKOFF = (15.0, 30.0, 60.0, 120.0)
+BUDGET = 600.0  # seconds one process may spend waiting on GDELT's back-off; after that a busy answer is final
 
 log = logging.getLogger(__name__)
 _last_call = 0.0
+_waited = 0.0  # back-off seconds spent so far in this process
+
+
+class Busy(RuntimeError):
+    """GDELT is still rate-limiting and the back-off budget is spent."""
 
 
 def _request(params: dict) -> dict:
     """GET with GDELT's pacing. When rate-limited it answers 429, or 200 with a plain-text
-    notice instead of JSON, so both are retried after a growing pause."""
-    global _last_call
+    notice instead of JSON, so both are retried after a growing pause, until the process has
+    spent ``BUDGET`` seconds of back-off in all; after that a busy answer raises ``Busy`` at once
+    (the caller falls back to its cached copy)."""
+    global _last_call, _waited
     for attempt, pause in enumerate((0.0, *BACKOFF)):
         if pause:
+            if _waited + pause > BUDGET:  # a long run must not spend its hours waiting on one source
+                raise Busy(f"GDELT still busy after {_waited:.0f}s of back-off this run (budget {BUDGET:.0f}s)")
             log.info("GDELT busy, retrying in %.0fs", pause)
             time.sleep(pause)
+            _waited += pause
         time.sleep(max(0.0, _last_call + MIN_GAP - time.monotonic()))
         _last_call = time.monotonic()
         try:

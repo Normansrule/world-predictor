@@ -27,7 +27,7 @@ concurrency:
 jobs:
   predict:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 200  # a run with a full backtest took about 2 h on 10 Nov 2026 and was cut off at 120; GDELT back-off and the wire have their own budgets
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -41,6 +41,12 @@ jobs:
           path: ~/.cache/huggingface
           key: hf-${{ runner.os }}-${{ hashFiles('pyproject.toml') }}
           restore-keys: hf-${{ runner.os }}-
+      - name: Cache downloaded data (a failed download falls back to the last run's copy)
+        uses: actions/cache@v4
+        with:
+          path: data
+          key: data-${{ github.run_id }}
+          restore-keys: data-
       - name: Install (CPU PyTorch)
         run: |
           pip install torch --index-url https://download.pytorch.org/whl/cpu

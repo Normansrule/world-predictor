@@ -44,14 +44,16 @@
   function reason(id, stage) {
     const st = (D.run && D.run.stages) || {};
     for (const k of stage ? [stage] : ["fetch", "predict", "backtest"]) if (st[k] && st[k].skipped && st[k].skipped[id]) return st[k].skipped[id];
+    if ((!stage || stage === "fetch") && st.fetch && st.fetch.stale && st.fetch.stale[id]) return "The download failed this run, so the copy from an earlier run was used: " + st.fetch.stale[id];
     return null;
   }
+  const stale = (id) => { const f = ((D.run && D.run.stages) || {}).fetch; return !!(f && f.stale && f.stale[id]); };
   function status(id) {
     const o = outlook(id), s = result(id), opened = (D.vault || []).length > 0;
     const live = o ? "done" : "unreached";
     return {
       catalog: "done",
-      fetch: o ? "done" : s ? "partial" : "failed",
+      fetch: o ? (stale(id) ? "partial" : "done") : s ? "partial" : "failed",
       context: live, model: live, seldon: o ? (o.seldon ? "done" : "partial") : "unreached",
       seal: o ? "done" : s ? "failed" : "unreached",
       score: o ? (opened ? "partial" : "waiting") : "unreached",

@@ -744,6 +744,15 @@ a normal-shaped spread through those three. The next full backtest scores it dir
 before 10 November came from the old council and stay in the ledger as sealed; until the next weekly
 run seals the own council's, the outlook shows its range computed from the same data and says so.
 
+**Checked again on a bigger record (10 November 2026).** The backtest of 6 November covers 53 series and
+625 windows, including politics, weather and the yearly adoption curves. Replayed the same way, Seldon's
+own council ties TimesFM in markets (4.72% average miss each), beats it clearly on the yearly adoption
+series (20.1% against 25.9%) and trails on news, politics, technology and weather; overall 13.3% against
+12.7%. Six other settings of how fast it learns (slower learning, learning scaled to the record's length,
+a floor of 10% or 20% for every voter) were tried on the same windows and none did better overall; slower
+learning gained a few hundredths of a point in markets and lost more everywhere else. In markets the
+voters' shares now lean heavily on "no change", because on these windows nothing beat it there.
+
 ### Today: alerts, time frames and the 70% club
 
 The app now opens on **Today**, built to answer three questions in a few seconds: what is likely to
@@ -1492,6 +1501,13 @@ tests and what it does when it fails: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.m
 | [`pages`](.github/workflows/pages.yml) | After each forecast run | Publishes the web app to GitHub Pages |
 | [`release`](.github/workflows/release.yml) | When a `v*` tag is pushed | Attaches the full project zip and an offline app zip to a GitHub Release |
 | [`tests`](.github/workflows/tests.yml) | Every push | Runs the offline test suite on Python 3.10 and 3.12 |
+
+**When a source is down.** GDELT, Yahoo and the other sources sometimes refuse a run. The data each run
+downloads is kept in the Actions cache, so a series whose download fails is forecast from the last good
+copy (marked stale in `results/run_status.json` and on its "Follow one result" page) instead of
+disappearing, and GDELT's polite back-off is capped at 10 minutes a run. On 10 November 2026 that
+back-off took over 40 minutes of a run with a full backtest, which then hit the old two-hour limit and
+lost its results; the limit is now 200 minutes.
 
 ---
 

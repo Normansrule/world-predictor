@@ -19,25 +19,29 @@ log = logging.getLogger("psychohistory")
 
 
 def _load(specs, cache: Path, refresh: bool = False, status: Path | None = None, stage: str | None = None) -> dict[str, pd.Series]:
-    loaded, skipped = {}, {}
+    loaded, skipped, stale = {}, {}, {}
     for spec in specs:
         try:
             loaded[spec.id] = data.fetch(spec, cache, refresh=refresh)
+            if loaded[spec.id].attrs.get("stale"):
+                stale[spec.id] = f"{loaded[spec.id].attrs['stale']} (used the copy through {loaded[spec.id].index[-1].date()})"[:300]
         except Exception as exc:  # one broken source should not stop the whole run
             log.warning("skipping %s: %s", spec.id, exc)
             skipped[spec.id] = f"{type(exc).__name__}: {exc}"[:300]
     if status is not None and stage:
-        record_status(status, stage, loaded, skipped)
+        record_status(status, stage, loaded, skipped, stale)
     return loaded
 
 
-def record_status(path: Path, stage: str, loaded: dict, skipped: dict[str, str]) -> None:
+def record_status(path: Path, stage: str, loaded: dict, skipped: dict[str, str], stale: dict[str, str] | None = None) -> None:
     """Note which series got through a stage and why the others did not, for the app's
-    "Follow one result" view. A skipped series is a visible gap, never silently filled in."""
+    "Follow one result" view. A skipped series is a visible gap, never silently filled in; a
+    stale one (its download failed, an earlier copy was used) is named too."""
     current = json.loads(path.read_text()) if path.exists() else {}
     current.setdefault("stages", {})[stage] = {
         "at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "ok": sorted(loaded), "skipped": dict(sorted(skipped.items())),
+        **({"stale": dict(sorted(stale.items()))} if stale else {}),
     }
     if os.environ.get("GITHUB_RUN_ID"):
         current["run_id"] = os.environ["GITHUB_RUN_ID"]
@@ -56,7 +60,11 @@ def ensemble_members(args) -> list[str]:
 def cmd_fetch(args) -> None:
     specs = catalog.select(args.domain, args.series)
     loaded = _load(specs, args.data_dir, refresh=True, status=args.out_dir / "run_status.json", stage="fetch")
-    print(f"Fetched {len(loaded)}/{len(specs)} series into {args.data_dir}/")
+    stale = [k for k, v in loaded.items() if v.attrs.get("stale")]
+    note = f" ({len(stale)} from the cache because their download failed: {', '.join(stale)})" if stale else ""
+    print(f"Fetched {len(loaded) - len(stale)}/{len(specs)} series into {args.data_dir}/{note}")
+    if not loaded:
+        raise SystemExit("No series could be downloaded and none is cached, so there is nothing to forecast. Check the connection and try again.")
 
 
 def cmd_backtest(args) -> None:
@@ -304,7 +312,7 @@ def cmd_vol(args) -> None:
         series = _load(specs, args.data_dir)
         paths = _results(args)[1]
         frames = [volatility.backtest(spec, series[spec.id], paths) for spec in specs if spec.id in series]
-        rows = pd.concat([f for f in frames if not f.empty], ignore_index=True) if frames else pd.DataFrame()
+        rows = pd.concat(full, ignore_index=True) if (full := [f for f in frames if not f.empty]) else pd.DataFrame()
         if rows.empty:
             print("No market had enough data for a volatility backtest. Try `psychohistory fetch` first.")
             return
@@ -365,7 +373,7 @@ def cmd_events(args) -> None:
     if args.backtest:
         paths = _results(args)[1]
         frames = [events.backtest(spec, series[spec.id], paths) for spec in specs if spec.id in series]
-        rows = pd.concat([f for f in frames if not f.empty], ignore_index=True) if frames else pd.DataFrame()
+        rows = pd.concat(full, ignore_index=True) if (full := [f for f in frames if not f.empty]) else pd.DataFrame()
         if rows.empty:
             print("No series had enough data and saved backtest paths for event odds. Run `psychohistory backtest` first.")
         else:
@@ -659,7 +667,7 @@ def main(argv: list[str] | None = None) -> None:
     def common(p):
         p.add_argument("--domain", action="append", choices=catalog.DOMAINS, help="limit to a domain (repeatable)")
         p.add_argument("--series", action="append", help="limit to a series id (repeatable)")
-        p.add_argument("--model", default="timesfm-2.5", help="model under test: timesfm-2.5 (default), timesfm-3, chronos-bolt, chronos-2, seldon, auto-ets, auto-arima, naive, drift, mean")
+        p.add_argument("--model", default="timesfm-2.5", help="model under test: timesfm-2.5 (default), timesfm-3, chronos-bolt, chronos-2, seldon-laws, auto-ets, auto-arima, naive, drift, mean (Seldon itself always runs beside it)")
         p.add_argument("--compare", action="append", default=[], metavar="MODEL",
                        help="rival model to run alongside, e.g. --compare chronos-bolt (repeatable)")
         p.add_argument("--ensemble", action="store_true",

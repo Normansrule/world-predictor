@@ -55,9 +55,11 @@ STAGES = [
         "rule": "Drop missing values, sort by date, keep the last of any duplicate date. Missing stays missing, never zero "
                 "(an earthquake count is the one series where zero is a real reading: a day with no quake).",
         "cadence": CADENCE["weekly"],
-        "failure": "A source that fails is skipped and the run carries on; the reason is written to results/run_status.json. "
-                   "GDELT calls are paced 6 s apart and back off on HTTP 429. A composite needs at least two members.",
-        "tests": ["test_gdelt_retries_when_rate_limited", "test_owid_reads_short_lowercase_columns",
+        "failure": "A source that fails falls back to the copy the last run downloaded (kept in the Actions cache), marked stale; "
+                   "with no copy it is skipped and the run carries on. Either way the reason is written to results/run_status.json. "
+                   "GDELT calls are paced 6 s apart and back off on HTTP 429, for at most 10 minutes of waiting per run. A composite needs at least two members.",
+        "tests": ["test_gdelt_retries_when_rate_limited", "test_gdelt_stops_waiting_once_its_back_off_budget_is_spent",
+                  "test_a_failed_download_falls_back_to_the_cached_copy", "test_owid_reads_short_lowercase_columns",
                   "test_weather_sources_parse_their_published_formats", "test_quake_counts_keep_quiet_days_as_zero",
                   "test_composite_survives_a_missing_member", "test_composite_scales_members_to_their_mean",
                   "test_skipped_series_are_recorded"],
