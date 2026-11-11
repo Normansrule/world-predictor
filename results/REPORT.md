@@ -1,6 +1,6 @@
 # World Predictor: Seldon scorecard
 
-_Generated 2026-11-10 with model `timesfm-2.5`. Skill = 1 - MAE(model) / MAE(naive random walk); positive is better than naive. Coverage80 should be close to 0.80 for an honest forecaster. Brier scores the probability of going up (0.25 = coin flip, lower is better). See docs/METHODOLOGY.md._
+_Generated 2026-11-11 with model `timesfm-2.5`. Skill = 1 - MAE(model) / MAE(naive random walk); positive is better than naive. Coverage80 should be close to 0.80 for an honest forecaster. Brier scores the probability of going up (0.25 = coin flip, lower is better). See docs/METHODOLOGY.md._
 
 ## In plain English
 
@@ -160,30 +160,30 @@ _Predictions are sealed with a date before the future happens and opened when it
 
 | domain   | model        |   series |   predictions |   median_skill |   direction |   coverage80 |   brier |
 |:---------|:-------------|---------:|--------------:|---------------:|------------:|-------------:|--------:|
-| markets  | auto-ets     |       15 |          1026 |         -0.000 |       0.492 |        0.756 |   0.258 |
-| markets  | chronos-bolt |       15 |          1026 |         -0.079 |       0.425 |        0.722 |   0.279 |
-| markets  | ensemble     |       15 |          1026 |         -0.037 |       0.419 |        0.745 |   0.261 |
-| markets  | radiant      |       15 |           187 |         -0.011 |       0.461 |        0.579 |   0.257 |
-| markets  | radiant-core |       15 |           187 |          0.001 |       0.556 |        0.610 |   0.249 |
-| markets  | seldon       |       15 |           187 |         -0.036 |       0.492 |        0.632 |   0.255 |
-| markets  | seldon-laws  |       15 |           627 |         -0.060 |       0.395 |        0.678 |   0.263 |
-| markets  | timesfm-2.5  |       15 |          1026 |          0.000 |       0.495 |        0.745 |   0.259 |
-| news     | auto-ets     |        6 |           495 |         -0.034 |       0.490 |        0.781 |   0.263 |
-| news     | chronos-bolt |        6 |           495 |          0.240 |       0.731 |        0.667 |   0.184 |
-| news     | ensemble     |        6 |           495 |          0.245 |       0.726 |        0.747 |   0.192 |
-| news     | radiant      |        6 |           120 |          0.390 |       0.783 |        0.667 |   0.150 |
-| news     | radiant-core |        6 |           120 |          0.041 |       0.725 |        0.467 |   0.233 |
-| news     | seldon       |        6 |           120 |          0.394 |       0.775 |        0.667 |   0.150 |
-| news     | seldon-laws  |        6 |           348 |          0.126 |       0.697 |        0.497 |   0.196 |
-| news     | timesfm-2.5  |        6 |           495 |          0.196 |       0.711 |        0.673 |   0.195 |
-| politics | auto-ets     |        6 |            25 |         -0.038 |       0.425 |        0.633 |   0.300 |
-| politics | chronos-bolt |        6 |            25 |          0.141 |       0.658 |        0.767 |   0.195 |
-| politics | ensemble     |        6 |            25 |          0.079 |       0.617 |        0.667 |   0.224 |
-| politics | radiant      |        6 |            25 |          0.129 |       0.575 |        0.567 |   0.222 |
-| politics | radiant-core |        6 |            25 |          0.004 |       0.610 |        0.433 |   0.248 |
-| politics | seldon       |        6 |            25 |          0.117 |       0.575 |        0.667 |   0.217 |
-| politics | seldon-laws  |        6 |            25 |          0.049 |       0.575 |        0.433 |   0.212 |
-| politics | timesfm-2.5  |        6 |            25 |          0.117 |       0.575 |        0.667 |   0.217 |
+| markets  | auto-ets     |       15 |          1117 |         -0.000 |       0.476 |        0.748 |   0.259 |
+| markets  | chronos-bolt |       15 |          1117 |         -0.067 |       0.433 |        0.719 |   0.275 |
+| markets  | ensemble     |       15 |          1117 |         -0.041 |       0.416 |        0.744 |   0.261 |
+| markets  | radiant      |       15 |           230 |         -0.015 |       0.476 |        0.599 |   0.256 |
+| markets  | radiant-core |       15 |           230 |          0.001 |       0.592 |        0.619 |   0.249 |
+| markets  | seldon       |       15 |           230 |         -0.040 |       0.473 |        0.669 |   0.255 |
+| markets  | seldon-laws  |       15 |           702 |         -0.016 |       0.420 |        0.671 |   0.261 |
+| markets  | timesfm-2.5  |       15 |          1117 |         -0.022 |       0.474 |        0.743 |   0.261 |
+| news     | auto-ets     |        6 |           552 |         -0.039 |       0.484 |        0.789 |   0.265 |
+| news     | chronos-bolt |        6 |           552 |          0.266 |       0.739 |        0.686 |   0.178 |
+| news     | ensemble     |        6 |           552 |          0.268 |       0.732 |        0.757 |   0.189 |
+| news     | radiant      |        6 |           144 |          0.339 |       0.778 |        0.701 |   0.152 |
+| news     | radiant-core |        6 |           144 |          0.044 |       0.722 |        0.542 |   0.233 |
+| news     | seldon       |        6 |           144 |          0.341 |       0.771 |        0.701 |   0.152 |
+| news     | seldon-laws  |        6 |           396 |          0.119 |       0.711 |        0.518 |   0.193 |
+| news     | timesfm-2.5  |        6 |           552 |          0.168 |       0.714 |        0.688 |   0.190 |
+| politics | auto-ets     |        7 |            42 |         -0.120 |       0.339 |        0.673 |   0.310 |
+| politics | chronos-bolt |        7 |            42 |          0.311 |       0.678 |        0.663 |   0.213 |
+| politics | ensemble     |        7 |            42 |          0.161 |       0.649 |        0.622 |   0.230 |
+| politics | radiant      |        7 |            42 |          0.279 |       0.620 |        0.541 |   0.217 |
+| politics | radiant-core |        7 |            42 |          0.011 |       0.605 |        0.551 |   0.249 |
+| politics | seldon       |        7 |            42 |          0.391 |       0.620 |        0.622 |   0.212 |
+| politics | seldon-laws  |        7 |            42 |          0.059 |       0.580 |        0.551 |   0.242 |
+| politics | timesfm-2.5  |        7 |            42 |          0.391 |       0.620 |        0.622 |   0.212 |
 | tech     | auto-ets     |       12 |           970 |         -0.003 |       0.545 |        0.892 |   0.243 |
 | tech     | chronos-bolt |       12 |           970 |          0.291 |       0.780 |        0.704 |   0.145 |
 | tech     | ensemble     |       12 |           970 |          0.172 |       0.741 |        0.879 |   0.156 |
@@ -192,14 +192,14 @@ _Predictions are sealed with a date before the future happens and opened when it
 | tech     | seldon       |       12 |           186 |          0.347 |       0.815 |        0.690 |   0.143 |
 | tech     | seldon-laws  |       12 |           594 |          0.294 |       0.795 |        0.743 |   0.142 |
 | tech     | timesfm-2.5  |       12 |           970 |          0.325 |       0.822 |        0.656 |   0.136 |
-| weather  | auto-ets     |        9 |            45 |         -0.000 |       0.696 |        0.889 |   0.177 |
-| weather  | chronos-bolt |        9 |            45 |         -0.536 |       0.733 |        0.711 |   0.181 |
-| weather  | ensemble     |        9 |            45 |          0.037 |       0.733 |        0.800 |   0.172 |
-| weather  | radiant      |        9 |            45 |          0.158 |       0.733 |        0.844 |   0.179 |
-| weather  | radiant-core |        9 |            45 |          0.011 |       0.652 |        0.800 |   0.231 |
-| weather  | seldon       |        9 |            45 |          0.090 |       0.706 |        0.800 |   0.182 |
-| weather  | seldon-laws  |        9 |            45 |          0.099 |       0.689 |        0.848 |   0.227 |
-| weather  | timesfm-2.5  |        9 |            45 |          0.090 |       0.706 |        0.800 |   0.182 |
+| weather  | auto-ets     |        9 |            61 |          0.153 |       0.720 |        0.889 |   0.172 |
+| weather  | chronos-bolt |        9 |            61 |         -0.388 |       0.765 |        0.714 |   0.161 |
+| weather  | ensemble     |        9 |            61 |          0.176 |       0.765 |        0.825 |   0.157 |
+| weather  | radiant      |        9 |            61 |          0.315 |       0.765 |        0.857 |   0.161 |
+| weather  | radiant-core |        9 |            61 |          0.022 |       0.672 |        0.778 |   0.229 |
+| weather  | seldon       |        9 |            61 |          0.090 |       0.742 |        0.810 |   0.164 |
+| weather  | seldon-laws  |        9 |            61 |          0.170 |       0.698 |        0.839 |   0.221 |
+| weather  | timesfm-2.5  |        9 |            61 |          0.090 |       0.742 |        0.810 |   0.164 |
 
 ## 5. How far ahead can it see?
 
@@ -453,25 +453,25 @@ Every sealed forecast that has come due, scored against what really happened. Un
 
 | Model | Forecasts | Weekly batches | Skill vs "no change" | In 80% range | Right direction | Brier |
 |---|---|---|---|---|---|---|
-| auto-ets | 2561 | 10 | -0.3% | 83% | 50% | 0.254 |
-| chronos-bolt | 2561 | 10 | +2.4% | 66% | 61% | 0.216 |
-| ensemble | 2561 | 10 | +3.4% | 80% | 58% | 0.212 |
-| radiant | 563 | 4 | +11.7% | 64% | 67% | 0.191 |
-| radiant-core | 563 | 4 | +0.7% | 59% | 61% | 0.243 |
-| seldon | 563 | 4 | +12.5% | 65% | 67% | 0.191 |
-| seldon-laws | 1639 | 8 | +5.2% | 64% | 61% | 0.203 |
-| timesfm-2.5 | 2561 | 10 | +11.3% | 66% | 63% | 0.208 |
+| auto-ets | 2742 | 10 | -0.1% | 82% | 49% | 0.256 |
+| chronos-bolt | 2742 | 10 | +4.7% | 67% | 61% | 0.215 |
+| ensemble | 2742 | 10 | +6.4% | 80% | 58% | 0.213 |
+| radiant | 663 | 4 | +14.2% | 65% | 67% | 0.193 |
+| radiant-core | 663 | 4 | +0.7% | 61% | 64% | 0.242 |
+| seldon | 663 | 4 | +22.3% | 68% | 67% | 0.192 |
+| seldon-laws | 1795 | 8 | +5.9% | 65% | 60% | 0.206 |
+| timesfm-2.5 | 2742 | 10 | +9.2% | 67% | 63% | 0.210 |
 
 **Is timesfm-2.5 really better than "no change"?** A Diebold-Mariano test on the weekly batches (Newey-West variance, as the batches' horizons overlap, with the Harvey-Leybourne-Newbold small-sample correction and Student's t):
 
 - All areas: better than no change (p = 0.00)
-- Stock and value markets: not distinguishable from no change (p = 0.28)
+- Stock and value markets: not distinguishable from no change (p = 0.18)
 - World events in the news: better than no change (p = 0.03)
 - Political events: too early: 2 of 4 weekly batches
 - New technologies: better than no change (p = 0.00)
 - Weather and the planet: too early: 2 of 4 weekly batches
 
-**Drift alarms** (forecasts due in the last 13 weeks): 47 raised. Every forecaster is tested on every series at once, so alarms must pass a Benjamini-Hochberg false-discovery cut of 5%.
+**Drift alarms** (forecasts due in the last 13 weeks): 51 raised. Every forecaster is tested on every series at once, so alarms must pass a Benjamini-Hochberg false-discovery cut of 5%.
 - auto-ets on news_composite: edge lost
 - auto-ets on news_inflation: edge lost
 - auto-ets on silver: edge lost
@@ -489,36 +489,40 @@ Every sealed forecast that has come due, scored against what really happened. Un
 - timesfm-2.5 on wiki_humanoid: edge lost
 - auto-ets on bitcoin: range too wide
 - auto-ets on news_protest: range too wide
+- auto-ets on nvda: worse than no change
 - auto-ets on tech_composite: range too wide
 - auto-ets on wiki_crispr: range too wide
 - auto-ets on wiki_fusion: range too wide
 - auto-ets on wiki_humanoid: range too wide
 - auto-ets on wiki_quantum: range too wide
 - chronos-bolt on gold: worse than no change
-- chronos-bolt on news_climate: range too narrow
-- chronos-bolt on news_inflation: range too narrow
+- chronos-bolt on news_pandemic: range too narrow
 - chronos-bolt on news_protest: range too wide
-- chronos-bolt on tsla: range too narrow
 - chronos-bolt on wiki_ev: range too narrow
 - chronos-bolt on wiki_llm: range too narrow
 - ensemble on bitcoin: range too wide
 - ensemble on gold: worse than no change
+- ensemble on news_pandemic: range too narrow
 - ensemble on news_protest: range too wide
 - ensemble on tech_composite: range too wide
 - ensemble on wiki_crispr: range too wide
 - ensemble on wiki_fusion: range too wide
 - ensemble on wiki_humanoid: range too wide
 - ensemble on wiki_quantum: range too wide
-- seldon-laws on nasdaq100: range too narrow
+- seldon-laws on copper: worse than no change
+- seldon-laws on news_climate: range too narrow
 - seldon-laws on news_composite: range too narrow
 - seldon-laws on news_election: range too narrow
-- seldon-laws on sp500: range too narrow
+- seldon-laws on nvda: range too narrow
 - timesfm-2.5 on bitcoin: range too wide
+- timesfm-2.5 on news_pandemic: range too narrow
+- timesfm-2.5 on news_protest: range too wide
 - timesfm-2.5 on tech_composite: range too narrow
 - timesfm-2.5 on wiki_crispr: range too narrow
 - timesfm-2.5 on wiki_ev: range too narrow
 - timesfm-2.5 on wiki_llm: range too narrow
 - timesfm-2.5 on wiki_quantum: range too narrow
+- timesfm-2.5 on xom: worse than no change
 
 ## 10. Volatility forecasts
 

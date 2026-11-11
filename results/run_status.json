@@ -1,5 +1,5 @@
 {
- "run_id": "42754574715",
+ "run_id": "42943499424",
  "recorded": "Rebuilt on 2026-10-19 from this run's outputs: the run predates run_status.json. Reasons come from reading the run log on 2026-10-18; both were fixed in commit 633e744 and the next weekly run retries every series.",
  "stages": {
   "predict": {
@@ -127,7 +127,7 @@
    }
   },
   "fetch": {
-   "at": "2026-11-10T05:12:14Z",
+   "at": "2026-11-11T02:51:10Z",
    "ok": [
     "aapl",
     "adoption_ev",
@@ -139,17 +139,18 @@
     "gold",
     "msci_world",
     "nasdaq100",
+    "news_climate",
     "news_composite",
     "news_election",
     "news_inflation",
     "news_pandemic",
     "nvda",
     "oil_wti",
-    "politics_ceasefire",
     "politics_composite",
-    "politics_impeachment",
+    "politics_coup",
     "politics_referendum",
     "politics_sanctions",
+    "politics_tariffs",
     "quakes_m45",
     "silver",
     "sp500",
@@ -181,11 +182,10 @@
     "xom"
    ],
    "skipped": {
-    "news_climate": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22climate+change%22&mode=timelinevol&format=json&STARTDATETIME=20170101000000&ENDDATETIME=20261110042612&TIMELINESMOOTH=0",
-    "news_protest": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%28protest+OR+protests%29&mode=timelinevol&format=json&STARTDATETIME=20170101000000&ENDDATETIME=20261110043146&TIMELINESMOOTH=0",
-    "news_war": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22war%22&mode=timelinevol&format=json&STARTDATETIME=20170101000000&ENDDATETIME=20261110041549&TIMELINESMOOTH=0",
-    "politics_coup": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%28coup+OR+%22martial+law%22%29&mode=timelinevol&format=json&STARTDATETIME=20170101000000&ENDDATETIME=20261110045617&TIMELINESMOOTH=0",
-    "politics_tariffs": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%28tariff+OR+tariffs%29&mode=timelinevol&format=json&STARTDATETIME=20170101000000&ENDDATETIME=20261110044648&TIMELINESMOOTH=0"
+    "news_protest": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%28protest+OR+protests%29&mode=timelinevol&format=json&STARTDATETIME=20170101000000&ENDDATETIME=20261111022226&TIMELINESMOOTH=0",
+    "news_war": "JSONDecodeError: Expecting value: line 1 column 1 (char 0)",
+    "politics_ceasefire": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%28ceasefire+OR+%22peace+talks%22%29&mode=timelinevol&format=json&STARTDATETIME=20170101000000&ENDDATETIME=20261111023307&TIMELINESMOOTH=0",
+    "politics_impeachment": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%28impeachment+OR+%22no-confidence%22%29&mode=timelinevol&format=json&STARTDATETIME=20170101000000&ENDDATETIME=20261111023811&TIMELINESMOOTH=0"
    }
   }
  }

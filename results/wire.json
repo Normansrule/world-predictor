@@ -1,6 +1,102 @@
 {
- "fetched": "2026-11-10T05:28Z",
+ "fetched": "2026-11-11T03:03Z",
  "topics": {
+  "news_inflation": {
+   "query": "\"inflation\"",
+   "articles": [
+    {
+     "title": "Ringgit opens higher against major currencies , flat vs greenback",
+     "url": "https://www.thestar.com.my/business/business-news/2026/11/11/ringgit-opens-higher-against-major-currencies-flat-vs-greenback",
+     "domain": "thestar.com.my",
+     "country": "Malaysia",
+     "seen": "2026-11-11T02:30Z"
+    },
+    {
+     "title": "IRS raises 2027 standard deduction and child tax credit in its annual inflation adjustments",
+     "url": "https://www.readingeagle.com/2026/11/10/income-taxes-inflation/",
+     "domain": "readingeagle.com",
+     "country": "United States",
+     "seen": "2026-11-11T02:30Z"
+    },
+    {
+     "title": "IRS raises 2027 standard deduction and child tax credit in its annual inflation adjustments",
+     "url": "https://www.reporterherald.com/2026/11/10/income-taxes-inflation/",
+     "domain": "reporterherald.com",
+     "country": "United States",
+     "seen": "2026-11-11T02:30Z"
+    },
+    {
+     "title": "From young savers to secure futures : Empowering Filipino youth through financial literacy",
+     "url": "https://www.philstar.com/other-sections/supplements/2026/11/11/2568301/young-savers-secure-futures-empowering-filipino-youth-through-financial-literacy",
+     "domain": "philstar.com",
+     "country": "Philippines",
+     "seen": "2026-11-11T02:30Z"
+    },
+    {
+     "title": "Greens Slam Qantas Over Profits Before Workers",
+     "url": "https://www.miragenews.com/greens-slam-qantas-over-profits-before-workers-1775347/",
+     "domain": "miragenews.com",
+     "country": "United States",
+     "seen": "2026-11-11T02:30Z"
+    },
+    {
+     "title": "Bowman Says October CPI Raises Risk Inflation Will Cool More Slowly",
+     "url": "https://econotimes.com/Bowman-Says-October-CPI-Raises-Risk-Inflation-Will-Cool-More-Slowly-1774896",
+     "domain": "econotimes.com",
+     "country": "United States",
+     "seen": "2026-11-11T02:30Z"
+    }
+   ],
+   "fetched": "2026-11-11T02:58Z"
+  },
+  "news_pandemic": {
+   "query": "(pandemic OR outbreak OR epidemic)",
+   "articles": [
+    {
+     "title": "Pennsylvania measles outbreak tied to falling vaccination rates",
+     "url": "https://www.wgal.com/article/pennsylvania-measles-outbreak-tied-falling-vaccination-rates/74392434",
+     "domain": "wgal.com",
+     "country": "United States",
+     "seen": "2026-11-11T02:30Z"
+    },
+    {
+     "title": "Greens Slam Qantas Over Profits Before Workers",
+     "url": "https://www.miragenews.com/greens-slam-qantas-over-profits-before-workers-1775347/",
+     "domain": "miragenews.com",
+     "country": "United States",
+     "seen": "2026-11-11T02:30Z"
+    },
+    {
+     "title": "B . C . businesswoman receives US$5K NEXUS fine in crackdown",
+     "url": "https://clearwatertimes.com/2026/11/10/b-c-businesswoman-receives-us5k-nexus-fine-in-crackdown/",
+     "domain": "clearwatertimes.com",
+     "country": "Canada",
+     "seen": "2026-11-11T02:30Z"
+    },
+    {
+     "title": "Retire to Asia : how Aussie pensioners live for less | Gloucester Advocate",
+     "url": "https://www.gloucesteradvocate.com.au/story/9389772/retire-to-asia-how-aussie-pensioners-live-for-less/",
+     "domain": "gloucesteradvocate.com.au",
+     "country": "Australia",
+     "seen": "2026-11-11T02:30Z"
+    },
+    {
+     "title": "Canberra Christmas survey : how residents cope with cuts | The Canberra Times",
+     "url": "https://www.canberratimes.com.au/story/9388454/canberra-christmas-survey-how-residents-cope-with-cuts/",
+     "domain": "canberratimes.com.au",
+     "country": "Australia",
+     "seen": "2026-11-11T02:30Z"
+    },
+    {
+     "title": "SCB WEALTH Hosts Next Gen Seminar Under the XCELERATE Program to Explore Investment Opportunities for 2027",
+     "url": "https://www.newswit.com/en/ieme4fvz80o7aje2y2c7yddneywukdwo",
+     "domain": "newswit.com",
+     "country": "Thailand",
+     "seen": "2026-11-11T02:30Z"
+    }
+   ],
+   "fetched": "2026-11-11T02:58Z"
+  },
   "news_election": {
    "query": "\"election\"",
    "articles": [
@@ -47,7 +143,8 @@
      "seen": "2026-11-10T05:00Z"
     }
    ],
-   "fetched": "2026-11-10T05:27Z"
+   "fetched": "2026-11-10T05:27Z",
+   "stale": true
   },
   "news_climate": {
    "query": "\"climate change\"",
@@ -95,54 +192,7 @@
      "seen": "2026-11-10T05:00Z"
     }
    ],
-   "fetched": "2026-11-10T05:28Z"
-  },
-  "news_inflation": {
-   "query": "\"inflation\"",
-   "articles": [
-    {
-     "title": "New 401k Gold IRA Investment Guide Explains the Best Way to Invest in Gold for Retirement ( 2026 Update )",
-     "url": "http://www.tennesseedaily.com/news/279421070/new-401k-gold-ira-investment-guide-explains-the-best-way-to-invest-in-gold-for-retirement-2026-update",
-     "domain": "tennesseedaily.com",
-     "country": "United States",
-     "seen": "2026-11-09T07:00Z"
-    },
-    {
-     "title": "RBA Hunter Warns AI Boom Could Lift Inflation and Interest Rates Before Productivity Gains Arrive",
-     "url": "https://www.actionforex.com/live-comments/660240-rbas-hunter-warns-ai-boom-could-lift-inflation-and-interest-rates-before-productivity-gains-arrive/",
-     "domain": "actionforex.com",
-     "country": "United Kingdom",
-     "seen": "2026-11-09T07:00Z"
-    },
-    {
-     "title": "Millions of households face severe cash crunch as 37 per cent deplete savings",
-     "url": "https://www.perthnow.com.au/lifestyle/personal-finance/millions-of-households-face-severe-cash-crunch-as-37-per-cent-deplete-savings-c-23110843",
-     "domain": "perthnow.com.au",
-     "country": "Australia",
-     "seen": "2026-11-09T07:00Z"
-    },
-    {
-     "title": "Missed opportunity for jobs and growth : Budget blamed for undermining employer confidence - London Business News",
-     "url": "https://londonlovesbusiness.com/missed-opportunity-for-jobs-and-growth-budget-blamed-for-undermining-employer-confidence/",
-     "domain": "londonlovesbusiness.com",
-     "country": "United Kingdom",
-     "seen": "2026-11-09T07:00Z"
-    },
-    {
-     "title": "Norris Wins in Brazil as Rate Cuts Stall",
-     "url": "https://www.riotimesonline.com/the-big-read-brazil-9-november-2026/",
-     "domain": "riotimesonline.com",
-     "country": "Brazil",
-     "seen": "2026-11-09T07:00Z"
-    },
-    {
-     "title": "A Bruising Week for the Australian Dollar",
-     "url": "https://www.actionforex.com/contributors/fundamental-analysis/660249-a-bruising-week-for-the-australian-dollar/",
-     "domain": "actionforex.com",
-     "country": "United Kingdom",
-     "seen": "2026-11-09T07:00Z"
-    }
-   ],
+   "fetched": "2026-11-10T05:28Z",
    "stale": true
   },
   "oil_wti": {
@@ -291,8 +341,7 @@
  },
  "failed": {
   "news_war": "JSONDecodeError: Expecting value: line 1 column 1 (char 0)",
-  "news_pandemic": "skipped: the wire's time budget ran out",
-  "news_protest": "skipped: the wire's time budget ran out",
+  "news_protest": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%28protest+OR+protests%29+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=",
   "politics_sanctions": "skipped: the wire's time budget ran out",
   "politics_tariffs": "skipped: the wire's time budget ran out",
   "politics_ceasefire": "skipped: the wire's time budget ran out",
@@ -327,6 +376,7 @@
   "oil_wti": "skipped: the wire's time budget ran out",
   "copper": "skipped: the wire's time budget ran out",
   "bitcoin": "skipped: the wire's time budget ran out",
-  "news_inflation": "skipped: the wire's time budget ran out"
+  "news_election": "skipped: the wire's time budget ran out",
+  "news_climate": "skipped: the wire's time budget ran out"
  }
 }
