@@ -1,9 +1,9 @@
 {
- "run_id": "42943499424",
+ "run_id": "42964552845",
  "recorded": "Rebuilt on 2026-10-19 from this run's outputs: the run predates run_status.json. Reasons come from reading the run log on 2026-10-18; both were fixed in commit 633e744 and the next weekly run retries every series.",
  "stages": {
   "predict": {
-   "at": "2026-11-09T15:31:31Z",
+   "at": "2026-11-11T05:50:07Z",
    "ok": [
     "aapl",
     "adoption_ev",
@@ -19,16 +19,12 @@
     "news_composite",
     "news_election",
     "news_inflation",
-    "news_pandemic",
     "news_protest",
     "nvda",
     "oil_wti",
-    "politics_ceasefire",
     "politics_composite",
-    "politics_coup",
-    "politics_impeachment",
     "politics_referendum",
-    "politics_tariffs",
+    "politics_sanctions",
     "quakes_m45",
     "silver",
     "sp500",
@@ -60,12 +56,16 @@
     "xom"
    ],
    "skipped": {
-    "news_war": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22war%22&mode=timelinevol&format=json&STARTDATETIME=20170101000000&ENDDATETIME=20261109152207&TIMELINESMOOTH=0",
-    "politics_sanctions": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22sanctions%22&mode=timelinevol&format=json&STARTDATETIME=20170101000000&ENDDATETIME=20261109152648&TIMELINESMOOTH=0"
+    "news_pandemic": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%28pandemic+OR+outbreak+OR+epidemic%29&mode=timelinevol&format=json&STARTDATETIME=20170101000000&ENDDATETIME=20261111054032&TIMELINESMOOTH=0",
+    "news_war": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22war%22&mode=timelinevol&format=json&STARTDATETIME=20170101000000&ENDDATETIME=20261111053429&TIMELINESMOOTH=0",
+    "politics_ceasefire": "Busy: GDELT still busy after 600s of back-off this run (budget 600s)",
+    "politics_coup": "Busy: GDELT still busy after 600s of back-off this run (budget 600s)",
+    "politics_impeachment": "Busy: GDELT still busy after 600s of back-off this run (budget 600s)",
+    "politics_tariffs": "Busy: GDELT still busy after 585s of back-off this run (budget 600s)"
    }
   },
   "backtest": {
-   "at": "2026-11-06T02:55:30Z",
+   "at": "2026-11-11T06:11:01Z",
    "ok": [
     "aapl",
     "adoption_ev",
@@ -123,11 +123,11 @@
     "xom"
    ],
    "skipped": {
-    "news_war": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22war%22&mode=timelinevol&format=json&STARTDATETIME=20170101000000&ENDDATETIME=20261106024807&TIMELINESMOOTH=0"
+    "news_war": "JSONDecodeError: Expecting value: line 1 column 1 (char 0)"
    }
   },
   "fetch": {
-   "at": "2026-11-11T02:51:10Z",
+   "at": "2026-11-11T05:34:28Z",
    "ok": [
     "aapl",
     "adoption_ev",
@@ -141,16 +141,9 @@
     "nasdaq100",
     "news_climate",
     "news_composite",
-    "news_election",
-    "news_inflation",
-    "news_pandemic",
+    "news_protest",
     "nvda",
     "oil_wti",
-    "politics_composite",
-    "politics_coup",
-    "politics_referendum",
-    "politics_sanctions",
-    "politics_tariffs",
     "quakes_m45",
     "silver",
     "sp500",
@@ -182,10 +175,17 @@
     "xom"
    ],
    "skipped": {
-    "news_protest": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%28protest+OR+protests%29&mode=timelinevol&format=json&STARTDATETIME=20170101000000&ENDDATETIME=20261111022226&TIMELINESMOOTH=0",
-    "news_war": "JSONDecodeError: Expecting value: line 1 column 1 (char 0)",
-    "politics_ceasefire": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%28ceasefire+OR+%22peace+talks%22%29&mode=timelinevol&format=json&STARTDATETIME=20170101000000&ENDDATETIME=20261111023307&TIMELINESMOOTH=0",
-    "politics_impeachment": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%28impeachment+OR+%22no-confidence%22%29&mode=timelinevol&format=json&STARTDATETIME=20170101000000&ENDDATETIME=20261111023811&TIMELINESMOOTH=0"
+    "news_election": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22election%22&mode=timelinevol&format=json&STARTDATETIME=20170101000000&ENDDATETIME=20261111052118&TIMELINESMOOTH=0",
+    "news_inflation": "Busy: GDELT still busy after 555s of back-off this run (budget 600s)",
+    "news_pandemic": "Busy: GDELT still busy after 585s of back-off this run (budget 600s)",
+    "news_war": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22war%22&mode=timelinevol&format=json&STARTDATETIME=20170101000000&ENDDATETIME=20261111051636&TIMELINESMOOTH=0",
+    "politics_ceasefire": "Busy: GDELT still busy after 600s of back-off this run (budget 600s)",
+    "politics_composite": "ValueError: composite politics_composite needs at least two members, got 1",
+    "politics_coup": "Busy: GDELT still busy after 600s of back-off this run (budget 600s)",
+    "politics_impeachment": "Busy: GDELT still busy after 600s of back-off this run (budget 600s)",
+    "politics_referendum": "Busy: GDELT still busy after 600s of back-off this run (budget 600s)",
+    "politics_sanctions": "Busy: GDELT still busy after 600s of back-off this run (budget 600s)",
+    "politics_tariffs": "Busy: GDELT still busy after 600s of back-off this run (budget 600s)"
    }
   }
  }

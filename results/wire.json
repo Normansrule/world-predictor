@@ -1,6 +1,54 @@
 {
- "fetched": "2026-11-11T03:03Z",
+ "fetched": "2026-11-11T06:35Z",
  "topics": {
+  "politics_sanctions": {
+   "query": "\"sanctions\"",
+   "articles": [
+    {
+     "title": "Unable to manage fridges : Iran mocks France after Paris blames IRGC unit for supermarket cyberattack",
+     "url": "http://www.parisguardian.com/news/279424748/unable-to-manage-fridges-iran-mocks-france-after-paris-blames-irgc-unit-for-supermarket-cyberattack",
+     "domain": "parisguardian.com",
+     "country": "France",
+     "seen": "2026-11-11T05:30Z"
+    },
+    {
+     "title": "Timur Mussin : Vietnam AML / CFT Reforms , FATF Grey List and the Future of Compliance",
+     "url": "http://www.vietnamtribune.com/news/279423482/timur-mussin-vietnams-aml-cft-reforms-fatf-grey-list-and-the-future-of-compliance",
+     "domain": "vietnamtribune.com",
+     "country": "Vietnam",
+     "seen": "2026-11-11T05:30Z"
+    },
+    {
+     "title": "Trump could be about to sell out Ukraine . Europe must get its act together , fast | Paul Taylor",
+     "url": "https://www.theguardian.com/commentisfree/2026/nov/11/donald-trump-sell-out-ukraine-europe-leaders",
+     "domain": "theguardian.com",
+     "country": "United Kingdom",
+     "seen": "2026-11-11T05:30Z"
+    },
+    {
+     "title": "Tesla found liable for fraud over $110 , 000 solar roof that never worked",
+     "url": "https://www.business-standard.com/world-news/tesla-found-liable-for-fraud-over-110-000-solar-roof-that-never-worked-126111100218_1.html",
+     "domain": "business-standard.com",
+     "country": "India",
+     "seen": "2026-11-11T05:30Z"
+    },
+    {
+     "title": "NERC Approves N30bn for Fresh Tranche of Nationwide Free Metering Programme – THISDAYLIVE",
+     "url": "https://www.thisdaylive.com/2026/11/11/nerc-approves-n30bn-for-fresh-tranche-of-nationwide-free-metering-programme/",
+     "domain": "thisdaylive.com",
+     "country": "Nigeria",
+     "seen": "2026-11-11T05:30Z"
+    },
+    {
+     "title": "Dialogue the way to end Middle East conflicts : China Daily",
+     "url": "https://asianews.network/dialogue-the-way-to-end-middle-east-conflicts-china-daily/",
+     "domain": "asianews.network",
+     "country": "China",
+     "seen": "2026-11-11T05:00Z"
+    }
+   ],
+   "fetched": "2026-11-11T06:35Z"
+  },
   "news_inflation": {
    "query": "\"inflation\"",
    "articles": [
@@ -47,7 +95,8 @@
      "seen": "2026-11-11T02:30Z"
     }
    ],
-   "fetched": "2026-11-11T02:58Z"
+   "fetched": "2026-11-11T02:58Z",
+   "stale": true
   },
   "news_pandemic": {
    "query": "(pandemic OR outbreak OR epidemic)",
@@ -95,7 +144,8 @@
      "seen": "2026-11-11T02:30Z"
     }
    ],
-   "fetched": "2026-11-11T02:58Z"
+   "fetched": "2026-11-11T02:58Z",
+   "stale": true
   },
   "news_election": {
    "query": "\"election\"",
@@ -340,9 +390,8 @@
   }
  },
  "failed": {
-  "news_war": "JSONDecodeError: Expecting value: line 1 column 1 (char 0)",
+  "news_war": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22war%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sort=DateDesc",
   "news_protest": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%28protest+OR+protests%29+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=",
-  "politics_sanctions": "skipped: the wire's time budget ran out",
   "politics_tariffs": "skipped: the wire's time budget ran out",
   "politics_ceasefire": "skipped: the wire's time budget ran out",
   "politics_coup": "skipped: the wire's time budget ran out",
@@ -377,6 +426,8 @@
   "copper": "skipped: the wire's time budget ran out",
   "bitcoin": "skipped: the wire's time budget ran out",
   "news_election": "skipped: the wire's time budget ran out",
-  "news_climate": "skipped: the wire's time budget ran out"
+  "news_climate": "skipped: the wire's time budget ran out",
+  "news_inflation": "skipped: the wire's time budget ran out",
+  "news_pandemic": "skipped: the wire's time budget ran out"
  }
 }

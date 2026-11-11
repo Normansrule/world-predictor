@@ -2,31 +2,38 @@
 
                                         all  early   late  markets   news   tech  yearly
 variant                                                                                 
-TimesFM                               13.36  15.39  12.69     4.81  15.37  14.02   25.87
-Chronos-Bolt                          13.06  14.82  12.67     4.83  16.00  14.66   17.88
-Radiant as shipped                    12.89  14.73  12.41     4.84  15.42  14.11   19.37
-Old start (63% TimesFM, 10% Chronos)  12.98  14.91  12.41     4.83  15.37  14.04   20.89
-Learning rate 1                       12.91  14.78  12.41     4.81  15.45  14.13   19.63
-Learning rate 4                       12.89  14.72  12.42     4.86  15.42  14.10   19.27
-Fixed share 3% (forgets)              12.89  14.74  12.42     4.82  15.46  14.10   19.46
-25% always on the two foundations     12.88  14.72  12.41     4.80  15.43  14.10   19.52
-50% always on the two foundations     12.90  14.73  12.44     4.77  15.45  14.11   19.82
+TimesFM                               13.04  14.26  12.83     4.52  14.94  13.82   25.87
+Chronos-Bolt                          12.87  13.88  12.92     4.76  15.28  14.83   17.88
+Radiant as shipped                    12.46  13.21  12.55     4.49  14.84  13.65   19.37
+Old start (63% TimesFM, 10% Chronos)  12.57  13.44  12.55     4.49  14.85  13.63   20.89
+Learning rate 1                       12.47  13.23  12.55     4.48  14.78  13.67   19.63
+Learning rate 4                       12.46  13.22  12.55     4.49  14.92  13.65   19.27
+Fixed share 3% (forgets)              12.47  13.22  12.57     4.49  14.80  13.71   19.46
+25% always on the two foundations     12.48  13.27  12.56     4.49  14.84  13.70   19.52
+50% always on the two foundations     12.53  13.38  12.60     4.51  14.86  13.79   19.82
 
 The 80% range on the late windows, Radiant as recorded and with a learned width:
 
                cover  pinball      area
 kind                                   
-as recorded    0.763    4.017       all
-learned width  0.790    4.004       all
-as recorded    0.757    1.553   markets
-as recorded    0.733    5.337      news
-as recorded    0.803    8.250  politics
-as recorded    0.761    4.858      tech
-as recorded    0.790    3.145   weather
-as recorded    0.583    7.585    yearly
-learned width  0.769    1.553   markets
-learned width  0.775    5.323      news
-learned width  0.814    8.263  politics
-learned width  0.801    4.872      tech
-learned width  0.809    3.140   weather
-learned width  0.708    7.224    yearly
+as recorded    0.769    4.149       all
+learned width  0.768    4.152       all
+shipped rule   0.773    4.183       all
+as recorded    0.734    1.541   markets
+as recorded    0.787    4.969      news
+as recorded    0.795    8.844  politics
+as recorded    0.746    4.982      tech
+as recorded    0.796    3.139   weather
+as recorded    0.812    7.171    yearly
+learned width  0.727    1.549   markets
+learned width  0.778    4.976      news
+learned width  0.782    8.842  politics
+learned width  0.749    4.980      tech
+learned width  0.798    3.140   weather
+learned width  0.854    7.189    yearly
+shipped rule   0.734    1.541   markets
+shipped rule   0.787    4.969      news
+shipped rule   0.795    8.844  politics
+shipped rule   0.746    4.982      tech
+shipped rule   0.796    3.139   weather
+shipped rule   0.896    8.031    yearly
