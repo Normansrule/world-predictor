@@ -1,6 +1,150 @@
 {
- "fetched": "2026-11-11T06:35Z",
+ "fetched": "2026-11-12T03:44Z",
  "topics": {
+  "news_protest": {
+   "query": "(protest OR protests)",
+   "articles": [
+    {
+     "title": "Teen arrested in killing of Ghanaian student , 15 , on his way to school in New York City",
+     "url": "https://www.journal-advocate.com/2026/11/11/new-york-teen-immigrant-killed/",
+     "domain": "journal-advocate.com",
+     "country": "United States",
+     "seen": "2026-11-12T03:00Z"
+    },
+    {
+     "title": "Teen arrested in killing of Ghanaian student , 15 , on his way to school in New York City",
+     "url": "http://www.rockymounttelegram.com/news/national/teen-arrested-in-killing-of-ghanaian-student-15-on-his-way-to-school-in-new/article_f5371050-d3c8-50eb-aaa6-4b0dc4e08576.html",
+     "domain": "rockymounttelegram.com",
+     "country": "United States",
+     "seen": "2026-11-12T03:00Z"
+    },
+    {
+     "title": "South Africa oldest ward candidate , 90 , loses Eastern Cape contest",
+     "url": "https://www.timeslive.co.za/news/south-africa/2026-11-12-south-africas-oldest-ward-candidate-90-loses-eastern-cape-contest/",
+     "domain": "timeslive.co.za",
+     "country": "South Africa",
+     "seen": "2026-11-12T03:00Z"
+    },
+    {
+     "title": "Blue tsunami : American reformist revolution and new progressivism",
+     "url": "https://www.ft.lk/columns/Blue-tsunami-American-reformist-revolution-and-new-progressivism/4-799999",
+     "domain": "ft.lk",
+     "country": "Sri Lanka",
+     "seen": "2026-11-12T03:00Z"
+    },
+    {
+     "title": "Japan reported outreach push at APEC while refusing to correct mistakes shows insincerity amid Taiwan - related row",
+     "url": "http://eng.chinamil.com.cn/2025xb/O_251451/16499306.html",
+     "domain": "eng.chinamil.com.cn",
+     "country": "China",
+     "seen": "2026-11-12T03:00Z"
+    },
+    {
+     "title": "Warehouse traders call off strike after LG orders probe into fire incident",
+     "url": "https://www.dailyexcelsior.com/warehouse-traders-call-off-strike-after-lg-orders-probe-into-fire-incident/",
+     "domain": "dailyexcelsior.com",
+     "country": "India",
+     "seen": "2026-11-12T03:00Z"
+    }
+   ],
+   "fetched": "2026-11-12T03:43Z"
+  },
+  "politics_tariffs": {
+   "query": "(tariff OR tariffs)",
+   "articles": [
+    {
+     "title": "Asian stocks fragile , Nvidia plummets as board to decide CEO fate - Markets",
+     "url": "http://www.thejakartapost.com/business/2026/11/12/asian-stocks-fragile-nvidia-plummets-as-board-to-decide-ceos-fate",
+     "domain": "thejakartapost.com",
+     "country": "Indonesia",
+     "seen": "2026-11-12T03:00Z"
+    },
+    {
+     "title": "Mississippi elects Democrat Scott Colom as state first Black US senator since Reconstruction",
+     "url": "https://www.dailygazette.com/the_recorder/ap/national/mississippi-elects-democrat-scott-colom-as-states-first-black-us-senator-since-reconstruction/article_abd19ef0-a929-5b56-bb04-19eb6f94f1d9.html",
+     "domain": "dailygazette.com",
+     "country": "United States",
+     "seen": "2026-11-12T03:00Z"
+    },
+    {
+     "title": "We opened the door to trade first . Then we stood still",
+     "url": "https://www.ft.lk/columns/We-opened-the-door-to-trade-first-Then-we-stood-still/4-799992",
+     "domain": "ft.lk",
+     "country": "Sri Lanka",
+     "seen": "2026-11-12T03:00Z"
+    },
+    {
+     "title": "Democrat Scott Colom wins Mississippi Senate seat , breaking GOP grip on the state",
+     "url": "https://www.aol.com/articles/democrat-scott-colom-wins-mississippi-225931000.html",
+     "domain": "aol.com",
+     "country": "United States",
+     "seen": "2026-11-12T03:00Z"
+    },
+    {
+     "title": "Scott Colom defeats Cindy Hyde - Smith in Mississippi Senate race – NBC Chicago",
+     "url": "https://www.nbcchicago.com/elections/scott-colom-cindy-hyde-smith-mississippi-senate-race/4012904/",
+     "domain": "nbcchicago.com",
+     "country": "United States",
+     "seen": "2026-11-12T03:00Z"
+    },
+    {
+     "title": "NetNewsLedger - Hemlo output steadies as substation outage delays ramp - up and sustaining costs rise",
+     "url": "https://www.netnewsledger.com/2026/11/11/hemlo-output-steadies-as-substation-outage-delays-ramp-up-and-sustaining-costs-rise/",
+     "domain": "netnewsledger.com",
+     "country": "Canada",
+     "seen": "2026-11-12T03:00Z"
+    }
+   ],
+   "fetched": "2026-11-12T03:43Z"
+  },
+  "politics_ceasefire": {
+   "query": "(ceasefire OR \"peace talks\")",
+   "articles": [
+    {
+     "title": "Russia , Ukraine exchange attacks on capitals as US envoys head for Moscow",
+     "url": "https://whbl.com/2026/11/11/russia-ukraine-exchange-attacks-on-capitals-as-us-envoys-head-for-moscow/",
+     "domain": "whbl.com",
+     "country": "United States",
+     "seen": "2026-11-12T03:00Z"
+    },
+    {
+     "title": "Trump and Netanyahu reportedly get into  shouting match from hell",
+     "url": "https://www.dailymail.com/news/article-16285749/Trump-Netanyahu-reportedly-shouting-match-hell-amid-argument-resume-war-Iran.html",
+     "domain": "dailymail.com",
+     "country": "United States",
+     "seen": "2026-11-12T03:00Z"
+    },
+    {
+     "title": "Carney , planning for associate EU membership , joins Dublin talks on Ukraine , security",
+     "url": "https://www.theglobeandmail.com/politics/article-carney-planning-for-associate-eu-membership-joins-dublin-talks-on/",
+     "domain": "theglobeandmail.com",
+     "country": "Canada",
+     "seen": "2026-11-12T03:00Z"
+    },
+    {
+     "title": "Hormuz will never return to pre - war status , says Iran chief negotiator",
+     "url": "https://www.business-standard.com/world-news/hormuz-will-never-return-to-pre-war-status-says-iran-s-chief-negotiator-126111200051_1.html",
+     "domain": "business-standard.com",
+     "country": "India",
+     "seen": "2026-11-12T03:00Z"
+    },
+    {
+     "title": "Netanyahu hits back at Trump Board of Peace over Gaza aid",
+     "url": "http://www.arabherald.com/news/279427290/netanyahu-hits-back-at-trump-board-of-peace-over-gaza-aid",
+     "domain": "arabherald.com",
+     "country": "Syria",
+     "seen": "2026-11-12T01:30Z"
+    },
+    {
+     "title": "Suspected IED blast rocks Kohima ; Security stepped up",
+     "url": "https://organiser.org/2026/11/12/425774/bharat/nagaland/suspected-ied-blast-in-nagaland-capital-kohima-security-beefed-up/",
+     "domain": "organiser.org",
+     "country": "India",
+     "seen": "2026-11-12T01:30Z"
+    }
+   ],
+   "fetched": "2026-11-12T03:44Z"
+  },
   "politics_sanctions": {
    "query": "\"sanctions\"",
    "articles": [
@@ -47,7 +191,8 @@
      "seen": "2026-11-11T05:00Z"
     }
    ],
-   "fetched": "2026-11-11T06:35Z"
+   "fetched": "2026-11-11T06:35Z",
+   "stale": true
   },
   "news_inflation": {
    "query": "\"inflation\"",
@@ -391,9 +536,6 @@
  },
  "failed": {
   "news_war": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22war%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sort=DateDesc",
-  "news_protest": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%28protest+OR+protests%29+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=",
-  "politics_tariffs": "skipped: the wire's time budget ran out",
-  "politics_ceasefire": "skipped: the wire's time budget ran out",
   "politics_coup": "skipped: the wire's time budget ran out",
   "politics_impeachment": "skipped: the wire's time budget ran out",
   "politics_referendum": "skipped: the wire's time budget ran out",
@@ -428,6 +570,7 @@
   "news_election": "skipped: the wire's time budget ran out",
   "news_climate": "skipped: the wire's time budget ran out",
   "news_inflation": "skipped: the wire's time budget ran out",
-  "news_pandemic": "skipped: the wire's time budget ran out"
+  "news_pandemic": "skipped: the wire's time budget ran out",
+  "politics_sanctions": "skipped: the wire's time budget ran out"
  }
 }
