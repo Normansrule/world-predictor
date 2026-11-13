@@ -1,6 +1,54 @@
 {
- "fetched": "2026-11-12T03:44Z",
+ "fetched": "2026-11-13T03:19Z",
  "topics": {
+  "politics_coup": {
+   "query": "(coup OR \"martial law\")",
+   "articles": [
+    {
+     "title": "Kazakhstan Again Worried about Separatism , Russian and Otherwise",
+     "url": "https://jamestown.org/kazakhstan-again-worried-about-separatism-russian-and-otherwise/",
+     "domain": "jamestown.org",
+     "country": "Russia",
+     "seen": "2026-11-13T00:45Z"
+    },
+    {
+     "title": "Chino megachurch Pastor Jack Hibbs accused of anti - Islamic sermons",
+     "url": "https://www.sbsun.com/2026/11/12/chino-megachurch-pastor-jack-hibbs-accused-of-anti-islamic-sermons/",
+     "domain": "sbsun.com",
+     "country": "United States",
+     "seen": "2026-11-13T00:45Z"
+    },
+    {
+     "title": "Latest films showing at Keighley Picture House this weekend",
+     "url": "https://www.keighleynews.co.uk/news/26721028.latest-films-showing-keighley-picture-house-weekend/",
+     "domain": "keighleynews.co.uk",
+     "country": "United Kingdom",
+     "seen": "2026-11-12T07:00Z"
+    },
+    {
+     "title": "ADC members protest delayed release of judgment sacking Mark - led NWC",
+     "url": "https://theeagleonline.com.ng/adc-members-protest-delayed-release-of-judgment-sacking-mark-led-nwc/",
+     "domain": "theeagleonline.com.ng",
+     "country": "Nigeria",
+     "seen": "2026-11-12T07:00Z"
+    },
+    {
+     "title": "To judge and to teach : 150 years of the Supreme Court and Mfantsipim",
+     "url": "https://www.graphic.com.gh/features/opinion/to-judge-and-to-teach-150-years-of-the-supreme-court-and-mfantsipim.html",
+     "domain": "graphic.com.gh",
+     "country": "Ghana",
+     "seen": "2026-11-12T07:00Z"
+    },
+    {
+     "title": "Trump Is Right : Ukraine Needs a Leader Who Can Close the Deal",
+     "url": "https://townhall.com/columnists/dugganflanakin/2026/11/12/trump-is-right-ukraine-needs-a-leader-who-can-close-the-deal-n2686316",
+     "domain": "townhall.com",
+     "country": "United States",
+     "seen": "2026-11-12T07:00Z"
+    }
+   ],
+   "fetched": "2026-11-13T03:16Z"
+  },
   "news_protest": {
    "query": "(protest OR protests)",
    "articles": [
@@ -47,7 +95,8 @@
      "seen": "2026-11-12T03:00Z"
     }
    ],
-   "fetched": "2026-11-12T03:43Z"
+   "fetched": "2026-11-12T03:43Z",
+   "stale": true
   },
   "politics_tariffs": {
    "query": "(tariff OR tariffs)",
@@ -95,7 +144,8 @@
      "seen": "2026-11-12T03:00Z"
     }
    ],
-   "fetched": "2026-11-12T03:43Z"
+   "fetched": "2026-11-12T03:43Z",
+   "stale": true
   },
   "politics_ceasefire": {
    "query": "(ceasefire OR \"peace talks\")",
@@ -143,7 +193,8 @@
      "seen": "2026-11-12T01:30Z"
     }
    ],
-   "fetched": "2026-11-12T03:44Z"
+   "fetched": "2026-11-12T03:44Z",
+   "stale": true
   },
   "politics_sanctions": {
    "query": "\"sanctions\"",
@@ -536,8 +587,7 @@
  },
  "failed": {
   "news_war": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22war%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sort=DateDesc",
-  "politics_coup": "skipped: the wire's time budget ran out",
-  "politics_impeachment": "skipped: the wire's time budget ran out",
+  "politics_impeachment": "Busy: GDELT still busy after 555s of back-off this run (budget 600s)",
   "politics_referendum": "skipped: the wire's time budget ran out",
   "wiki_llm": "skipped: the wire's time budget ran out",
   "wiki_ai": "skipped: the wire's time budget ran out",
@@ -571,6 +621,9 @@
   "news_climate": "skipped: the wire's time budget ran out",
   "news_inflation": "skipped: the wire's time budget ran out",
   "news_pandemic": "skipped: the wire's time budget ran out",
-  "politics_sanctions": "skipped: the wire's time budget ran out"
+  "politics_sanctions": "skipped: the wire's time budget ran out",
+  "news_protest": "skipped: the wire's time budget ran out",
+  "politics_tariffs": "skipped: the wire's time budget ran out",
+  "politics_ceasefire": "skipped: the wire's time budget ran out"
  }
 }
