@@ -1,6 +1,150 @@
 {
- "fetched": "2026-11-13T03:19Z",
+ "fetched": "2026-11-14T03:04Z",
  "topics": {
+  "politics_impeachment": {
+   "query": "(impeachment OR \"no-confidence\")",
+   "articles": [
+    {
+     "title": "Democrats are weighing impeachment of Robert F . Kennedy Jr .",
+     "url": "https://www.orlandosentinel.com/2026/11/13/congress-democrats-weighing-impeachment-rfk-jr/",
+     "domain": "orlandosentinel.com",
+     "country": "United States",
+     "seen": "2026-11-13T18:00Z"
+    },
+    {
+     "title": "Democrats are weighing impeachment of Robert F . Kennedy Jr .",
+     "url": "https://www.fortmorgantimes.com/2026/11/13/congress-democrats-weighing-impeachment-rfk-jr/",
+     "domain": "fortmorgantimes.com",
+     "country": "United States",
+     "seen": "2026-11-13T18:00Z"
+    },
+    {
+     "title": "TMZ , NYP  The Low Down : Inside Pete Hegseth Looming Impeachment",
+     "url": "https://www.tmz.com/2026/11/13/inside-pete-hegseth-impeachment-push/",
+     "domain": "tmz.com",
+     "country": "United States",
+     "seen": "2026-11-13T18:00Z"
+    },
+    {
+     "title": "High Crimes on the High Court ? AOC Suggests Impeaching Conservative Justices for  Legalizing a Lot  – JONATHAN TURLEY",
+     "url": "https://jonathanturley.org/2026/11/13/high-crimes-on-the-high-court-aoc-suggests-impeaching-conservative-justices-for-legalizing-a-lot/comment-page-2/",
+     "domain": "jonathanturley.org",
+     "country": "United States",
+     "seen": "2026-11-13T18:00Z"
+    },
+    {
+     "title": "Democrats are weighing impeachment of RFK Jr . while courting his supporters",
+     "url": "https://www.click2houston.com/news/politics/2026/11/13/democrats-are-weighing-impeachment-of-rfk-jr-while-courting-his-supporters/",
+     "domain": "click2houston.com",
+     "country": "United States",
+     "seen": "2026-11-13T18:00Z"
+    },
+    {
+     "title": "Lawmakers urge RFK Jr . to stop betting on drug trials - The Washington Informer",
+     "url": "https://www.washingtoninformer.com/alsobrooks-wyden-clinical-trial-betting/",
+     "domain": "washingtoninformer.com",
+     "country": "United States",
+     "seen": "2026-11-13T18:00Z"
+    }
+   ],
+   "fetched": "2026-11-14T02:59Z"
+  },
+  "politics_referendum": {
+   "query": "(referendum OR referendums)",
+   "articles": [
+    {
+     "title": "Washington is reshaping security in North Africa . Congress needs to ask how .",
+     "url": "https://www.atlanticcouncil.org/blogs/menasource/washington-is-reshaping-security-in-north-africa-congress-needs-to-ask-how/",
+     "domain": "atlanticcouncil.org",
+     "country": "United States",
+     "seen": "2026-11-13T18:00Z"
+    },
+    {
+     "title": "Republicans show little appetite for breaking with Trump after midterm",
+     "url": "https://www.pressdemocrat.com/2026/11/13/election-2026-republicans-trump/",
+     "domain": "pressdemocrat.com",
+     "country": "United States",
+     "seen": "2026-11-13T18:00Z"
+    },
+    {
+     "title": "Elections Alberta reprimands separatist group over ad violations",
+     "url": "https://edmontonjournal.com:443/news/local-news/elections-alberta-reprimands-fines-separatist-ad-violations",
+     "domain": "edmontonjournal.com",
+     "country": "Canada",
+     "seen": "2026-11-13T18:00Z"
+    },
+    {
+     "title": "Georgia and Armenia at an Investment Crossroads",
+     "url": "https://finchannel.com/georgia-and-armenia-at-an-investment-crossroads/141541/opinion/2026/11/",
+     "domain": "finchannel.com",
+     "country": "United States",
+     "seen": "2026-11-13T18:00Z"
+    },
+    {
+     "title": "Republicans show little appetite for breaking with Trump after midterm",
+     "url": "https://www.fortmorgantimes.com/2026/11/13/election-2026-republicans-trump/",
+     "domain": "fortmorgantimes.com",
+     "country": "United States",
+     "seen": "2026-11-13T18:00Z"
+    },
+    {
+     "title": "Republicans show little appetite for breaking with Trump after midterm",
+     "url": "https://www.orlandosentinel.com/2026/11/13/election-2026-republicans-trump/",
+     "domain": "orlandosentinel.com",
+     "country": "United States",
+     "seen": "2026-11-13T18:00Z"
+    }
+   ],
+   "fetched": "2026-11-14T03:04Z"
+  },
+  "wiki_llm": {
+   "query": "\"language model\"",
+   "articles": [
+    {
+     "title": "Terms of Service - Jamestown",
+     "url": "https://jamestown.org/terms-of-service/",
+     "domain": "jamestown.org",
+     "country": "Russia",
+     "seen": "2026-11-13T00:45Z"
+    },
+    {
+     "title": "ECB Experience in Monetary Policy Communication : Science and Practice",
+     "url": "https://www.miragenews.com/ecb-experience-in-monetary-policy-communication-1775435/",
+     "domain": "miragenews.com",
+     "country": "United States",
+     "seen": "2026-11-11T05:30Z"
+    },
+    {
+     "title": "After brain surgery , man sees cat eyes in human faces",
+     "url": "https://www.news-medical.net/news/20261110/Rare-visual-disorder-causes-cat-features-to-appear-on-human-faces.aspx",
+     "domain": "news-medical.net",
+     "country": "United States",
+     "seen": "2026-11-11T03:00Z"
+    },
+    {
+     "title": "AMD Might Be Losing Its Unique Niche In The Chip Industry To Nvidia",
+     "url": "https://www.bgr.com/2308329/amd-losing-unique-spot-chip-industry-nvidia/",
+     "domain": "bgr.com",
+     "country": "United States",
+     "seen": "2026-11-11T01:00Z"
+    },
+    {
+     "title": "AI Design Review : Why Generative Models Alone Cant Check a Schematic",
+     "url": "https://www.electronicdesign.com:443/technologies/eda/article/55417978/e-sharp-ab-ai-design-review-why-generative-models-alone-cant-check-a-schematic",
+     "domain": "electronicdesign.com",
+     "country": "United States",
+     "seen": "2026-11-11T00:00Z"
+    },
+    {
+     "title": "Single Day delivers AI services into Chinese shopping carts",
+     "url": "http://www.myanmarnews.net/news/279423011/singles-day-delivers-ai-services-into-chinese-shopping-carts",
+     "domain": "myanmarnews.net",
+     "country": "Myanmar",
+     "seen": "2026-11-10T05:00Z"
+    }
+   ],
+   "fetched": "2026-11-14T03:04Z"
+  },
   "politics_coup": {
    "query": "(coup OR \"martial law\")",
    "articles": [
@@ -47,7 +191,8 @@
      "seen": "2026-11-12T07:00Z"
     }
    ],
-   "fetched": "2026-11-13T03:16Z"
+   "fetched": "2026-11-13T03:16Z",
+   "stale": true
   },
   "news_protest": {
    "query": "(protest OR protests)",
@@ -489,19 +634,6 @@
    ],
    "stale": true
   },
-  "wiki_llm": {
-   "query": "\"language model\"",
-   "articles": [
-    {
-     "title": "John Ivison :  Red flags all over  Carney government buy - in of AI company Cohere",
-     "url": "https://calgaryherald.com:443/np-comment/john-ivison-red-flags-all-over-carney-governments-buy-in-of-ai-company-cohere/wcm/0f0c481c-ebf1-4a32-b6bb-510f52bfff6a",
-     "domain": "calgaryherald.com",
-     "country": "Canada",
-     "seen": "2026-11-03T02:15Z"
-    }
-   ],
-   "stale": true
-  },
   "wiki_ai": {
    "query": "\"artificial intelligence\"",
    "articles": [
@@ -587,9 +719,6 @@
  },
  "failed": {
   "news_war": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22war%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sort=DateDesc",
-  "politics_impeachment": "Busy: GDELT still busy after 555s of back-off this run (budget 600s)",
-  "politics_referendum": "skipped: the wire's time budget ran out",
-  "wiki_llm": "skipped: the wire's time budget ran out",
   "wiki_ai": "skipped: the wire's time budget ran out",
   "wiki_quantum": "skipped: the wire's time budget ran out",
   "wiki_crispr": "skipped: the wire's time budget ran out",
@@ -624,6 +753,7 @@
   "politics_sanctions": "skipped: the wire's time budget ran out",
   "news_protest": "skipped: the wire's time budget ran out",
   "politics_tariffs": "skipped: the wire's time budget ran out",
-  "politics_ceasefire": "skipped: the wire's time budget ran out"
+  "politics_ceasefire": "skipped: the wire's time budget ran out",
+  "politics_coup": "skipped: the wire's time budget ran out"
  }
 }

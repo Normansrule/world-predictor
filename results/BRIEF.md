@@ -1,20 +1,20 @@
 # The brief
 
-## Came due, 2026-11-07 to 2026-11-13
+## Came due, 2026-11-08 to 2026-11-14
 
 | Model | Forecasts | Series | Inside 80% range | Right direction | Skill vs no change |
 |---|---:|---:|---:|---:|---:|
-| TimesFM | 1455 | 47 | 69% | 66% | +15.7% |
-| Radiant | 711 | 47 | 68% | 71% | +13.8% |
-| Chronos-Bolt | 1455 | 47 | 69% | 66% | +11.7% |
-| Seldon | 711 | 47 | 70% | 69% | +19.4% |
-| Seldon laws | 1219 | 47 | 66% | 64% | +7.8% |
-| AutoETS | 1455 | 47 | 81% | 49% | -0.1% |
-| Ensemble | 1455 | 47 | 80% | 63% | +11.8% |
+| TimesFM | 1565 | 47 | 70% | 64% | +13.7% |
+| Radiant | 794 | 47 | 69% | 70% | +18.9% |
+| Chronos-Bolt | 1565 | 47 | 71% | 66% | +11.5% |
+| Seldon | 794 | 47 | 71% | 67% | +22.6% |
+| Seldon laws | 1318 | 47 | 68% | 62% | +5.5% |
+| AutoETS | 1565 | 47 | 81% | 51% | -0.1% |
+| Ensemble | 1565 | 47 | 81% | 62% | +11.6% |
 
-**Radiant's closest calls:** Silver (USD/oz) (said -0.0%, was -0.0% by 2026-11-10); iShares MSCI World ETF (global equities) (said +0.3%, was +0.3% by 2026-11-09); CBOE Volatility Index (VIX, the fear gauge) (said -5.7%, was -5.8% by 2026-11-09); World news attention (said -11.4%, was -11.3% by 2026-11-12); iShares 20+ Year Treasury Bond ETF (said +0.2%, was +0.1% by 2026-11-09).
+**Radiant's closest calls:** S&P 500 (said +0.6%, was +0.6% by 2026-11-13); Silver (USD/oz) (said -0.0%, was -0.0% by 2026-11-10); iShares MSCI World ETF (global equities) (said +0.3%, was +0.3% by 2026-11-09); CBOE Volatility Index (VIX, the fear gauge) (said -5.7%, was -5.8% by 2026-11-09); iShares 20+ Year Treasury Bond ETF (said +0.2%, was +0.1% by 2026-11-09).
 
-**Biggest surprises:** Share of coverage about impeachments and no-confidence votes (range -65.7% to -20.0%, was +92.1%, 2.4 range widths outside); NVIDIA Corp. (range -4.7% to +7.0%, was -18.3%, 1.2 range widths outside); Average of the political topics above, each scaled to its own mean (range -22.3% to +20.1%, was +67.5%, 1.1 range widths outside); CBOE Volatility Index (VIX, the fear gauge) (range -9.6% to +10.4%, was -29.3%, 1.0 range widths outside); Nasdaq-100 index (range -1.9% to +1.7%, was +4.8%, 0.8 range widths outside).
+**Biggest surprises:** Share of coverage about impeachments and no-confidence votes (range -65.7% to -20.0%, was +92.1%, 2.4 range widths outside); NVIDIA Corp. (range -4.7% to +7.0%, was -18.3%, 1.2 range widths outside); Average of the political topics above, each scaled to its own mean (range -22.3% to +20.1%, was +66.2%, 1.1 range widths outside); CBOE Volatility Index (VIX, the fear gauge) (range -9.6% to +10.4%, was -29.3%, 1.0 range widths outside); Gold (USD/oz) (range -1.7% to +1.4%, was -4.4%, 0.9 range widths outside).
 
 ## Radiant changed its mind, 2026-11-09 to 2026-11-11
 
