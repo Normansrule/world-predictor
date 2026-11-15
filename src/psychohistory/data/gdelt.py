@@ -30,29 +30,51 @@ class Busy(RuntimeError):
     """GDELT is still rate-limiting and the back-off budget is spent."""
 
 
+class Refused(ValueError):
+    """GDELT answered with a plain-text notice that is not about pacing (a query it will not run,
+    say). Retrying the same query cannot help, so it fails at once, with GDELT's own words."""
+
+
+# Words in GDELT's plain-text answers that mean "slow down", as opposed to "I will not run this".
+PACING = ("limit requests", "one every", "too many requests", "rate limit", "slow down", "try again")
+
+
+def notice(text: str) -> str:
+    """GDELT's plain-text answer, trimmed to one line for run_status.json."""
+    return " ".join(str(text or "").split())[:200] or "an empty reply"
+
+
 def _request(params: dict) -> dict:
     """GET with GDELT's pacing. When rate-limited it answers 429, or 200 with a plain-text
     notice instead of JSON, so both are retried after a growing pause, until the process has
     spent ``BUDGET`` seconds of back-off in all; after that a busy answer raises ``Busy`` at once
     (the caller falls back to its cached copy)."""
     global _last_call, _waited
+    said = None
     for attempt, pause in enumerate((0.0, *BACKOFF)):
         if pause:
             if _waited + pause > BUDGET:  # a long run must not spend its hours waiting on one source
-                raise Busy(f"GDELT still busy after {_waited:.0f}s of back-off this run (budget {BUDGET:.0f}s)")
+                raise Busy(f"GDELT still busy after {_waited:.0f}s of back-off this run (budget {BUDGET:.0f}s)"
+                           + (f"; GDELT says: {said}" if said else ""))
             log.info("GDELT busy, retrying in %.0fs", pause)
             time.sleep(pause)
             _waited += pause
         time.sleep(max(0.0, _last_call + MIN_GAP - time.monotonic()))
         _last_call = time.monotonic()
         try:
-            return get(API, params=params, retries=1).json()
-        except (requests.HTTPError, ValueError) as error:
-            status = getattr(getattr(error, "response", None), "status_code", None)
-            if isinstance(error, requests.HTTPError) and status != 429:
+            response = get(API, params=params, retries=1)
+        except requests.HTTPError as error:
+            if getattr(error.response, "status_code", None) != 429 or attempt == len(BACKOFF):
                 raise
+            continue
+        try:
+            return response.json()
+        except ValueError:
+            said = notice(getattr(response, "text", ""))
+            if not any(word in said.lower() for word in PACING) and said != "an empty reply":
+                raise Refused(f"GDELT says: {said}") from None
             if attempt == len(BACKOFF):
-                raise
+                raise ValueError(f"GDELT kept answering with a notice instead of data; GDELT says: {said}") from None
     raise RuntimeError("unreachable")
 
 

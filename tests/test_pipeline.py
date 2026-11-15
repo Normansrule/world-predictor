@@ -785,6 +785,27 @@ def test_seldon_own_council_leaves_timesfm_out_and_learns_only_from_the_past():
     assert np.isclose(used.sum(), 1) and used[3] == 0 and np.allclose(mixed.q(0.5), 0.5 * 101 + 0.25 * 106 + 0.25 * 100)
 
 
+def test_disagreements_are_settled_by_what_really_happened():
+    from psychohistory import web
+    dates = pd.date_range("2026-01-01", periods=40)
+    data = {"sp500": pd.Series(100.0, index=dates)}
+    rows = []
+    for k, (origin, tfm, sel, real) in enumerate([(5, 103, 98, 104), (10, 97, 102, 103), (15, 102, 100.05, 99), (20, 101, 101, 102)]):
+        for model, end in (("timesfm-2.5", tfm), ("seldon", sel)):
+            for step, value in ((1, 100.0), (2, end)):
+                rows.append({"series_id": "sp500", "model": model, "origin": str(dates[origin].date()),
+                             "date": str(dates[origin + step].date()), "step": step, "q10": value - 1, "q50": value, "q90": value + 1,
+                             "actual": real if step == 2 else 100.0})
+    out = web.disagree_payload(pd.DataFrame(rows), None, data, "timesfm-2.5")
+    markets = next(r for r in out["areas"] if r[0] == "markets")
+    # 4 windows; 2 opposite calls (Seldon right on one, TimesFM on the other); once only TimesFM moved, and it was wrong
+    assert markets[:5] == ["markets", 4, 2, 1, 1] and markets[6:8] == [1, 0]
+    led = pd.DataFrame([{"made_on": "2026-11-16", "model": m, "series_id": "gold", "domain": "markets", "last_value": 100.0,
+                         "step": 1, "target_date": "2026-12-14", "q50": v} for m, v in (("timesfm-2.5", 103.0), ("seldon", 99.0))])
+    now = web.disagree_payload(None, led, data, "timesfm-2.5")["now"]
+    assert now == [["gold", "markets", 0.03, -0.01, "2026-12-14"]]
+
+
 def test_sealed_laws_only_days_are_named_for_their_maker():
     rows = pd.DataFrame({"made_on": ["d1", "d1", "d2", "d2", "d2"],
                          "model": ["timesfm-2.5", "seldon", "timesfm-2.5", "seldon", "seldon-laws"]})
@@ -1060,11 +1081,12 @@ def test_world_wire_keeps_last_weeks_headlines_when_a_topic_fails(tmp_path):
     from psychohistory import web, wire
 
     specs = [catalog.by_id("gold"), catalog.by_id("news_war"), catalog.by_id("adoption_internet")]
+    WAR = catalog.by_id("news_war").params["query"]
     asked = []
 
     def fetcher(query, records):
         asked.append(query)
-        if query == '"war"':
+        if query == WAR:
             raise RuntimeError("GDELT busy")
         return [{"title": "Gold edges up", "url": "https://example.org/a", "domain": "example.org", "country": "UK", "seen": "2026-10-26T08:00Z"}]
 
@@ -1072,11 +1094,11 @@ def test_world_wire_keeps_last_weeks_headlines_when_a_topic_fails(tmp_path):
     first = wire.fetch(specs, fetcher=lambda q, records: [{"title": f"Old {q}", "url": "https://example.org/old"}])
     wire.write(first, path)
     news = wire.fetch(specs, fetcher=fetcher)
-    assert asked == ['"gold price"', '"war"'] and "adoption_internet" not in news["topics"]  # no query, no fetch
+    assert asked == ['"gold price"', WAR] and "adoption_internet" not in news["topics"]  # no query, no fetch
     assert set(news["failed"]) == {"news_war"}
     wire.write(news, path)
     saved = wire.read(path)
-    assert saved["topics"]["news_war"]["stale"] and saved["topics"]["news_war"]["articles"][0]["title"] == 'Old "war"'
+    assert saved["topics"]["news_war"]["stale"] and saved["topics"]["news_war"]["articles"][0]["title"] == f"Old {WAR}"
     assert saved["topics"]["gold"]["articles"][0]["title"] == "Gold edges up"
     app = web.wire_payload(saved)
     assert app["topics"]["gold"]["articles"][0][:3] == ["Gold edges up", "https://example.org/a", "example.org"]
@@ -1802,3 +1824,142 @@ def test_year_ledger_shows_the_no_change_yardstick():
     js = (Path(__file__).resolve().parents[1] / "site" / "app" / "js" / "year.js").read_text()
     assert "function yardstick(" in js and 'title="the value each forecast started from' in js
     assert "never the real value" in js                              # the note says a forecast is not reality
+
+
+def _hype_series(centre: float, days: int = 3000, noise: float = 0.0, seed: int = 0) -> pd.Series:
+    """A textbook hype curve: a sharp peak at ``centre`` (0..1 of the span), then a plateau."""
+    idx = pd.date_range("2016-01-01", periods=days, freq="D")
+    x = np.linspace(0, 1, days)
+    y = 1000 * (0.2 + np.exp(-((x - centre) / 0.05) ** 2) + 0.4 / (1 + np.exp(-(x - centre - 0.25) / 0.04)))
+    return pd.Series(y * np.exp(np.random.default_rng(seed).normal(0, noise, days)), idx)
+
+
+def test_hype_phases_follow_the_curve():
+    from psychohistory import hype
+    s = _hype_series(0.5)
+    n = len(s)
+    phase_at = lambda f: hype.phase(hype.read(hype.daily(s.iloc[: int(n * f)])))  # noqa: E731
+    assert phase_at(0.47) == "rising"
+    assert phase_at(0.56) == "sliding"
+    assert phase_at(0.99) in ("plateau", "trough")
+    assert hype.read(hype.daily(s.iloc[:100])) is None  # too short for two 90-day windows
+    assert hype.direction(0.2) == "up" and hype.direction(-0.2) == "down" and hype.direction(0.05) == "flat"
+
+
+def test_hype_backtest_never_peeks_and_scores_three_ways():
+    from psychohistory import hype
+    s = _hype_series(0.4, noise=0.1, seed=3)
+    rows = hype.backtest_one("wiki_ai", s)
+    assert len(rows) > 50 and set(rows["call"]) <= {"up", "down", "flat"}
+    # Changing what happens after an origin must not change the call made at it.
+    cut = 1500
+    changed = s.copy()
+    changed.iloc[cut:] *= 5
+    again = hype.backtest_one("wiki_ai", changed)
+    before = rows[pd.to_datetime(rows["origin"]) < s.index[cut]]
+    assert (again.loc[before.index, ["phase", "call", "momentum"]] == before[["phase", "call", "momentum"]]).all().all()
+    rec = hype.record(rows)
+    assert rec["n"] == len(rows) and 0 <= rec["hype"] <= rec["n"] and 0 <= rec["momentum"] <= rec["n"]
+    assert sum(v["n"] for v in rec["by_phase"].values()) == rec["n"]
+    assert "monthly calls" in hype.verdict(rec) and hype.verdict(None).startswith("Not enough")
+
+
+def test_hype_payload_cli_and_app(tmp_path, capsys):
+    import json
+    import shutil
+    import subprocess
+    from psychohistory import hype
+    data_ = {"wiki_ev": _hype_series(0.3, seed=1), "wiki_llm": _hype_series(0.9, seed=2),
+             "adoption_ev": pd.Series([1.0, 2.0, 4.0, 9.0, 14.0, 18.0], pd.date_range("2020-01-01", periods=6, freq="YS"))}
+    p = hype.payload(data_)
+    assert {it["id"] for it in p["items"]} == {"wiki_ev", "wiki_llm"}
+    ev = next(it for it in p["items"] if it["id"] == "wiki_ev")
+    assert ev["adoption"]["last"] == 18.0 and ev["adoption"]["change"] == 3.5 and ev["adoption"]["since"] == 2022 and ev["faded"] is True
+    assert 0 < ev["level"] <= 1 and len(ev["curve"]) <= 140 and p["record"]["n"] > 0
+    assert hype.payload({}) is None and "fetch" in hype.describe(None)
+    for sid, s in data_.items():
+        path = data.cache_path(catalog.by_id(sid), tmp_path / "data")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        s.to_frame("value").to_csv(path, index_label="date")
+    cli.main(["hype", "--data-dir", str(tmp_path / "data"), "--save", str(tmp_path / "hype.csv")])
+    out = capsys.readouterr().out
+    assert "Electric vehicles" in out and "monthly calls" in out and (tmp_path / "hype.csv").exists()
+    root = Path(__file__).resolve().parents[1] / "site"
+    assert "app/js/hype.js" in (root / "sw.js").read_text() and 'src="js/hype.js"' in (root / "app" / "index.html").read_text()
+    assert 'href="#hype"' in (root / "app" / "index.html").read_text() and '"hype"' in (root / "app" / "js" / "app.js").read_text()
+    assert "hype --save results/hype_backtest.csv" in (root.parent / ".github" / "workflows" / "predict.yml").read_text()
+    if not shutil.which("node"):
+        pytest.skip("node is not installed")
+    js = (f"global.window={{}};require({json.dumps(str(root / 'app' / 'js' / 'hype.js'))});const H=window.WPHype;"
+          "const its=[{phase:'peak',x:0.27},{phase:'peak',x:0.27},{phase:'trough',x:0.55}];"
+          "console.log(JSON.stringify({top:H.curveY(0.25)>H.curveY(0.55),plateau:H.curveY(0.95)>H.curveY(0.55),xs:H.placed(its).map(p=>p.x)}))")
+    out = json.loads(subprocess.run(["node", "-e", js], capture_output=True, text=True, check=True).stdout)
+    assert out["top"] and out["plateau"] and out["xs"][0] < out["xs"][1] and out["xs"][2] == 0.55
+
+
+def test_gdelt_refusal_fails_fast_with_gdelts_words(monkeypatch):
+    from psychohistory.data import gdelt
+
+    waits = []
+    monkeypatch.setattr(gdelt, "get", lambda *a, **k: _Response("The specified phrase is too short."))
+    monkeypatch.setattr(gdelt.time, "sleep", waits.append)
+    monkeypatch.setattr(gdelt, "_waited", 0.0)
+    with pytest.raises(gdelt.Refused, match="too short"):
+        gdelt.fetch('"war"')
+    assert not [w for w in waits if w >= 15]  # no back-off spent on a query GDELT will not run
+    monkeypatch.setattr(gdelt, "get", lambda *a, **k: _Response("Please limit requests to one every 5 seconds"))
+    monkeypatch.setattr(gdelt, "BUDGET", 20.0)
+    with pytest.raises(gdelt.Busy, match="GDELT says: Please limit"):
+        gdelt.fetch('"election"')
+
+
+def test_gdelt_tops_up_the_cached_copy(tmp_path, monkeypatch):
+    spec = catalog.by_id("news_election")
+    path = data.cache_path(spec, tmp_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    end = pd.Timestamp.now().normalize() - pd.Timedelta(days=3)
+    old = pd.Series(1.0, pd.date_range(end=end, periods=400, freq="D"))
+    old.to_frame("value").to_csv(path, index_label="date")
+    asked = {}
+
+    def top_up(query, start=None):
+        asked["start"] = start
+        return pd.Series(2.0, pd.date_range(start, end + pd.Timedelta(days=3), freq="D"))
+
+    monkeypatch.setitem(data.SOURCES, "gdelt", top_up)
+    series = data.fetch(spec, tmp_path, refresh=True)
+    assert asked["start"] == (end - pd.Timedelta(days=data.OVERLAP_DAYS)).strftime("%Y-%m-%d")
+    assert series.index[-1] == end + pd.Timedelta(days=3) and series.iloc[0] == 1.0 and series.iloc[-1] == 2.0
+    assert series.index.is_unique and len(series) == 403
+    assert data.load_csv(path).iloc[-1] == 2.0
+
+
+def test_source_health_keeps_the_record_across_runs(tmp_path, monkeypatch):
+    import json
+
+    from psychohistory import health
+
+    h = health.seed([{"stages": {"fetch": {"at": f"2026-11-0{d}T03:00:00Z", "ok": ["gold", "news_election"],
+                                           "skipped": {"news_war": "HTTPError: 429 Client Error"}, "stale": {} if d < 3 else {"news_election": "Busy: x"}}}}
+                     for d in range(1, 6)])
+    h = health.record(h, "2026-11-05T03:00:00Z", ["gold"], {"news_war": "again"})  # the same run twice changes nothing
+    s = h["series"]
+    assert len(h["runs"]) == 5 and s["gold"]["streak"] == 0 and s["gold"]["ok"] == 5
+    assert health.state(s["news_war"]) == "never" and s["news_war"]["streak"] == 5
+    assert health.state(s["news_election"]) == "broken" and s["news_election"]["last_ok"] == "2026-11-02" and s["news_election"]["cached"]
+    p = health.payload(h, {"news_war": "War"})
+    assert [i["id"] for i in p["items"]] == ["news_war", "news_election"] and p["counts"]["ok"] == 1
+    assert "rate-limiting" in p["items"][0]["why"] and "never downloaded" in health.describe(p)
+    assert health.reason("Refused: GDELT says: The specified phrase is too short.") == "The specified phrase is too short."
+    # The fetch stage writes it, and the next fetch asks for the longest-waiting news series first.
+    out = tmp_path / "results"
+    out.mkdir()
+    (out / "source_health.json").write_text(json.dumps(h))
+    order = [s.id for s in cli.fetch_order(catalog.select(["news", "markets"]), out / "source_health.json")]
+    assert order.index("news_war") < order.index("news_election") and order[-1] == "news_composite"
+    assert order.index("gold") < order.index("news_war")
+    cli.record_status(out / "run_status.json", "fetch", {"gold": 1}, {"news_war": "Refused: GDELT says: no"})
+    again = health.read(out / "source_health.json")
+    assert len(again["runs"]) == 6 and again["series"]["news_war"]["streak"] == 6
+    root = Path(__file__).resolve().parents[1]
+    assert "news_war" in health.read(root / "results" / "source_health.json")["series"]

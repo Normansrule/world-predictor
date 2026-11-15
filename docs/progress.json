@@ -90,6 +90,11 @@
           "done": true,
           "evidence": "src/psychohistory/wire.py",
           "title": "World wire: the newest GDELT headlines for every topic, weekly"
+        },
+        {
+          "title": "Source health across runs: the war series found never to have downloaded, fixed; GDELT refusals recorded in its own words, top-ups and longest-wait-first",
+          "done": true,
+          "evidence": "src/psychohistory/health.py"
         }
       ]
     },
@@ -176,8 +181,9 @@
           "evidence": "results/REPORT.md"
         },
         {
-          "title": "Hype-cycle detection (attention peaks while adoption keeps rising)",
-          "done": false
+          "title": "Hype-cycle detection: each technology's phase from its Wikipedia views, adoption beside it, and a backtest of what the phases foretold",
+          "done": true,
+          "evidence": "src/psychohistory/hype.py"
         }
       ]
     },
@@ -273,7 +279,8 @@
         },
         {
           "title": "Live at normansrule.github.io/world-predictor",
-          "done": false
+          "done": true,
+          "evidence": ".github/workflows/pages.yml"
         },
         {
           "done": true,

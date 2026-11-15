@@ -1,4 +1,4 @@
-"""Command line interface: ``psychohistory run | fetch | backtest | predict | ask | desk | monitor | vol | events | bets | follow | wire | verify | score | report | simulate | export | site | app``."""
+"""Command line interface: ``psychohistory run | fetch | backtest | predict | ask | desk | monitor | vol | events | bets | follow | hype | health | wire | verify | score | report | simulate | export | site | app``."""
 
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from . import ask, backtest, bets, brief, catalog, follow, offline, dashboard, data, desk, events, ledger, monitor, radiant, report, seldon, simulate, story, volatility, web, wire, yearbook
+from . import ask, backtest, bets, brief, catalog, follow, health, hype, offline, dashboard, data, desk, events, ledger, monitor, radiant, report, seldon, simulate, story, volatility, web, wire, yearbook
 from .models import BASELINES, LAWS, classical_available, load_model
 
 log = logging.getLogger("psychohistory")
@@ -47,6 +47,23 @@ def record_status(path: Path, stage: str, loaded: dict, skipped: dict[str, str],
         current["run_id"] = os.environ["GITHUB_RUN_ID"]
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(current, indent=1) + "\n")
+    if stage == "fetch":  # the downloads themselves: kept run after run in source_health.json
+        st = current["stages"]["fetch"]
+        health.update(path.parent / health.HEALTH.name, st["at"], st["ok"], st["skipped"], st.get("stale"))
+
+
+def fetch_order(specs, health_file: Path):
+    """GDELT answers the first requests of a run and refuses the later ones once it is busy, so
+    the GDELT series that have gone longest without a fresh download go first (a series that has
+    never downloaded goes first of all); everything else keeps the catalog's order, and composites
+    come last, after their members."""
+    record = health.read(health_file)["series"]
+    def wait(spec):
+        s = record.get(spec.id, {})
+        return (s.get("last_ok") is not None, s.get("last_ok") or "", spec.id)
+    others = [s for s in specs if s.source not in ("gdelt", "composite")]
+    news = sorted((s for s in specs if s.source == "gdelt"), key=wait)
+    return others + news + [s for s in specs if s.source == "composite"]
 
 
 def ensemble_members(args) -> list[str]:
@@ -58,7 +75,7 @@ def ensemble_members(args) -> list[str]:
 
 
 def cmd_fetch(args) -> None:
-    specs = catalog.select(args.domain, args.series)
+    specs = fetch_order(catalog.select(args.domain, args.series), args.out_dir / health.HEALTH.name)
     loaded = _load(specs, args.data_dir, refresh=True, status=args.out_dir / "run_status.json", stage="fetch")
     stale = [k for k, v in loaded.items() if v.attrs.get("stale")]
     note = f" ({len(stale)} from the cache because their download failed: {', '.join(stale)})" if stale else ""
@@ -402,6 +419,26 @@ def cmd_follow(args) -> None:
     print(follow.describe(follow.replay(follow.windows(paths), cost=args.cost) if paths is not None else None))
 
 
+def cmd_health(args) -> None:
+    """Source health: every series' download record across runs, worst first."""
+    titles = {s.id: s.description for s in catalog.CATALOG}
+    print(health.describe(health.payload(health.read(args.out_dir / health.HEALTH.name), titles)))
+
+
+def cmd_hype(args) -> None:
+    """The hype cycle: each technology's phase from its Wikipedia views since 2015, adoption beside
+    it, and the monthly backtest of what the phases foretold for the next 90 days."""
+    ids = {sid for sid, _, adopt in hype.TECH} | {adopt for _, _, adopt in hype.TECH if adopt}
+    series = _load([s for s in catalog.CATALOG if s.id in ids], args.data_dir)
+    rows = hype.backtest(series)
+    if args.save and not rows.empty:
+        args.save.parent.mkdir(parents=True, exist_ok=True)
+        rows.to_csv(args.save, index=False)
+    print(hype.describe(hype.payload(series, rows)))
+    if args.save and not rows.empty:
+        print(f"\nEvery monthly call written to {args.save}")
+
+
 def cmd_wire(args) -> None:
     """The world wire: the newest headlines for every topic, for the app's World terminal."""
     specs = wire.prioritize(catalog.select(args.domain, args.series), wire.read(args.out_dir / wire.WIRE.name))
@@ -597,7 +634,7 @@ def _payload(args, demo: bool = False) -> dict | None:
              "scored": events.read(_event_path(args, "scored")), "seals": _event_seals(args)}
     return web.build_payload(args.model, results, by_step, paths, entries, scored, data, run_status=run,
                              seals=seals, vol=vol, wire=wire.read(args.out_dir / wire.WIRE.name), events=event,
-                             bet_odds=_bets(args))
+                             bet_odds=_bets(args), sources=health.read(args.out_dir / health.HEALTH.name))
 
 
 def cmd_export(args) -> None:
@@ -741,6 +778,15 @@ def main(argv: list[str] | None = None) -> None:
     common(p)
     p.add_argument("--cost", type=float, default=follow.COST, help="cost of each trade, each way (default 0.001 = 0.1%%)")
     p.set_defaults(func=cmd_follow)
+
+    p = sub.add_parser("health", help="source health: which series downloaded fresh, run after run, and which keep failing and why")
+    common(p)
+    p.set_defaults(func=cmd_health)
+
+    p = sub.add_parser("hype", help="the hype cycle: each technology's phase from its Wikipedia views, adoption beside it, and what the phases foretold")
+    common(p)
+    p.add_argument("--save", type=Path, default=None, help="also write every monthly backtest call to this CSV")
+    p.set_defaults(func=cmd_hype)
 
     p = sub.add_parser("wire", help="the newest headlines for every topic, from GDELT, for the World terminal")
     common(p)

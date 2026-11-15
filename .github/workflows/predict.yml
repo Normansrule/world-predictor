@@ -75,6 +75,10 @@ jobs:
       - name: Event odds backtest (spikes and lulls in news and tech attention against climatology)
         if: github.event.schedule != '30 22 * * 1-5'
         run: psychohistory events --backtest
+      - name: Hype cycle (each technology's phase from its Wikipedia views, and what the phases foretold)
+        if: github.event.schedule != '30 22 * * 1-5'
+        continue-on-error: true
+        run: psychohistory hype --save results/hype_backtest.csv
       - name: Betting odds (Polymarket's prices on real-world questions, sealed, scored when they settle)
         continue-on-error: true
         timeout-minutes: 10

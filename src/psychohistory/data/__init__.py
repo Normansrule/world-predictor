@@ -26,6 +26,23 @@ SOURCES = {
 
 DEFAULT_CACHE = Path("data")
 
+# Sources asked only for the last few weeks once a copy is cached: GDELT rebuilds a nine-year daily
+# timeline for every request, and the long ones are the ones it refuses when busy. The overlap
+# lets late revisions in; a copy older than a year is fetched again in full.
+INCREMENTAL = {"gdelt": "start"}
+OVERLAP_DAYS = 45
+
+
+def _top_up(spec: SeriesSpec, cached: pd.Series) -> pd.Series:
+    last = cached.index[-1]
+    if (pd.Timestamp.now() - last).days > 365:
+        return SOURCES[spec.source](**spec.params)
+    start = (last - pd.Timedelta(days=OVERLAP_DAYS)).strftime("%Y-%m-%d")
+    fresh = SOURCES[spec.source](**spec.params, **{INCREMENTAL[spec.source]: start})
+    if fresh is None or len(fresh) == 0:
+        raise ValueError(f"{spec.id}: the top-up from {start} came back empty")
+    return pd.concat([cached[cached.index < fresh.index[0]], fresh])
+
 
 def cache_path(spec: SeriesSpec, cache_dir: Path = DEFAULT_CACHE) -> Path:
     return Path(cache_dir) / spec.domain / f"{spec.id}.csv"
@@ -63,6 +80,8 @@ def fetch(spec: SeriesSpec, cache_dir: Path = DEFAULT_CACHE, refresh: bool = Fal
         if spec.source == "composite":
             # Members come earlier in the catalog, so a refresh has already updated their caches.
             series = composite(_members(spec, cache_dir))
+        elif spec.source in INCREMENTAL and path.exists():
+            series = _top_up(spec, load_csv(path))
         else:
             series = SOURCES[spec.source](**spec.params)
     except Exception as error:

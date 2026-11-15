@@ -53,7 +53,10 @@ def _owid(id_, slug, desc):
 
 
 NEWS = [
-    _news("news_war", '"war"', "Share of world news coverage mentioning war"),
+    # A bare "war" never downloaded once in 18 runs (Oct to Nov 2026): GDELT kept refusing it, so
+    # war coverage is matched on longer terms instead (see results/source_health.json).
+    _news("news_war", '(warfare OR "armed conflict" OR airstrike OR "military offensive")',
+          "Share of world news coverage about war: warfare, armed conflict, airstrikes, military offensives"),
     _news("news_election", '"election"', "Share of world news coverage mentioning elections"),
     _news("news_inflation", '"inflation"', "Share of world news coverage mentioning inflation"),
     _news("news_climate", '"climate change"', "Share of world news coverage mentioning climate change"),

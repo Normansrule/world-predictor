@@ -94,6 +94,9 @@ Nothing here is financial advice, and most of the interesting results are about 
 - **Compare, and which model wins where.** Up to four series' forecasts on one chart, and on every
   series page each model's record there, with an honest test of whether that record predicts the next
   winner (it mostly does not). [Compare](#compare-series-side-by-side).
+- **The hype cycle, tested.** Each new technology placed on Gartner's curve from its Wikipedia views
+  since 2015, with real adoption beside it, and a monthly backtest of whether the phase ever said
+  anything about the next three months that momentum did not. [The hype cycle](#the-hype-cycle-peak-trough-plateau).
 - **Follow it from anywhere.** A news feed for any feed reader, a free JSON API for spreadsheets and
   scripts, and a live forecast card you can embed on your own web page, all rebuilt after every run.
   [How](#follow-it-from-anywhere-news-feed-json-api-and-embeds).
@@ -279,16 +282,33 @@ The landing page, slate and light. The Lab is the first thing you see, already l
 
 ## Latest results
 
-**Newest full backtest: 4 November 2026**, 32 series, every forecast made blind at its origin and
-scored against what happened (average sMAPE, lower is better). Radiant, the project's own forecaster,
-beat TimesFM for the first time. [How Radiant works](#radiant-market-psychology-and-statistics-against-timesfm).
+**Newest full backtest: 11 November 2026**, 53 series and 625 windows, every forecast made blind at its
+origin and scored against what happened (average sMAPE, lower is better). Radiant leads; Seldon, now its
+own council without TimesFM, finished level with TimesFM overall while disagreeing with it on purpose.
+[How Radiant works](#radiant-market-psychology-and-statistics-against-timesfm) ·
+[Seldon's own view](#seldons-own-view-a-second-opinion-not-a-copy).
 
-| Forecaster | All | Markets | News | Technology (daily) | Yearly adoption |
+| Forecaster | All | Markets | News | Politics | Technology (daily) | Weather | Yearly adoption |
+|---|---|---|---|---|---|---|---|
+| **Radiant** (this repo) | **12.73%** | 4.39% | **14.83%** | **25.00%** | 14.20% | 9.61% | 24.68% |
+| Chronos-Bolt (Amazon) | 13.12% | 4.68% | 15.58% | 25.46% | 15.14% | 9.94% | **22.75%** |
+| **Seldon** (this repo, no TimesFM) | 13.17% | 4.36% | 15.71% | 25.77% | 15.13% | 10.06% | 23.91% |
+| TimesFM 2.5 (Google) | 13.18% | 4.42% | 15.00% | 25.12% | **13.99%** | **9.56%** | 32.62% |
+| Seldon's crowd laws alone | 14.58% | 4.44% | 15.87% | 26.87% | 16.94% | 11.45% | 33.50% |
+| Ensemble of all models | 14.77% | 4.43% | 15.39% | 26.84% | 21.03% | 9.90% | 26.35% |
+| "No change" | 16.23% | **4.34%** | 17.21% | 28.95% | 21.11% | 12.33% | 35.76% |
+
+In markets nothing beat "no change" (4.34%), and Seldon, which leans on it there, came closest (4.36%).
+By series rather than by average, TimesFM still had the lower error on 35 of 53 series against Seldon's 18:
+Seldon's average is pulled down by a few series where it is much closer (the yearly adoption curves),
+TimesFM wins more often by small margins. The 4 November backtest (32 series) is kept below as the record it set.
+
+| Forecaster, 4 November 2026 | All | Markets | News | Technology (daily) | Yearly adoption |
 |---|---|---|---|---|---|
 | Chronos-Bolt (Amazon) | **9.39%** | 4.93% | 15.17% | 11.87% | **13.55%** |
 | **Radiant** (this repo) | 9.56% | 4.88% | 14.50% | 11.65% | 17.57% |
 | TimesFM 2.5 (Google) | 10.07% | 4.89% | **14.47%** | **11.47%** | 23.39% |
-| Seldon (this repo) | 10.40% | 4.98% | **14.47%** | **11.47%** | 26.54% |
+| Seldon (old council, TimesFM inside) | 10.40% | 4.98% | **14.47%** | **11.47%** | 26.54% |
 | Ensemble of all models | 10.82% | **4.79%** | 15.24% | 16.36% | 17.33% |
 
 The table and the duel just below are the project's **first full run (22 October 2026)**, kept as the
@@ -537,6 +557,31 @@ Four weekly batches of sealed forecasts have come due so far (2026-11-01), so ev
 reads "too early" or "not distinguishable from no change". The point is the years to come: the
 record builds itself every Monday.
 
+### Data sources: every series, every run
+
+<img src="docs/assets/app-sources.png" alt="The Monitor's Data sources card: 47 of 55 series fresh on the last run, and a table of the series that keep failing, with how many runs in a row, the last good download and why" width="100%">
+
+Each run notes which series downloaded, but the next run replaces the note, so a series that fails
+every time looks like bad luck once a run. `results/source_health.json` now keeps the running record:
+for every series, the last good download, how many runs in a row it has failed and why. Rebuilt from
+all 18 runs on main since 18 October, it found that **the war series had never downloaded once**:
+GDELT never once returned the bare query `"war"` (a rate-limit refusal or a plain-text notice, every
+run), so World news has been running without its biggest topic. War coverage is now matched on longer
+terms (warfare, "armed conflict", airstrike, "military offensive"); the next run shows whether GDELT
+answers it, and if not, its own reason. Three other changes stop GDELT from starving the news series:
+
+- **GDELT's own words.** When GDELT answers with a plain-text notice instead of data, the notice is
+  recorded. A notice about pacing is retried as before; any other refusal fails at once, without
+  spending the run's back-off budget on a query GDELT will not run.
+- **Top-ups, not full downloads.** A news series that is already cached asks GDELT only for the last
+  45 days instead of nine years, so each request is far lighter.
+- **The longest wait goes first.** GDELT answers the first requests of a run and refuses later ones
+  when it is busy, so the series that have gone longest without a fresh download are fetched first.
+
+The Monitor's **Data sources** card shows the record, worst first, and `psychohistory health` prints it.
+A series whose download fails still forecasts from its last good copy, marked stale; one that never
+downloaded has no forecast at all, which is what this card exists to catch.
+
 ### Volatility: how far markets swing
 
 <img src="docs/assets/app-vol-monitor.png" alt="The Monitor's volatility board: TimesFM's range, GARCH, EWMA, last month's volatility, Seldon and Seldon's laws a week and a month ahead, with windows, skill against last month's volatility, markets beaten, typical miss, Diebold-Mariano p and the live sealed record" width="100%">
@@ -752,6 +797,54 @@ series (20.1% against 25.9%) and trails on news, politics, technology and weathe
 a floor of 10% or 20% for every voter) were tried on the same windows and none did better overall; slower
 learning gained a few hundredths of a point in markets and lost more everywhere else. In markets the
 voters' shares now lean heavily on "no change", because on these windows nothing beat it there.
+
+### When Seldon and TimesFM disagree
+
+<img src="docs/assets/app-disagree.png" alt="The Desk's disagreement card: per area, how many backtest windows Seldon and TimesFM pointed opposite ways and who was right, how often TimesFM's direction was right when only it expected a move, and this week's open splits" width="100%">
+
+A second opinion is only useful if you know what its disagreements are worth. The Desk now has a card
+that settles them on the backtest: every window where Seldon and TimesFM expected moves of at least
+0.2% in opposite directions, and which of them pointed the way reality went, per area, with a sign test.
+On the 11 November backtest they split on 56 of 576 windows; TimesFM was right on 31, Seldon on 25,
+which could be luck. Seldon was right on 8 of the 9 splits on the yearly adoption curves (the one
+lopsided result, p 0.04).
+
+The more telling number is the last column. In markets Seldon usually expects no move worth the name,
+while TimesFM calls one; TimesFM did that on 139 windows and its direction was right on 70: **a coin
+flip**. That is the case for Seldon's flat line in markets, and the reason the odds advice holds back
+(see [What the odds suggest](#what-the-odds-suggest-checked-against-the-record)). Below the table the
+card lists this week's open splits: sealed forecasts where the two point opposite ways, each linked to
+its series page so you can watch which one reality sides with.
+
+### The hype cycle: peak, trough, plateau
+
+<img src="docs/assets/app-hype.png" alt="The Hype cycle view: eleven technologies placed by phase on the textbook hype curve, and a card per technology with its Wikipedia views, how far it sits below its peak, its trend, the call its phase implies and TimesFM's own four-week forecast" width="100%">
+
+Gartner's hype cycle (Fenn & Raskino, 2008) says attention to a new technology races to a peak of
+inflated expectations, slides into a trough of disillusionment and climbs back to a plateau, while real
+adoption keeps growing underneath. The **Hype cycle** view (key `P`, or `psychohistory hype`) reads where
+each of the eleven technologies stands, from its daily Wikipedia views since July 2015:
+
+- **level**: the last 90 days' mean views against the highest 90-day mean so far (1 = at the peak);
+- **trend**: the last 90 days against the 90 before.
+
+Those two numbers give one of six phases: climbing to a peak, at or near the peak, sliding into the
+trough, in the trough, climbing back, or on a plateau. Each card shows the real curve with its peak, the
+call the phase implies for the next 90 days (a peak implies a fall, a climb implies more), TimesFM's own
+four-week forecast beside it, and, where there is a yearly measure, adoption: the share of new cars sold
+that are electric next to electric vehicles and solid-state batteries, and objects launched into space
+next to Starship. When attention has faded while adoption kept growing, the card says so: that is the
+hype cycle's signature.
+
+Then the honest part. Once a month across the whole history, each technology's phase is read from the
+views up to that day only, and its call is checked against the next 90 days (flat means within ±10%),
+beside two plain rivals: **momentum** (the last 90 days' direction carries on) and **no change**. The
+hype cycle's own claim, that attention falls after a peak, is tested on its own against how often
+attention falls at all. The windows overlap, so the p-value is worked out on a third of them. The first
+full record comes with the next weekly run, which has the history since 2015 (this sandbox only had the
+last year, which is enough for today's phases but not for the record); `psychohistory hype --save
+results/hype_backtest.csv` writes every monthly call. Views to all of Wikipedia have drifted down for
+years, so "below its peak" partly measures that; the view says so.
 
 ### Today: alerts, time frames and the 70% club
 
@@ -1522,6 +1615,7 @@ site/                    the app: one static folder for Pages, the download and 
   app/js/series.js       series pages: every past forecast against what happened, and the opened ones
   app/embed.html         one forecast as a small card for any web page (an <iframe>)
   app/js/compare.js      Compare: up to four series' sealed forecasts on one chart
+  app/js/hype.js         the Hype cycle: each technology's phase, its real curve and the phases' record
   app/data/              data.js (this run's numbers) and pipeline.js (the stage inventory)
   sw.js                  offline support; manifest.webmanifest makes it installable
 src/psychohistory/
@@ -1543,6 +1637,8 @@ src/psychohistory/
   worldevents.py         the World events view: flare-up, fade and growth odds a week and four weeks ahead, with the wire's headlines
   bets.py                betting odds: Polymarket's prices on real-world questions, sealed daily and scored when they settle
   follow.py              would following the forecasts have made money? backtest windows as trades, with costs, against holding
+  health.py              `psychohistory health`: every series' downloads across runs (results/source_health.json)
+  hype.py                `psychohistory hype`: each technology's hype-cycle phase from its Wikipedia views, and what the phases foretold
   brief.py               `psychohistory brief`: what came due, changes of mind at a fixed level, streaks; results/BRIEF.md
   wire.py                `psychohistory wire`: the newest GDELT headlines per topic, for the World terminal
   ask.py                 `psychohistory ask`: TimesFM live on one series or your own CSV
@@ -1666,9 +1762,9 @@ World Predictor is Apache-2.0).
 
 <!-- progress:start -->
 
-**60 of 64 milestones done (94%).** Drawn from [`docs/progress.json`](docs/progress.json); tests check every ticked item against the repository.
+**63 of 65 milestones done (97%).** Drawn from [`docs/progress.json`](docs/progress.json); tests check every ticked item against the repository.
 
-<details><summary><b>📰 World news</b> · 17/17</summary>
+<details><summary><b>📰 World news</b> · 18/18</summary>
 
 - [x] GDELT news-attention loader
 - [x] Six news topics plus a news composite
@@ -1687,6 +1783,7 @@ World Predictor is Apache-2.0).
 - [x] Year ledger: every day of the year, TimesFM, Seldon and the crowd laws against reality, refreshed every weekday
 - [x] Event-level odds: spikes and lulls in world news and tech attention, scored against climatology and persistence
 - [x] World wire: the newest GDELT headlines for every topic, weekly
+- [x] Source health across runs: the war series found never to have downloaded, fixed; GDELT refusals recorded in its own words, top-ups and longest-wait-first
 
 </details>
 
@@ -1705,17 +1802,17 @@ World Predictor is Apache-2.0).
 
 </details>
 
-<details open><summary><b>🚀 New technologies</b> · 4/5</summary>
+<details><summary><b>🚀 New technologies</b> · 5/5</summary>
 
 - [x] Wikipedia attention for LLMs, AI, quantum, CRISPR, EVs, fusion, robots
 - [x] Adoption curves from Our World in Data
 - [x] Bass diffusion S-curve as a theory-driven rival
 - [x] First real TimesFM results published
-- [ ] Hype-cycle detection (attention peaks while adoption keeps rising)
+- [x] Hype-cycle detection: each technology's phase from its Wikipedia views, adoption beside it, and a backtest of what the phases foretold
 
 </details>
 
-<details open><summary><b>🌐 Web app (GitHub Pages)</b> · 23/24</summary>
+<details><summary><b>🌐 Web app (GitHub Pages)</b> · 24/24</summary>
 
 - [x] World terminal: command line, world board, movers, just-opened forecasts, focus and scoreboard
 - [x] Your book: sealed calls settled for good, running skill against TimesFM, export and import
@@ -1734,7 +1831,7 @@ World Predictor is Apache-2.0).
 - [x] A page for every series: every past forecast against what happened
 - [x] Time Vault lists every opened forecast, flagged when sealed before the value was published
 - [x] Cinematic landing page: a scroll story of one real forecast, sealed then scored
-- [ ] Live at normansrule.github.io/world-predictor
+- [x] Live at normansrule.github.io/world-predictor
 - [x] Long-term monitor: live skill, coverage and calibration by month, with drift alarms
 - [x] Design audit: WCAG 2.2 contrast in both themes, an 11px type floor, 40px touch targets, keyboard-instant views
 - [x] Today home screen: rise alerts in three tiers (75%, 85%, 95%+), each with its own record
@@ -1783,12 +1880,14 @@ bibliography, with every model, data source, theory and design reference, is in
 - Da, Z., Engelberg, J., & Gao, P. (2011). In search of attention. *The Journal of Finance, 66*(5), 1461–1499. https://doi.org/10.1111/j.1540-6261.2011.01679.x
 - Daniel, K., & Moskowitz, T. J. (2016). Momentum crashes. *Journal of Financial Economics, 122*(2), 221–247. https://doi.org/10.1016/j.jfineco.2015.12.002
 - Das, A., Kong, W., Sen, R., & Zhou, Y. (2024). A decoder-only foundation model for time-series forecasting. In *Proceedings of the 41st International Conference on Machine Learning* (Proceedings of Machine Learning Research, Vol. 235). PMLR. https://arxiv.org/abs/2310.10688
+- Dedehayir, O., & Steinert, M. (2016). The hype cycle model: A review and future directions. *Technological Forecasting and Social Change, 108*, 28–41. https://doi.org/10.1016/j.techfore.2016.04.005
 - De Bondt, W. F. M., & Thaler, R. (1985). Does the stock market overreact? *The Journal of Finance, 40*(3), 793–805. https://doi.org/10.1111/j.1540-6261.1985.tb05004.x
 - Desruisseaux, B. (Ed.). (2009). *Internet calendaring and scheduling core object specification (iCalendar)* (RFC 5545). Internet Engineering Task Force. https://doi.org/10.17487/RFC5545
 - Diebold, F. X., & Mariano, R. S. (1995). Comparing predictive accuracy. *Journal of Business & Economic Statistics, 13*(3), 253–263. https://doi.org/10.1080/07350015.1995.10524599
 - Elliot, A. J., & Maier, M. A. (2014). Color psychology: Effects of perceiving color on psychological functioning in humans. *Annual Review of Psychology, 65*, 95–120. https://doi.org/10.1146/annurev-psych-010213-115035
 - Engle, R. F. (1982). Autoregressive conditional heteroscedasticity with estimates of the variance of United Kingdom inflation. *Econometrica, 50*(4), 987–1007. https://doi.org/10.2307/1912773
 - Fama, E. F. (1970). Efficient capital markets: A review of theory and empirical work. *The Journal of Finance, 25*(2), 383–417. https://doi.org/10.2307/2325486
+- Fenn, J., & Raskino, M. (2008). *Mastering the hype cycle: How to choose the right innovation at the right time*. Harvard Business Press.
 - Fetterer, F., Knowles, K., Meier, W. N., Savoie, M., & Windnagel, A. K. (2017). *Sea Ice Index* (Version 3) [Data set]. National Snow and Ice Data Center. https://doi.org/10.7265/N5K072F8
 - Freund, Y., & Schapire, R. E. (1997). A decision-theoretic generalization of on-line learning and an application to boosting. *Journal of Computer and System Sciences, 55*(1), 119–139. https://doi.org/10.1006/jcss.1997.1504
 - Gardner, E. S., Jr., & McKenzie, E. (1985). Forecasting trends in time series. *Management Science, 31*(10), 1237–1246. https://doi.org/10.1287/mnsc.31.10.1237

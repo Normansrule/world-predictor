@@ -21,7 +21,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from . import __version__, brief, bets, catalog, champions, feeds, follow, offline, worldevents, events, frames, monitor, radiant, seldon, volatility, yearbook
+from . import __version__, brief, bets, catalog, champions, feeds, follow, health, hype, offline, worldevents, events, frames, monitor, radiant, seldon, volatility, yearbook
 from .backtest import MAX_CONTEXT, calibration, domain_table, head_to_head, summarize
 from .ledger import latest as ledger_latest
 from .simulate import CROWD_SIZES, crowd_predictability, simulate_crowd
@@ -116,6 +116,7 @@ def build_payload(
     wire: dict | None = None,
     events: dict | None = None,
     bet_odds: dict | None = None,
+    sources: dict | None = None,
 ) -> dict:
     """Everything the app needs, as plain JSON-ready values. ``bet_odds`` holds the betting ledger's
     ``entries``, ``scored`` and ``seals`` (see bets.py)."""
@@ -137,6 +138,7 @@ def build_payload(
         "run": run_status or {}, "evidence": evidence(results, model),
         "lab": lab_payload(paths, model, data, windows), "duel": duel_payload(results, model),
         "duel_laws": duel_payload(results, model, seldon.LAWS_NAME),
+        "disagree": disagree_payload(paths, ledger, data, model),
         "duel_radiant": duel_payload(results, model, radiant.NAME),
         "leaderboard": leaderboard_payload(summary, model),
         "track": track_payload(paths, model), "opened": opened_payload(scored, model),
@@ -154,6 +156,8 @@ def build_payload(
         "bets": bets.payload(**bet_odds) if bet_odds else None,
         "radiant_vote": radiant_vote_payload(paths, data, model) if not demo else None,
         "year": yearbook.build(data, _with_radiant(paths, data, model, domains), ledger, model) if not demo else None,
+        "hype": hype.payload(data),
+        "health": health.payload(sources, {s.id: s.description for s in catalog.CATALOG}) if sources else None,
     }
     if not payload["duel"] and payload["lab"]:
         payload["duel"] = payload["lab"].pop("duel", [])  # a run from before Seldon joined the backtest
@@ -265,6 +269,9 @@ def _seldon_outlook(ledger: pd.DataFrame, series: pd.Series, series_id: str, dom
     if not sealed.empty and str(made_on) >= seldon.OWN_SINCE:
         rows, source = sealed.sort_values("step"), "sealed"
         q10, q50, q90 = (rows[k].to_numpy(float) for k in ("q10", "q50", "q90"))
+        rival = ledger[(ledger["model"] == radiant.RIVAL) & (ledger["series_id"] == series_id) & (ledger["made_on"] == made_on)]
+        if not rival.empty:  # the sealed forecast had Chronos-Bolt in its council, so show the shares it voted with
+            used = seldon.own_weights(windows, _area(series_id, domain), last_date)
     else:  # no sealed Seldon yet, or the one sealed came from the old council with TimesFM in it
         rows, source = fan, "computed" if sealed.empty else "recomputed"
         q10, q50, q90 = own.q(0.1), own.q(0.5), own.q(0.9)
@@ -371,6 +378,82 @@ def events_payload(summary: pd.DataFrame | None = None, now: pd.DataFrame | None
                        for r in live.itertuples()]
     if seals is not None and not seals.empty:
         out["seals"] = {"batches": int(len(seals)), "ok": int((seals["status"] == "ok").sum()), "rows": int(seals["rows"].sum())}
+    return out
+
+
+def _sign_test(k: int, n: int) -> float | None:
+    """Two-sided binomial sign test: the chance of a split at least this lopsided if each side
+    were right half the time."""
+    if n <= 0:
+        return None
+    tail = sum(math.comb(n, i) for i in range(max(k, n - k), n + 1)) / 2 ** n
+    return min(1.0, 2 * tail)
+
+
+FLAT = 0.002  # a middle line that moves less than 0.2% makes no call on direction
+
+
+def _way(move: float) -> int:
+    return 0 if not np.isfinite(move) or abs(move) < FLAT else int(np.sign(move))
+
+
+def disagree_payload(paths: pd.DataFrame | None, ledger: pd.DataFrame | None, data: dict[str, pd.Series],
+                     model: str) -> dict:
+    """When Seldon and ``model`` point opposite ways, who turns out right? Every backtest window
+    where both forecast a move of at least 0.2% from the same last value, in opposite directions, is
+    settled by the real move at the window's end (exactly one of them is right unless reality did
+    not move), per area, with a sign test; and windows where ``model`` called a move while Seldon saw
+    none, with how often ``model``'s direction was right. Areas rows: [area, windows, splits, Seldon
+    right, model right, p, model-only calls, model right on them, p]. ``now`` lists the newest sealed batch's open splits:
+    [id, domain, model's expected move, Seldon's, target date]."""
+    out = {"areas": [], "now": [], "made_on": None}
+    if paths is not None and not paths.empty:
+        both = paths[paths["model"].isin([model, seldon.NAME])]
+        ends = both.sort_values("step").groupby(["series_id", "origin", "model"]).tail(1)
+        wide = ends.pivot_table(index=["series_id", "origin"], columns="model", values="q50")
+        actual = ends.groupby(["series_id", "origin"])["actual"].last()
+        tally: dict[str, list[int]] = {}
+        for (sid, origin), row in wide.iterrows():
+            if sid not in data or not np.isfinite(row.get(model, np.nan)) or not np.isfinite(row.get(seldon.NAME, np.nan)):
+                continue
+            before = data[sid][data[sid].index <= pd.Timestamp(origin)]
+            if before.empty:
+                continue
+            last = float(before.iloc[-1])
+            if not last:
+                continue
+            a, b, real = _way(row[model] / last - 1), _way(row[seldon.NAME] / last - 1), np.sign(actual[(sid, origin)] - last)
+            spec = next((c for c in catalog.CATALOG if c.id == sid), None)
+            area = _area(sid, spec.domain if spec else "other")
+            # windows, splits, Seldon right, model right, model moved while Seldon saw no move, model right then
+            t = tally.setdefault(area, [0, 0, 0, 0, 0, 0])
+            t[0] += 1
+            if a and b and a != b:
+                t[1] += 1
+                t[2] += int(b == real)
+                t[3] += int(a == real)
+            elif a and not b:
+                t[4] += 1
+                t[5] += int(a == real)
+        total = [sum(v[i] for v in tally.values()) for i in range(6)]
+        for area, (n, split, s_right, m_right, alone, alone_right) in [*sorted(tally.items()), ("all", total)]:
+            if n:
+                out["areas"].append([area, n, split, s_right, m_right, _num(_sign_test(s_right, s_right + m_right), 4),
+                                     alone, alone_right, _num(_sign_test(alone_right, alone), 4)])
+    if ledger is not None and not ledger.empty:
+        fresh = ledger[(ledger["made_on"].astype(str) >= seldon.OWN_SINCE) & ledger["model"].isin([model, seldon.NAME])]
+        if not fresh.empty:
+            made_on = fresh["made_on"].max()
+            ends = fresh[fresh["made_on"] == made_on].sort_values("step").groupby(["series_id", "model"]).tail(1)
+            for sid, g in ends.groupby("series_id"):
+                m = g.set_index("model")
+                if model not in m.index or seldon.NAME not in m.index:
+                    continue
+                last = float(m.loc[model, "last_value"])
+                mm, sm = m.loc[model, "q50"] / last - 1, m.loc[seldon.NAME, "q50"] / last - 1
+                if last and _way(mm) and _way(sm) and _way(mm) != _way(sm):
+                    out["now"].append([sid, m.loc[model, "domain"], _num(mm, 4), _num(sm, 4), str(m.loc[model, "target_date"])])
+            out["made_on"] = str(made_on)
     return out
 
 

@@ -56,12 +56,35 @@
         <div class="card"><header class="ph"><h2>Are the live odds honest?</h2><span class="pm">chance of ending higher, as given against as happened</span></header><div id="mo-cal"></div><div id="mo-cal-legend"></div>
         <p class="note">Each dot is one bucket of sealed forecasts, by the chance of rising they gave. Honest odds sit on the diagonal: of the forecasts that said 70%, about 70% rose. Small buckets wobble; they settle as the ledger grows.</p></div>
       </div>
+      <div class="card" id="mo-sources"></div>
       <div class="card" id="mo-vol"></div>
       <div class="card" id="mo-events"></div>`;
     const bind = (id, key) => { host.querySelector(id).onclick = (e) => { const b = e.target.closest("button"); if (!b) return; state[key] = b.dataset.k; render(host, D); }; };
     bind("#mo-area", "area"); bind("#mo-metric", "metric"); bind("#mo-grain", "grain");
     host.querySelector("#mo-run").onchange = (e) => { state.running = e.target.checked; render(host, D); };
-    chart(M); board(M); alarmList(M); calibration(M); volatility(D.volatility || {}); eventOdds(D.events || {});
+    chart(M); board(M); alarmList(M); calibration(M); volatility(D.volatility || {}); eventOdds(D.events || {}); sources(D.health);
+  }
+
+  // Source health: every series' downloads across runs, so a source that keeps failing cannot hide.
+  const STATE = { never: ["Never downloaded", "neg"], broken: ["Broken", "neg"], flaky: ["Failing lately", "warn"] };
+  function sources(H) {
+    const box = host.querySelector("#mo-sources");
+    if (!H) { box.innerHTML = '<header class="ph"><h2>Data sources</h2></header><div class="empty">The record starts with the next <code>psychohistory fetch</code>.</div>'; return; }
+    const c = H.counts, bad = H.items;
+    const row = (i) => `<tr><th scope="row"><a href="#trace/${esc(i.id)}">${esc(i.title)}</a><small>${esc(i.id)}</small></th>
+      <td><span class="mo-src ${STATE[i.state][1]}">${STATE[i.state][0]}</span></td>
+      <td>${i.streak} run${i.streak === 1 ? "" : "s"}${i.since ? `<small>since ${esc(i.since)}</small>` : ""}</td>
+      <td>${i.last_ok ? esc(i.last_ok) : "never"}${i.cached ? '<small>its last good copy is still used</small>' : ""}</td>
+      <td>${esc(i.why || "")}</td></tr>`;
+    box.innerHTML = `<header class="ph"><h2>Data sources: every series, every run</h2><span class="pm">${H.runs} downloads, ${esc(H.first)} to ${esc(H.last)}</span></header>
+      <div class="detail"><dl class="facts mo-src-facts">
+        <div><dt>Fresh this run</dt><dd class="pos">${c.ok} of ${H.series}</dd></div>
+        <div><dt>Failing lately</dt><dd class="${c.flaky ? "warn" : ""}">${c.flaky}</dd></div>
+        <div><dt>Broken (${H.broken_after}+ runs)</dt><dd class="${c.broken ? "neg" : ""}">${c.broken}</dd></div>
+        <div><dt>Never downloaded</dt><dd class="${c.never ? "neg" : ""}">${c.never}</dd></div>
+      </dl></div>
+      ${bad.length ? `<div class="table-wrap"><table class="mo-src-table"><thead><tr><th>Series</th><th>State</th><th>Failed for</th><th>Last good download</th><th>Why</th></tr></thead><tbody>${bad.map(row).join("")}</tbody></table></div>` : '<p class="note">Every series downloaded fresh on the last run.</p>'}
+      <p class="note">A series whose download fails keeps its last good copy, marked stale, so its forecast still runs from real (older) data; one that never downloaded has no forecast at all. GDELT, the news source, refuses requests when it is busy, so the series that have waited longest go first in the next run.</p>`;
   }
 
   // Volatility: every forecaster against last month's volatility, on the backtest and live.

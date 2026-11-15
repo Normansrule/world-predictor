@@ -1,0 +1,477 @@
+{
+ "runs": [
+  "2026-10-19T11:52:47Z",
+  "2026-10-22T04:16:53Z",
+  "2026-10-26T12:20:09Z",
+  "2026-11-01T14:35:34Z",
+  "2026-11-02T14:38:49Z",
+  "2026-11-03T01:38:26Z",
+  "2026-11-04T03:07:56Z",
+  "2026-11-04T06:00:12Z",
+  "2026-11-05T03:10:05Z",
+  "2026-11-06T02:37:39Z",
+  "2026-11-07T02:58:29Z",
+  "2026-11-09T15:22:05Z",
+  "2026-11-10T05:12:14Z",
+  "2026-11-11T02:51:10Z",
+  "2026-11-11T05:34:28Z",
+  "2026-11-12T03:33:27Z",
+  "2026-11-13T03:06:56Z",
+  "2026-11-14T02:54:14Z"
+ ],
+ "series": {
+  "aapl": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-14",
+   "ok": 18,
+   "since": null,
+   "streak": 0
+  },
+  "adoption_ev": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-14",
+   "ok": 9,
+   "since": null,
+   "streak": 0
+  },
+  "adoption_internet": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-14",
+   "ok": 18,
+   "since": null,
+   "streak": 0
+  },
+  "adoption_solar": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-14",
+   "ok": 18,
+   "since": null,
+   "streak": 0
+  },
+  "adoption_wind": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-14",
+   "ok": 18,
+   "since": null,
+   "streak": 0
+  },
+  "bitcoin": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-14",
+   "ok": 18,
+   "since": null,
+   "streak": 0
+  },
+  "copper": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-14",
+   "ok": 18,
+   "since": null,
+   "streak": 0
+  },
+  "gold": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-14",
+   "ok": 18,
+   "since": null,
+   "streak": 0
+  },
+  "msci_world": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-14",
+   "ok": 18,
+   "since": null,
+   "streak": 0
+  },
+  "nasdaq100": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-14",
+   "ok": 18,
+   "since": null,
+   "streak": 0
+  },
+  "news_climate": {
+   "cached": false,
+   "error": null,
+   "failed": 4,
+   "last_ok": "2026-11-14",
+   "ok": 14,
+   "since": null,
+   "streak": 0
+  },
+  "news_composite": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-14",
+   "ok": 18,
+   "since": null,
+   "streak": 0
+  },
+  "news_election": {
+   "cached": false,
+   "error": null,
+   "failed": 5,
+   "last_ok": "2026-11-14",
+   "ok": 13,
+   "since": null,
+   "streak": 0
+  },
+  "news_inflation": {
+   "cached": true,
+   "error": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22inflation%22&mode=timelinevol&format=json&STARTDATETIME=20170101000000&ENDDATETIME=20261114024315&TIMELINESMOOTH=0 (used the copy through 2026-11-12)",
+   "failed": 6,
+   "last_ok": "2026-11-12",
+   "ok": 12,
+   "since": "2026-11-13",
+   "streak": 2
+  },
+  "news_pandemic": {
+   "cached": true,
+   "error": "Busy: GDELT still busy after 570s of back-off this run (budget 600s) (used the copy through 2026-11-12)",
+   "failed": 8,
+   "last_ok": "2026-11-12",
+   "ok": 10,
+   "since": "2026-11-13",
+   "streak": 2
+  },
+  "news_protest": {
+   "cached": true,
+   "error": null,
+   "failed": 7,
+   "last_ok": "2026-11-14",
+   "ok": 11,
+   "since": null,
+   "streak": 0
+  },
+  "news_war": {
+   "cached": false,
+   "error": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22war%22&mode=timelinevol&format=json&STARTDATETIME=20170101000000&ENDDATETIME=20261114023821&TIMELINESMOOTH=0",
+   "failed": 18,
+   "last_ok": null,
+   "ok": 0,
+   "since": "2026-10-19",
+   "streak": 18
+  },
+  "nvda": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-14",
+   "ok": 18,
+   "since": null,
+   "streak": 0
+  },
+  "oil_wti": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-14",
+   "ok": 18,
+   "since": null,
+   "streak": 0
+  },
+  "politics_ceasefire": {
+   "cached": true,
+   "error": null,
+   "failed": 4,
+   "last_ok": "2026-11-14",
+   "ok": 5,
+   "since": null,
+   "streak": 0
+  },
+  "politics_composite": {
+   "cached": false,
+   "error": null,
+   "failed": 1,
+   "last_ok": "2026-11-14",
+   "ok": 8,
+   "since": null,
+   "streak": 0
+  },
+  "politics_coup": {
+   "cached": true,
+   "error": "Busy: GDELT still busy after 600s of back-off this run (budget 600s) (used the copy through 2026-11-11)",
+   "failed": 5,
+   "last_ok": "2026-11-11",
+   "ok": 4,
+   "since": "2026-11-11",
+   "streak": 4
+  },
+  "politics_impeachment": {
+   "cached": true,
+   "error": "Busy: GDELT still busy after 600s of back-off this run (budget 600s) (used the copy through 2026-11-12)",
+   "failed": 5,
+   "last_ok": "2026-11-12",
+   "ok": 4,
+   "since": "2026-11-13",
+   "streak": 2
+  },
+  "politics_referendum": {
+   "cached": true,
+   "error": "Busy: GDELT still busy after 600s of back-off this run (budget 600s) (used the copy through 2026-11-11)",
+   "failed": 6,
+   "last_ok": "2026-11-11",
+   "ok": 3,
+   "since": "2026-11-11",
+   "streak": 4
+  },
+  "politics_sanctions": {
+   "cached": true,
+   "error": "Busy: GDELT still busy after 600s of back-off this run (budget 600s) (used the copy through 2026-11-11)",
+   "failed": 6,
+   "last_ok": "2026-11-11",
+   "ok": 3,
+   "since": "2026-11-11",
+   "streak": 4
+  },
+  "politics_tariffs": {
+   "cached": true,
+   "error": "Busy: GDELT still busy after 600s of back-off this run (budget 600s) (used the copy through 2026-11-12)",
+   "failed": 3,
+   "last_ok": "2026-11-13",
+   "ok": 6,
+   "since": "2026-11-14",
+   "streak": 1
+  },
+  "quakes_m45": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-14",
+   "ok": 9,
+   "since": null,
+   "streak": 0
+  },
+  "silver": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-14",
+   "ok": 18,
+   "since": null,
+   "streak": 0
+  },
+  "sp500": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-14",
+   "ok": 18,
+   "since": null,
+   "streak": 0
+  },
+  "space_launches": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-14",
+   "ok": 9,
+   "since": null,
+   "streak": 0
+  },
+  "tech_composite": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-14",
+   "ok": 18,
+   "since": null,
+   "streak": 0
+  },
+  "tlt": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-14",
+   "ok": 13,
+   "since": null,
+   "streak": 0
+  },
+  "tsla": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-14",
+   "ok": 18,
+   "since": null,
+   "streak": 0
+  },
+  "us10y": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-14",
+   "ok": 13,
+   "since": null,
+   "streak": 0
+  },
+  "vix": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-14",
+   "ok": 13,
+   "since": null,
+   "streak": 0
+  },
+  "weather_arctic_ice": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-14",
+   "ok": 9,
+   "since": null,
+   "streak": 0
+  },
+  "weather_london": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-14",
+   "ok": 9,
+   "since": null,
+   "streak": 0
+  },
+  "weather_los_angeles": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-14",
+   "ok": 9,
+   "since": null,
+   "streak": 0
+  },
+  "weather_new_delhi": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-14",
+   "ok": 9,
+   "since": null,
+   "streak": 0
+  },
+  "weather_sydney": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-14",
+   "ok": 9,
+   "since": null,
+   "streak": 0
+  },
+  "weather_tokyo": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-14",
+   "ok": 9,
+   "since": null,
+   "streak": 0
+  },
+  "weather_world_air": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-14",
+   "ok": 9,
+   "since": null,
+   "streak": 0
+  },
+  "weather_world_sea": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-14",
+   "ok": 9,
+   "since": null,
+   "streak": 0
+  },
+  "wiki_ai": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-14",
+   "ok": 18,
+   "since": null,
+   "streak": 0
+  },
+  "wiki_battery": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-14",
+   "ok": 9,
+   "since": null,
+   "streak": 0
+  },
+  "wiki_crispr": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-14",
+   "ok": 18,
+   "since": null,
+   "streak": 0
+  },
+  "wiki_ev": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-14",
+   "ok": 18,
+   "since": null,
+   "streak": 0
+  },
+  "wiki_fusion": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-14",
+   "ok": 18,
+   "since": null,
+   "streak": 0
+  },
+  "wiki_gene_therapy": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-14",
+   "ok": 9,
+   "since": null,
+   "streak": 0
+  },
+  "wiki_humanoid": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-14",
+   "ok": 18,
+   "since": null,
+   "streak": 0
+  },
+  "wiki_llm": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-14",
+   "ok": 18,
+   "since": null,
+   "streak": 0
+  },
+  "wiki_quantum": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-14",
+   "ok": 18,
+   "since": null,
+   "streak": 0
+  },
+  "wiki_self_driving": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-14",
+   "ok": 9,
+   "since": null,
+   "streak": 0
+  },
+  "wiki_starship": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-14",
+   "ok": 9,
+   "since": null,
+   "streak": 0
+  },
+  "xom": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-14",
+   "ok": 18,
+   "since": null,
+   "streak": 0
+  }
+ }
+}

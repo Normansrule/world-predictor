@@ -10,9 +10,9 @@
   const hue = (d) => (AREA[d] ? `var(--${d})` : "var(--ink-3)");
   const tag = (d) => `<span class="tag" style="--c:${hue(d)}">${esc(AREA[d] || d)}</span>`;
   const UNIT = { news: "days", politics: "days", markets: "trading days", tech: "days", weather: "days" };
-  const VIEWS = ["today", "events", "calendar", "compare", "terminal", "desk", "markets", "monitor", "year", "lab", "studio", "outlook", "trace", "replay", "horizon", "odds", "vault", "crowd", "series", "about"];
-  const KEYS = { h: "today", H: "today", e: "events", E: "events", c: "calendar", C: "calendar", x: "compare", X: "compare", w: "terminal", W: "terminal", m: "markets", M: "markets", r: "monitor", R: "monitor", y: "year", Y: "year", 1: "desk", 2: "lab", 3: "studio", 4: "outlook", 5: "trace", 6: "replay", 7: "horizon", 8: "odds", 9: "vault", 0: "series", "?": "about" };
-  const NAMES = { today: "Today", events: "World events", calendar: "Coming up", compare: "Compare", terminal: "World terminal", desk: "Desk", markets: "Markets desk", monitor: "Monitor", year: "Year ledger", lab: "Lab", studio: "Forecast Studio", outlook: "Outlook", trace: "Follow a result", replay: "Replay", horizon: "How far ahead", odds: "Honest odds",
+  const VIEWS = ["today", "events", "calendar", "compare", "terminal", "desk", "markets", "monitor", "year", "hype", "lab", "studio", "outlook", "trace", "replay", "horizon", "odds", "vault", "crowd", "series", "about"];
+  const KEYS = { h: "today", H: "today", e: "events", E: "events", c: "calendar", C: "calendar", x: "compare", X: "compare", w: "terminal", W: "terminal", m: "markets", M: "markets", r: "monitor", R: "monitor", y: "year", Y: "year", p: "hype", P: "hype", 1: "desk", 2: "lab", 3: "studio", 4: "outlook", 5: "trace", 6: "replay", 7: "horizon", 8: "odds", 9: "vault", 0: "series", "?": "about" };
+  const NAMES = { today: "Today", events: "World events", calendar: "Coming up", compare: "Compare", terminal: "World terminal", desk: "Desk", markets: "Markets desk", monitor: "Monitor", year: "Year ledger", hype: "Hype cycle", lab: "Lab", studio: "Forecast Studio", outlook: "Outlook", trace: "Follow a result", replay: "Replay", horizon: "How far ahead", odds: "Honest odds",
     vault: "Time Vault", crowd: "Crowd lab", series: "All series", about: "About" };
   // The workflow's schedule: new forecasts sealed Monday 06:00 UTC, live refresh every weekday 22:30 UTC.
   function nextRun(now = new Date()) {
@@ -115,6 +115,7 @@
           An underline marks the better of the two. ${fromRun ? "" : "This run predates Seldon's place in the backtest, so its numbers are Seldon run afterwards on the same past windows, from only the data before each one. It has no pretraining to leak the answer, but the next backtest makes it official."}`;
       }
       duel();
+      split();
       leaderboard();
       record();
       $("plain-body").innerHTML = D.headlines.length ? "<ul>" + D.headlines.map((h) => `<li>${esc(h)}</li>`).join("") + "</ul>"
@@ -156,6 +157,7 @@
 
     monitor() { window.WPMonitor.render($("monitor-root"), D); },
     year() { window.WPYear.render($("year-root"), D); },
+    hype() { window.WPHype.render($("hype-root"), D); },
 
     today(arg) { window.WPToday.render($("today-root"), D, arg); },
 
@@ -434,6 +436,34 @@
       + (laws.length ? duelBlock(laws, "Laws", "The crowd laws alone, without " + modelName, true) : "")
       + `<p class="note" style="margin:10px 0 0">A series goes to whichever had the lower average absolute error on the same windows (so the count can differ from the leaderboard's, which goes by percentage miss); ties are left out. Seldon is our own forecaster and leaves ${esc(modelName)} out on purpose: four laws of crowd behaviour (inertia, drift, momentum, reversion, on top of the weekly rhythm), a behavioural core, "no change" and Chronos-Bolt in one council, each voter's share learned per area from finished windows. So where it wins or loses, that is a different view winning or losing, not a copy of ${esc(modelName)}.</p>`;
   }
+
+  // When the two opinions split: every backtest window where Seldon and the model under test pointed
+  // opposite ways (moves of 0.2% or more), settled by what really happened; and the windows where the
+  // model called a move while Seldon saw none. Then this week's open splits (web.disagree_payload).
+  function split() {
+    const S = D.disagree, host = $("split");
+    if (!host) return;
+    if (!S || !(S.areas || []).length) { $("split-card").hidden = true; return; }
+    const AREA = { markets: "Markets", news: "World news", politics: "Politics", tech: "Technology", weather: "Weather and Earth", yearly: "Yearly adoption", all: "All areas" };
+    const pct = (k, n) => (n ? Math.round((100 * k) / n) + "%" : "–");
+    const verdict = (p) => (p === null || p === undefined ? "" : p < 0.05 ? "real" : "could be luck");
+    const bar = (a, b) => { const n = a + b || 1; return `<span class="split-bar" role="img" aria-label="Seldon right ${a}, ${esc(modelName)} right ${b}"><i style="--w:${((100 * a) / n).toFixed(1)}%"></i></span>`; };
+    const rows = S.areas.map(([area, n, k, s, m, p, alone, aloneRight, p2]) => `<tr${area === "all" ? ' class="tot"' : ""}>
+        <th scope="row">${esc(AREA[area] || area)}</th><td>${n}</td>
+        <td>${k}</td><td>${k ? `<span class="split-who"><b class="sel">${s}</b>${bar(s, m)}<b class="tfm">${m}</b></span>` : "–"}</td><td>${k ? verdict(p) : ""}</td>
+        <td>${alone ? `${aloneRight} of ${alone} (${pct(aloneRight, alone)})` : "–"}</td></tr>`).join("");
+    const mk = S.areas.find((r) => r[0] === "markets");
+    const lead = mk && mk[6] >= 20
+      ? `In markets, ${esc(modelName)} called a move ${mk[6]} times while Seldon expected no move worth the name, and its direction was right ${mk[7]} times (${pct(mk[7], mk[6])}): ${Math.abs(mk[7] / mk[6] - 0.5) < 0.08 ? "a coin flip, which is Seldon's point" : mk[7] / mk[6] > 0.5 ? "better than a coin flip, so those calls carried something Seldon missed" : "worse than a coin flip"}.`
+      : "";
+    const now = (S.now || []).map(([id, dom, m, s, when]) => `<li><a href="#series/${encodeURIComponent(id)}">${esc(titleOf(id))}</a> <span class="tfm">${esc(modelName)} ${WPAdvice.pc(m)}</span> · <span class="sel">Seldon ${WPAdvice.pc(s)}</span> <span class="muted">by ${esc(when)}</span></li>`).join("");
+    host.innerHTML = `${lead ? `<p class="split-lead">${lead}</p>` : ""}
+      <div class="table-wrap"><table class="leader split-t"><thead><tr><th>Area</th><th>Windows</th><th title="windows where both expected a move of 0.2% or more, in opposite directions">Opposite calls</th><th>Right: <span class="sel">Seldon</span> · <span class="tfm">${esc(modelName)}</span></th><th title="sign test: could a split this lopsided be luck if each were right half the time?">Real or luck</th><th title="windows where ${esc(modelName)} expected a move and Seldon did not: how often ${esc(modelName)}'s direction was right">Only ${esc(modelName)} moved</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <h3 class="split-h">Open right now${S.made_on ? ` <span class="muted">· sealed ${esc(S.made_on)}</span>` : ""}</h3>
+      ${now ? `<ul class="split-now">${now}</ul>` : `<p class="note">No series where the two point opposite ways this week.</p>`}
+      <p class="note">A call is a middle line that moves at least 0.2% by the end of the window. When the two point opposite ways, reality settles it: whichever pointed the way it went was right. "Real" means a split this lopsided would happen less than one time in twenty by luck (two-sided sign test). Research, not investment advice.</p>`;
+  }
+  function titleOf(id) { return ((D.series || []).find((r) => r.id === id) || (D.outlook || []).find((o) => o.id === id) || {}).title || id; }
 
   function duelBlock(rows, who, label, second, challenger = "seldon") {
     const all = rows.find((r) => r.domain === "all"), areas = rows.filter((r) => r.domain !== "all");

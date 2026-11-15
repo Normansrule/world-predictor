@@ -55,6 +55,7 @@
       <a href="#compare">Compare</a>
       <a href="#studio">Forecast Studio</a>
       <a href="#year">Year ledger</a>
+      <a href="#hype">Hype cycle</a>
       <a href="#monitor">Monitor</a>
       <a href="#outlook">Outlook</a>
       <a href="#series">All series</a>
@@ -77,6 +78,7 @@
     <section class="view" id="view-events" aria-labelledby="events-h"><div id="events-root"></div></section>
     <section class="view" id="view-calendar" aria-labelledby="calendar-h"><div id="calendar-root"></div></section>
     <section class="view" id="view-compare" aria-labelledby="compare-h"><div id="compare-root"></div></section>
+    <section class="view" id="view-hype" aria-labelledby="hype-h"><div id="hype-root"></div></section>
 
     <section class="view" id="view-terminal" aria-labelledby="terminal-h"><div id="terminal-root"></div></section>
 
@@ -97,6 +99,10 @@
           <div class="table-wrap"><table class="board" id="board"></table></div>
           <p class="note" id="board-note"></p>
           <div class="duel" id="duel"></div>
+        </div>
+        <div class="card span3" id="split-card">
+          <header class="ph"><h2>When Seldon and TimesFM disagree</h2><span class="pm" id="split-meta">backtest · who was right</span></header>
+          <div id="split"></div>
         </div>
         <div class="card span3" id="leader-card">
           <header class="ph"><h2>Leaderboard</h2><span class="pm">every model on the newest backtest, best first</span></header>
@@ -346,6 +352,7 @@
 <script src="js/events.js"></script>
 <script src="js/calendar.js"></script>
 <script src="js/compare.js"></script>
+<script src="js/hype.js"></script>
 <script src="js/share.js"></script>
 <script src="js/today.js"></script>
 <script src="js/app.js"></script>

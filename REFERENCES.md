@@ -67,7 +67,7 @@ everything that ships or downloads with this project are in [CREDITS.md](CREDITS
 | Mean reversion | Uhlenbeck and Ornstein, "On the Theory of the Brownian Motion" (1930) | Seldon's reversion law: an excited series is pulled back toward its recent normal. |
 | Forecasting competitions | Makridakis, Spiliotis and Assimakopoulos, "The M4 Competition" (2020) | The held-out public data Seldon is checked on (`scripts/seldon_m4_check.py`). |
 | Bass diffusion model | Frank Bass, "A New Product Growth Model" (1969) | **Built in** as the `bass` model: an S-curve fitted to each technology-adoption series and run against TimesFM. |
-| Gartner hype cycle | Gartner (1995) | Why attention to a technology (Wikipedia views) spikes and fades even while adoption keeps rising. |
+| Gartner hype cycle | Gartner (1995); Fenn & Raskino (2008); Dedehayir & Steinert (2016) | Why attention to a technology (Wikipedia views) spikes and fades even while adoption keeps rising; the Hype cycle view (`psychohistory hype`) reads each technology's phase and tests what the phase foretold. |
 | Proper scoring rules | Glenn Brier (1950); Gneiting and Raftery (2007) | Brier and pinball scores; honest odds (test 4). |
 | Superforecasting | Philip Tetlock and Dan Gardner, *Superforecasting* (2015) | Keeping a dated prediction ledger and scoring calibration over time. |
 | Forecast accuracy measures | Hyndman and Koehler (2006) | MASE, which makes gold prices and news shares comparable. |
@@ -116,6 +116,7 @@ date", with the day they were retrieved; several undated works by one author are
 - Da, Z., Engelberg, J., & Gao, P. (2011). In search of attention. *The Journal of Finance, 66*(5), 1461–1499. https://doi.org/10.1111/j.1540-6261.2011.01679.x
 - Daniel, K., & Moskowitz, T. J. (2016). Momentum crashes. *Journal of Financial Economics, 122*(2), 221–247. https://doi.org/10.1016/j.jfineco.2015.12.002
 - Das, A., Kong, W., Sen, R., & Zhou, Y. (2024). A decoder-only foundation model for time-series forecasting. In *Proceedings of the 41st International Conference on Machine Learning* (Proceedings of Machine Learning Research, Vol. 235). PMLR. https://arxiv.org/abs/2310.10688
+- Dedehayir, O., & Steinert, M. (2016). The hype cycle model: A review and future directions. *Technological Forecasting and Social Change, 108*, 28–41. https://doi.org/10.1016/j.techfore.2016.04.005
 - De Bondt, W. F. M., & Thaler, R. (1985). Does the stock market overreact? *The Journal of Finance, 40*(3), 793–805. https://doi.org/10.1111/j.1540-6261.1985.tb05004.x
 - Diebold, F. X., & Mariano, R. S. (1995). Comparing predictive accuracy. *Journal of Business & Economic Statistics, 13*(3), 253–263. https://doi.org/10.1080/07350015.1995.10524599
 - Elliot, A. J., & Maier, M. A. (2014). Color psychology: Effects of perceiving color on psychological functioning in humans. *Annual Review of Psychology, 65*, 95–120. https://doi.org/10.1146/annurev-psych-010213-115035

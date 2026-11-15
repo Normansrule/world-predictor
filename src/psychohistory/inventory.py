@@ -49,7 +49,8 @@ STAGES = [
                  ("src/psychohistory/data/wikipedia.py", "fetch"), ("src/psychohistory/data/owid.py", "fetch"),
                  ("src/psychohistory/data/weather.py", "city"), ("src/psychohistory/data/weather.py", "world"),
                  ("src/psychohistory/data/weather.py", "sea_ice"), ("src/psychohistory/data/quakes.py", "fetch"),
-                 ("src/psychohistory/cli.py", "_load")],
+                 ("src/psychohistory/cli.py", "_load"), ("src/psychohistory/cli.py", "fetch_order"),
+                 ("src/psychohistory/data/__init__.py", "_top_up"), ("src/psychohistory/health.py", "record")],
         "input": "SeriesSpec",
         "output": "Date-indexed values, cached as data/<domain>/<id>.csv (not committed: Yahoo's terms)",
         "rule": "Drop missing values, sort by date, keep the last of any duplicate date. Missing stays missing, never zero "
@@ -57,8 +58,11 @@ STAGES = [
         "cadence": CADENCE["weekly"],
         "failure": "A source that fails falls back to the copy the last run downloaded (kept in the Actions cache), marked stale; "
                    "with no copy it is skipped and the run carries on. Either way the reason is written to results/run_status.json. "
-                   "GDELT calls are paced 6 s apart and back off on HTTP 429, for at most 10 minutes of waiting per run. A composite needs at least two members.",
+                   "GDELT calls are paced 6 s apart and back off on HTTP 429, for at most 10 minutes of waiting per run; a plain-text refusal "
+                   "fails at once with GDELT's words; a cached GDELT series is only topped up (last 45 days); the series that have waited "
+                   "longest go first. Every run is added to results/source_health.json, so a series that keeps failing is named. A composite needs at least two members.",
         "tests": ["test_gdelt_retries_when_rate_limited", "test_gdelt_stops_waiting_once_its_back_off_budget_is_spent",
+                  "test_gdelt_refusal_fails_fast_with_gdelts_words", "test_gdelt_tops_up_the_cached_copy", "test_source_health_keeps_the_record_across_runs",
                   "test_a_failed_download_falls_back_to_the_cached_copy", "test_owid_reads_short_lowercase_columns",
                   "test_weather_sources_parse_their_published_formats", "test_quake_counts_keep_quiet_days_as_zero",
                   "test_composite_survives_a_missing_member", "test_composite_scales_members_to_their_mean",
@@ -156,14 +160,14 @@ STAGES = [
         "plain": "Packs the results into one file the web app reads, and GitHub Pages serves it.",
         "code": [("src/psychohistory/web.py", "build_payload"), ("src/psychohistory/web.py", "track_payload"),
                  ("src/psychohistory/web.py", "write_data_js"), ("src/psychohistory/story.py", "EDGE"), ("src/psychohistory/frames.py", "payload"),
-                 ("src/psychohistory/frames.py", "tune"), ("src/psychohistory/brief.py", "build"), ("src/psychohistory/offline.py", "bundle"), ("src/psychohistory/feeds.py", "publish"), ("src/psychohistory/champions.py", "holdout"), ("src/psychohistory/worldevents.py", "build"), ("src/psychohistory/follow.py", "replay"), (".github/workflows/pages.yml", None)],
+                 ("src/psychohistory/frames.py", "tune"), ("src/psychohistory/brief.py", "build"), ("src/psychohistory/offline.py", "bundle"), ("src/psychohistory/feeds.py", "publish"), ("src/psychohistory/champions.py", "holdout"), ("src/psychohistory/worldevents.py", "build"), ("src/psychohistory/follow.py", "replay"), ("src/psychohistory/hype.py", "payload"), (".github/workflows/pages.yml", None)],
         "input": "Results, ledger, scores and run status",
         "output": "results/web/data.js (window.WP_DATA), copied to app/data/data.js on Pages",
         "rule": "Only numbers produced by a run are shown; demo data is marked as demo everywhere it appears. Alerts are tiered at "
                 "75%, 85% and 95% chance of going higher, and each tier carries its own past record.",
         "cadence": "After every predict run, and on every push to main",
         "failure": "With no results yet the app shows labelled demo data instead.",
-        "tests": ["test_web_app_data_and_site", "test_demo_payload_is_marked_and_complete", "test_scorecard_shows_numbers_or_placeholders",
+        "tests": ["test_web_app_data_and_site", "test_hype_payload_cli_and_app", "test_demo_payload_is_marked_and_complete", "test_scorecard_shows_numbers_or_placeholders",
                   "test_alert_tiers_and_three_point_odds", "test_confident_calls_are_tuned_early_and_checked_late",
                   "test_today_payload_in_the_demo", "test_brief_scores_due_mind_changes_and_streaks",
                   "test_offline_copy_is_one_file_with_no_network",
