@@ -1,6 +1,102 @@
 {
- "fetched": "2026-11-14T03:04Z",
+ "fetched": "2026-11-15T23:51Z",
  "topics": {
+  "news_war": {
+   "query": "(warfare OR \"armed conflict\" OR airstrike OR \"military offensive\")",
+   "articles": [
+    {
+     "title": "Gadi Eisenkot must form Israel next government at any cost",
+     "url": "https://www.ynetnews.com/opinions-analysis/article/rkza1purfe",
+     "domain": "ynetnews.com",
+     "country": "Israel",
+     "seen": "2026-11-15T07:45Z"
+    },
+    {
+     "title": "Who was Ken Connor ? SAS veteran and security expert",
+     "url": "https://www.worcesternews.co.uk/news/26729937.ken-connor-sas-veteran-security-expert/",
+     "domain": "worcesternews.co.uk",
+     "country": "United Kingdom",
+     "seen": "2026-11-14T21:00Z"
+    },
+    {
+     "title": "Will We Really Put Data Centers in Space ?",
+     "url": "https://www.forethought.org/research/will-we-really-put-data-centers-in-space",
+     "domain": "forethought.org",
+     "country": "",
+     "seen": "2026-11-14T21:00Z"
+    },
+    {
+     "title": "Muslim countries condemn Israel strike on Gaza Nasser Hospital",
+     "url": "https://www.jpost.com/israel-news/article-914881",
+     "domain": "jpost.com",
+     "country": "Israel",
+     "seen": "2026-11-14T21:00Z"
+    },
+    {
+     "title": "Betraying America military and the Constitution they swore to defend",
+     "url": "https://augustafreepress.com/news/john-whitehead-betraying-americas-military-and-the-constitution-they-swore-to-defend/",
+     "domain": "augustafreepress.com",
+     "country": "United States",
+     "seen": "2026-11-14T20:00Z"
+    },
+    {
+     "title": "After midterm sweep , Democrats split over Trump , cost - cutting agenda",
+     "url": "https://wkzo.com/2026/11/14/after-midterm-sweep-democrats-split-over-trump-cost-cutting-agenda/",
+     "domain": "wkzo.com",
+     "country": "United States",
+     "seen": "2026-11-14T20:00Z"
+    }
+   ],
+   "fetched": "2026-11-15T23:44Z"
+  },
+  "wiki_quantum": {
+   "query": "\"quantum computing\"",
+   "articles": [
+    {
+     "title": "From bicycle parts to satellites : Inside Sunil Mittal 50 - year journey",
+     "url": "https://www.business-standard.com/companies/people/from-bicycle-parts-to-satellites-inside-sunil-mittal-s-50-year-journey-126111500180_1.html",
+     "domain": "business-standard.com",
+     "country": "India",
+     "seen": "2026-11-15T07:45Z"
+    },
+    {
+     "title": "SEBI to issue AI norms for capital markets , safeguard investor interests : Pandey",
+     "url": "https://www.thehindubusinessline.com/markets/sebi-to-issue-ai-norms-for-capital-markets-safeguard-investor-interests-pandey/article71704258.ece",
+     "domain": "thehindubusinessline.com",
+     "country": "India",
+     "seen": "2026-11-15T07:45Z"
+    },
+    {
+     "title": "UBC research partnerships help build Canada future with Europe",
+     "url": "https://news.ubc.ca/2026/11/ubc-research-partnerships-help-build-canadas-future-with-europe/",
+     "domain": "news.ubc.ca",
+     "country": "Canada",
+     "seen": "2026-11-13T00:45Z"
+    },
+    {
+     "title": "Xanadu ( XNDU ) Q3 2026 Earnings Call Transcript",
+     "url": "https://www.fool.com/earnings/call-transcripts/2026/11/12/xanadu-xndu-q3-2026-earnings-call-transcript/?source=iedfolrf0000001",
+     "domain": "fool.com",
+     "country": "United States",
+     "seen": "2026-11-12T07:00Z"
+    },
+    {
+     "title": "IBM to build 1 , 040 - qubit quantum computer by 2027 , but how will two chips work as one ?",
+     "url": "https://www.moneycontrol.com/science/ibm-to-build-1-040-qubit-quantum-computer-by-2027-but-how-will-two-chips-work-as-one-article-14077882.html",
+     "domain": "moneycontrol.com",
+     "country": "India",
+     "seen": "2026-11-12T07:00Z"
+    },
+    {
+     "title": "Reverse Brain Drain : US - China Talent Shift",
+     "url": "https://english.ckgsb.edu.cn/knowledge/article/us-china-science-talent-shift/",
+     "domain": "english.ckgsb.edu.cn",
+     "country": "China",
+     "seen": "2026-11-12T04:00Z"
+    }
+   ],
+   "fetched": "2026-11-15T23:49Z"
+  },
   "politics_impeachment": {
    "query": "(impeachment OR \"no-confidence\")",
    "articles": [
@@ -47,7 +143,8 @@
      "seen": "2026-11-13T18:00Z"
     }
    ],
-   "fetched": "2026-11-14T02:59Z"
+   "fetched": "2026-11-14T02:59Z",
+   "stale": true
   },
   "politics_referendum": {
    "query": "(referendum OR referendums)",
@@ -95,7 +192,8 @@
      "seen": "2026-11-13T18:00Z"
     }
    ],
-   "fetched": "2026-11-14T03:04Z"
+   "fetched": "2026-11-14T03:04Z",
+   "stale": true
   },
   "wiki_llm": {
    "query": "\"language model\"",
@@ -143,7 +241,8 @@
      "seen": "2026-11-10T05:00Z"
     }
    ],
-   "fetched": "2026-11-14T03:04Z"
+   "fetched": "2026-11-14T03:04Z",
+   "stale": true
   },
   "politics_coup": {
    "query": "(coup OR \"martial law\")",
@@ -718,10 +817,8 @@
   }
  },
  "failed": {
-  "news_war": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22war%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sort=DateDesc",
-  "wiki_ai": "skipped: the wire's time budget ran out",
-  "wiki_quantum": "skipped: the wire's time budget ran out",
-  "wiki_crispr": "skipped: the wire's time budget ran out",
+  "wiki_ai": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22artificial+intelligence%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&times",
+  "wiki_crispr": "Busy: GDELT still busy after 555s of back-off this run (budget 600s)",
   "wiki_ev": "skipped: the wire's time budget ran out",
   "wiki_fusion": "skipped: the wire's time budget ran out",
   "wiki_humanoid": "skipped: the wire's time budget ran out",
@@ -754,6 +851,9 @@
   "news_protest": "skipped: the wire's time budget ran out",
   "politics_tariffs": "skipped: the wire's time budget ran out",
   "politics_ceasefire": "skipped: the wire's time budget ran out",
-  "politics_coup": "skipped: the wire's time budget ran out"
+  "politics_coup": "skipped: the wire's time budget ran out",
+  "politics_impeachment": "skipped: the wire's time budget ran out",
+  "politics_referendum": "skipped: the wire's time budget ran out",
+  "wiki_llm": "skipped: the wire's time budget ran out"
  }
 }

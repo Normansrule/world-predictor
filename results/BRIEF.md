@@ -1,35 +1,35 @@
 # The brief
 
-## Came due, 2026-11-08 to 2026-11-14
+## Came due, 2026-11-09 to 2026-11-15
 
 | Model | Forecasts | Series | Inside 80% range | Right direction | Skill vs no change |
 |---|---:|---:|---:|---:|---:|
-| TimesFM | 1565 | 47 | 70% | 64% | +13.7% |
-| Radiant | 794 | 47 | 69% | 70% | +18.9% |
-| Chronos-Bolt | 1565 | 47 | 71% | 66% | +11.5% |
-| Seldon | 794 | 47 | 71% | 67% | +22.6% |
-| Seldon laws | 1318 | 47 | 68% | 62% | +5.5% |
-| AutoETS | 1565 | 47 | 81% | 51% | -0.1% |
-| Ensemble | 1565 | 47 | 81% | 62% | +11.6% |
+| TimesFM | 1731 | 48 | 70% | 66% | +18.4% |
+| Radiant | 919 | 48 | 70% | 72% | +18.9% |
+| Chronos-Bolt | 1731 | 48 | 71% | 68% | +17.1% |
+| Seldon | 919 | 48 | 71% | 70% | +26.9% |
+| Seldon laws | 1479 | 48 | 69% | 63% | +10.0% |
+| AutoETS | 1731 | 48 | 83% | 53% | -0.0% |
+| Ensemble | 1731 | 48 | 82% | 64% | +16.5% |
 
-**Radiant's closest calls:** S&P 500 (said +0.6%, was +0.6% by 2026-11-13); Silver (USD/oz) (said -0.0%, was -0.0% by 2026-11-10); iShares MSCI World ETF (global equities) (said +0.3%, was +0.3% by 2026-11-09); CBOE Volatility Index (VIX, the fear gauge) (said -5.7%, was -5.8% by 2026-11-09); iShares 20+ Year Treasury Bond ETF (said +0.2%, was +0.1% by 2026-11-09).
+**Radiant's closest calls:** S&P 500 (said +0.6%, was +0.6% by 2026-11-13); Silver (USD/oz) (said -0.0%, was -0.0% by 2026-11-10); iShares MSCI World ETF (global equities) (said +0.3%, was +0.3% by 2026-11-09); Earthquakes of magnitude 4.5 or more per day, worldwide (USGS) (said -11.0%, was -11.1% by 2026-11-14); CBOE Volatility Index (VIX, the fear gauge) (said -5.7%, was -5.8% by 2026-11-09).
 
-**Biggest surprises:** Share of coverage about impeachments and no-confidence votes (range -65.7% to -20.0%, was +92.1%, 2.4 range widths outside); NVIDIA Corp. (range -4.7% to +7.0%, was -18.3%, 1.2 range widths outside); Average of the political topics above, each scaled to its own mean (range -22.3% to +20.1%, was +66.2%, 1.1 range widths outside); CBOE Volatility Index (VIX, the fear gauge) (range -9.6% to +10.4%, was -29.3%, 1.0 range widths outside); Gold (USD/oz) (range -1.7% to +1.4%, was -4.4%, 0.9 range widths outside).
+**Biggest surprises:** Wikipedia views: SpaceX Starship (range -17.9% to +45.3%, was +695.5%, 10.3 range widths outside); Share of coverage about impeachments and no-confidence votes (range -65.7% to -20.0%, was +92.1%, 2.4 range widths outside); NVIDIA Corp. (range -4.7% to +7.0%, was -18.3%, 1.2 range widths outside); Average of the political topics above, each scaled to its own mean (range -22.3% to +20.1%, was +66.5%, 1.1 range widths outside); CBOE Volatility Index (VIX, the fear gauge) (range -9.6% to +10.4%, was -29.3%, 1.0 range widths outside).
 
-## Radiant changed its mind, 2026-11-09 to 2026-11-11
+## Radiant changed its mind, 2026-11-11 to 2026-11-15
 
-Chance of ending above today's level on the farthest date both batches cover. 3 of 48 series flipped side.
+Chance of ending above today's level on the farthest date both batches cover. 4 of 49 series flipped side.
 
 | Series | Target | Before | Now | Shift | Series moved |
 |---|---|---:|---:|---:|---:|
-| World news attention (flip) | 2026-12-07 | 69% | 46% | -23 pts | -22.6% |
-| Share of world electricity from wind (OWID) | 2028-01-01 | 95% | 77% | -18 pts | +0.0% |
-| US 10-year Treasury yield (%) | 2026-12-08 | 30% | 47% | +17 pts | +2.6% |
-| NVIDIA Corp. | 2026-12-08 | 68% | 51% | -17 pts | -5.5% |
-| Gold (USD/oz) | 2026-12-08 | 65% | 52% | -13 pts | -1.6% |
-| iShares 20+ Year Treasury Bond ETF | 2026-12-08 | 69% | 57% | -12 pts | -1.4% |
-| CBOE Volatility Index (VIX, the fear gauge) (flip) | 2026-12-08 | 53% | 43% | -10 pts | -9.9% |
-| Daily high temperature in Tokyo (deg C, Open-Meteo) | 2026-11-22 | 89% | 79% | -9 pts | -36.0% |
+| Bitcoin (USD) (flip) | 2026-12-09 | 77% | 45% | -33 pts | -12.1% |
+| Gold (USD/oz) | 2026-12-10 | 82% | 50% | -32 pts | -4.4% |
+| Silver (USD/oz) (flip) | 2026-12-10 | 75% | 48% | -27 pts | -6.8% |
+| US 10-year Treasury yield (%) | 2026-12-09 | 25% | 50% | +24 pts | +3.4% |
+| Copper futures (flip) | 2026-12-10 | 69% | 46% | -23 pts | -3.8% |
+| Exxon Mobil Corp. | 2026-12-09 | 32% | 51% | +18 pts | +3.7% |
+| World news attention | 2026-12-09 | 18% | 37% | +18 pts | +15.8% |
+| Apple Inc. | 2026-12-09 | 36% | 51% | +15 pts | +2.2% |
 
 ## Streaks (TimesFM, next-step calls, one per sealed batch)
 

@@ -1,9 +1,9 @@
 {
- "run_id": "43547271438",
+ "run_id": "43774048773",
  "recorded": "Rebuilt on 2026-10-19 from this run's outputs: the run predates run_status.json. Reasons come from reading the run log on 2026-10-18; both were fixed in commit 633e744 and the next weekly run retries every series.",
  "stages": {
   "predict": {
-   "at": "2026-11-11T05:50:07Z",
+   "at": "2026-11-15T23:35:55Z",
    "ok": [
     "aapl",
     "adoption_ev",
@@ -19,12 +19,18 @@
     "news_composite",
     "news_election",
     "news_inflation",
+    "news_pandemic",
     "news_protest",
+    "news_war",
     "nvda",
     "oil_wti",
+    "politics_ceasefire",
     "politics_composite",
+    "politics_coup",
+    "politics_impeachment",
     "politics_referendum",
     "politics_sanctions",
+    "politics_tariffs",
     "quakes_m45",
     "silver",
     "sp500",
@@ -55,14 +61,7 @@
     "wiki_starship",
     "xom"
    ],
-   "skipped": {
-    "news_pandemic": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%28pandemic+OR+outbreak+OR+epidemic%29&mode=timelinevol&format=json&STARTDATETIME=20170101000000&ENDDATETIME=20261111054032&TIMELINESMOOTH=0",
-    "news_war": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22war%22&mode=timelinevol&format=json&STARTDATETIME=20170101000000&ENDDATETIME=20261111053429&TIMELINESMOOTH=0",
-    "politics_ceasefire": "Busy: GDELT still busy after 600s of back-off this run (budget 600s)",
-    "politics_coup": "Busy: GDELT still busy after 600s of back-off this run (budget 600s)",
-    "politics_impeachment": "Busy: GDELT still busy after 600s of back-off this run (budget 600s)",
-    "politics_tariffs": "Busy: GDELT still busy after 585s of back-off this run (budget 600s)"
-   }
+   "skipped": {}
   },
   "backtest": {
    "at": "2026-11-11T06:11:01Z",
@@ -127,7 +126,7 @@
    }
   },
   "fetch": {
-   "at": "2026-11-14T02:54:14Z",
+   "at": "2026-11-15T23:35:53Z",
    "ok": [
     "aapl",
     "adoption_ev",
@@ -185,15 +184,14 @@
     "xom"
    ],
    "skipped": {
-    "news_war": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22war%22&mode=timelinevol&format=json&STARTDATETIME=20170101000000&ENDDATETIME=20261114023821&TIMELINESMOOTH=0"
+    "news_war": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%28warfare+OR+%22armed+conflict%22+OR+airstrike+OR+%22military+offensive%22%29&mode=timelinevol&format=json&STARTDATETIME=20170101000000&ENDDATETIME=20261115231955&TIMELINESMOOTH=0"
    },
    "stale": {
-    "news_inflation": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22inflation%22&mode=timelinevol&format=json&STARTDATETIME=20170101000000&ENDDATETIME=20261114024315&TIMELINESMOOTH=0 (used the copy through 2026-11-12)",
-    "news_pandemic": "Busy: GDELT still busy after 570s of back-off this run (budget 600s) (used the copy through 2026-11-12)",
-    "politics_coup": "Busy: GDELT still busy after 600s of back-off this run (budget 600s) (used the copy through 2026-11-11)",
-    "politics_impeachment": "Busy: GDELT still busy after 600s of back-off this run (budget 600s) (used the copy through 2026-11-12)",
-    "politics_referendum": "Busy: GDELT still busy after 600s of back-off this run (budget 600s) (used the copy through 2026-11-11)",
-    "politics_sanctions": "Busy: GDELT still busy after 600s of back-off this run (budget 600s) (used the copy through 2026-11-11)",
+    "news_climate": "Busy: GDELT still busy after 600s of back-off this run (budget 600s) (used the copy through 2026-11-12)",
+    "news_election": "Busy: GDELT still busy after 600s of back-off this run (budget 600s) (used the copy through 2026-11-12)",
+    "news_protest": "Busy: GDELT still busy after 600s of back-off this run (budget 600s) (used the copy through 2026-11-12)",
+    "politics_ceasefire": "Busy: GDELT still busy after 600s of back-off this run (budget 600s) (used the copy through 2026-11-12)",
+    "politics_sanctions": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22sanctions%22&mode=timelinevol&format=json&STARTDATETIME=20260927000000&ENDDATETIME=20261115232526&TIMELINESMOOTH=0 (used the copy through 2026-11-11)",
     "politics_tariffs": "Busy: GDELT still busy after 600s of back-off this run (budget 600s) (used the copy through 2026-11-12)"
    }
   }

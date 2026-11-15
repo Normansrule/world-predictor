@@ -1,6 +1,6 @@
 # World Predictor: Seldon scorecard
 
-_Generated 2026-11-14 with model `timesfm-2.5`. Skill = 1 - MAE(model) / MAE(naive random walk); positive is better than naive. Coverage80 should be close to 0.80 for an honest forecaster. Brier scores the probability of going up (0.25 = coin flip, lower is better). See docs/METHODOLOGY.md._
+_Generated 2026-11-15 with model `timesfm-2.5`. Skill = 1 - MAE(model) / MAE(naive random walk); positive is better than naive. Coverage80 should be close to 0.80 for an honest forecaster. Brier scores the probability of going up (0.25 = coin flip, lower is better). See docs/METHODOLOGY.md._
 
 ## In plain English
 
@@ -160,46 +160,46 @@ _Predictions are sealed with a date before the future happens and opened when it
 
 | domain   | model        |   series |   predictions |   median_skill |   direction |   coverage80 |   brier |
 |:---------|:-------------|---------:|--------------:|---------------:|------------:|-------------:|--------:|
-| markets  | auto-ets     |       15 |          1553 |         -0.001 |       0.456 |        0.734 |   0.260 |
-| markets  | chronos-bolt |       15 |          1553 |         -0.070 |       0.475 |        0.711 |   0.264 |
-| markets  | ensemble     |       15 |          1553 |         -0.052 |       0.446 |        0.719 |   0.257 |
-| markets  | radiant      |       15 |           450 |         -0.009 |       0.553 |        0.591 |   0.246 |
-| markets  | radiant-core |       15 |           450 |          0.003 |       0.647 |        0.649 |   0.248 |
-| markets  | seldon       |       15 |           450 |         -0.029 |       0.504 |        0.642 |   0.245 |
-| markets  | seldon-laws  |       15 |          1066 |         -0.043 |       0.464 |        0.648 |   0.257 |
-| markets  | timesfm-2.5  |       15 |          1553 |         -0.044 |       0.460 |        0.707 |   0.262 |
-| news     | auto-ets     |        6 |           614 |         -0.049 |       0.489 |        0.795 |   0.264 |
-| news     | chronos-bolt |        6 |           614 |          0.263 |       0.752 |        0.688 |   0.179 |
-| news     | ensemble     |        6 |           614 |          0.246 |       0.733 |        0.770 |   0.187 |
-| news     | radiant      |        6 |           173 |          0.393 |       0.798 |        0.670 |   0.149 |
-| news     | radiant-core |        6 |           173 |          0.041 |       0.688 |        0.537 |   0.235 |
-| news     | seldon       |        6 |           173 |          0.389 |       0.792 |        0.670 |   0.151 |
-| news     | seldon-laws  |        6 |           449 |          0.143 |       0.712 |        0.515 |   0.190 |
-| news     | timesfm-2.5  |        6 |           614 |          0.226 |       0.732 |        0.685 |   0.187 |
-| politics | auto-ets     |        7 |            48 |         -0.124 |       0.427 |        0.739 |   0.287 |
-| politics | chronos-bolt |        7 |            48 |          0.243 |       0.728 |        0.704 |   0.205 |
-| politics | ensemble     |        7 |            48 |          0.183 |       0.699 |        0.652 |   0.222 |
-| politics | radiant      |        7 |            48 |          0.201 |       0.671 |        0.588 |   0.223 |
-| politics | radiant-core |        7 |            48 |          0.015 |       0.774 |        0.608 |   0.245 |
-| politics | seldon       |        7 |            48 |          0.185 |       0.671 |        0.656 |   0.217 |
-| politics | seldon-laws  |        7 |            48 |          0.104 |       0.623 |        0.560 |   0.250 |
-| politics | timesfm-2.5  |        7 |            48 |          0.185 |       0.671 |        0.656 |   0.217 |
-| tech     | auto-ets     |       12 |          1258 |          0.013 |       0.595 |        0.933 |   0.230 |
-| tech     | chronos-bolt |       12 |          1258 |          0.334 |       0.773 |        0.725 |   0.157 |
-| tech     | ensemble     |       12 |          1258 |          0.224 |       0.723 |        0.916 |   0.163 |
-| tech     | radiant      |       12 |           330 |          0.387 |       0.773 |        0.751 |   0.153 |
-| tech     | radiant-core |       12 |           330 |          0.020 |       0.708 |        0.696 |   0.241 |
-| tech     | seldon       |       12 |           330 |          0.396 |       0.798 |        0.757 |   0.150 |
-| tech     | seldon-laws  |       12 |           834 |          0.245 |       0.753 |        0.749 |   0.168 |
-| tech     | timesfm-2.5  |       12 |          1258 |          0.313 |       0.774 |        0.670 |   0.155 |
-| weather  | auto-ets     |        9 |           141 |          0.245 |       0.745 |        0.849 |   0.165 |
-| weather  | chronos-bolt |        9 |           141 |          0.279 |       0.770 |        0.757 |   0.149 |
-| weather  | ensemble     |        9 |           141 |          0.412 |       0.777 |        0.924 |   0.146 |
-| weather  | radiant      |        9 |           141 |          0.353 |       0.770 |        0.875 |   0.151 |
-| weather  | radiant-core |        9 |           141 |          0.032 |       0.691 |        0.759 |   0.225 |
-| weather  | seldon       |        9 |           141 |          0.361 |       0.761 |        0.833 |   0.152 |
-| weather  | seldon-laws  |        9 |           141 |          0.148 |       0.732 |        0.748 |   0.216 |
-| weather  | timesfm-2.5  |        9 |           141 |          0.360 |       0.761 |        0.840 |   0.153 |
+| markets  | auto-ets     |       15 |          1575 |         -0.001 |       0.456 |        0.726 |   0.260 |
+| markets  | chronos-bolt |       15 |          1575 |         -0.070 |       0.475 |        0.706 |   0.264 |
+| markets  | ensemble     |       15 |          1575 |         -0.037 |       0.448 |        0.712 |   0.257 |
+| markets  | radiant      |       15 |           460 |         -0.009 |       0.556 |        0.580 |   0.246 |
+| markets  | radiant-core |       15 |           460 |          0.003 |       0.648 |        0.633 |   0.248 |
+| markets  | seldon       |       15 |           460 |         -0.029 |       0.506 |        0.631 |   0.245 |
+| markets  | seldon-laws  |       15 |          1084 |         -0.043 |       0.463 |        0.641 |   0.258 |
+| markets  | timesfm-2.5  |       15 |          1575 |         -0.044 |       0.461 |        0.699 |   0.262 |
+| news     | auto-ets     |        6 |           677 |         -0.045 |       0.487 |        0.789 |   0.264 |
+| news     | chronos-bolt |        6 |           677 |          0.330 |       0.757 |        0.676 |   0.173 |
+| news     | ensemble     |        6 |           677 |          0.258 |       0.734 |        0.761 |   0.183 |
+| news     | radiant      |        6 |           200 |          0.417 |       0.808 |        0.634 |   0.147 |
+| news     | radiant-core |        6 |           200 |          0.041 |       0.687 |        0.491 |   0.234 |
+| news     | seldon       |        6 |           200 |          0.416 |       0.802 |        0.638 |   0.149 |
+| news     | seldon-laws  |        6 |           500 |          0.158 |       0.701 |        0.494 |   0.191 |
+| news     | timesfm-2.5  |        6 |           677 |          0.245 |       0.744 |        0.663 |   0.180 |
+| politics | auto-ets     |        7 |            70 |          0.034 |       0.502 |        0.730 |   0.260 |
+| politics | chronos-bolt |        7 |            70 |          0.242 |       0.805 |        0.714 |   0.162 |
+| politics | ensemble     |        7 |            70 |          0.183 |       0.777 |        0.725 |   0.182 |
+| politics | radiant      |        7 |            70 |          0.199 |       0.720 |        0.595 |   0.178 |
+| politics | radiant-core |        7 |            70 |          0.015 |       0.809 |        0.568 |   0.244 |
+| politics | seldon       |        7 |            70 |          0.194 |       0.748 |        0.666 |   0.167 |
+| politics | seldon-laws  |        7 |            70 |          0.128 |       0.700 |        0.528 |   0.208 |
+| politics | timesfm-2.5  |        7 |            70 |          0.194 |       0.720 |        0.666 |   0.172 |
+| tech     | auto-ets     |       12 |          1442 |         -0.015 |       0.588 |        0.937 |   0.233 |
+| tech     | chronos-bolt |       12 |          1442 |          0.312 |       0.767 |        0.713 |   0.156 |
+| tech     | ensemble     |       12 |          1442 |          0.199 |       0.730 |        0.901 |   0.163 |
+| tech     | radiant      |       12 |           434 |          0.386 |       0.781 |        0.751 |   0.148 |
+| tech     | radiant-core |       12 |           434 |          0.020 |       0.679 |        0.679 |   0.242 |
+| tech     | seldon       |       12 |           434 |          0.382 |       0.795 |        0.753 |   0.148 |
+| tech     | seldon-laws  |       12 |          1002 |          0.283 |       0.755 |        0.745 |   0.158 |
+| tech     | timesfm-2.5  |       12 |          1442 |          0.336 |       0.779 |        0.663 |   0.151 |
+| weather  | auto-ets     |        9 |           174 |          0.231 |       0.750 |        0.816 |   0.164 |
+| weather  | chronos-bolt |        9 |           174 |          0.320 |       0.770 |        0.777 |   0.151 |
+| weather  | ensemble     |        9 |           174 |          0.443 |       0.770 |        0.921 |   0.146 |
+| weather  | radiant      |        9 |           174 |          0.399 |       0.770 |        0.883 |   0.152 |
+| weather  | radiant-core |        9 |           174 |          0.032 |       0.706 |        0.728 |   0.223 |
+| weather  | seldon       |        9 |           174 |          0.404 |       0.764 |        0.840 |   0.154 |
+| weather  | seldon-laws  |        9 |           174 |          0.138 |       0.740 |        0.746 |   0.215 |
+| weather  | timesfm-2.5  |        9 |           174 |          0.407 |       0.764 |        0.848 |   0.155 |
 
 ## 5. How far ahead can it see?
 
@@ -313,12 +313,13 @@ Latest forecasts recorded in the ledger (made with data up to each series' last 
 
 | series         |   last | target date   | median   | chance higher   | range (10%-90%)   |
 |:---------------|-------:|:--------------|:---------|:----------------|:------------------|
-| news_climate   |  0.944 | 2026-12-09    | -6.3%    | 40%             | -32.0% to +33.1%  |
-| news_composite |  0.813 | 2026-12-09    | -7.6%    | 33%             | -24.9% to +22.2%  |
-| news_election  |  8.084 | 2026-12-09    | -32.1%   | 14%             | -50.6% to +7.7%   |
-| news_inflation |  3.331 | 2026-12-09    | -31.6%   | 5%              | -46.4% to -9.2%   |
-| news_pandemic  |  1.61  | 2026-12-07    | -1.2%    | 46%             | -17.2% to +19.9%  |
-| news_protest   |  1.901 | 2026-12-09    | -12.3%   | 31%             | -32.3% to +33.5%  |
+| news_climate   |  1.087 | 2026-12-10    | -17.1%   | 25%             | -41.1% to +19.4%  |
+| news_composite |  0.942 | 2026-12-10    | -5.4%    | 31%             | -17.1% to +12.2%  |
+| news_election  |  6.076 | 2026-12-10    | -13.8%   | 29%             | -34.6% to +27.7%  |
+| news_inflation |  1.429 | 2026-12-13    | +18.5%   | 78%             | -11.8% to +63.5%  |
+| news_pandemic  |  1.539 | 2026-12-13    | -0.7%    | 48%             | -17.0% to +21.1%  |
+| news_protest   |  1.64  | 2026-12-10    | +4.9%    | 60%             | -16.5% to +52.0%  |
+| news_war       |  0.44  | 2026-12-13    | -11.0%   | 34%             | -37.3% to +34.6%  |
 
 ![news_climate](plots/news_climate.png)
 ![news_composite](plots/news_composite.png)
@@ -326,18 +327,19 @@ Latest forecasts recorded in the ledger (made with data up to each series' last 
 ![news_inflation](plots/news_inflation.png)
 ![news_pandemic](plots/news_pandemic.png)
 ![news_protest](plots/news_protest.png)
+![news_war](plots/news_war.png)
 
 ### Political events
 
 | series               |   last | target date   | median   | chance higher   | range (10%-90%)   |
 |:---------------------|-------:|:--------------|:---------|:----------------|:------------------|
-| politics_ceasefire   |  0.361 | 2026-12-07    | +21.6%   | 65%             | -39.7% to +156.5% |
-| politics_composite   |  3.058 | 2026-12-09    | -68.6%   | 5%              | -77.5% to -46.4%  |
-| politics_coup        |  0.33  | 2026-12-07    | -10.3%   | 36%             | -32.5% to +44.7%  |
-| politics_impeachment |  0.856 | 2026-12-07    | -70.4%   | 5%              | -82.5% to -38.7%  |
-| politics_referendum  |  0.326 | 2026-12-09    | -6.9%    | 43%             | -42.4% to +82.2%  |
+| politics_ceasefire   |  0.728 | 2026-12-10    | -33.7%   | 23%             | -65.6% to +40.4%  |
+| politics_composite   |  1.829 | 2026-12-09    | -44.0%   | 5%              | -57.5% to -14.6%  |
+| politics_coup        |  0.275 | 2026-12-13    | +1.4%    | 52%             | -25.0% to +63.6%  |
+| politics_impeachment |  0.22  | 2026-12-13    | -9.6%    | 39%             | -46.4% to +70.4%  |
+| politics_referendum  |  0.33  | 2026-12-13    | +3.9%    | 55%             | -30.1% to +86.2%  |
 | politics_sanctions   |  1.089 | 2026-12-09    | +5.2%    | 58%             | -22.9% to +55.5%  |
-| politics_tariffs     |  0.911 | 2026-12-07    | +1.0%    | 52%             | -27.4% to +70.6%  |
+| politics_tariffs     |  1.087 | 2026-12-10    | -6.7%    | 40%             | -33.4% to +53.3%  |
 
 ![politics_ceasefire](plots/politics_ceasefire.png)
 ![politics_composite](plots/politics_composite.png)
@@ -351,21 +353,21 @@ Latest forecasts recorded in the ledger (made with data up to each series' last 
 
 | series     |      last | target date   | median   | chance higher   | range (10%-90%)   |
 |:-----------|----------:|:--------------|:---------|:----------------|:------------------|
-| aapl       |   348.51  | 2026-12-09    | +0.6%    | 55%             | -6.4% to +5.7%    |
-| bitcoin    | 73776.2   | 2026-12-09    | -1.8%    | 44%             | -17.3% to +15.5%  |
-| copper     |     6.328 | 2026-12-10    | -0.9%    | 40%             | -9.2% to +5.0%    |
-| gold       |  4063.3   | 2026-12-10    | +0.5%    | 54%             | -6.5% to +9.6%    |
-| msci_world |   203.86  | 2026-12-09    | +2.3%    | 78%             | -1.6% to +5.3%    |
-| nasdaq100  | 27740.8   | 2026-12-09    | +3.1%    | 68%             | -5.3% to +10.4%   |
-| nvda       |   168.89  | 2026-12-09    | +1.0%    | 52%             | -22.9% to +22.6%  |
-| oil_wti    |    86.39  | 2026-12-10    | -1.3%    | 46%             | -16.1% to +14.9%  |
-| silver     |    52.73  | 2026-12-10    | -0.9%    | 47%             | -13.0% to +15.2%  |
-| sp500      |  7520.93  | 2026-12-09    | +2.1%    | 73%             | -2.6% to +5.5%    |
-| tlt        |    80.88  | 2026-12-09    | +1.6%    | 76%             | -1.3% to +4.2%    |
-| tsla       |   379.78  | 2026-12-09    | +0.1%    | 50%             | -16.3% to +16.5%  |
-| us10y      |     4.983 | 2026-12-09    | -0.9%    | 41%             | -6.1% to +4.7%    |
-| vix        |    19.46  | 2026-12-09    | -9.8%    | 30%             | -26.0% to +19.9%  |
-| xom        |   164.47  | 2026-12-09    | -0.3%    | 48%             | -11.0% to +11.1%  |
+| aapl       |   356.27  | 2026-12-14    | +0.4%    | 53%             | -6.9% to +5.7%    |
+| bitcoin    | 64881.8   | 2026-12-13    | -3.5%    | 40%             | -23.7% to +17.6%  |
+| copper     |     6.09  | 2026-12-14    | -1.3%    | 40%             | -11.1% to +6.1%   |
+| gold       |  3886.3   | 2026-12-14    | +0.1%    | 51%             | -7.2% to +9.2%    |
+| msci_world |   204.56  | 2026-12-14    | +1.8%    | 76%             | -1.8% to +4.7%    |
+| nasdaq100  | 27943.7   | 2026-12-14    | +2.2%    | 64%             | -6.4% to +9.7%    |
+| nvda       |   162.85  | 2026-12-14    | +0.4%    | 51%             | -23.1% to +22.8%  |
+| oil_wti    |    88.56  | 2026-12-14    | -1.9%    | 43%             | -16.4% to +13.6%  |
+| silver     |    49.121 | 2026-12-14    | -1.1%    | 46%             | -13.0% to +14.8%  |
+| sp500      |  7561.67  | 2026-12-14    | +1.5%    | 70%             | -2.8% to +4.8%    |
+| tlt        |    79.38  | 2026-12-14    | +1.9%    | 78%             | -1.4% to +4.9%    |
+| tsla       |   390.22  | 2026-12-14    | -0.6%    | 48%             | -15.9% to +14.2%  |
+| us10y      |     5.154 | 2026-12-14    | -0.2%    | 48%             | -6.2% to +6.4%    |
+| vix        |    19.3   | 2026-12-14    | -9.4%    | 30%             | -25.3% to +20.1%  |
+| xom        |   170.59  | 2026-12-14    | +0.0%    | 50%             | -9.8% to +10.4%   |
 
 ![aapl](plots/aapl.png)
 ![bitcoin](plots/bitcoin.png)
@@ -392,18 +394,18 @@ Latest forecasts recorded in the ledger (made with data up to each series' last 
 | adoption_solar    |     8.745 | 2028-01-01    | +49.5%   | 95%             | +15.3% to +94.2%  |
 | adoption_wind     |     8.539 | 2028-01-01    | +6.9%    | 73%             | -9.3% to +22.4%   |
 | space_launches    |  4510     | 2028-01-01    | -37.8%   | 11%             | -68.1% to +1.7%   |
-| tech_composite    |     0.715 | 2026-12-08    | +1.0%    | 54%             | -11.1% to +17.2%  |
-| wiki_ai           | 14924     | 2026-12-08    | -8.4%    | 28%             | -25.6% to +14.4%  |
-| wiki_battery      |   308     | 2026-12-08    | +7.2%    | 62%             | -20.7% to +58.9%  |
-| wiki_crispr       |   615     | 2026-12-08    | +9.4%    | 73%             | -10.5% to +34.3%  |
-| wiki_ev           |   369     | 2026-12-08    | -1.8%    | 44%             | -19.0% to +21.3%  |
-| wiki_fusion       |   615     | 2026-12-08    | +0.2%    | 51%             | -17.9% to +31.0%  |
-| wiki_gene_therapy |   145     | 2026-12-08    | +9.1%    | 68%             | -13.2% to +40.6%  |
-| wiki_humanoid     |   270     | 2026-12-08    | +2.1%    | 55%             | -16.6% to +33.6%  |
-| wiki_llm          |  3577     | 2026-12-08    | -11.6%   | 14%             | -22.8% to +2.0%   |
-| wiki_quantum      |  1524     | 2026-12-08    | +8.1%    | 70%             | -10.6% to +40.0%  |
-| wiki_self_driving |   393     | 2026-12-08    | +6.3%    | 66%             | -13.6% to +33.2%  |
-| wiki_starship     |  1669     | 2026-12-08    | -5.0%    | 41%             | -27.1% to +72.3%  |
+| tech_composite    |     0.56  | 2026-12-12    | +0.7%    | 53%             | -11.2% to +18.6%  |
+| wiki_ai           | 11965     | 2026-12-12    | -6.7%    | 31%             | -21.3% to +18.4%  |
+| wiki_battery      |   220     | 2026-12-12    | +10.8%   | 66%             | -19.3% to +80.1%  |
+| wiki_crispr       |   436     | 2026-12-12    | +7.3%    | 65%             | -15.6% to +37.4%  |
+| wiki_ev           |   299     | 2026-12-12    | +2.0%    | 55%             | -16.2% to +29.0%  |
+| wiki_fusion       |   463     | 2026-12-12    | +4.7%    | 60%             | -17.1% to +45.5%  |
+| wiki_gene_therapy |    75     | 2026-12-12    | +50.5%   | 95%             | +10.0% to +104.9% |
+| wiki_humanoid     |   229     | 2026-12-12    | +3.2%    | 58%             | -14.7% to +36.0%  |
+| wiki_llm          |  2651     | 2026-12-12    | -10.4%   | 18%             | -21.3% to +5.7%   |
+| wiki_quantum      |  1244     | 2026-12-12    | -0.9%    | 47%             | -18.9% to +35.7%  |
+| wiki_self_driving |   317     | 2026-12-12    | -1.5%    | 45%             | -20.2% to +25.8%  |
+| wiki_starship     | 13277     | 2026-12-12    | -88.1%   | 5%              | -90.8% to -74.1%  |
 
 ![adoption_ev](plots/adoption_ev.png)
 ![adoption_internet](plots/adoption_internet.png)
@@ -427,15 +429,15 @@ Latest forecasts recorded in the ledger (made with data up to each series' last 
 
 | series              |   last | target date   | median   | chance higher   | range (10%-90%)   |
 |:--------------------|-------:|:--------------|:---------|:----------------|:------------------|
-| quakes_m45          | 18     | 2026-11-24    | -8.0%    | 42%             | -44.4% to +57.7%  |
-| weather_arctic_ice  |  8.658 | 2026-11-23    | +13.2%   | 95%             | +9.9% to +16.5%   |
-| weather_london      |  9.6   | 2026-11-24    | +6.0%    | 58%             | -29.1% to +48.3%  |
-| weather_los_angeles | 29.8   | 2026-11-24    | -22.6%   | 5%              | -38.9% to -4.3%   |
-| weather_new_delhi   | 28.3   | 2026-11-24    | -12.6%   | 5%              | -23.9% to -4.3%   |
-| weather_sydney      | 22.8   | 2026-11-24    | +11.7%   | 73%             | -11.4% to +45.8%  |
-| weather_tokyo       | 10.5   | 2026-11-24    | +31.1%   | 80%             | -15.3% to +78.1%  |
-| weather_world_air   | 14.827 | 2026-11-19    | -4.0%    | 5%              | -5.9% to -2.6%    |
-| weather_world_sea   | 21.021 | 2026-11-08    | -0.2%    | 5%              | -0.5% to -0.0%    |
+| quakes_m45          | 16     | 2026-11-28    | +8.2%    | 59%             | -31.0% to +78.0%  |
+| weather_arctic_ice  |  8.912 | 2026-11-28    | +13.9%   | 95%             | +10.3% to +17.4%  |
+| weather_london      |  9.1   | 2026-11-28    | +6.6%    | 59%             | -31.4% to +49.7%  |
+| weather_los_angeles | 21.3   | 2026-11-28    | +4.0%    | 58%             | -18.0% to +30.0%  |
+| weather_new_delhi   | 28.9   | 2026-11-28    | -14.9%   | 5%              | -26.9% to -6.1%   |
+| weather_sydney      | 29.4   | 2026-11-28    | -12.1%   | 26%             | -30.8% to +13.3%  |
+| weather_tokyo       | 17.7   | 2026-11-28    | -23.4%   | 12%             | -48.7% to +2.2%   |
+| weather_world_air   | 14.545 | 2026-11-23    | -3.6%    | 5%              | -5.3% to -2.1%    |
+| weather_world_sea   | 21.014 | 2026-11-12    | -0.2%    | 14%             | -0.4% to +0.0%    |
 
 ![quakes_m45](plots/quakes_m45.png)
 ![weather_arctic_ice](plots/weather_arctic_ice.png)
@@ -453,57 +455,74 @@ Every sealed forecast that has come due, scored against what really happened. Un
 
 | Model | Forecasts | Weekly batches | Skill vs "no change" | In 80% range | Right direction | Brier |
 |---|---|---|---|---|---|---|
-| auto-ets | 3614 | 11 | -0.0% | 82% | 51% | 0.249 |
-| chronos-bolt | 3614 | 11 | +19.2% | 69% | 63% | 0.210 |
-| ensemble | 3614 | 11 | +14.1% | 81% | 59% | 0.209 |
-| radiant | 1142 | 5 | +16.2% | 68% | 69% | 0.191 |
-| radiant-core | 1142 | 5 | +1.5% | 65% | 68% | 0.241 |
-| seldon | 1142 | 5 | +21.2% | 70% | 67% | 0.190 |
-| seldon-laws | 2538 | 9 | +7.3% | 66% | 61% | 0.208 |
-| timesfm-2.5 | 3614 | 11 | +16.2% | 68% | 63% | 0.208 |
+| auto-ets | 3938 | 11 | -0.0% | 83% | 51% | 0.248 |
+| chronos-bolt | 3938 | 11 | +17.2% | 68% | 64% | 0.205 |
+| ensemble | 3938 | 11 | +17.1% | 81% | 60% | 0.205 |
+| radiant | 1338 | 5 | +20.0% | 68% | 71% | 0.182 |
+| radiant-core | 1338 | 5 | +1.3% | 63% | 68% | 0.240 |
+| seldon | 1338 | 5 | +21.9% | 70% | 70% | 0.181 |
+| seldon-laws | 2830 | 9 | +10.4% | 66% | 62% | 0.204 |
+| timesfm-2.5 | 3938 | 11 | +19.4% | 68% | 64% | 0.202 |
 
 **Is timesfm-2.5 really better than "no change"?** A Diebold-Mariano test on the weekly batches (Newey-West variance, as the batches' horizons overlap, with the Harvey-Leybourne-Newbold small-sample correction and Student's t):
 
 - All areas: better than no change (p = 0.00)
 - Stock and value markets: not distinguishable from no change (p = 0.66)
-- World events in the news: better than no change (p = 0.03)
-- Political events: too early: 2 of 4 weekly batches
+- World events in the news: better than no change (p = 0.01)
+- Political events: too early: 3 of 4 weekly batches
 - New technologies: better than no change (p = 0.00)
 - Weather and the planet: too early: 3 of 4 weekly batches
 
-**Drift alarms** (forecasts due in the last 13 weeks): 36 raised. Every forecaster is tested on every series at once, so alarms must pass a Benjamini-Hochberg false-discovery cut of 5%.
+**Drift alarms** (forecasts due in the last 13 weeks): 53 raised. Every forecaster is tested on every series at once, so alarms must pass a Benjamini-Hochberg false-discovery cut of 5%.
 - auto-ets on news_composite: edge lost
 - auto-ets on news_inflation: edge lost
-- chronos-bolt on wiki_ev: edge lost
 - ensemble on wiki_humanoid: edge lost
 - radiant on wiki_crispr: edge lost
 - seldon on wiki_crispr: edge lost
 - timesfm-2.5 on copper: edge lost
 - timesfm-2.5 on sp500: edge lost
 - timesfm-2.5 on wiki_ev: edge lost
-- auto-ets on news_inflation: range too wide
 - auto-ets on news_protest: range too wide
 - auto-ets on nvda: range too narrow
 - auto-ets on nvda: worse than no change
 - auto-ets on tech_composite: range too wide
+- auto-ets on wiki_ai: range too wide
 - auto-ets on wiki_crispr: range too wide
 - auto-ets on wiki_fusion: range too wide
 - auto-ets on wiki_humanoid: range too wide
+- auto-ets on wiki_llm: range too wide
 - auto-ets on wiki_quantum: range too wide
+- chronos-bolt on bitcoin: range too narrow
 - chronos-bolt on gold: worse than no change
 - chronos-bolt on news_climate: range too narrow
+- chronos-bolt on news_inflation: range too narrow
 - chronos-bolt on news_pandemic: range too narrow
 - chronos-bolt on nvda: range too narrow
+- chronos-bolt on wiki_crispr: range too narrow
 - chronos-bolt on wiki_llm: range too narrow
 - chronos-bolt on xom: worse than no change
+- ensemble on gold: worse than no change
+- ensemble on news_pandemic: range too narrow
 - ensemble on news_protest: range too wide
 - ensemble on nvda: range too narrow
 - ensemble on tech_composite: range too wide
+- ensemble on tlt: worse than no change
+- ensemble on wiki_ai: range too wide
 - ensemble on wiki_crispr: range too wide
 - ensemble on wiki_fusion: range too wide
 - ensemble on wiki_humanoid: range too wide
+- ensemble on wiki_quantum: range too wide
 - ensemble on xom: worse than no change
+- radiant on news_pandemic: range too narrow
+- radiant on wiki_fusion: range too wide
+- seldon on news_inflation: range too narrow
+- seldon on news_pandemic: range too narrow
+- seldon on wiki_fusion: range too wide
+- seldon-laws on copper: worse than no change
+- seldon-laws on news_inflation: range too narrow
+- seldon-laws on news_pandemic: range too narrow
 - seldon-laws on nvda: range too narrow
+- timesfm-2.5 on news_inflation: range too narrow
 - timesfm-2.5 on news_pandemic: range too narrow
 - timesfm-2.5 on wiki_crispr: range too narrow
 - timesfm-2.5 on wiki_llm: range too narrow
