@@ -1,6 +1,19 @@
 {
- "fetched": "2026-11-15T23:51Z",
+ "fetched": "2026-11-16T14:48Z",
  "topics": {
+  "wiki_crispr": {
+   "query": "CRISPR",
+   "articles": [
+    {
+     "title": "Novel CRISPR therapy is poised to gain first FDA approval to alter genes inside the body",
+     "url": "https://www.nature.com/articles/d41586-026-03705-9",
+     "domain": "nature.com",
+     "country": "United States",
+     "seen": "2026-11-13T00:45Z"
+    }
+   ],
+   "fetched": "2026-11-16T14:43Z"
+  },
   "news_war": {
    "query": "(warfare OR \"armed conflict\" OR airstrike OR \"military offensive\")",
    "articles": [
@@ -47,7 +60,8 @@
      "seen": "2026-11-14T20:00Z"
     }
    ],
-   "fetched": "2026-11-15T23:44Z"
+   "fetched": "2026-11-15T23:44Z",
+   "stale": true
   },
   "wiki_quantum": {
    "query": "\"quantum computing\"",
@@ -95,7 +109,8 @@
      "seen": "2026-11-12T04:00Z"
     }
    ],
-   "fetched": "2026-11-15T23:49Z"
+   "fetched": "2026-11-15T23:49Z",
+   "stale": true
   },
   "politics_impeachment": {
    "query": "(impeachment OR \"no-confidence\")",
@@ -818,8 +833,7 @@
  },
  "failed": {
   "wiki_ai": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22artificial+intelligence%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&times",
-  "wiki_crispr": "Busy: GDELT still busy after 555s of back-off this run (budget 600s)",
-  "wiki_ev": "skipped: the wire's time budget ran out",
+  "wiki_ev": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22electric+vehicles%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d",
   "wiki_fusion": "skipped: the wire's time budget ran out",
   "wiki_humanoid": "skipped: the wire's time budget ran out",
   "wiki_battery": "skipped: the wire's time budget ran out",
@@ -854,6 +868,8 @@
   "politics_coup": "skipped: the wire's time budget ran out",
   "politics_impeachment": "skipped: the wire's time budget ran out",
   "politics_referendum": "skipped: the wire's time budget ran out",
-  "wiki_llm": "skipped: the wire's time budget ran out"
+  "wiki_llm": "skipped: the wire's time budget ran out",
+  "news_war": "skipped: the wire's time budget ran out",
+  "wiki_quantum": "skipped: the wire's time budget ran out"
  }
 }
