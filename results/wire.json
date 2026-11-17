@@ -1,6 +1,102 @@
 {
- "fetched": "2026-11-16T14:48Z",
+ "fetched": "2026-11-17T05:10Z",
  "topics": {
+  "wiki_ai": {
+   "query": "\"artificial intelligence\"",
+   "articles": [
+    {
+     "title": "U . S . Trade negotiators still insisting on market access in Indian Agri - Foods sector",
+     "url": "https://thenorthlines.com/u-s-trade-negotiators-still-insisting-on-market-access-in-indian-agri-foods-sector/",
+     "domain": "thenorthlines.com",
+     "country": "India",
+     "seen": "2026-11-16T08:15Z"
+    },
+    {
+     "title": "Opinion : CT voters gave us a mandate . Let meet the moment .",
+     "url": "https://ctmirror.org/2026/11/16/ct-voters-gave-us-a-mandate-lets-meet-the-moment/",
+     "domain": "ctmirror.org",
+     "country": "United States",
+     "seen": "2026-11-16T08:15Z"
+    },
+    {
+     "title": "The expanding attack surface : what businesses cant afford to overlook",
+     "url": "https://it-online.co.za/2026/11/16/the-expanding-attack-surface-what-businesses-cant-afford-to-overlook/",
+     "domain": "it-online.co.za",
+     "country": "South Africa",
+     "seen": "2026-11-16T08:15Z"
+    },
+    {
+     "title": "KOSPI Plunges 3 . 6 % as South Korean Stocks Shed 190 Points , Sliding to 5 , 100 in a Brutal Session for Seoul",
+     "url": "https://www.ibtimes.com.au/south-korea-kospi-falls-chip-stocks-asian-selloff-1878668",
+     "domain": "ibtimes.com.au",
+     "country": "Australia",
+     "seen": "2026-11-16T08:15Z"
+    },
+    {
+     "title": "Kunal Kapoor raises concerns over traditional education system , says children must be prepared for an AI - driven world",
+     "url": "https://ianslive.in/kunal-kapoor-raises-concerns-over-traditional-education-system-says-children-must-be-prepared-for-an-ai-driven-world--20261116132103",
+     "domain": "ianslive.in",
+     "country": "India",
+     "seen": "2026-11-16T08:15Z"
+    },
+    {
+     "title": "ICT exports in October jump 202 % to record - high USD 70 . 3B : data : Korea . net : The official website of the Republic of Korea",
+     "url": "https://www.korea.net/NewsFocus/Business/view?articleId=302883",
+     "domain": "korea.net",
+     "country": "South Korea",
+     "seen": "2026-11-16T08:15Z"
+    }
+   ],
+   "fetched": "2026-11-17T05:01Z"
+  },
+  "wiki_ev": {
+   "query": "\"electric vehicles\"",
+   "articles": [
+    {
+     "title": "China once feared becoming roadkill for Western automakers , but now the tables have turned",
+     "url": "https://fortune.com/2026/11/16/china-evs-tariffs-europe-reversal-wto-tesla/",
+     "domain": "fortune.com",
+     "country": "United States",
+     "seen": "2026-11-16T08:15Z"
+    },
+    {
+     "title": "Hybrids make gains in US auto market amid high gasoline prices",
+     "url": "https://www.hurriyetdailynews.com/hybrids-make-gains-in-us-auto-market-amid-high-gasoline-prices-229402",
+     "domain": "hurriyetdailynews.com",
+     "country": "Turkey",
+     "seen": "2026-11-15T07:45Z"
+    },
+    {
+     "title": "Zomato - parent Eternal reassesses 2030 EV delivery target as fleet expands and adoption evolves",
+     "url": "https://www.thehindubusinessline.com/companies/zomato-parent-eternal-reassesses-2030-ev-delivery-target-as-fleet-expands-and-adoption-evolves/article71704178.ece",
+     "domain": "thehindubusinessline.com",
+     "country": "India",
+     "seen": "2026-11-15T07:45Z"
+    },
+    {
+     "title": "Zomato - parent Eternal reworks 2030 EV delivery target amid fleet expansion",
+     "url": "https://www.business-standard.com/companies/news/zomato-parent-eternal-reworks-2030-ev-delivery-target-amid-fleet-expansion-126111500167_1.html",
+     "domain": "business-standard.com",
+     "country": "India",
+     "seen": "2026-11-15T07:45Z"
+    },
+    {
+     "title": "Ontario auto news : Brampton plant sold , Honda retools in Alliston",
+     "url": "https://www.northumberlandnews.com/news/stellantis-sale-brampton/article_7ac1aee8-65a3-56f8-9b98-bd0cc9d2c60b.html",
+     "domain": "northumberlandnews.com",
+     "country": "Canada",
+     "seen": "2026-11-14T20:00Z"
+    },
+    {
+     "title": "Does Gen Z care about the UN big climate summit ?",
+     "url": "https://www.dw.com/en/does-gen-z-care-about-the-uns-big-climate-summit/audio-79944282",
+     "domain": "dw.com",
+     "country": "Germany",
+     "seen": "2026-11-13T18:00Z"
+    }
+   ],
+   "fetched": "2026-11-17T05:04Z"
+  },
   "wiki_crispr": {
    "query": "CRISPR",
    "articles": [
@@ -12,7 +108,8 @@
      "seen": "2026-11-13T00:45Z"
     }
    ],
-   "fetched": "2026-11-16T14:43Z"
+   "fetched": "2026-11-16T14:43Z",
+   "stale": true
   },
   "news_war": {
    "query": "(warfare OR \"armed conflict\" OR airstrike OR \"military offensive\")",
@@ -747,95 +844,10 @@
     }
    ],
    "stale": true
-  },
-  "wiki_ai": {
-   "query": "\"artificial intelligence\"",
-   "articles": [
-    {
-     "title": "Here when Forsyth County parents can get tips from a national expert in keeping kids safe online",
-     "url": "https://www.forsythnews.com/news/education/heres-when-forsyth-county-parents-can-get-tips-from-a-national-expert-in-keeping-kids-safe-online/",
-     "domain": "forsythnews.com",
-     "country": "United States",
-     "seen": "2026-11-03T02:15Z"
-    },
-    {
-     "title": "John Ivison :  Red flags all over  Carney government buy - in of AI company Cohere",
-     "url": "https://calgaryherald.com:443/np-comment/john-ivison-red-flags-all-over-carney-governments-buy-in-of-ai-company-cohere/wcm/0f0c481c-ebf1-4a32-b6bb-510f52bfff6a",
-     "domain": "calgaryherald.com",
-     "country": "Canada",
-     "seen": "2026-11-03T02:15Z"
-    },
-    {
-     "title": "newsroomamerica . com",
-     "url": "https://newsroomamerica.com/?before=119284",
-     "domain": "newsroomamerica.com",
-     "country": "United States",
-     "seen": "2026-11-03T02:15Z"
-    },
-    {
-     "title": "War , tariffs and China : What the US midterms mean for the Asia - Pacific - Dominican Republic Post – Caribbean News , Business , Travel & Culture",
-     "url": "https://dominicanrepublicpost.com/war-tariffs-and-china-what-the-us-midterms-mean-for-the-asia-pacific/",
-     "domain": "dominicanrepublicpost.com",
-     "country": "United States",
-     "seen": "2026-11-03T02:15Z"
-    },
-    {
-     "title": "Mercado Bitcoin drain moved $40M in plain transactions",
-     "url": "https://techreport.com/news/software/mercado-bitcoin-drain-moved-40-million-in-plain-transactions-pointing-to-stolen-signing-keys/",
-     "domain": "techreport.com",
-     "country": "United States",
-     "seen": "2026-11-03T02:15Z"
-    },
-    {
-     "title": "Andalusian tourism minister :  The deterioration of our international image and rail safety concerns are a threat to tourism",
-     "url": "https://www.surinenglish.com/andalucia/gavira-deterioration-international-20261102000500-nt.html",
-     "domain": "surinenglish.com",
-     "country": "Spain",
-     "seen": "2026-11-03T02:15Z"
-    }
-   ],
-   "stale": true
-  },
-  "wiki_ev": {
-   "query": "\"electric vehicles\"",
-   "articles": [
-    {
-     "title": "LG Energy Solution Releases 2026 Third - Quarter Financial Results",
-     "url": "https://www.prnewswire.com/news-releases/lg-energy-solution-releases-2026-third-quarter-financial-results-302927133.html",
-     "domain": "prnewswire.com",
-     "country": "United States",
-     "seen": "2026-11-03T02:15Z"
-    },
-    {
-     "title": "Automakers back Trump administration rollback of US fuel economy rules | WKZO | Everything Kalamazoo",
-     "url": "https://wkzo.com/2026/11/02/automakers-back-us-rollback-of-fuel-economy-rules/",
-     "domain": "wkzo.com",
-     "country": "United States",
-     "seen": "2026-11-03T02:15Z"
-    },
-    {
-     "title": "FCC chairman joins Sen . Cramer in North Dakota to talk broadcast rules , drone tech",
-     "url": "https://y94.com/2026/11/02/fcc-chairman-joins-sen-cramer-in-north-dakota-to-talk-broadcast-rules-drone-tech/",
-     "domain": "y94.com",
-     "country": "United States",
-     "seen": "2026-11-03T02:15Z"
-    },
-    {
-     "title": "ELEKTROS ( OTC : ELEK ) Advances Review of U . S . Lithium Opportunity as Critical Minerals Gain Strategic Attention",
-     "url": "http://www.theusnews.com/news/279408624/elektros-otcelek-advances-review-of-us-lithium-opportunity-as-critical-minerals-gain-strategic-attention",
-     "domain": "theusnews.com",
-     "country": "United States",
-     "seen": "2026-11-03T02:15Z"
-    }
-   ],
-   "stale": true
   }
  },
  "failed": {
-  "wiki_ai": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22artificial+intelligence%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&times",
-  "wiki_ev": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22electric+vehicles%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d",
-  "wiki_fusion": "skipped: the wire's time budget ran out",
-  "wiki_humanoid": "skipped: the wire's time budget ran out",
+  "wiki_fusion": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22fusion+energy%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sor",
   "wiki_battery": "skipped: the wire's time budget ran out",
   "wiki_gene_therapy": "skipped: the wire's time budget ran out",
   "wiki_self_driving": "skipped: the wire's time budget ran out",
@@ -870,6 +882,7 @@
   "politics_referendum": "skipped: the wire's time budget ran out",
   "wiki_llm": "skipped: the wire's time budget ran out",
   "news_war": "skipped: the wire's time budget ran out",
-  "wiki_quantum": "skipped: the wire's time budget ran out"
+  "wiki_quantum": "skipped: the wire's time budget ran out",
+  "wiki_crispr": "skipped: the wire's time budget ran out"
  }
 }

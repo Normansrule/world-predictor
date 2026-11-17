@@ -1,20 +1,20 @@
 # The brief
 
-## Came due, 2026-11-10 to 2026-11-16
+## Came due, 2026-11-11 to 2026-11-17
 
 | Model | Forecasts | Series | Inside 80% range | Right direction | Skill vs no change |
 |---|---:|---:|---:|---:|---:|
-| TimesFM | 1819 | 48 | 70% | 68% | +27.0% |
-| Radiant | 1028 | 48 | 70% | 73% | +24.3% |
-| Chronos-Bolt | 1819 | 48 | 71% | 69% | +23.4% |
-| Seldon | 1028 | 48 | 70% | 71% | +30.5% |
-| Seldon laws | 1584 | 48 | 67% | 64% | +9.9% |
-| AutoETS | 1819 | 48 | 82% | 51% | -0.2% |
-| Ensemble | 1819 | 48 | 81% | 66% | +17.0% |
+| TimesFM | 1774 | 47 | 68% | 68% | +26.8% |
+| Radiant | 1063 | 47 | 69% | 71% | +24.1% |
+| Chronos-Bolt | 1774 | 47 | 70% | 69% | +25.9% |
+| Seldon | 1063 | 47 | 69% | 70% | +28.3% |
+| Seldon laws | 1575 | 47 | 67% | 64% | +9.5% |
+| AutoETS | 1774 | 47 | 81% | 51% | -0.1% |
+| Ensemble | 1774 | 47 | 79% | 65% | +14.6% |
 
-**Radiant's closest calls:** S&P 500 (said +0.6%, was +0.6% by 2026-11-13); Silver (USD/oz) (said -0.0%, was -0.0% by 2026-11-10); Earthquakes of magnitude 4.5 or more per day, worldwide (USGS) (said -11.0%, was -11.1% by 2026-11-14); Average of the technology pageview series above, each scaled to its own mean (said +7.9%, was +7.8% by 2026-11-12); Wikipedia views: Fusion power (said -3.9%, was -3.8% by 2026-11-15).
+**Radiant's closest calls:** S&P 500 (said +0.6%, was +0.6% by 2026-11-13); Average of the technology pageview series above, each scaled to its own mean (said +7.9%, was +7.8% by 2026-11-12); Earthquakes of magnitude 4.5 or more per day, worldwide (USGS) (said -11.0%, was -11.1% by 2026-11-14); Wikipedia views: Fusion power (said +53.6%, was +53.7% by 2026-11-16); Average of the political topics above, each scaled to its own mean (said -9.0%, was -9.0% by 2026-11-13).
 
-**Biggest surprises:** Wikipedia views: SpaceX Starship (range -18.4% to +52.5%, was +1047.7%, 14.0 range widths outside); Share of coverage about impeachments and no-confidence votes (range -65.7% to -20.0%, was +92.1%, 2.4 range widths outside); Share of world news coverage mentioning climate change (range -13.3% to +62.3%, was +180.2%, 1.6 range widths outside); NVIDIA Corp. (range -4.7% to +7.0%, was -18.3%, 1.2 range widths outside); Average of the political topics above, each scaled to its own mean (range -22.3% to +20.1%, was +65.3%, 1.1 range widths outside).
+**Biggest surprises:** Wikipedia views: SpaceX Starship (range -18.4% to +52.5%, was +1047.7%, 14.0 range widths outside); Share of coverage about impeachments and no-confidence votes (range -65.7% to -20.0%, was +92.1%, 2.4 range widths outside); Share of world news coverage mentioning climate change (range -13.3% to +62.3%, was +180.2%, 1.6 range widths outside); NVIDIA Corp. (range -5.6% to +8.8%, was -24.5%, 1.3 range widths outside); Average of the political topics above, each scaled to its own mean (range -22.3% to +20.1%, was +65.3%, 1.1 range widths outside).
 
 ## Radiant changed its mind, 2026-11-15 to 2026-11-16
 
@@ -33,8 +33,8 @@ Chance of ending above today's level on the farthest date both batches cover. 2 
 
 ## Streaks (TimesFM, next-step calls, one per sealed batch)
 
-**Right 3+ in a row:** Wikipedia views: Quantum computing (11 straight, 11 of 12 overall); Nasdaq-100 index (5 straight, 8 of 11 overall); S&P 500 (5 straight, 8 of 11 overall); Share of coverage about disease outbreaks (5 straight, 5 of 7 overall); Arctic sea ice extent (million km2, NSIDC Sea Ice Index) (4 straight, 4 of 4 overall).
+**Right 3+ in a row:** Wikipedia views: Quantum computing (12 straight, 12 of 13 overall); Wikipedia views: Large language model (5 straight, 11 of 13 overall); Share of coverage about disease outbreaks (5 straight, 5 of 7 overall); Share of world news coverage mentioning tariffs (4 straight, 4 of 4 overall); Arctic sea ice extent (million km2, NSIDC Sea Ice Index) (4 straight, 4 of 4 overall).
 
-**Wrong 3+ in a row:** Gold (USD/oz) (8 straight, 1 of 12 overall); NVIDIA Corp. (7 straight, 3 of 11 overall); Average of the technology pageview series above, each scaled to its own mean (3 straight, 7 of 12 overall).
+**Wrong 3+ in a row:** Gold (USD/oz) (8 straight, 1 of 12 overall); Exxon Mobil Corp. (3 straight, 5 of 13 overall).
 
 A streak of a few calls is weak evidence on its own; the Monitor's tests say whether a record is more than luck.
