@@ -21,7 +21,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from . import __version__, brief, bets, catalog, champions, feeds, follow, health, hype, offline, worldevents, events, frames, monitor, radiant, seldon, volatility, yearbook
+from . import __version__, brief, bets, catalog, champions, feeds, follow, health, hype, offline, spikes, worldevents, events, frames, monitor, radiant, seldon, volatility, yearbook
 from .backtest import MAX_CONTEXT, calibration, domain_table, head_to_head, summarize
 from .ledger import latest as ledger_latest
 from .simulate import CROWD_SIZES, crowd_predictability, simulate_crowd
@@ -117,6 +117,7 @@ def build_payload(
     events: dict | None = None,
     bet_odds: dict | None = None,
     sources: dict | None = None,
+    spike_sealed: pd.DataFrame | None = None,
 ) -> dict:
     """Everything the app needs, as plain JSON-ready values. ``bet_odds`` holds the betting ledger's
     ``entries``, ``scored`` and ``seals`` (see bets.py)."""
@@ -157,6 +158,7 @@ def build_payload(
         "radiant_vote": radiant_vote_payload(paths, data, model) if not demo else None,
         "year": yearbook.build(data, _with_radiant(paths, data, model, domains), ledger, model) if not demo else None,
         "hype": hype.payload(data),
+        "spikes": spikes.payload(data, catalog.CATALOG, paths, ledger, spike_sealed, {s.id: s.description for s in catalog.CATALOG}),
         "health": health.payload(sources, {s.id: s.description for s in catalog.CATALOG}) if sources else None,
     }
     if not payload["duel"] and payload["lab"]:

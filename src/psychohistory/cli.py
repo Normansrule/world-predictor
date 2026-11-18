@@ -12,7 +12,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from . import ask, backtest, bets, brief, catalog, follow, health, hype, offline, dashboard, data, desk, events, ledger, monitor, radiant, report, seldon, simulate, story, volatility, web, wire, yearbook
+from . import ask, backtest, bets, brief, catalog, follow, health, hype, offline, dashboard, data, desk, events, ledger, monitor, radiant, report, seldon, simulate, spikes, story, volatility, web, wire, yearbook
 from .models import BASELINES, LAWS, classical_available, load_model
 
 log = logging.getLogger("psychohistory")
@@ -439,6 +439,32 @@ def cmd_hype(args) -> None:
         print(f"\nEvery monthly call written to {args.save}")
 
 
+def _spike_path(args) -> Path:
+    """The spike ledger sits beside the main ledger."""
+    return args.ledger.parent / spikes.SPIKE_LEDGER.name
+
+
+def cmd_spikes(args) -> None:
+    """Spike watch: news, politics and technology attention that jumped to twice its usual level or
+    more, where each rule and TimesFM say it will be four weeks on, the backtest over every spike in
+    the history, and (``--seal``) the live calls sealed once each, on the first weekly forecast
+    after the peak."""
+    specs = [s for s in catalog.CATALOG if spikes.eligible(s)]
+    series = _load(specs + [catalog.by_id(m) for m, _ in spikes.MARKETS], args.data_dir)
+    entries, path = ledger.read(args.ledger), _spike_path(args)
+    if args.seal:
+        rows = spikes.seal_rows(series, entries, specs, spikes.read(path))
+        if not rows.empty:
+            spikes.append(rows, path)
+        print(f"Sealed {len(rows)} new spike call{'s' if len(rows) != 1 else ''} in {path}.\n")
+    paths = _results(args)[1]
+    if args.save:
+        rows = spikes.backtest(series, paths, specs)
+        args.save.parent.mkdir(parents=True, exist_ok=True)
+        rows.to_csv(args.save, index=False)
+    print(spikes.describe(spikes.payload(series, specs, paths, entries, spikes.read(path), {s.id: s.description for s in catalog.CATALOG})))
+
+
 def cmd_wire(args) -> None:
     """The world wire: the newest headlines for every topic, for the app's World terminal."""
     specs = wire.prioritize(catalog.select(args.domain, args.series), wire.read(args.out_dir / wire.WIRE.name))
@@ -634,7 +660,8 @@ def _payload(args, demo: bool = False) -> dict | None:
              "scored": events.read(_event_path(args, "scored")), "seals": _event_seals(args)}
     return web.build_payload(args.model, results, by_step, paths, entries, scored, data, run_status=run,
                              seals=seals, vol=vol, wire=wire.read(args.out_dir / wire.WIRE.name), events=event,
-                             bet_odds=_bets(args), sources=health.read(args.out_dir / health.HEALTH.name))
+                             bet_odds=_bets(args), sources=health.read(args.out_dir / health.HEALTH.name),
+                             spike_sealed=spikes.read(_spike_path(args)))
 
 
 def cmd_export(args) -> None:
@@ -787,6 +814,12 @@ def main(argv: list[str] | None = None) -> None:
     common(p)
     p.add_argument("--save", type=Path, default=None, help="also write every monthly backtest call to this CSV")
     p.set_defaults(func=cmd_hype)
+
+    p = sub.add_parser("spikes", help="spike watch: attention that jumped to twice its usual level, where it will be four weeks on, and the record")
+    common(p)
+    p.add_argument("--seal", action="store_true", help="seal the live calls in predictions/spike_ledger.csv (once per spike)")
+    p.add_argument("--save", type=Path, default=None, help="also write every spike in the backtest to this CSV")
+    p.set_defaults(func=cmd_spikes)
 
     p = sub.add_parser("wire", help="the newest headlines for every topic, from GDELT, for the World terminal")
     common(p)

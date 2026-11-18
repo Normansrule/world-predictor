@@ -68,6 +68,7 @@ everything that ships or downloads with this project are in [CREDITS.md](CREDITS
 | Forecasting competitions | Makridakis, Spiliotis and Assimakopoulos, "The M4 Competition" (2020) | The held-out public data Seldon is checked on (`scripts/seldon_m4_check.py`). |
 | Bass diffusion model | Frank Bass, "A New Product Growth Model" (1969) | **Built in** as the `bass` model: an S-curve fitted to each technology-adoption series and run against TimesFM. |
 | Gartner hype cycle | Gartner (1995); Fenn & Raskino (2008); Dedehayir & Steinert (2016) | Why attention to a technology (Wikipedia views) spikes and fades even while adoption keeps rising; the Hype cycle view (`psychohistory hype`) reads each technology's phase and tests what the phase foretold. |
+| Collective attention decays | Lorenz-Spreen et al. (2019) | Why a burst of attention tends to fade: the burst rule in the Hype cycle view expects a 90-day move of 30% or more to reverse, and is counted out of sample from 16 November 2026. |
 | Proper scoring rules | Glenn Brier (1950); Gneiting and Raftery (2007) | Brier and pinball scores; honest odds (test 4). |
 | Superforecasting | Philip Tetlock and Dan Gardner, *Superforecasting* (2015) | Keeping a dated prediction ledger and scoring calibration over time. |
 | Forecast accuracy measures | Hyndman and Koehler (2006) | MASE, which makes gold prices and news shares comparable. |
@@ -146,6 +147,7 @@ date", with the day they were retrieved; several undated works by one author are
 - Lehmann, B. N. (1990). Fads, martingales, and market efficiency. *The Quarterly Journal of Economics, 105*(1), 1–28. https://doi.org/10.2307/2937816
 - Lichtendahl, K. C., Jr., Grushka-Cockayne, Y., & Winkler, R. L. (2013). Is it better to average probabilities or quantiles? *Management Science, 59*(7), 1594–1611. https://doi.org/10.1287/mnsc.1120.1667
 - Lorenz, E. N. (1963). Deterministic nonperiodic flow. *Journal of the Atmospheric Sciences, 20*(2), 130–141. https://doi.org/10.1175/1520-0469(1963)020<0130:DNF>2.0.CO;2
+- Lorenz-Spreen, P., Mønsted, B. M., Hövel, P., & Lehmann, S. (2019). Accelerating dynamics of collective attention. *Nature Communications, 10*(1), Article 1759. https://doi.org/10.1038/s41467-019-09311-w
 - Makridakis, S., Spiliotis, E., & Assimakopoulos, V. (2020). The M4 Competition: 100,000 time series and 61 forecasting methods. *International Journal of Forecasting, 36*(1), 54–74. https://doi.org/10.1016/j.ijforecast.2019.04.014
 - Mandelbrot, B. (1963). The variation of certain speculative prices. *The Journal of Business, 36*(4), 394–419. https://doi.org/10.1086/294632
 - Manski, C. F. (2006). Interpreting the predictions of prediction markets. *Economics Letters, 91*(3), 425–429. https://doi.org/10.1016/j.econlet.2006.01.004

@@ -1892,9 +1892,154 @@ def test_hype_payload_cli_and_app(tmp_path, capsys):
         pytest.skip("node is not installed")
     js = (f"global.window={{}};require({json.dumps(str(root / 'app' / 'js' / 'hype.js'))});const H=window.WPHype;"
           "const its=[{phase:'peak',x:0.27},{phase:'peak',x:0.27},{phase:'trough',x:0.55}];"
-          "console.log(JSON.stringify({top:H.curveY(0.25)>H.curveY(0.55),plateau:H.curveY(0.95)>H.curveY(0.55),xs:H.placed(its).map(p=>p.x)}))")
+          "const root={innerHTML:''};H.render(root,{hype:" + json.dumps(p) + ",outlook:[]});"
+          "console.log(JSON.stringify({top:H.curveY(0.25)>H.curveY(0.55),plateau:H.curveY(0.95)>H.curveY(0.55),xs:H.placed(its).map(p=>p.x),"
+          "html:root.innerHTML}))")
     out = json.loads(subprocess.run(["node", "-e", js], capture_output=True, text=True, check=True).stdout)
     assert out["top"] and out["plateau"] and out["xs"][0] < out["xs"][1] and out["xs"][2] == 0.55
+    assert "Big moves fade" in out["html"] and "The burst rule says" in out["html"] and "the burst rule right" in out["html"]
+
+
+def test_hype_burst_rule_reversal_and_fair_test():
+    import math
+    from psychohistory import hype
+    up30, down30 = math.log1p(0.35), math.log1p(-0.35)
+    assert hype.burst_call(up30) == "down" and hype.burst_call(down30) == "up" and hype.burst_call(math.log1p(0.2)) == "flat"
+    # Ten calls after a jump that all fell back, ten after a slump that all rose, ten quiet ones that stayed flat;
+    # two of them made after the rule was found.
+    origins = [f"2025-{m:02d}-01" for m in range(1, 11)] * 3
+    origins[-1] = origins[-2] = "2026-12-01"
+    rows = pd.DataFrame({"series_id": "wiki_ai", "origin": origins,
+                         "slope": [up30] * 10 + [down30] * 10 + [0.0] * 10,
+                         "phase": ["rising"] * 10 + ["sliding"] * 10 + ["plateau"] * 10,
+                         "call": ["up"] * 10 + ["down"] * 10 + ["flat"] * 10,
+                         "momentum": ["up"] * 10 + ["down"] * 10 + ["flat"] * 10,
+                         "outcome": ["down"] * 10 + ["up"] * 10 + ["flat"] * 10,
+                         "change": [-0.4] * 10 + [0.4] * 10 + [0.0] * 10})
+    rec = hype.record(rows)  # no "burst" column: filled from the slope, as for a backtest saved before the rule
+    assert rec["burst"] == 30 and rec["reversal"] == 30 and rec["momentum"] == 10 and rec["hype"] == 10 and rec["flat"] == 10
+    assert rec["same_as_momentum"] == 30 and rec["by_phase"]["rising"]["burst"] == 10
+    assert rec["since_found"] == {"from": hype.FOUND, "n": 2, "burst": 2, "flat": 2}
+    b = {x["key"]: x for x in rec["bursts"]}
+    assert b["jumped"]["n"] == 10 and b["jumped"]["down"] == 10 and b["jumped"]["back"] == "down"
+    assert b["fell"]["up"] == 10 and b["fell"]["back"] == "up" and b["steady"]["back"] is None and b["steady"]["p"] is None
+    assert b["jumped"]["p"] < 0.05 and "steady" in b and "rose" not in b
+    v = hype.verdict(rec)
+    assert "Attention reverts" in v and "fair test" in v and "momentum in disguise" in v
+    out = hype.describe({"made_on": "2026-11-16", "items": [], "record": rec, "verdict": v})
+    assert "Rose 30% or more" in out and "Fair test of the burst rule since 2026-11-16: 2 right in 2" in out
+    rec["since_found"]["n"] = 0
+    assert "no call has settled yet" in hype.describe({"made_on": "x", "items": [], "record": rec, "verdict": v})
+
+
+def _spiky(days: int = 400, every: int = 60, height: float = 10.0, settle: float = 1.2, seed: int = 0) -> pd.Series:
+    """Attention at 100 a day with a spike every ``every`` days that halves daily and settles at ``settle`` times the old level."""
+    idx = pd.date_range("2025-01-01", periods=days, freq="D")
+    v = np.full(days, 100.0) * np.exp(np.random.default_rng(seed).normal(0, 0.02, days))
+    for start in range(40, days, every):
+        for d in range(min(every, days - start)):
+            v[start + d] = 100.0 * (settle + (height - settle) * 0.5 ** d) if d < 40 else v[start + d]
+    return pd.Series(v, idx)
+
+
+def test_spikes_found_halved_and_backtested_without_peeking():
+    from psychohistory import spikes
+    s = _spiky()
+    found = spikes.find("wiki_ai", s)
+    assert len(found) == 6 and all(f["half"] == 2 for f in found) and abs(found[0]["ratio"] - 10) < 0.5
+    assert found[0]["peak_date"] == s.index[40] and np.isnan(found[-1]["after"][-1])  # the newest spike's later days are not seen yet
+    rows = spikes.backtest({"wiki_ai": s, "politics_coup": _spiky(seed=1)})
+    assert len(rows) == 12 and set(rows["old level"]) == {1.0}
+    assert rows["past spikes"].isna().sum() == 6  # the first three spikes of each: too few earlier ones had reached day 29
+    assert rows["past spikes"].dropna().between(1.1, 1.3).all() and rows["actual"].between(1.1, 1.3).all()
+    rec = spikes.record(rows)
+    assert rec["n"] == 12 and rec["half"] == 2 and rec["rules"]["past spikes"]["median_miss"] < rec["rules"]["no change"]["median_miss"]
+    assert rec["back"] == 12 and rec["by_domain"]["tech"]["n"] == 6
+    assert "spikes in 2 series" in spikes.verdict(rec) and spikes.verdict(None).startswith("Not enough")
+    assert spikes.short("Wikipedia views: SpaceX Starship") == "SpaceX Starship" and spikes.short("Share of coverage about coups") == "Coups"
+    assert spikes.eligible(catalog.by_id("wiki_ai")) and not spikes.eligible(catalog.by_id("sp500")) and not spikes.eligible(catalog.by_id("news_composite"))
+
+
+def test_spikes_sealed_once_scored_and_shown(tmp_path, capsys):
+    import json
+    import shutil
+    import subprocess
+    from psychohistory import spikes
+    s = _spiky(days=400).iloc[:345]  # the newest spike peaked on day 340, four days before the end
+    last = s.index[-1]
+    led = pd.DataFrame([{"made_on": (last + pd.Timedelta(days=1)).date().isoformat(), "model": spikes.TIMESFM, "series_id": "wiki_ai",
+                         "last_date": last.date().isoformat(), "step": k, "target_date": (last + pd.Timedelta(days=k)).date().isoformat(),
+                         "q10": 100.0, "q50": 125.0, "q90": 160.0} for k in (1, 28)])
+    data_ = {"wiki_ai": s}
+    rows = spikes.seal_rows(data_, led)
+    assert len(rows) == 1 and rows["timesfm"].iloc[0] == pytest.approx(1.25, rel=0.02) and rows["old level"].iloc[0] == 1.0
+    path = tmp_path / "spike_ledger.csv"
+    spikes.append(rows, path)
+    again = spikes.seal_rows(data_, led, sealed=spikes.read(path))
+    assert again.empty  # a spike is sealed once
+    spikes.append(rows.assign(timesfm=9.0), path)
+    assert len(spikes.read(path)) == 1 and spikes.read(path)["timesfm"].iloc[0] != 9.0  # the first seal wins
+    later = _spiky(days=400)
+    scored = spikes.score(spikes.read(path), {"wiki_ai": later})
+    assert len(scored) == 1 and scored["actual"].iloc[0] == pytest.approx(1.2, rel=0.1)
+    assert spikes.score(spikes.read(path), data_).empty  # its day has not come in the shorter data
+    p = spikes.payload(data_, None, None, led, spikes.read(path), {"wiki_ai": "Wikipedia views: Artificial intelligence"})
+    it = p["items"][0]
+    assert it["title"] == "Artificial intelligence" and it["calls"]["timesfm"] == pytest.approx(1.25, rel=0.02) and p["live"]["open"] == 1
+    assert "Artificial intelligence" in spikes.describe(p) and "fetch" in spikes.describe(None)
+    root = Path(__file__).resolve().parents[1]
+    assert "app/js/spikes.js" in (root / "site" / "sw.js").read_text() and 'src="js/spikes.js"' in (root / "site" / "app" / "index.html").read_text()
+    assert 'href="#spikes"' in (root / "site" / "app" / "index.html").read_text() and '"spikes"' in (root / "site" / "app" / "js" / "app.js").read_text()
+    assert "spikes --seal" in (root / ".github" / "workflows" / "predict.yml").read_text()
+    if not shutil.which("node"):
+        pytest.skip("node is not installed")
+    js = (f"global.window={{}};require({json.dumps(str(root / 'site' / 'app' / 'js' / 'spikes.js'))});"
+          "const root={innerHTML:''};window.WPSpikes.render(root,{spikes:" + json.dumps(p, default=lambda o: None) + "});"
+          "console.log(JSON.stringify({html:root.innerHTML,x:[window.WPSpikes.x(12.1),window.WPSpikes.x(1.05),window.WPSpikes.miss(Math.log(1.25))]}))")
+    out = json.loads(subprocess.run(["node", "-e", js], capture_output=True, text=True, check=True).stdout)
+    assert "Spike watch" in out["html"] and "Artificial intelligence" in out["html"] and "1 call sealed, none settled yet" in out["html"]
+    assert out["x"] == ["12×", "1.05×", "25%"]
+
+
+def test_spikes_market_study_finds_a_planted_reaction_and_not_a_fake_one():
+    from psychohistory import spikes
+    att = {"politics_coup": _spiky(days=700, every=45), "politics_tariffs": _spiky(days=700, every=45, seed=1)}  # the same days count once
+    every = [sp for sid, x in att.items() for sp in spikes.find(sid, x)]
+    days = {sp["peak_date"] for sp in every}
+    idx = pd.bdate_range("2024-12-01", "2026-12-31")
+    rng = np.random.default_rng(5)
+    calm = rng.normal(0, 0.005, len(idx))
+    jumpy = calm.copy()
+    for k, d in enumerate(idx):  # the week after each spike, the market swings hard
+        if any(0 <= (d - p).days < 7 for p in days):
+            jumpy[k] = rng.choice([-1, 1]) * 0.03
+    data_ = {**att, "sp500": pd.Series(100 * np.exp(np.cumsum(jumpy)), idx), "gold": pd.Series(100 * np.exp(np.cumsum(calm)), idx)}
+    st = spikes.market_study(data_, every)
+    rows = {r["market"]: r for r in st["rows"]}
+    assert set(rows) == {"sp500", "gold"} and st["tests"] == 2 and rows["sp500"]["n"] == len(days)
+    assert rows["sp500"]["ratio"] > 2 and rows["sp500"]["p"] < 0.01 and rows["sp500"]["passes"]
+    assert rows["gold"]["p"] > 0.05 and not rows["gold"]["passes"]
+    v = spikes.market_verdict(st)
+    assert "S&P 500 after world news and politics spikes" in v and "passed the false-discovery cut" in v
+    assert spikes.market_verdict(None).startswith("Not enough")
+    assert spikes.market_study({"sp500": data_["sp500"]}, []) is None
+
+
+def test_spikes_backtest_is_fast_on_ten_years_of_history():
+    """The weekly run backtests every spike since 2015: well over a thousand. A version that
+    rebuilt the past-spikes curve spike by spike took over ten minutes there."""
+    import time
+    from psychohistory import spikes
+    rng = np.random.default_rng(0)
+    idx = pd.date_range("2015-07-01", "2026-11-15", freq="D")
+    data_ = {f"politics_s{k}": pd.Series(1000 * np.exp(rng.normal(0, 0.3, len(idx))), idx) for k in range(12)}
+    t = time.perf_counter()
+    rows = spikes.backtest(data_)
+    assert len(rows) > 400 and time.perf_counter() - t < 20
+    every = [sp for sid, x in data_.items() for sp in spikes.find(sid, x)]
+    c = spikes.curve(every, before=pd.Timestamp("2020-01-01"))
+    slow = np.median([sp["after"][28] for sp in every if sp["peak_date"] + pd.Timedelta(days=29) <= pd.Timestamp("2020-01-01")])
+    assert c[28] == pytest.approx(slow)  # the array version gives the same median
 
 
 def test_gdelt_refusal_fails_fast_with_gdelts_words(monkeypatch):

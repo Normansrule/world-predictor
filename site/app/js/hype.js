@@ -8,6 +8,7 @@
   const pc = (a, b) => (b ? Math.round((100 * a) / b) + "%" : "–");
   const big = (v) => (v >= 1e4 ? Math.round(v / 1e3) + "k" : v >= 1e3 ? (v / 1e3).toFixed(1) + "k" : Math.round(v));
   const month = (s) => { const d = new Date(String(s).slice(0, 10) + "T12:00:00Z"); return isNaN(d) ? s : d.toLocaleDateString(undefined, { month: "short", year: "numeric", timeZone: "UTC" }); };
+  const day = (s) => { const d = new Date(String(s).slice(0, 10) + "T12:00:00Z"); return isNaN(d) ? s : d.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }); };
   const CALL = { up: "up", down: "down", flat: "about the same" };
   const PHASE_C = { rising: "var(--t-major, var(--up))", peak: "var(--down)", sliding: "var(--warn)", trough: "var(--tfm)", recovering: "var(--up)", plateau: "var(--tech)" };
   const ORDER = ["rising", "peak", "sliding", "trough", "recovering", "plateau"];
@@ -87,6 +88,7 @@
         <li><span>Against its peak</span><b>${Math.round(it.level * 100)}%</b><small>${big(it.now)} vs ${big(it.peak)} views a day</small></li>
         <li><span>Last 90 days vs the 90 before</span><b>${sp(Math.expm1(it.slope))}</b></li>
         <li><span>The phase says, next 90 days</span><b>${esc(CALL[it.call])}</b></li>
+        ${it.burst ? `<li><span>The burst rule says</span><b>${esc(CALL[it.burst])}</b><small>${it.burst === "flat" ? `no move of ${Math.round(H.rules.burst * 100)}% or more to undo` : `a ${Math.round(H.rules.burst * 100)}%+ move tends to reverse`}</small></li>` : ""}
         ${tfm(it)}
       </ul>${adopt}</a>`;
   }
@@ -98,20 +100,44 @@
     const rows = ORDER.filter((p) => R.by_phase[p]).map((p) => {
       const g = R.by_phase[p], r = H.rules.phases[p];
       return `<tr><th scope="row"><span class="hy-sw" style="--c:${PHASE_C[p]}"></span>${esc(r.label)}</th><td>${g.n}</td><td>${esc(CALL[r.call])}</td>
-        <td><b>${pc(g.hit, g.n)}</b></td><td>${pc(g.momentum, g.n)}</td><td>${g.up} up · ${g.down} down</td><td>${sp(g.median_change)}</td></tr>`;
+        <td><b>${pc(g.hit, g.n)}</b></td><td>${pc(g.momentum, g.n)}</td><td>${g.burst !== undefined ? pc(g.burst, g.n) : "–"}</td><td>${g.up} up · ${g.down} down</td><td>${sp(g.median_change)}</td></tr>`;
     }).join("");
     const ap = R.after_peak;
+    const tiles = [["hype", "the hype cycle right", "the phase's call"], ["momentum", "momentum right", "the last 90 days' direction carries on"],
+      ["reversal", "reversal right", "the last 90 days' direction turns"],
+      ["burst", "the burst rule right", `a ${Math.round(H.rules.burst * 100)}%+ move reverses, else no change; read off this backtest`], ["flat", "\"no change\" right", `within ±${Math.round(H.rules.flat * 100)}%`]]
+      .filter(([k]) => R[k] !== undefined);
+    const top = Math.max(...tiles.map(([k]) => R[k]));
     return `<section class="block" aria-labelledby="hyr-h"><header class="bh"><div><h2 id="hyr-h">Did the phases know anything?</h2>
       <p>Once a month from ${esc(month(R.first))} to ${esc(month(R.last))}, each technology's phase was read from the views up to that day only, and its call checked against the next 90 days (flat means within ±${Math.round(H.rules.flat * 100)}%).</p></div></header>
       <div class="hy-score">
-        <div><b>${pc(R.hype, R.n)}</b><span>the hype cycle right</span></div>
-        <div><b>${pc(R.momentum, R.n)}</b><span>momentum right</span><small>the last 90 days' direction carries on</small></div>
-        <div><b>${pc(R.flat, R.n)}</b><span>"no change" right</span></div>
+        ${tiles.map(([k, t, sm]) => `<div${R[k] === top ? ' class="best"' : ""}><b>${pc(R[k], R.n)}</b><span>${esc(t)}</span><small>${esc(sm)}</small></div>`).join("")}
         ${ap.n ? `<div><b>${pc(ap.fell, ap.n)}</b><span>fell after a peak</span><small>against ${Math.round(ap.base * 100)}% of all windows${ap.p !== null && ap.p !== undefined ? `, p ${ap.p < 0.001 ? "< 0.001" : ap.p.toFixed(3)}` : ""}</small></div>` : ""}
       </div>
       <p class="hy-verdict">${esc(H.verdict)}</p>
-      <div class="table-wrap"><table class="ev-table hy-table"><thead><tr><th>Phase</th><th>Calls</th><th>Says</th><th>Right</th><th>Momentum right</th><th>What happened</th><th>Median next 90 days</th></tr></thead>
-      <tbody>${rows}</tbody></table></div></section>`;
+      <div class="table-wrap"><table class="ev-table hy-table"><thead><tr><th>Phase</th><th>Calls</th><th>Says</th><th>Right</th><th>Momentum right</th><th>Burst rule right</th><th>What happened</th><th>Median next 90 days</th></tr></thead>
+      <tbody>${rows}</tbody></table></div></section>${bursts(R)}`;
+  }
+
+  // What the next 90 days did after attention had jumped, eased or held: big moves tend to fade.
+  function bursts(R) {
+    if (!R.bursts || !R.bursts.length) return "";
+    const pv = (p) => (p === null || p === undefined ? "" : p < 0.001 ? "p < 0.001" : `p ${p.toFixed(2)}`);
+    const rows = R.bursts.map((b) => {
+      const w = (k) => (100 * b[k]) / b.n;
+      return `<li class="${b.back ? "" : "mid"}"><span class="hy-bl">${esc(b.label)}<small>${b.n} calls</small></span>
+        <span class="hy-bar" role="img" aria-label="${esc(b.label)}: next 90 days rose ${pc(b.up, b.n)}, flat ${pc(b.flat, b.n)}, fell ${pc(b.down, b.n)}">
+          <i class="u" style="width:${w("up").toFixed(1)}%">${w("up") >= 12 ? pc(b.up, b.n) : ""}</i><i class="f" style="width:${w("flat").toFixed(1)}%">${w("flat") >= 12 ? pc(b.flat, b.n) : ""}</i><i class="d" style="width:${w("down").toFixed(1)}%">${w("down") >= 12 ? pc(b.down, b.n) : ""}</i></span>
+        <span class="hy-bm"><b>${sp(b.median_change)}</b><small>${b.back ? `${b.back === "down" ? "fell" : "rose"} back · ${pv(b.p)}` : "median"}</small></span></li>`;
+    }).join("");
+    const sf = R.since_found;
+    const fair = sf ? (sf.n ? `Since ${esc(day(sf.from))}, the fair test: the burst rule right ${sf.burst} times in ${sf.n} settled calls (${pc(sf.burst, sf.n)}), "no change" ${pc(sf.flat, sf.n)}.`
+      : `The burst rule was read off this same record, so it is sure to look good here. The fair test counts only calls made from ${esc(day(sf.from))}; the first ones settle 90 days later.`) : "";
+    return `<section class="block" aria-labelledby="hyb-h"><header class="bh"><div><h2 id="hyb-h">Big moves fade</h2>
+      <p>What the next 90 days did after attention had moved by so much over the last 90. The p-value asks whether the move reversed more often than attention moves that way at all, counted on a third of the calls because the windows overlap.</p></div></header>
+      <ul class="hy-bursts">${rows}</ul>
+      <p class="hy-legend"><span><i class="u"></i>rose 10%+</span><span><i class="f"></i>within 10%</span><span><i class="d"></i>fell 10%+</span></p>
+      <p class="hy-verdict">${fair}</p></section>`;
   }
 
   function page() {

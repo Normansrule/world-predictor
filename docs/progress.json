@@ -92,7 +92,7 @@
           "title": "World wire: the newest GDELT headlines for every topic, weekly"
         },
         {
-          "title": "Source health across runs: the war series found never to have downloaded, fixed; GDELT refusals recorded in its own words, top-ups and longest-wait-first",
+          "title": "Source health across runs: the war series found never to have downloaded, fixed (first download 16 November); GDELT refusals recorded in its own words, top-ups and longest-wait-first",
           "done": true,
           "evidence": "src/psychohistory/health.py"
         }
@@ -184,6 +184,26 @@
           "title": "Hype-cycle detection: each technology's phase from its Wikipedia views, adoption beside it, and a backtest of what the phases foretold",
           "done": true,
           "evidence": "src/psychohistory/hype.py"
+        },
+        {
+          "title": "Big moves fade: reversal and the burst rule scored beside the hype cycle on 1,229 calls, with a fair out-of-sample count from 16 November 2026",
+          "done": true,
+          "evidence": "src/psychohistory/hype.py"
+        },
+        {
+          "title": "Spike watch: where a burst of news or tech attention lands four weeks on, three rules and TimesFM backtested over every past spike, live calls sealed once",
+          "done": true,
+          "evidence": "src/psychohistory/spikes.py"
+        },
+        {
+          "title": "Do spikes move markets? Six markets the week after news, politics and tech spikes, with a shuffle test and a false-discovery cut",
+          "done": true,
+          "evidence": "src/psychohistory/spikes.py"
+        },
+        {
+          "title": "Spiking now on Today, and a spike backtest fast enough for ten years of history (seconds, not ten minutes)",
+          "done": true,
+          "evidence": "site/app/js/spikes.js"
         }
       ]
     },

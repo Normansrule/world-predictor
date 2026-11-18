@@ -35,6 +35,8 @@ DEEP = 0.50        # level below this, and flat, is the trough
 STEP = 30          # days between backtest origins
 MIN_HISTORY = 365  # days of history before the first call
 OVERLAP = max(1, WINDOW // STEP)  # calls that share one 90-day look-ahead
+BURST = 0.30       # a 90-day move this large (either way) is expected to reverse: the burst rule
+FOUND = "2026-11-16"  # the day the burst rule was read off the backtest; only calls after it are a fair test
 
 # Technology -> its Wikipedia attention series and, where one exists, an adoption series.
 TECH = [
@@ -113,6 +115,13 @@ def direction(change: float) -> str:
     return "up" if change > FLAT else "down" if change < -FLAT else "flat"
 
 
+def burst_call(slope: float) -> str:
+    """The burst rule: after attention rose 30% or more in 90 days, expect it to fall; after it
+    fell 30% or more, expect it to rise; otherwise expect about the same."""
+    pct = math.expm1(slope)
+    return "down" if pct >= BURST else "up" if pct <= -BURST else "flat"
+
+
 def backtest_one(sid: str, series: pd.Series) -> pd.DataFrame:
     """One call a month: the phase, its call, momentum's call and what the next 90 days did."""
     s = daily(series)
@@ -131,7 +140,7 @@ def backtest_one(sid: str, series: pd.Series) -> pd.DataFrame:
         change = math.log(ahead / r.now)
         p = phase(r)
         rows.append({"series_id": sid, "origin": past.index[-1].date().isoformat(), "phase": p, "level": round(r.level, 4),
-                     "slope": round(r.slope, 4), "call": PHASES[p][1], "momentum": direction(r.slope),
+                     "slope": round(r.slope, 4), "call": PHASES[p][1], "momentum": direction(r.slope), "burst": burst_call(r.slope),
                      "change": round(change, 4), "outcome": direction(change)})
     return pd.DataFrame(rows)
 
@@ -158,8 +167,12 @@ def record(rows: pd.DataFrame | None) -> dict | None:
     still a rough guide, not a verdict."""
     if rows is None or rows.empty:
         return None
+    rows = rows.assign(reversal=rows["momentum"].map(REVERSE))
+    if "burst" not in rows:  # a backtest saved before the burst rule existed
+        rows = rows.assign(burst=rows["slope"].map(burst_call))
     hit = rows["call"] == rows["outcome"]
     mom = rows["momentum"] == rows["outcome"]
+    rev = rows["reversal"] == rows["outcome"]
     flat = rows["outcome"] == "flat"
     by_phase = {}
     for p in ORDER:
@@ -167,6 +180,8 @@ def record(rows: pd.DataFrame | None) -> dict | None:
         if len(g):
             by_phase[p] = {"n": int(len(g)), "hit": int((g["call"] == g["outcome"]).sum()),
                            "momentum": int((g["momentum"] == g["outcome"]).sum()),
+                           "reversal": int((g["reversal"] == g["outcome"]).sum()),
+                           "burst": int((g["burst"] == g["outcome"]).sum()),
                            "up": int((g["outcome"] == "up").sum()), "down": int((g["outcome"] == "down").sum()),
                            "median_change": round(float(np.expm1(g["change"].median())), 4)}
     peaks = rows[rows["phase"] == "peak"]
@@ -175,27 +190,67 @@ def record(rows: pd.DataFrame | None) -> dict | None:
     return {
         "n": int(len(rows)), "series": int(rows["series_id"].nunique()),
         "first": str(rows["origin"].min()), "last": str(rows["origin"].max()),
-        "hype": int(hit.sum()), "momentum": int(mom.sum()), "flat": int(flat.sum()),
-        "by_phase": by_phase,
+        "hype": int(hit.sum()), "momentum": int(mom.sum()), "reversal": int(rev.sum()), "flat": int(flat.sum()),
+        "burst": int((rows["burst"] == rows["outcome"]).sum()), "same_as_momentum": int((rows["call"] == rows["momentum"]).sum()),
+        "since_found": {"from": FOUND, "n": int((after := rows[rows["origin"] >= FOUND]).shape[0]),
+                        "burst": int((after["burst"] == after["outcome"]).sum()), "flat": int((after["outcome"] == "flat").sum())},
+        "by_phase": by_phase, "bursts": bursts(rows),
         "after_peak": {"n": int(len(peaks)), "fell": fell, "base": round(base_fall, 4),
                        "p": _binom_p(round(fell / OVERLAP), round(len(peaks) / OVERLAP), base_fall)},
     }
+
+
+REVERSE = {"up": "down", "down": "up", "flat": "flat"}
+# What the last 90 days did against the 90 before, in plain percentages (the slope is a log change).
+BURSTS = [("fell", "Fell 30% or more", -np.inf, -0.30), ("eased", "Fell 10% to 30%", -0.30, -0.10),
+          ("steady", "Within 10%", -0.10, 0.10), ("rose", "Rose 10% to 30%", 0.10, 0.30), ("jumped", "Rose 30% or more", 0.30, np.inf)]
+
+
+def bursts(rows: pd.DataFrame) -> list[dict]:
+    """After attention rose or fell by so much over 90 days, what did the next 90 days do? The
+    p-value asks whether the move reversed more often than attention moved that way at all
+    (counted on a third of the windows, as they overlap)."""
+    pct = np.expm1(rows["slope"])
+    base = {d: float((rows["outcome"] == d).mean()) for d in ("up", "down")}
+    out = []
+    for key, label, lo, hi in BURSTS:
+        g = rows[(pct > lo) & (pct <= hi)] if np.isfinite(lo) else rows[pct <= hi]
+        if g.empty:
+            continue
+        up, down = int((g["outcome"] == "up").sum()), int((g["outcome"] == "down").sum())
+        back = "down" if lo >= 0.10 else "up" if hi <= -0.10 else None
+        n_back = down if back == "down" else up if back == "up" else None
+        out.append({"key": key, "label": label, "n": int(len(g)), "up": up, "down": down, "flat": int(len(g) - up - down),
+                    "median_change": round(float(np.expm1(g["change"].median())), 4), "back": back,
+                    "p": _binom_p(round(n_back / OVERLAP), round(len(g) / OVERLAP), base[back]) if back else None})
+    return out
 
 
 def verdict(rec: dict | None) -> str:
     """One plain sentence on whether the phases knew anything momentum did not."""
     if not rec or rec["n"] < 20:
         return "Not enough history for a verdict yet."
-    n, h, m, f = rec["n"], rec["hype"], rec["momentum"], rec["flat"]
-    best = max(("the hype cycle", h), ("momentum", m), ("no change", f), key=lambda t: t[1])
+    n, h, m, f, r = rec["n"], rec["hype"], rec["momentum"], rec["flat"], rec.get("reversal", 0)
+    bu = rec.get("burst", 0)
+    best = max(("the hype cycle", h), ("momentum", m), ("reversal", r), ("the burst rule", bu), ("no change", f), key=lambda t: t[1])
+    sm = rec.get("same_as_momentum")
+    same = (f" The phases are mostly momentum in disguise: they made the same call {sm / n:.0%} of the time, as most phases are"
+            f" read from the trend itself." if sm is not None else "")
     ap = rec["after_peak"]
     peak = ""
     if ap["n"]:
         rate = ap["fell"] / ap["n"]
         peak = (f" After a call at the peak, attention fell {ap['fell']} times in {ap['n']} ({rate:.0%}), against {ap['base']:.0%} of all windows"
                 + (", more often than usual." if ap["p"] is not None and ap["p"] < 0.05 else ", which could be chance."))
+    b = {x["key"]: x for x in rec.get("bursts", [])}
+    burst = ""
+    if b.get("jumped") and b.get("fell"):
+        j, d = b["jumped"], b["fell"]
+        burst = (f" Attention reverts: after a rise of 30% or more it fell next {j['down']} times in {j['n']} ({j['down'] / j['n']:.0%}) and rose {j['up'] / j['n']:.0%}; "
+                 f"after a fall of 30% or more it rose {d['up']} times in {d['n']} ({d['up'] / d['n']:.0%}).")
     return (f"Over {n} monthly calls the hype cycle got the next 90 days' direction right {h} times ({h / n:.0%}), "
-            f"momentum {m} ({m / n:.0%}) and \"no change\" {f} ({f / n:.0%}); {best[0]} did best.{peak}")
+            f"momentum {m} ({m / n:.0%}), reversal {r} ({r / n:.0%}), the burst rule {bu} ({bu / n:.0%}) and \"no change\" {f} ({f / n:.0%}); "
+            f"{best[0]} did best.{same}{peak}{burst} The burst rule was read off this same backtest on {FOUND}, so only its calls after that day are a fair test.")
 
 
 def _curve(s: pd.Series, points: int = 140) -> list:
@@ -239,7 +294,7 @@ def now(data: dict[str, pd.Series]) -> list[dict]:
         if ad:
             ad.update({"id": adopt, "title": titles.get(adopt, adopt)})
         out.append({
-            "id": sid, "name": name, "phase": p, "label": label, "call": call, "x": x,
+            "id": sid, "name": name, "phase": p, "label": label, "call": call, "x": x, "burst": burst_call(r.slope),
             "level": round(r.level, 4), "slope": round(r.slope, 4), "now": round(r.now, 1), "peak": round(r.peak, 1),
             "peak_date": r.peak_date.date().isoformat(), "since": s.index[0].date().isoformat(), "last": s.index[-1].date().isoformat(),
             "curve": _curve(s), "adoption": ad,
@@ -256,7 +311,7 @@ def payload(data: dict[str, pd.Series], rows: pd.DataFrame | None = None) -> dic
     rows = backtest(data) if rows is None else rows
     rec = record(rows)
     return {"made_on": max(it["last"] for it in items), "items": items, "record": rec, "verdict": verdict(rec),
-            "rules": {"window": WINDOW, "min_history": MIN_HISTORY, "flat": FLAT, "near_peak": NEAR_PEAK, "at_peak": AT_PEAK, "deep": DEEP, "step": STEP,
+            "rules": {"window": WINDOW, "min_history": MIN_HISTORY, "burst": BURST, "found": FOUND, "flat": FLAT, "near_peak": NEAR_PEAK, "at_peak": AT_PEAK, "deep": DEEP, "step": STEP,
                       "phases": {k: {"label": v[0], "call": v[1]} for k, v in PHASES.items()}}}
 
 
@@ -265,13 +320,26 @@ def describe(p: dict | None) -> str:
     if not p:
         return "No Wikipedia attention series loaded; run `psychohistory fetch --domain tech` first."
     lines = [f"The hype cycle, {p['made_on']} (90-day mean Wikipedia views against the highest 90-day mean since the data began):", ""]
-    lines.append(f"{'technology':24} {'phase':24} {'vs peak':>8} {'90-day trend':>13} {'peak':>11}  next 90 days")
+    lines.append(f"{'technology':24} {'phase':24} {'vs peak':>8} {'90-day trend':>13} {'peak':>11}  {'hype cycle says':16} burst rule says")
     for it in sorted(p["items"], key=lambda i: ORDER.index(i["phase"])):
-        lines.append(f"{it['name'][:24]:24} {it['label']:24} {it['level']:>8.0%} {math.expm1(it['slope']):>+13.0%} {it['peak_date']:>11}  {it['call']}")
+        lines.append(f"{it['name'][:24]:24} {it['label']:24} {it['level']:>8.0%} {math.expm1(it['slope']):>+13.0%} {it['peak_date']:>11}  {it['call']:16} {it.get('burst', '–')}")
         if it.get("adoption"):
             a = it["adoption"]
             ch = f"{a['change']:+.0%}" if a.get("change") is not None else "–"
             lines.append(f"{'':24} adoption: {a['title']} {a['last']:g} in {a['year']} ({ch} since {a['since']})"
                          + ("; attention faded while adoption grew" if it["faded"] else ""))
     lines += ["", p["verdict"]]
+    rec = p.get("record") or {}
+    if rec.get("bursts"):
+        lines += ["", "What the next 90 days did after attention moved (share of calls):"]
+        for b in rec["bursts"]:
+            pv = f"  p {b['p']:.2f}" if b.get("p") is not None else ""
+            lines.append(f"  {b['label']:18} {b['n']:>4} calls   rose {b['up'] / b['n']:>4.0%}   fell {b['down'] / b['n']:>4.0%}   "
+                         f"flat {b['flat'] / b['n']:>4.0%}   median {b['median_change']:+.0%}{pv}")
+    sf = rec.get("since_found")
+    if sf:
+        lines.append("")
+        lines.append(f"Fair test of the burst rule since {sf['from']}: " + (
+            f"{sf['burst']} right in {sf['n']} settled calls ({sf['burst'] / sf['n']:.0%}), \"no change\" {sf['flat']} ({sf['flat'] / sf['n']:.0%})."
+            if sf["n"] else "no call has settled yet (each needs 90 days)."))
     return "\n".join(lines)

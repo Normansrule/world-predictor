@@ -60,6 +60,9 @@ jobs:
         run: psychohistory -v predict --compare chronos-bolt --ensemble
       - name: Score past forecasts
         run: psychohistory -v score
+      - name: Spike watch (seal where attention spikes will be four weeks on, once per spike)
+        continue-on-error: true
+        run: psychohistory spikes --seal --save results/spike_backtest.csv
       - name: Long-term monitor (sealed forecasts against reality, drift alarms)
         run: psychohistory monitor --save results/monitor.csv
       - name: The brief (what came due, changes of mind, streaks)

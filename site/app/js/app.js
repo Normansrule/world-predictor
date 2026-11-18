@@ -10,9 +10,9 @@
   const hue = (d) => (AREA[d] ? `var(--${d})` : "var(--ink-3)");
   const tag = (d) => `<span class="tag" style="--c:${hue(d)}">${esc(AREA[d] || d)}</span>`;
   const UNIT = { news: "days", politics: "days", markets: "trading days", tech: "days", weather: "days" };
-  const VIEWS = ["today", "events", "calendar", "compare", "terminal", "desk", "markets", "monitor", "year", "hype", "lab", "studio", "outlook", "trace", "replay", "horizon", "odds", "vault", "crowd", "series", "about"];
-  const KEYS = { h: "today", H: "today", e: "events", E: "events", c: "calendar", C: "calendar", x: "compare", X: "compare", w: "terminal", W: "terminal", m: "markets", M: "markets", r: "monitor", R: "monitor", y: "year", Y: "year", p: "hype", P: "hype", 1: "desk", 2: "lab", 3: "studio", 4: "outlook", 5: "trace", 6: "replay", 7: "horizon", 8: "odds", 9: "vault", 0: "series", "?": "about" };
-  const NAMES = { today: "Today", events: "World events", calendar: "Coming up", compare: "Compare", terminal: "World terminal", desk: "Desk", markets: "Markets desk", monitor: "Monitor", year: "Year ledger", hype: "Hype cycle", lab: "Lab", studio: "Forecast Studio", outlook: "Outlook", trace: "Follow a result", replay: "Replay", horizon: "How far ahead", odds: "Honest odds",
+  const VIEWS = ["today", "events", "calendar", "compare", "terminal", "desk", "markets", "monitor", "year", "hype", "spikes", "lab", "studio", "outlook", "trace", "replay", "horizon", "odds", "vault", "crowd", "series", "about"];
+  const KEYS = { h: "today", H: "today", e: "events", E: "events", c: "calendar", C: "calendar", x: "compare", X: "compare", w: "terminal", W: "terminal", m: "markets", M: "markets", r: "monitor", R: "monitor", y: "year", Y: "year", p: "hype", P: "hype", s: "spikes", S: "spikes", 1: "desk", 2: "lab", 3: "studio", 4: "outlook", 5: "trace", 6: "replay", 7: "horizon", 8: "odds", 9: "vault", 0: "series", "?": "about" };
+  const NAMES = { today: "Today", events: "World events", calendar: "Coming up", compare: "Compare", terminal: "World terminal", desk: "Desk", markets: "Markets desk", monitor: "Monitor", year: "Year ledger", hype: "Hype cycle", spikes: "Spike watch", lab: "Lab", studio: "Forecast Studio", outlook: "Outlook", trace: "Follow a result", replay: "Replay", horizon: "How far ahead", odds: "Honest odds",
     vault: "Time Vault", crowd: "Crowd lab", series: "All series", about: "About" };
   // The workflow's schedule: new forecasts sealed Monday 06:00 UTC, live refresh every weekday 22:30 UTC.
   function nextRun(now = new Date()) {
@@ -158,6 +158,7 @@
     monitor() { window.WPMonitor.render($("monitor-root"), D); },
     year() { window.WPYear.render($("year-root"), D); },
     hype() { window.WPHype.render($("hype-root"), D); },
+    spikes() { window.WPSpikes.render($("spikes-root"), D); },
 
     today(arg) { window.WPToday.render($("today-root"), D, arg); },
 

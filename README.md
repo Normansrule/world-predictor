@@ -95,8 +95,13 @@ Nothing here is financial advice, and most of the interesting results are about 
   series page each model's record there, with an honest test of whether that record predicts the next
   winner (it mostly does not). [Compare](#compare-series-side-by-side).
 - **The hype cycle, tested.** Each new technology placed on Gartner's curve from its Wikipedia views
-  since 2015, with real adoption beside it, and a monthly backtest of whether the phase ever said
-  anything about the next three months that momentum did not. [The hype cycle](#the-hype-cycle-peak-trough-plateau).
+  since 2015, with real adoption beside it, and a monthly backtest of 1,229 calls. The phases knew no
+  more than momentum (31% right each); what did hold up is that **big moves in attention fade**, and a
+  rule built on that now gets a fair test. [The hype cycle](#the-hype-cycle-peak-trough-plateau).
+- **Spike watch.** When a news topic or a technology's Wikipedia page jumps to twice its usual
+  attention, where will it be four weeks on? Three plain rules and TimesFM answer, every past spike
+  scores them, and each live call is sealed once and checked. It also asks whether those spikes
+  move markets the following week. [Spike watch](#spike-watch-where-a-burst-lands).
 - **Follow it from anywhere.** A news feed for any feed reader, a free JSON API for spreadsheets and
   scripts, and a live forecast card you can embed on your own web page, all rebuilt after every run.
   [How](#follow-it-from-anywhere-news-feed-json-api-and-embeds).
@@ -567,8 +572,9 @@ for every series, the last good download, how many runs in a row it has failed a
 all 18 runs on main since 18 October, it found that **the war series had never downloaded once**:
 GDELT never once returned the bare query `"war"` (a rate-limit refusal or a plain-text notice, every
 run), so World news has been running without its biggest topic. War coverage is now matched on longer
-terms (warfare, "armed conflict", airstrike, "military offensive"); the next run shows whether GDELT
-answers it, and if not, its own reason. Three other changes stop GDELT from starving the news series:
+terms (warfare, "armed conflict", airstrike, "military offensive"), and on 16 November it downloaded
+for the first time: that run had 49 of 55 series fresh, none never downloaded, and one broken
+(tariffs, rate-limited three runs in a row, with its cached copy in use). Three other changes stop GDELT from starving the news series:
 
 - **GDELT's own words.** When GDELT answers with a plain-text notice instead of data, the notice is
   recorded. A notice about pacing is retried as before; any other refusal fails at once, without
@@ -818,7 +824,7 @@ its series page so you can watch which one reality sides with.
 
 ### The hype cycle: peak, trough, plateau
 
-<img src="docs/assets/app-hype.png" alt="The Hype cycle view: eleven technologies placed by phase on the textbook hype curve, and a card per technology with its Wikipedia views, how far it sits below its peak, its trend, the call its phase implies and TimesFM's own four-week forecast" width="100%">
+<img src="docs/assets/app-hype.png" alt="The Hype cycle view: eleven technologies placed by phase on the textbook hype curve, and a card per technology with its Wikipedia views, how far it sits below its peak, its trend, the call its phase implies, the burst rule's call and TimesFM's own four-week forecast" width="100%">
 
 Gartner's hype cycle (Fenn & Raskino, 2008) says attention to a new technology races to a peak of
 inflated expectations, slides into a trough of disillusionment and climbs back to a plateau, while real
@@ -840,11 +846,95 @@ Then the honest part. Once a month across the whole history, each technology's p
 views up to that day only, and its call is checked against the next 90 days (flat means within ±10%),
 beside two plain rivals: **momentum** (the last 90 days' direction carries on) and **no change**. The
 hype cycle's own claim, that attention falls after a peak, is tested on its own against how often
-attention falls at all. The windows overlap, so the p-value is worked out on a third of them. The first
-full record comes with the next weekly run, which has the history since 2015 (this sandbox only had the
-last year, which is enough for today's phases but not for the record); `psychohistory hype --save
-results/hype_backtest.csv` writes every monthly call. Views to all of Wikipedia have drifted down for
-years, so "below its peak" partly measures that; the view says so.
+attention falls at all. The windows overlap, so the p-value is worked out on a third of them;
+`psychohistory hype --save results/hype_backtest.csv` writes every monthly call.
+
+The first full record (1,229 monthly calls, June 2016 to August 2026, from the run of 16 November):
+
+| Rule for the next 90 days | Right |
+|---|---:|
+| The hype cycle's phase | 31% |
+| Momentum: the last 90 days' direction carries on | 31% |
+| Reversal: the last 90 days' direction turns | 39% |
+| **The burst rule**: a 90-day move of 30% or more reverses, otherwise no change | **44%** |
+| No change (within ±10%) | 40% |
+
+The phases knew nothing momentum did not: they made the same call 84% of the time, because most phases
+are read from the trend itself. The peak's own claim fails too: after a call at the peak, attention fell
+36% of the time against 33% for all windows (p 0.36, could be chance). What does hold up is that
+**big moves fade**: after attention rose 30% or more in 90 days, it fell over the next 90 half the time
+(50% against 33% for all windows, p 0.02), and after it fell 30% or more it rose 48% of the time
+(p 0.03). The **Big moves fade** chart shows all five bands.
+
+<img src="docs/assets/app-hype-bursts.png" alt="The Hype cycle record: the burst rule right 44% of the time against 40% for no change and 31% for the hype cycle, and a stacked bar per band showing that attention fell back after it had risen 30% or more and rose back after it had fallen 30% or more" width="100%">
+
+The burst rule was read off this same backtest on 16 November 2026, so its 44% is sure to flatter it:
+it was picked because it fitted. Its edge over "no change" is four points. The fair test is the calls
+made from 16 November on, which the view and `psychohistory hype` count separately as each 90-day window
+settles; the first settle in February 2027. Each card shows what the rule says today (artificial
+intelligence's views rose 59% in the last 90 days, so it says they fall back). This fits what is known
+about attention elsewhere: news and search interest decays after a burst (Lorenz-Spreen et al., 2019).
+Views to all of Wikipedia have drifted down for years, so "below its peak" partly measures that; the
+view says so.
+
+### Spike watch: where a burst lands
+
+<img src="docs/assets/app-spikes.png" alt="Spike watch: live spikes in SpaceX Starship, impeachment and coup coverage, each with its last weeks of attention against its old level and four forecasts for four weeks on: old level, past spikes, no change and TimesFM" width="100%">
+
+The hype record looks at 90-day moves. **Spike watch** (key `S`, or `psychohistory spikes`) looks at
+the fast ones: a day when a news or politics topic or a technology's Wikipedia page gets at least twice
+the median of its 28 days before (a launch, a coup, a vote). The peak is easy to see after the fact.
+The question a forecast has to answer comes a few days later: **four weeks from now, how far above its
+old level will attention be?** Four answers are compared:
+
+- **old level**: back to the median of the 28 days before the spike;
+- **past spikes**: where earlier spikes were at the same distance from their peak (the median ratio
+  to their old level, pooled over every series, using only spikes already seen);
+- **no change**: where it is on the day of the forecast;
+- **TimesFM**: its median for that day, from the weekly forecast.
+
+The backtest takes every spike in the history and forecasts it the day after its peak for four weeks
+on. A miss is the gap between forecast and outcome either way. With the last year of data this sandbox
+has (43 spikes in 17 series), spikes halve back towards their old level in a median of **one day**, and
+four weeks on they sit at a median 1.09 times it. "Old level" missed by a median 28%, "past spikes"
+32% and "no change" 54%. On the 9 spikes where TimesFM had a forecast made within a week of the peak,
+it missed by 25% against 26% for "old level", too few to tell them apart. The first full record, from
+the history since 2015, comes with the next run (`psychohistory spikes --save
+results/spike_backtest.csv`).
+
+Live spikes are where it gets tested for real. On the run of the first weekly forecast after a peak,
+`psychohistory spikes --seal` writes each rule's call and TimesFM's to `predictions/spike_ledger.csv`,
+once per spike (the first seal always wins), and the view checks each one when its day comes. On
+16 November the view showed SpaceX Starship at 12 times its usual views after a launch, and TimesFM and
+"past spikes" both said it would be back near 1.05 times its old level by 13 December.
+
+The biggest live spikes also open **Today**, in a "Spiking now" strip: how far above its usual level
+each one went, and where TimesFM (or, before its next weekly forecast, the past spikes) says it will be
+in four weeks. Each links to Spike watch.
+
+<img src="docs/assets/app-spiking-now.png" alt="The Spiking now strip on Today: SpaceX Starship at 12 times its usual views, impeachment coverage at 12 times and tariffs at 2.1 times, each with TimesFM's call for four weeks on" width="100%">
+
+The backtest covers every spike since 2015, well over a thousand. It builds the past-spikes curve as
+one array operation for each forecast, so the whole replay takes seconds; a test keeps it that way,
+as a first version that rebuilt the curve spike by spike would have taken over ten minutes in the
+weekly run.
+
+**Do spikes move markets?** If a coup, a tariff fight or a launch makes the news, do markets move more
+than usual the next week? For each kind of spike (world news and politics together, and technology)
+and six markets (the S&P 500, VIX, gold, oil, bitcoin and the 10-year yield), the view compares the
+median size of the market's move over the five trading days after a spike, from the close before it,
+with its median over every week. A shuffle test draws 2,000 random sets of as many days to see how
+often chance does as well. With 12 pairs tested at once, a Benjamini-Hochberg cut (Benjamini &
+Hochberg, 1995) keeps the false alarms down.
+
+<img src="docs/assets/app-spike-markets.png" alt="Do spikes move markets: a table of six markets against world news and politics spikes and technology spikes, each cell the median move after a spike against usual, none passing the false-discovery cut" width="100%">
+
+On the last year of data here (29 news and politics spike days, 17 technology ones), **none of the 12
+pairs passed**. The biggest gap was oil after technology spikes, 6.8% against 5.0% usually (p 0.14),
+which is what chance gives often enough among 12 tries. The S&P 500 actually moved less than usual
+after news and politics spikes (0.52 times); the test only looks for bigger moves, so that is not
+evidence of anything either. The full history comes with the next run, and the view and
+`psychohistory spikes` update with it.
 
 ### Today: alerts, time frames and the 70% club
 
@@ -1616,6 +1706,7 @@ site/                    the app: one static folder for Pages, the download and 
   app/embed.html         one forecast as a small card for any web page (an <iframe>)
   app/js/compare.js      Compare: up to four series' sealed forecasts on one chart
   app/js/hype.js         the Hype cycle: each technology's phase, its real curve and the phases' record
+  app/js/spikes.js       Spike watch: live spikes, four forecasts for four weeks on, and how past spikes landed
   app/data/              data.js (this run's numbers) and pipeline.js (the stage inventory)
   sw.js                  offline support; manifest.webmanifest makes it installable
 src/psychohistory/
@@ -1639,6 +1730,7 @@ src/psychohistory/
   follow.py              would following the forecasts have made money? backtest windows as trades, with costs, against holding
   health.py              `psychohistory health`: every series' downloads across runs (results/source_health.json)
   hype.py                `psychohistory hype`: each technology's hype-cycle phase from its Wikipedia views, and what the phases foretold
+  spikes.py              `psychohistory spikes`: where a burst of attention lands four weeks on; predictions/spike_ledger.csv
   brief.py               `psychohistory brief`: what came due, changes of mind at a fixed level, streaks; results/BRIEF.md
   wire.py                `psychohistory wire`: the newest GDELT headlines per topic, for the World terminal
   ask.py                 `psychohistory ask`: TimesFM live on one series or your own CSV
@@ -1762,7 +1854,7 @@ World Predictor is Apache-2.0).
 
 <!-- progress:start -->
 
-**63 of 65 milestones done (97%).** Drawn from [`docs/progress.json`](docs/progress.json); tests check every ticked item against the repository.
+**67 of 69 milestones done (97%).** Drawn from [`docs/progress.json`](docs/progress.json); tests check every ticked item against the repository.
 
 <details><summary><b>📰 World news</b> · 18/18</summary>
 
@@ -1783,7 +1875,7 @@ World Predictor is Apache-2.0).
 - [x] Year ledger: every day of the year, TimesFM, Seldon and the crowd laws against reality, refreshed every weekday
 - [x] Event-level odds: spikes and lulls in world news and tech attention, scored against climatology and persistence
 - [x] World wire: the newest GDELT headlines for every topic, weekly
-- [x] Source health across runs: the war series found never to have downloaded, fixed; GDELT refusals recorded in its own words, top-ups and longest-wait-first
+- [x] Source health across runs: the war series found never to have downloaded, fixed (first download 16 November); GDELT refusals recorded in its own words, top-ups and longest-wait-first
 
 </details>
 
@@ -1802,13 +1894,17 @@ World Predictor is Apache-2.0).
 
 </details>
 
-<details><summary><b>🚀 New technologies</b> · 5/5</summary>
+<details><summary><b>🚀 New technologies</b> · 9/9</summary>
 
 - [x] Wikipedia attention for LLMs, AI, quantum, CRISPR, EVs, fusion, robots
 - [x] Adoption curves from Our World in Data
 - [x] Bass diffusion S-curve as a theory-driven rival
 - [x] First real TimesFM results published
 - [x] Hype-cycle detection: each technology's phase from its Wikipedia views, adoption beside it, and a backtest of what the phases foretold
+- [x] Big moves fade: reversal and the burst rule scored beside the hype cycle on 1,229 calls, with a fair out-of-sample count from 16 November 2026
+- [x] Spike watch: where a burst of news or tech attention lands four weeks on, three rules and TimesFM backtested over every past spike, live calls sealed once
+- [x] Do spikes move markets? Six markets the week after news, politics and tech spikes, with a shuffle test and a false-discovery cut
+- [x] Spiking now on Today, and a spike backtest fast enough for ten years of history (seconds, not ten minutes)
 
 </details>
 
@@ -1914,6 +2010,7 @@ bibliography, with every model, data source, theory and design reference, is in
 - Lichtendahl, K. C., Jr., Grushka-Cockayne, Y., & Winkler, R. L. (2013). Is it better to average probabilities or quantiles? *Management Science, 59*(7), 1594–1611. https://doi.org/10.1287/mnsc.1120.1667
 - Littlestone, N., & Warmuth, M. K. (1994). The weighted majority algorithm. *Information and Computation, 108*(2), 212–261. https://doi.org/10.1006/inco.1994.1009
 - Lorenz, E. N. (1963). Deterministic nonperiodic flow. *Journal of the Atmospheric Sciences, 20*(2), 130–141. https://doi.org/10.1175/1520-0469(1963)020<0130:DNF>2.0.CO;2
+- Lorenz-Spreen, P., Mønsted, B. M., Hövel, P., & Lehmann, S. (2019). Accelerating dynamics of collective attention. *Nature Communications, 10*(1), Article 1759. https://doi.org/10.1038/s41467-019-09311-w
 - Makridakis, S., Spiliotis, E., & Assimakopoulos, V. (2020). The M4 Competition: 100,000 time series and 61 forecasting methods. *International Journal of Forecasting, 36*(1), 54–74. https://doi.org/10.1016/j.ijforecast.2019.04.014
 - Mandelbrot, B. (1963). The variation of certain speculative prices. *The Journal of Business, 36*(4), 394–419. https://doi.org/10.1086/294632
 - Manski, C. F. (2006). Interpreting the predictions of prediction markets. *Economics Letters, 91*(3), 425–429. https://doi.org/10.1016/j.econlet.2006.01.004
