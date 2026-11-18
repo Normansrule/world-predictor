@@ -1,6 +1,122 @@
 {
- "fetched": "2026-11-17T05:10Z",
+ "fetched": "2026-11-18T04:20Z",
  "topics": {
+  "wiki_self_driving": {
+   "query": "(\"self-driving\" OR robotaxi)",
+   "articles": [
+    {
+     "title": "Waymo pauses all US freeway operations of its self - driving cars after Calif . ban",
+     "url": "https://www.10news.com/us-news/infrastructure/waymo-pauses-all-us-freeway-operations-of-its-self-driving-cars-after-california-ban",
+     "domain": "10news.com",
+     "country": "United States",
+     "seen": "2026-11-18T01:15Z"
+    },
+    {
+     "title": "Waymo suspends all rides on freeways after California banned the vehicles from its state freeways",
+     "url": "https://www.wral.com/news/ap/37bcd-california-bans-waymo-autonomous-vehicles-from-state-freeways-saying-they-pose-an-imminent-hazard/",
+     "domain": "wral.com",
+     "country": "United States",
+     "seen": "2026-11-18T01:15Z"
+    },
+    {
+     "title": "Waymo suspends all rides on freeways after California banned the vehicles from its state freeways",
+     "url": "http://www.postregister.com/news/national/waymo-suspends-all-rides-on-freeways-after-california-banned-the-vehicles-from-its-state-freeways/article_5fdc0371-d46a-5b06-93f3-a5f745012e38.html",
+     "domain": "postregister.com",
+     "country": "United States",
+     "seen": "2026-11-18T01:15Z"
+    },
+    {
+     "title": "DMV temporarily bans Waymo from California freeways – NBC Los Angeles",
+     "url": "https://www.nbclosangeles.com/news/california-news/dmv-ban-waymo-california-freeways/3971907/",
+     "domain": "nbclosangeles.com",
+     "country": "United States",
+     "seen": "2026-11-18T01:15Z"
+    },
+    {
+     "title": "Waymo suspends all rides on freeways after California banned the vehicles from its state freeways",
+     "url": "https://www.ksat.com/news/national/2026/11/17/california-bans-waymo-autonomous-vehicles-from-state-freeways-saying-they-pose-an-imminent-hazard/",
+     "domain": "ksat.com",
+     "country": "United States",
+     "seen": "2026-11-18T01:15Z"
+    }
+   ],
+   "fetched": "2026-11-18T04:14Z"
+  },
+  "wiki_starship": {
+   "query": "Starship SpaceX",
+   "articles": [
+    {
+     "title": "Amazon Space Setback : 40 Satellites Lost in Rocket Launch Failure , ETTelecom",
+     "url": "https://telecom.economictimes.indiatimes.com/news/portal-in-portal/satcom/amazon-loses-40-internet-satellites-in-failed-rocket-launch/135871210",
+     "domain": "telecom.economictimes.indiatimes.com",
+     "country": "India",
+     "seen": "2026-11-16T08:15Z"
+    },
+    {
+     "title": "SpaceX launches starship flight 15 , aborts booster",
+     "url": "https://nagalandpost.com/spacex-launches-starship-flight-15-aborts-booster/",
+     "domain": "nagalandpost.com",
+     "country": "",
+     "seen": "2026-11-15T07:45Z"
+    },
+    {
+     "title": "SpaceX pulls off first - ever spaceship  catch",
+     "url": "https://www.hurriyetdailynews.com/spacex-pulls-off-first-ever-spaceship-catch-229400",
+     "domain": "hurriyetdailynews.com",
+     "country": "Turkey",
+     "seen": "2026-11-15T07:45Z"
+    },
+    {
+     "title": "SpaceX Starship Upper Stage Lands Successfully",
+     "url": "https://600wrec.iheart.com/content/2026-11-15-spacex-starship-upper-stage-lands-successfully/",
+     "domain": "600wrec.iheart.com",
+     "country": "United States",
+     "seen": "2026-11-15T07:45Z"
+    },
+    {
+     "title": "SpaceX Starship Upper Stage Lands Successfully | News Radio 103 . 1 and 810 WGY",
+     "url": "https://wgy.iheart.com/content/2026-11-15-spacex-starship-upper-stage-lands-successfully/",
+     "domain": "wgy.iheart.com",
+     "country": "United States",
+     "seen": "2026-11-15T07:45Z"
+    },
+    {
+     "title": "SpaceX Starship returns from orbit and is captured by launch pad arms in a dramatic first",
+     "url": "https://www.texarkanagazette.com/news/2026/nov/14/spacexs-starship-returns-from-orbit-and-is/",
+     "domain": "texarkanagazette.com",
+     "country": "United States",
+     "seen": "2026-11-15T07:45Z"
+    }
+   ],
+   "fetched": "2026-11-18T04:15Z"
+  },
+  "adoption_solar": {
+   "query": "\"solar power\"",
+   "articles": [
+    {
+     "title": "Greenville Nears Full Electrification",
+     "url": "https://www.liberianobserver.com/news/greenville-nears-full-electrification/article_96b741f4-b2ad-4bc3-8591-2ed9d6604b05.html",
+     "domain": "liberianobserver.com",
+     "country": "Liberia",
+     "seen": "2026-11-16T08:15Z"
+    },
+    {
+     "title": "Senate urges reliable off - grid solar power",
+     "url": "http://www.rnanews.com/senate-urges-reliable-off-grid-solar-power/",
+     "domain": "rnanews.com",
+     "country": "Rwanda",
+     "seen": "2026-11-14T21:00Z"
+    },
+    {
+     "title": "Will We Really Put Data Centers in Space ?",
+     "url": "https://www.forethought.org/research/will-we-really-put-data-centers-in-space",
+     "domain": "forethought.org",
+     "country": "",
+     "seen": "2026-11-14T21:00Z"
+    }
+   ],
+   "fetched": "2026-11-18T04:20Z"
+  },
   "wiki_ai": {
    "query": "\"artificial intelligence\"",
    "articles": [
@@ -47,7 +163,8 @@
      "seen": "2026-11-16T08:15Z"
     }
    ],
-   "fetched": "2026-11-17T05:01Z"
+   "fetched": "2026-11-17T05:01Z",
+   "stale": true
   },
   "wiki_ev": {
    "query": "\"electric vehicles\"",
@@ -95,7 +212,8 @@
      "seen": "2026-11-13T18:00Z"
     }
    ],
-   "fetched": "2026-11-17T05:04Z"
+   "fetched": "2026-11-17T05:04Z",
+   "stale": true
   },
   "wiki_crispr": {
    "query": "CRISPR",
@@ -847,12 +965,6 @@
   }
  },
  "failed": {
-  "wiki_fusion": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22fusion+energy%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sor",
-  "wiki_battery": "skipped: the wire's time budget ran out",
-  "wiki_gene_therapy": "skipped: the wire's time budget ran out",
-  "wiki_self_driving": "skipped: the wire's time budget ran out",
-  "wiki_starship": "skipped: the wire's time budget ran out",
-  "adoption_solar": "skipped: the wire's time budget ran out",
   "adoption_wind": "skipped: the wire's time budget ran out",
   "sp500": "skipped: the wire's time budget ran out",
   "msci_world": "skipped: the wire's time budget ran out",
@@ -883,6 +995,8 @@
   "wiki_llm": "skipped: the wire's time budget ran out",
   "news_war": "skipped: the wire's time budget ran out",
   "wiki_quantum": "skipped: the wire's time budget ran out",
-  "wiki_crispr": "skipped: the wire's time budget ran out"
+  "wiki_crispr": "skipped: the wire's time budget ran out",
+  "wiki_ai": "skipped: the wire's time budget ran out",
+  "wiki_ev": "skipped: the wire's time budget ran out"
  }
 }

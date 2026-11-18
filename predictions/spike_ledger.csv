@@ -1,0 +1,4 @@
+made_on,series_id,peak_date,peak,base,last_date,last_value,target_date,old level,past spikes,no change,timesfm
+2026-11-16,politics_tariffs,2026-11-05,2.3533,1.097321,2026-11-12,1.0872,2026-12-10,1.0,1.1174,0.9908,0.9245
+2026-11-16,politics_impeachment,2026-11-11,2.1946,0.231362,2026-11-15,0.2199,2026-12-13,1.0,1.0327,0.9505,0.8591
+2026-11-16,wiki_starship,2026-11-15,19155.0,1580.5,2026-11-15,19155.0,2026-12-13,1.0,1.133,12.1196,1.0469
