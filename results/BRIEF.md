@@ -1,20 +1,20 @@
 # The brief
 
-## Came due, 2026-11-12 to 2026-11-18
+## Came due, 2026-11-13 to 2026-11-19
 
 | Model | Forecasts | Series | Inside 80% range | Right direction | Skill vs no change |
 |---|---:|---:|---:|---:|---:|
-| TimesFM | 1672 | 47 | 64% | 66% | +18.5% |
-| Radiant | 1049 | 47 | 66% | 70% | +19.5% |
-| Chronos-Bolt | 1672 | 47 | 67% | 69% | +19.1% |
-| Seldon | 1049 | 47 | 65% | 69% | +17.2% |
-| Seldon laws | 1517 | 47 | 63% | 60% | +9.6% |
-| AutoETS | 1672 | 47 | 77% | 49% | -0.4% |
-| Ensemble | 1672 | 47 | 75% | 63% | +13.2% |
+| TimesFM | 1669 | 47 | 61% | 66% | +21.6% |
+| Radiant | 1107 | 47 | 66% | 69% | +18.0% |
+| Chronos-Bolt | 1669 | 47 | 66% | 69% | +22.8% |
+| Seldon | 1107 | 47 | 64% | 68% | +22.1% |
+| Seldon laws | 1563 | 47 | 63% | 58% | +8.1% |
+| AutoETS | 1669 | 47 | 74% | 48% | -1.4% |
+| Ensemble | 1669 | 47 | 73% | 63% | +11.0% |
 
-**Radiant's closest calls:** S&P 500 (said +0.6%, was +0.6% by 2026-11-13); Tesla Inc. (said +0.1%, was +0.1% by 2026-11-17); Average of the technology pageview series above, each scaled to its own mean (said +7.9%, was +7.9% by 2026-11-12); Earthquakes of magnitude 4.5 or more per day, worldwide (USGS) (said -11.0%, was -11.1% by 2026-11-14); Wikipedia views: Fusion power (said +53.6%, was +53.7% by 2026-11-16).
+**Radiant's closest calls:** S&P 500 (said +0.6%, was +0.6% by 2026-11-13); Tesla Inc. (said +0.1%, was +0.1% by 2026-11-17); Average of the technology pageview series above, each scaled to its own mean (said -17.3%, was -17.3% by 2026-11-14); Earthquakes of magnitude 4.5 or more per day, worldwide (USGS) (said -11.0%, was -11.1% by 2026-11-14); Wikipedia views: Fusion power (said +53.6%, was +53.7% by 2026-11-16).
 
-**Biggest surprises:** Wikipedia views: SpaceX Starship (range -18.4% to +52.5%, was +1047.7%, 14.0 range widths outside); Share of world news coverage mentioning climate change (range -13.3% to +62.3%, was +180.2%, 1.6 range widths outside); NVIDIA Corp. (range -5.6% to +8.8%, was -24.5%, 1.3 range widths outside); Share of world news coverage mentioning protests (range -9.6% to +37.6%, was +85.8%, 1.0 range widths outside); Gold (USD/oz) (range -1.7% to +1.4%, was -4.4%, 0.9 range widths outside).
+**Biggest surprises:** Wikipedia views: SpaceX Starship (range -18.4% to +52.5%, was +1047.7%, 14.0 range widths outside); Share of world news coverage mentioning climate change (range -13.3% to +62.3%, was +180.2%, 1.6 range widths outside); NVIDIA Corp. (range -6.0% to +9.7%, was -27.0%, 1.3 range widths outside); Copper futures (range -3.6% to +3.2%, was -10.8%, 1.1 range widths outside); Share of world news coverage mentioning protests (range -9.6% to +37.6%, was +85.8%, 1.0 range widths outside).
 
 ## Radiant changed its mind, 2026-11-15 to 2026-11-16
 

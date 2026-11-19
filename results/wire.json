@@ -1,6 +1,54 @@
 {
- "fetched": "2026-11-18T04:20Z",
+ "fetched": "2026-11-19T04:15Z",
  "topics": {
+  "sp500": {
+   "query": "\"S&P 500\"",
+   "articles": [
+    {
+     "title": "Ceres Urges SEC to Preserve Shareholder Proposal Rule That Strengthens Company Value",
+     "url": "https://www.webwire.com/ViewPressRel.asp?aId=364390",
+     "domain": "webwire.com",
+     "country": "United States",
+     "seen": "2026-11-18T17:30Z"
+    },
+    {
+     "title": "The Nasdaq - 100 Is Down More Than 10 % From Its High , but the Broad Market Is Down Far Less . Here How Gaps Like This Have Ended Since 1986 .",
+     "url": "https://www.fool.com/investing/2026/11/17/the-nasdaq-100-is-down-more-than-10-from-its-high-but-the-broad-market-is-down-far-less-here-s-how-gaps-like-this-have-ended-since-1986/",
+     "domain": "fool.com",
+     "country": "United States",
+     "seen": "2026-11-18T01:15Z"
+    },
+    {
+     "title": "A Week Of Tech Failures Hammers Markets As Apple ( NASDAQ : AAPL ), Banks And Airlines All Face Disruptions",
+     "url": "https://www.foreignpolicyjournal.com/2026/11/17/a-week-of-tech-failures-hammers-markets-as-apple-nasdaq-aapl-banks-and-airlines-all-face-disruptions/",
+     "domain": "foreignpolicyjournal.com",
+     "country": "Israel",
+     "seen": "2026-11-18T01:15Z"
+    },
+    {
+     "title": "Billionaire Stanley Druckenmiller Says He  Staying Away  From Stocks . Here What He Bought and Sold Last Quarter",
+     "url": "https://www.fool.com/investing/2026/11/17/billionaire-stanley-druckenmiller-says-he-s-staying-away-from-stocks-here-s-what-he-bought-and-sold-last-quarter/",
+     "domain": "fool.com",
+     "country": "United States",
+     "seen": "2026-11-18T01:15Z"
+    },
+    {
+     "title": "Ford Motor vs . Stellantis : Which Automaker Titan Stock Is a Better Buy for 2027 ?",
+     "url": "https://www.fool.com/coverage/better-buy/2026/11/17/ford-motor-vs-stellantis-which-automaker-titan-stock-is-a-better-buy-for-2027/",
+     "domain": "fool.com",
+     "country": "United States",
+     "seen": "2026-11-18T01:15Z"
+    },
+    {
+     "title": "AI Agents vs . Banks : Who Will Win ? Im Betting on Banks .",
+     "url": "https://www.fool.com/investing/2026/11/17/ai-agents-vs-banks-who-will-win-i-m-betting-on-banks/",
+     "domain": "fool.com",
+     "country": "United States",
+     "seen": "2026-11-18T01:15Z"
+    }
+   ],
+   "fetched": "2026-11-19T04:10Z"
+  },
   "wiki_self_driving": {
    "query": "(\"self-driving\" OR robotaxi)",
    "articles": [
@@ -40,7 +88,8 @@
      "seen": "2026-11-18T01:15Z"
     }
    ],
-   "fetched": "2026-11-18T04:14Z"
+   "fetched": "2026-11-18T04:14Z",
+   "stale": true
   },
   "wiki_starship": {
    "query": "Starship SpaceX",
@@ -88,7 +137,8 @@
      "seen": "2026-11-15T07:45Z"
     }
    ],
-   "fetched": "2026-11-18T04:15Z"
+   "fetched": "2026-11-18T04:15Z",
+   "stale": true
   },
   "adoption_solar": {
    "query": "\"solar power\"",
@@ -115,7 +165,8 @@
      "seen": "2026-11-14T21:00Z"
     }
    ],
-   "fetched": "2026-11-18T04:20Z"
+   "fetched": "2026-11-18T04:20Z",
+   "stale": true
   },
   "wiki_ai": {
    "query": "\"artificial intelligence\"",
@@ -965,9 +1016,8 @@
   }
  },
  "failed": {
-  "adoption_wind": "skipped: the wire's time budget ran out",
-  "sp500": "skipped: the wire's time budget ran out",
-  "msci_world": "skipped: the wire's time budget ran out",
+  "wiki_humanoid": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22humanoid+robot%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&so",
+  "msci_world": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22global+stocks%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sor",
   "nasdaq100": "skipped: the wire's time budget ran out",
   "aapl": "skipped: the wire's time budget ran out",
   "nvda": "skipped: the wire's time budget ran out",
@@ -997,6 +1047,9 @@
   "wiki_quantum": "skipped: the wire's time budget ran out",
   "wiki_crispr": "skipped: the wire's time budget ran out",
   "wiki_ai": "skipped: the wire's time budget ran out",
-  "wiki_ev": "skipped: the wire's time budget ran out"
+  "wiki_ev": "skipped: the wire's time budget ran out",
+  "wiki_self_driving": "skipped: the wire's time budget ran out",
+  "wiki_starship": "skipped: the wire's time budget ran out",
+  "adoption_solar": "skipped: the wire's time budget ran out"
  }
 }
