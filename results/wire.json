@@ -1,6 +1,60 @@
 {
- "fetched": "2026-11-19T04:15Z",
+ "fetched": "2026-11-20T04:10Z",
  "topics": {
+  "wiki_humanoid": {
+   "query": "\"humanoid robot\"",
+   "articles": [
+    {
+     "title": "Humanoid robots need two breakthroughs before revenue takes off",
+     "url": "https://www.digitimes.com/news/a20261119PD203/market-robot-revenue-supply-chain-business.html",
+     "domain": "digitimes.com",
+     "country": "China",
+     "seen": "2026-11-20T00:45Z"
+    },
+    {
+     "title": "Taiwan robot suppliers target 2027 validation , 2028 volume production",
+     "url": "https://www.digitimes.com/news/a20261119PD204/robot-production-2027-tesla-taiwan.html",
+     "domain": "digitimes.com",
+     "country": "China",
+     "seen": "2026-11-20T00:45Z"
+    },
+    {
+     "title": "Targeted News Service",
+     "url": "https://targetednews.com/pt_disp.php?pt_id=2970477",
+     "domain": "targetednews.com",
+     "country": "United States",
+     "seen": "2026-11-18T17:30Z"
+    }
+   ],
+   "fetched": "2026-11-20T04:00Z"
+  },
+  "wiki_gene_therapy": {
+   "query": "\"gene therapy\"",
+   "articles": [
+    {
+     "title": "EU vote could put gene - based treatments outside gene therapy safety rules",
+     "url": "https://www.investmentwatchblog.com/eu-vote-could-put-gene-based-treatments-outside-gene-therapy-safety-rules/",
+     "domain": "investmentwatchblog.com",
+     "country": "United States",
+     "seen": "2026-11-20T03:45Z"
+    },
+    {
+     "title": "Bahrain News : Sickle cell patient treatment success",
+     "url": "https://www.gdnonline.com:443/Details/1413348/Sickle-cell-patient-treatment-success",
+     "domain": "gdnonline.com",
+     "country": "United States",
+     "seen": "2026-11-20T00:45Z"
+    },
+    {
+     "title": "Hollie McCabe  defied the odds and lived life to the full bringing joy to all , funeral hears",
+     "url": "https://www.belfastlive.co.uk/news/belfast-news/hollie-mccabe-defied-odds-lived-34935565",
+     "domain": "belfastlive.co.uk",
+     "country": "United Kingdom",
+     "seen": "2026-11-19T17:15Z"
+    }
+   ],
+   "fetched": "2026-11-20T04:10Z"
+  },
   "sp500": {
    "query": "\"S&P 500\"",
    "articles": [
@@ -47,7 +101,8 @@
      "seen": "2026-11-18T01:15Z"
     }
    ],
-   "fetched": "2026-11-19T04:10Z"
+   "fetched": "2026-11-19T04:10Z",
+   "stale": true
   },
   "wiki_self_driving": {
    "query": "(\"self-driving\" OR robotaxi)",
@@ -1016,8 +1071,9 @@
   }
  },
  "failed": {
-  "wiki_humanoid": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22humanoid+robot%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&so",
-  "msci_world": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22global+stocks%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sor",
+  "wiki_battery": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22battery+technology%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4",
+  "adoption_wind": "skipped: the wire's time budget ran out",
+  "msci_world": "skipped: the wire's time budget ran out",
   "nasdaq100": "skipped: the wire's time budget ran out",
   "aapl": "skipped: the wire's time budget ran out",
   "nvda": "skipped: the wire's time budget ran out",
@@ -1050,6 +1106,7 @@
   "wiki_ev": "skipped: the wire's time budget ran out",
   "wiki_self_driving": "skipped: the wire's time budget ran out",
   "wiki_starship": "skipped: the wire's time budget ran out",
-  "adoption_solar": "skipped: the wire's time budget ran out"
+  "adoption_solar": "skipped: the wire's time budget ran out",
+  "sp500": "skipped: the wire's time budget ran out"
  }
 }
