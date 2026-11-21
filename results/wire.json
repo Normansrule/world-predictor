@@ -1,6 +1,67 @@
 {
- "fetched": "2026-11-20T04:10Z",
+ "fetched": "2026-11-21T03:53Z",
  "topics": {
+  "wiki_battery": {
+   "query": "\"battery technology\"",
+   "articles": [
+    {
+     "title": "Vanguard and Wainbee Limited Partner To Advance Mobile Equipment Electrification Across Canada",
+     "url": "https://www.saultstar.com/press-releases/globe-newswire/vanguard-and-wainbee-limited-partner-to-advance-mobile-equipment-electrification-across-canada/",
+     "domain": "saultstar.com",
+     "country": "Canada",
+     "seen": "2026-11-19T17:15Z"
+    }
+   ],
+   "fetched": "2026-11-21T03:41Z"
+  },
+  "adoption_wind": {
+   "query": "\"wind power\"",
+   "articles": [
+    {
+     "title": "Senate approves bipartisan bill to overhaul US energy sectors",
+     "url": "https://www.wgauradio.com/news/politics/senate-vote-bill/5RF7CIRIZE76NIQ34TA3EZUJD4/",
+     "domain": "wgauradio.com",
+     "country": "United States",
+     "seen": "2026-11-20T06:45Z"
+    },
+    {
+     "title": "APEC live : How events in Shenzhen unfolded",
+     "url": "https://asia.nikkei.com/politics/international-relations/apec/apec-live-how-events-in-shenzhen-unfolded",
+     "domain": "asia.nikkei.com",
+     "country": "Japan",
+     "seen": "2026-11-20T06:45Z"
+    },
+    {
+     "title": "Senate approves bill to speed up permitting reviews , force data centers to pay for energy costs",
+     "url": "https://www.kob.com/new-mexico/albuquerque-metro/senate-approves-bill-to-speed-up-permitting-reviews-force-data-centers-to-pay-for-energy-costs/",
+     "domain": "kob.com",
+     "country": "United States",
+     "seen": "2026-11-20T06:15Z"
+    },
+    {
+     "title": "Senate backs bill to speed up permitting reviews",
+     "url": "https://www.wlwt.com/article/senate-permitting-bill-data-centers-pay-energy-costs/74484453",
+     "domain": "wlwt.com",
+     "country": "United States",
+     "seen": "2026-11-20T06:15Z"
+    },
+    {
+     "title": "Built in Singapore and Batam , bound for the North Sea : The massive platforms delivering renewable power to Europe",
+     "url": "https://www.channelnewsasia.com/singapore/wind-renewable-power-electricity-europe-seatrium-6568211",
+     "domain": "channelnewsasia.com",
+     "country": "United States",
+     "seen": "2026-11-20T06:15Z"
+    },
+    {
+     "title": "Senate backs bill to speed up permitting reviews",
+     "url": "https://www.koat.com/article/senate-permitting-bill-data-centers-pay-energy-costs/74484453",
+     "domain": "koat.com",
+     "country": "United States",
+     "seen": "2026-11-20T05:45Z"
+    }
+   ],
+   "fetched": "2026-11-21T03:43Z"
+  },
   "wiki_humanoid": {
    "query": "\"humanoid robot\"",
    "articles": [
@@ -26,7 +87,8 @@
      "seen": "2026-11-18T17:30Z"
     }
    ],
-   "fetched": "2026-11-20T04:00Z"
+   "fetched": "2026-11-20T04:00Z",
+   "stale": true
   },
   "wiki_gene_therapy": {
    "query": "\"gene therapy\"",
@@ -53,7 +115,8 @@
      "seen": "2026-11-19T17:15Z"
     }
    ],
-   "fetched": "2026-11-20T04:10Z"
+   "fetched": "2026-11-20T04:10Z",
+   "stale": true
   },
   "sp500": {
    "query": "\"S&P 500\"",
@@ -1071,10 +1134,8 @@
   }
  },
  "failed": {
-  "wiki_battery": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22battery+technology%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4",
-  "adoption_wind": "skipped: the wire's time budget ran out",
-  "msci_world": "skipped: the wire's time budget ran out",
-  "nasdaq100": "skipped: the wire's time budget ran out",
+  "msci_world": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22global+stocks%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sor",
+  "nasdaq100": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=Nasdaq+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sort=DateDesc",
   "aapl": "skipped: the wire's time budget ran out",
   "nvda": "skipped: the wire's time budget ran out",
   "tsla": "skipped: the wire's time budget ran out",
@@ -1107,6 +1168,8 @@
   "wiki_self_driving": "skipped: the wire's time budget ran out",
   "wiki_starship": "skipped: the wire's time budget ran out",
   "adoption_solar": "skipped: the wire's time budget ran out",
-  "sp500": "skipped: the wire's time budget ran out"
+  "sp500": "skipped: the wire's time budget ran out",
+  "wiki_humanoid": "skipped: the wire's time budget ran out",
+  "wiki_gene_therapy": "skipped: the wire's time budget ran out"
  }
 }
