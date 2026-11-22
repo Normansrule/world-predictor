@@ -1,35 +1,35 @@
 # The brief
 
-## Came due, 2026-11-15 to 2026-11-21
+## Came due, 2026-11-16 to 2026-11-22
 
 | Model | Forecasts | Series | Inside 80% range | Right direction | Skill vs no change |
 |---|---:|---:|---:|---:|---:|
-| TimesFM | 1962 | 48 | 56% | 64% | +17.6% |
-| Radiant | 1422 | 48 | 61% | 66% | +16.8% |
-| Chronos-Bolt | 1962 | 48 | 59% | 66% | +17.3% |
-| Seldon | 1422 | 48 | 59% | 64% | +13.1% |
-| Seldon laws | 1912 | 48 | 57% | 52% | +4.9% |
-| AutoETS | 1962 | 48 | 70% | 46% | -0.8% |
-| Ensemble | 1962 | 48 | 67% | 61% | +7.9% |
+| TimesFM | 2110 | 49 | 56% | 65% | +17.9% |
+| Radiant | 1557 | 49 | 61% | 66% | +11.8% |
+| Chronos-Bolt | 2110 | 49 | 60% | 67% | +21.2% |
+| Seldon | 1557 | 49 | 60% | 65% | +13.2% |
+| Seldon laws | 2077 | 49 | 57% | 53% | +4.9% |
+| AutoETS | 2110 | 49 | 71% | 47% | -0.1% |
+| Ensemble | 2110 | 49 | 68% | 61% | +4.3% |
 
-**Radiant's closest calls:** Interest in AI (Wikipedia) (said +25.9%, was +25.9% by 2026-11-19); Tesla Inc. (said +0.1%, was +0.1% by 2026-11-17); Wikipedia views: Fusion power (said +53.6%, was +53.7% by 2026-11-16); Share of coverage about disease outbreaks (said -1.9%, was -1.9% by 2026-11-20); Average of the technology pageview series above, each scaled to its own mean (said +30.6%, was +30.6% by 2026-11-19).
+**Radiant's closest calls:** Interest in AI (Wikipedia) (said +25.9%, was +25.9% by 2026-11-19); Tesla Inc. (said +0.1%, was +0.1% by 2026-11-17); Wikipedia views: Fusion power (said +53.6%, was +53.7% by 2026-11-16); Share of coverage about disease outbreaks (said -1.9%, was -1.9% by 2026-11-20); Wikipedia views: Quantum computing (said -34.4%, was -34.5% by 2026-11-21).
 
-**Biggest surprises:** Wikipedia views: SpaceX Starship (range -18.4% to +52.5%, was +1047.7%, 14.0 range widths outside); NVIDIA Corp. (range -6.3% to +10.3%, was -39.3%, 2.0 range widths outside); CBOE Volatility Index (VIX, the fear gauge) (range -17.8% to +19.1%, was +86.0%, 1.8 range widths outside); Wikipedia views: Large language model (range +25.4% to +56.0%, was +106.9%, 1.7 range widths outside); Share of world news coverage mentioning climate change (range -13.3% to +62.3%, was +180.2%, 1.6 range widths outside).
+**Biggest surprises:** Wikipedia views: SpaceX Starship (range -16.1% to +63.6%, was +530.3%, 5.9 range widths outside); Wikipedia views: Large language model (range +17.3% to +42.2%, was +91.5%, 2.0 range widths outside); NVIDIA Corp. (range -6.3% to +10.3%, was -39.3%, 2.0 range widths outside); CBOE Volatility Index (VIX, the fear gauge) (range -17.8% to +19.1%, was +86.0%, 1.8 range widths outside); Gold (USD/oz) (range -3.4% to +3.5%, was -13.5%, 1.4 range widths outside).
 
-## Radiant changed its mind, 2026-11-15 to 2026-11-16
+## Radiant changed its mind, 2026-11-16 to 2026-11-22
 
-Chance of ending above today's level on the farthest date both batches cover. 2 of 55 series flipped side.
+Chance of ending above today's level on the farthest date both batches cover. 7 of 55 series flipped side.
 
 | Series | Target | Before | Now | Shift | Series moved |
 |---|---|---:|---:|---:|---:|
-| Share of world news coverage mentioning elections (flip) | 2026-12-10 | 61% | 43% | -18 pts | -19.5% |
-| Silver (USD/oz) (flip) | 2026-12-14 | 61% | 47% | -14 pts | -4.0% |
-| Wikipedia views: Solid-state battery | 2026-12-12 | 70% | 62% | -8 pts | -4.5% |
-| Average of the political topics above, each scaled to its own mean | 2026-12-09 | 36% | 29% | -7 pts | -33.5% |
-| Wikipedia views: CRISPR | 2026-12-12 | 58% | 51% | -7 pts | +2.8% |
-| CBOE Volatility Index (VIX, the fear gauge) | 2026-12-14 | 33% | 40% | +6 pts | +6.4% |
-| Interest in AI (Wikipedia) | 2026-12-12 | 47% | 42% | -5 pts | -4.7% |
-| World news attention | 2026-12-10 | 48% | 43% | -5 pts | -4.5% |
+| NVIDIA Corp. (flip) | 2026-12-14 | 95% | 47% | -48 pts | -22.9% |
+| Gold (USD/oz) (flip) | 2026-12-15 | 95% | 48% | -47 pts | -9.1% |
+| Copper futures (flip) | 2026-12-15 | 87% | 41% | -46 pts | -9.4% |
+| Silver (USD/oz) | 2026-12-15 | 89% | 51% | -39 pts | -12.9% |
+| Nasdaq-100 index | 2026-12-14 | 95% | 60% | -35 pts | -10.4% |
+| Exxon Mobil Corp. | 2026-12-14 | 78% | 50% | -29 pts | -6.2% |
+| US 10-year Treasury yield (%) | 2026-12-15 | 78% | 50% | -28 pts | -4.4% |
+| Tesla Inc. | 2026-12-14 | 78% | 52% | -26 pts | -11.4% |
 
 ## Streaks (TimesFM, next-step calls, one per sealed batch)
 

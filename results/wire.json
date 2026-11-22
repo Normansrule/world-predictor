@@ -1,6 +1,46 @@
 {
- "fetched": "2026-11-21T03:53Z",
+ "fetched": "2026-11-22T19:58Z",
  "topics": {
+  "wiki_smr": {
+   "query": "\"small modular reactor\"",
+   "articles": [
+    {
+     "title": "UK Races to Rewrite Nuclear Rules by 2027",
+     "url": "https://oilprice.com/Alternative-Energy/Nuclear-Power/UK-Races-to-Rewrite-Nuclear-Rules-by-2027.html",
+     "domain": "oilprice.com",
+     "country": "United States",
+     "seen": "2026-11-21T16:30Z"
+    },
+    {
+     "title": "Former nuclear chief inspector  uncomfortable  with letter sent to chancellor from regulator and industry CEOs « nuclear - news",
+     "url": "https://nuclear-news.net/2026/11/21/3-a-former-nuclear-chief-inspector-uncomfortable-with-letter-sent-to-chancellor-from-regulator-and-industry-ceos/",
+     "domain": "nuclear-news.net",
+     "country": "Japan",
+     "seen": "2026-11-21T10:30Z"
+    },
+    {
+     "title": "Appalachian Power seeks increase in monthly charge for SMR site work",
+     "url": "https://wset.com/news/local/appalachian-power-seeks-increase-in-monthly-charge-for-smr-site-work-small-modular-reactor-november-2026",
+     "domain": "wset.com",
+     "country": "United States",
+     "seen": "2026-11-20T02:30Z"
+    }
+   ],
+   "fetched": "2026-11-22T19:54Z"
+  },
+  "wiki_ar": {
+   "query": "\"augmented reality\"",
+   "articles": [
+    {
+     "title": "Top Apple - related stories for the week of November 16 - 20",
+     "url": "https://www.mactech.com/2026/11/21/top-apple-related-stories-for-the-week-of-november-16-20/",
+     "domain": "mactech.com",
+     "country": "United States",
+     "seen": "2026-11-21T16:30Z"
+    }
+   ],
+   "fetched": "2026-11-22T19:58Z"
+  },
   "wiki_battery": {
    "query": "\"battery technology\"",
    "articles": [
@@ -12,7 +52,8 @@
      "seen": "2026-11-19T17:15Z"
     }
    ],
-   "fetched": "2026-11-21T03:41Z"
+   "fetched": "2026-11-21T03:41Z",
+   "stale": true
   },
   "adoption_wind": {
    "query": "\"wind power\"",
@@ -60,7 +101,8 @@
      "seen": "2026-11-20T05:45Z"
     }
    ],
-   "fetched": "2026-11-21T03:43Z"
+   "fetched": "2026-11-21T03:43Z",
+   "stale": true
   },
   "wiki_humanoid": {
    "query": "\"humanoid robot\"",
@@ -1134,12 +1176,16 @@
   }
  },
  "failed": {
-  "msci_world": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22global+stocks%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sor",
-  "nasdaq100": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=Nasdaq+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sort=DateDesc",
+  "wiki_fusion": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22fusion+energy%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sor",
+  "msci_world": "skipped: the wire's time budget ran out",
+  "nasdaq100": "skipped: the wire's time budget ran out",
   "aapl": "skipped: the wire's time budget ran out",
   "nvda": "skipped: the wire's time budget ran out",
   "tsla": "skipped: the wire's time budget ran out",
   "xom": "skipped: the wire's time budget ran out",
+  "msft": "skipped: the wire's time budget ran out",
+  "amzn": "skipped: the wire's time budget ran out",
+  "googl": "skipped: the wire's time budget ran out",
   "gold": "skipped: the wire's time budget ran out",
   "silver": "skipped: the wire's time budget ran out",
   "us10y": "skipped: the wire's time budget ran out",
@@ -1148,6 +1194,9 @@
   "oil_wti": "skipped: the wire's time budget ran out",
   "copper": "skipped: the wire's time budget ran out",
   "bitcoin": "skipped: the wire's time budget ran out",
+  "ethereum": "skipped: the wire's time budget ran out",
+  "natgas": "skipped: the wire's time budget ran out",
+  "eurusd": "skipped: the wire's time budget ran out",
   "news_election": "skipped: the wire's time budget ran out",
   "news_climate": "skipped: the wire's time budget ran out",
   "news_inflation": "skipped: the wire's time budget ran out",
@@ -1170,6 +1219,8 @@
   "adoption_solar": "skipped: the wire's time budget ran out",
   "sp500": "skipped: the wire's time budget ran out",
   "wiki_humanoid": "skipped: the wire's time budget ran out",
-  "wiki_gene_therapy": "skipped: the wire's time budget ran out"
+  "wiki_gene_therapy": "skipped: the wire's time budget ran out",
+  "wiki_battery": "skipped: the wire's time budget ran out",
+  "adoption_wind": "skipped: the wire's time budget ran out"
  }
 }
