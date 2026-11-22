@@ -2018,11 +2018,219 @@ def test_spikes_market_study_finds_a_planted_reaction_and_not_a_fake_one():
     rows = {r["market"]: r for r in st["rows"]}
     assert set(rows) == {"sp500", "gold"} and st["tests"] == 2 and rows["sp500"]["n"] == len(days)
     assert rows["sp500"]["ratio"] > 2 and rows["sp500"]["p"] < 0.01 and rows["sp500"]["passes"]
+    assert rows["sp500"]["p_era"] < 0.01 and rows["sp500"]["ratio_era"] > 1.5  # a real reaction survives the stricter test
     assert rows["gold"]["p"] > 0.05 and not rows["gold"]["passes"]
     v = spikes.market_verdict(st)
     assert "S&P 500 after world news and politics spikes" in v and "passed the false-discovery cut" in v
     assert spikes.market_verdict(None).startswith("Not enough")
     assert spikes.market_study({"sp500": data_["sp500"]}, []) is None
+
+
+def test_spikes_market_study_is_not_fooled_by_a_wild_era():
+    """Spikes that merely cluster in a market's wild years must not pass for a reaction: the plain
+    shuffle is fooled, the same-quarter shuffle is not."""
+    from psychohistory import spikes
+    idx = pd.date_range("2015-01-01", "2026-06-30", freq="D")
+    rng = np.random.default_rng(3)
+    wild = (idx >= "2020-01-01") & (idx < "2022-01-01")  # two volatile years, no link to anything
+    btc = pd.Series(100 * np.exp(np.cumsum(rng.normal(0, 1, len(idx)) * np.where(wild, 0.05, 0.02))), idx)
+    late = idx[(idx >= "2019-07-01") & (idx < "2022-07-01")]  # spikes cluster around the wild years
+    days = sorted(rng.choice(late, 120, replace=False))
+    every = [{"series_id": "politics_x", "peak_date": pd.Timestamp(d)} for d in days]
+    st = spikes.market_study({"bitcoin": btc}, every)
+    r = st["rows"][0]
+    assert r["p"] < 0.01 and r["passes_plain"]  # the plain test sees a "reaction"
+    assert r["p_era"] > 0.05 and not r["passes"] and abs(r["ratio_era"] - 1) < 0.25
+    assert st["passing"] == 0 and st["passing_plain"] == 1
+    v = spikes.market_verdict(st)
+    assert "same quarters" in v and "not from the spikes" in v and "no reliable link" in v
+
+
+def _tally_ledgers():
+    rows, led = [], []
+    for k, (sid, dom, last, actual, p) in enumerate([
+            ("gold", "markets", 100.0, 102.0, 0.64),      # called higher, went up: right
+            ("sp500", "markets", 100.0, 99.0, 0.70),      # called higher, went down: wrong
+            ("wiki_ai", "tech", 50.0, 40.0, 0.20),        # called less attention (80%), fell: right
+            ("weather_london", "weather", 10.0, 12.5, 0.55),  # called warmer, warmer: right
+            ("news_war", "news", 5.0, 5.0, 0.9)]):       # no change at all: not counted
+        base = dict(model="timesfm-2.5", series_id=sid, domain=dom, scale="individual", last_date="2026-11-01", last_value=last,
+                    step=2, target_date="2026-11-03", q10=0, q50=0, q90=0, point=0, actual=actual)
+        rows.append({**base, "made_on": "2026-11-02", "p_up": p})
+        rows.append({**base, "made_on": "2026-10-30", "p_up": 1 - p, "step": 4})  # an older call for the same day: ignored
+        rows.append({**base, "made_on": "2026-11-02", "p_up": 0.1, "model": "chronos-bolt"})
+    scored = pd.DataFrame(rows)
+    for sid, dom, freq in [("gold", "markets", 5), ("wiki_ai", "tech", 7)]:
+        for step in range(1, 9):
+            led.append(dict(made_on="2026-11-09", model="timesfm-2.5", series_id=sid, domain=dom, scale="individual",
+                            last_date="2026-11-08", last_value=1.0, step=step, target_date=f"2026-11-{8 + step:02d}",
+                            q10=0, q50=0, q90=0, point=0, p_up=0.83 if step == freq else 0.5))
+    return scored, pd.DataFrame(led)
+
+
+def test_tally_reads_every_sealed_forecast_as_a_plain_call_and_keeps_score(tmp_path):
+    import json
+    import shutil
+    import subprocess
+    from psychohistory import tally
+    scored, led = _tally_ledgers()
+    calls = tally.standing(scored)
+    assert len(calls) == 4 and set(calls["series_id"]) == {"gold", "sp500", "wiki_ai", "weather_london"}
+    assert (calls["made_on"] == pd.Timestamp("2026-11-02")).all()  # the newest call going into the day
+    right = dict(zip(calls["series_id"], calls["right"]))
+    assert right == {"gold": True, "sp500": False, "wiki_ai": True, "weather_london": True}
+    assert tally.sentence("gold", True) == "Gold will be higher" and tally.sentence("wiki_ai", False) == "AI will get less attention"
+    assert tally.sentence("weather_london", True) == "London will be warmer" and tally.sentence("news_war", False) == "War will be in the news less"
+    assert tally.band(0.82)[1] == "Very likely" and tally.band(0.55)[1] == "Toss-up"
+    rec = tally.record(calls)
+    assert rec["total"] == {"n": 4, "right": 3, "wrong": 1, "share": 0.75, "p_coin": pytest.approx(5 / 16)}
+    mk = next(a for a in rec["areas"] if a["key"] == "markets")
+    assert (mk["right"], mk["wrong"], mk["hindsight"]) == (1, 1, 0.5)
+    assert {b["key"] for b in rec["bands"]} == {"very likely", "likely", "leans", "tossup"}
+    models = {m["model"]: m for m in tally.models(scored)}
+    assert models["chronos-bolt"]["right"] == 2 and models["timesfm-2.5"]["right"] == 3  # every model scored the same way
+    p = tally.payload(scored, led, {s.id: s.freq for s in catalog.CATALOG})
+    now = {c["id"]: c for c in p["now"]}
+    assert now["gold"]["call"] == "Gold will be higher" and now["gold"]["chance"] == 0.83 and now["gold"]["target"] == "2026-11-13"
+    assert now["wiki_ai"]["target"] == "2026-11-15" and now["gold"]["record"]["right"] == 1
+    day = p["days"][0]
+    assert day["date"] == "2026-11-03" and day["n"] == 4 and day["calls"][0][2] == "AI will get less attention"
+    london = next(c for c in day["calls"] if c[0] == "weather_london")
+    assert london[9] == "temp" and london[10] == 2.5  # temperatures are shown in degrees
+    text = tally.describe(p)
+    assert "3 right, 1 wrong (75%)" in text and "Gold will be higher" in text
+    assert tally.payload(None, None, {}) is None and tally.describe(None).startswith("No sealed call")
+    led_path, sc_path = tmp_path / "ledger.csv", tmp_path / "scored.csv"
+    led.to_csv(led_path, index=False); scored.to_csv(sc_path, index=False)
+    cli.main(["tally", "--ledger", str(led_path), "--scored", str(sc_path), "--save", str(tmp_path / "calls.csv")])
+    assert len(pd.read_csv(tmp_path / "calls.csv")) == 4
+    root = Path(__file__).resolve().parents[1] / "site"
+    html = (root / "app" / "index.html").read_text()
+    assert 'href="#record" class="primary"' in html and 'src="js/record.js"' in html and "app/js/record.js" in (root / "sw.js").read_text()
+    if not shutil.which("node"):
+        pytest.skip("node is not installed")
+    js = (f"global.window={{}};require({json.dumps(str(root / 'app' / 'js' / 'record.js'))});const R=window.WPRecord;"
+          "const host={innerHTML:''};const D={tally:" + json.dumps(p) + "};R.render(host,D);"
+          "console.log(JSON.stringify({page:host.innerHTML,now:R.now(D),series:R.seriesCard(D,'gold')}));")
+    out = json.loads(subprocess.run(["node", "-e", js], capture_output=True, text=True, check=True).stdout)
+    assert "3</span> right" in out["page"] and "Every day: what it said" in out["page"] and "London will be warmer" in out["page"]
+    assert "+2.5°C" in out["page"] and "What it says now" in out["now"] and "Gold will be higher" in out["series"]
+    assert "What happened, against each forecaster" in out["page"] and "tr-chart" in out["series"] and "Radiant" in out["series"]
+
+
+def test_tally_rain_calls_charts_and_the_calls_it_stands_behind():
+    from psychohistory import tally
+    assert catalog.by_id("rain_london").params["variable"] == "precipitation_sum"
+    base = dict(model="timesfm-2.5", series_id="rain_london", domain="weather", scale="individual", last_date="2026-11-01",
+                last_value=0.0, step=1, point=0, p_up=0.5)
+    scored = pd.DataFrame([
+        {**base, "made_on": "2026-11-01", "target_date": "2026-11-02", "q10": 0.0, "q50": 2.0, "q90": 6.0, "actual": 4.0},  # rain called, rained
+        {**base, "made_on": "2026-11-01", "target_date": "2026-11-03", "q10": 0.0, "q50": 0.0, "q90": 0.5, "actual": 0.0},  # dry called, dry
+        {**base, "made_on": "2026-11-01", "target_date": "2026-11-04", "q10": 0.0, "q50": 0.2, "q90": 0.8, "actual": 3.0}])  # dry called, rained
+    c = tally.standing(scored)
+    assert list(c["up"]) == [True, False, False] and list(c["right"]) == [True, True, False]  # a dry day after a dry day still counts
+    assert tally.sentence("rain_london", True) == "London will get rain (1 mm or more)" and tally.sentence("rain_london", False) == "London will stay dry"
+    day = tally.days(c)[-1]["calls"][0]
+    assert day[9] == "rain" and day[10] == 4.0 and day[5] is None
+    # the bar is learned on the first half of the days and tested on the second half only
+    rows = []
+    for k in range(40):
+        for j, (p, ok) in enumerate([(0.9, True), (0.9, True), (0.9, True), (0.9, True), (0.55, False), (0.55, False)]):
+            rows.append({"series_id": f"s{j}", "domain": "tech", "made_on": pd.Timestamp("2026-10-01") + pd.Timedelta(days=k),
+                         "target_date": pd.Timestamp("2026-10-02") + pd.Timedelta(days=k), "chance": p, "right": ok})
+    calls = pd.DataFrame(rows)
+    calls.loc[(calls["target_date"] >= "2026-10-22") & (calls["chance"] == 0.9) & (calls["series_id"] == "s0"), "right"] = False
+    st = tally.confident(calls, found="2026-10-25")
+    assert st["test"]["bar"] == 0.6 and st["split"] == "2026-10-22"
+    late = calls[calls["target_date"] >= "2026-10-22"]
+    assert st["test"]["n"] == int((late["chance"] >= 0.6).sum()) and st["test"]["share"] == 0.75  # s0 went wrong only later: no peeking
+    assert st["test"]["coverage"] == pytest.approx(4 / 6, abs=1e-3) and st["bar"] == 0.6 and st["live"]["n"] > 0
+    lines = tally.lines(pd.DataFrame([{**base, "series_id": "gold", "domain": "markets", "last_value": 100.0, "made_on": "2026-11-01",
+                                       "target_date": "2026-11-02", "q10": 98, "q50": 101.0, "q90": 104, "p_up": 0.6, "actual": 102.0, "model": m}
+                                      for m in ("timesfm-2.5", "radiant", "seldon")]))
+    assert lines["gold"]["actual"] == [("2026-11-02", 102.0)] and set(lines["gold"]["m"]) == {"timesfm-2.5", "radiant", "seldon"}
+    assert lines["gold"]["m"]["radiant"] == [["2026-11-02", 101.0]]
+
+
+def test_tally_range_calls_widen_only_from_ranges_already_settled():
+    """Range calls ("between X and Y"): the model's 80% range is widened by what settled ranges
+    needed, learned only from ranges that had settled before the call was made."""
+    from psychohistory import tally
+    rng = np.random.default_rng(1)
+    rows = []
+    for k in range(60):
+        for sid in ("wiki_ai", "wiki_llm"):
+            made = pd.Timestamp("2026-09-01") + pd.Timedelta(days=k)
+            actual = 100 + rng.normal(0, 10 * 1.6)  # the truth is 1.6 times as spread out as the model thinks
+            rows.append(dict(model="timesfm-2.5", series_id=sid, domain="tech", scale="individual", made_on=made, last_date=made,
+                             last_value=100.0, step=1, target_date=made + pd.Timedelta(days=1), q10=100 - 12.8, q50=100.0,
+                             q90=100 + 12.8, point=100.0, p_up=0.5, actual=actual))
+    scored = pd.DataFrame(rows)
+    scored.loc[scored.index[-1], "actual"] = 1e6  # a wild last day must not reach back into any earlier range
+    rr = tally.range_rows(scored, {"wiki_ai": "D", "wiki_llm": "D"})
+    one = rr.iloc[0]
+    assert one["need"] == pytest.approx(abs(one["actual"] - 100) / 12.8)
+    r = tally.ranges(rr)
+    assert 0 < len(r) < len(rr)  # the first days had nothing to learn from yet: no range
+    for row in r.itertuples():
+        settled = rr[rr["target_date"] < row.made_on]
+        assert len(settled) >= tally.RANGE_MIN
+        assert row.k == pytest.approx(np.quantile(settled["need"], tally.RANGE_AIM))  # only what had settled
+    assert r["k"].max() < 10  # the wild day changed no range
+    rec = tally.range_record(r)
+    assert rec["total"]["raw"] < 0.7 and rec["total"]["share"] > rec["total"]["raw"] + 0.1  # widening helps a too-narrow model
+    assert tally.bounds("gold", 1.0, 2.0, 3.0, 3.0) == (0.0, 5.0) and tally.bounds("weather_london", 1.0, 2.0, 3.0, 3.0) == (-1.0, 5.0)
+    led = scored.assign(made_on=pd.Timestamp("2026-11-01"), target_date=pd.Timestamp("2026-11-08"), step=7, p_up=0.7).head(2)
+    now = tally.now(led, tally.standing(scored), {"wiki_ai": "D", "wiki_llm": "D"}, settled=rr, rng=r)
+    k_now = np.quantile(rr["need"], tally.RANGE_AIM)
+    assert now[0]["lo"] == pytest.approx(100 - k_now * 12.8, rel=1e-3) and now[0]["range_record"][1] == int((r["series_id"] == now[0]["id"]).sum())
+    days_ = tally.days(tally.standing(scored), rng=r)
+    assert any(c[11] is not None for d in days_ for c in d["calls"]) and all(len(c) == 12 for d in days_ for c in d["calls"])
+
+
+def test_race_grows_back_ten_years_on_a_fixed_grid_and_replays_without_peeking(tmp_path):
+    """The race keeps TimesFM's windows (here a cheap stand-in), adds them newest first a few at a
+    time on a grid that a new day does not shift, and replays Radiant and Seldon from windows that
+    had finished by each origin only."""
+    import json
+    from psychohistory import race
+    from psychohistory.models import load_model
+    rng = np.random.default_rng(3)
+    idx = pd.bdate_range("2015-06-01", "2026-11-13")
+    series = {sid: pd.Series(100 * np.exp(np.cumsum(rng.normal(0, 0.01, len(idx)))), idx) for sid in ("sp500", "gold")}
+    naive = load_model("naive")
+    cache, added = race.grow(series, naive, race.load_cache(tmp_path / "race"), limit=20)
+    assert added == 40
+    origins = sorted(pd.to_datetime(cache[cache["series_id"] == "sp500"]["origin"].unique()))
+    pos = [idx.get_loc(o) for o in origins]
+    assert set(np.diff(pos)) == {21} and pos[-1] + 21 <= len(idx) - 1 < pos[-1] + 42  # the newest finished window, then back
+    cache, added = race.grow(series, naive, cache, limit=1000)
+    first = pd.to_datetime(cache["origin"]).min()
+    assert first >= idx[-1] - pd.DateOffset(years=10) and first < idx[-1] - pd.DateOffset(years=9, months=10)
+    race.save_cache(cache, tmp_path / "race")
+    assert len(list((tmp_path / "race").glob("*.csv"))) >= 10 and len(race.load_cache(tmp_path / "race")) == len(cache)
+    more = pd.bdate_range(idx[-1] + pd.Timedelta(days=1), periods=21)  # a month later: one new window each, the old ones kept
+    longer = {k: pd.concat([v, pd.Series(v.iloc[-1], more)]) for k, v in series.items()}
+    grown, added = race.grow(longer, naive, cache, limit=1000)
+    assert added == 2 and set(cache["origin"]) <= set(grown["origin"])
+    p = race.paths(series, cache)
+    assert set(p["model"]) == set(race.SHOW) and not p.duplicated(["series_id", "model", "date"]).any()
+    cut = idx[-300]
+    wild = {k: v.where(v.index <= cut, v * 3) for k, v in series.items()}  # the future changes; the past replay must not
+    a = p[(p["model"] == "radiant") & (pd.to_datetime(p["origin"]) <= cut - pd.Timedelta(days=40))]
+    b = race.paths(wild, cache)
+    b = b[(b["model"] == "radiant") & (pd.to_datetime(b["origin"]) <= cut - pd.Timedelta(days=40))]
+    assert len(a) and np.allclose(a.sort_values(["series_id", "date"])["q50"].to_numpy(), b.sort_values(["series_id", "date"])["q50"].to_numpy())
+    book = race.build(p, None)
+    sp = book["sp500"]
+    assert sp["dates"] == sorted(sp["dates"]) and set(sp["m"]) == set(race.SHOW) and sp["live_from"] is None
+    assert sum(sp["past"][m]["closest"] for m in race.SHOW) == pytest.approx(1, abs=0.02) and len(sp["past"]["seldon"]["years"]) >= 10
+    assert race.write(book, tmp_path / "web") == 2
+    assert set(json.loads((tmp_path / "web" / "index.json").read_text())) == {"sp500", "gold"}
+    seeded = race.seed(pd.DataFrame([{"series_id": "gold", "model": "timesfm-2.5", "origin": "2026-01-02", "date": "2026-01-05", "step": 1,
+                                      "q10": 1, "q50": 2, "q90": 3, "actual": 2}, {"series_id": "adoption_solar", "model": "timesfm-2.5",
+                                      "origin": "2020-01-01", "date": "2021-01-01", "step": 1, "q10": 1, "q50": 2, "q90": 3, "actual": 2}]))
+    assert list(seeded["series_id"]) == ["gold"]  # yearly series do not race
 
 
 def test_spikes_backtest_is_fast_on_ten_years_of_history():
@@ -2040,6 +2248,30 @@ def test_spikes_backtest_is_fast_on_ten_years_of_history():
     c = spikes.curve(every, before=pd.Timestamp("2020-01-01"))
     slow = np.median([sp["after"][28] for sp in every if sp["peak_date"] + pd.Timedelta(days=29) <= pd.Timestamp("2020-01-01")])
     assert c[28] == pytest.approx(slow)  # the array version gives the same median
+
+
+def test_rehearsal_builds_long_history_and_flags_broken_or_slow_steps(tmp_path):
+    """scripts/rehearse.py runs the weekly run's offline steps on synthetic history as long as the
+    real one; it must cover every series, pass a healthy step and flag a failing or slow one."""
+    import importlib.util
+    root = Path(__file__).resolve().parents[1]
+    spec_ = importlib.util.spec_from_file_location("rehearse", root / "scripts" / "rehearse.py")
+    rehearse = importlib.util.module_from_spec(spec_)
+    spec_.loader.exec_module(rehearse)
+    assert rehearse.build(tmp_path, years=3) == len(catalog.CATALOG)
+    sp = data.load_csv(data.cache_path(catalog.by_id("sp500"), tmp_path / "data"))
+    assert sp.index[0] <= pd.Timestamp.now() - pd.DateOffset(years=3) + pd.Timedelta(days=5)
+    assert set(sp.index.dayofweek) <= set(range(5)) and (sp > 0).all()
+    assert (tmp_path / "predictions" / "ledger.csv").exists()
+    rows = rehearse.run(tmp_path, [("hype", ["hype"], 120), ("bad", ["no-such-step"], 60), ("slow", ["verify"], 0.001), ("late", ["verify"], 0.3)])
+    assert [r["ok"] for r in rows] == [True, False, False, False]
+    text = rehearse.describe(rows)
+    assert "FAILED" in text and "OVER BUDGET" in text and "Fix the steps" in text
+    steps = {name for name, _, _ in rehearse.STEPS}
+    workflow = (root / ".github" / "workflows" / "predict.yml").read_text()
+    for name, argv, _ in rehearse.STEPS:  # every rehearsed step is one the weekly run really runs
+        assert f"psychohistory {argv[0]}" in workflow or f"psychohistory -v {argv[0]}" in workflow, name
+    assert {"spikes", "hype", "export", "vol", "events"} <= steps
 
 
 def test_gdelt_refusal_fails_fast_with_gdelts_words(monkeypatch):

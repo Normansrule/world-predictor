@@ -12,7 +12,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from . import ask, backtest, bets, brief, catalog, follow, health, hype, offline, dashboard, data, desk, events, ledger, monitor, radiant, report, seldon, simulate, spikes, story, volatility, web, wire, yearbook
+from . import ask, backtest, bets, brief, catalog, follow, health, hype, offline, dashboard, race, data, desk, events, ledger, monitor, radiant, report, seldon, simulate, spikes, story, tally, volatility, web, wire, yearbook
 from .models import BASELINES, LAWS, classical_available, load_model
 
 log = logging.getLogger("psychohistory")
@@ -465,6 +465,22 @@ def cmd_spikes(args) -> None:
     print(spikes.describe(spikes.payload(series, specs, paths, entries, spikes.read(path), {s.id: s.description for s in catalog.CATALOG})))
 
 
+def cmd_tally(args) -> None:
+    """The track record in plain words: every sealed call (higher or lower, more or less in the news,
+    warmer or cooler) against what happened, the running tally since the first forecast, and what it
+    says now for about a week ahead."""
+    scored = pd.read_csv(args.scored) if args.scored.exists() else None
+    entries = pd.read_csv(args.ledger) if args.ledger.exists() else None
+    p = tally.payload(scored, entries, {s.id: s.freq for s in catalog.CATALOG})
+    print(tally.describe(p))
+    if args.save and p and p.get("days"):
+        rows = [dict(zip(["series_id", "area", "call", "chance", "right", "change", "made_on", "from", "what_happened"], c), day=d["date"])
+                for d in p["days"] for c in d["calls"]]
+        args.save.parent.mkdir(parents=True, exist_ok=True)
+        pd.DataFrame(rows).to_csv(args.save, index=False)
+        print(f"\nEvery call written to {args.save}")
+
+
 def cmd_wire(args) -> None:
     """The world wire: the newest headlines for every topic, for the app's World terminal."""
     specs = wire.prioritize(catalog.select(args.domain, args.series), wire.read(args.out_dir / wire.WIRE.name))
@@ -658,10 +674,33 @@ def _payload(args, demo: bool = False) -> dict | None:
     data = _load(specs, args.data_dir)
     event = {"summary": read(args.out_dir / "event_summary.csv"), "now": _event_now(args, data), "rows": read(args.out_dir / "event_backtest.csv"),
              "scored": events.read(_event_path(args, "scored")), "seals": _event_seals(args)}
-    return web.build_payload(args.model, results, by_step, paths, entries, scored, data, run_status=run,
-                             seals=seals, vol=vol, wire=wire.read(args.out_dir / wire.WIRE.name), events=event,
-                             bet_odds=_bets(args), sources=health.read(args.out_dir / health.HEALTH.name),
-                             spike_sealed=spikes.read(_spike_path(args)))
+    out = web.build_payload(args.model, results, by_step, paths, entries, scored, data, run_status=run,
+                            seals=seals, vol=vol, wire=wire.read(args.out_dir / wire.WIRE.name), events=event,
+                            bet_odds=_bets(args), sources=health.read(args.out_dir / health.HEALTH.name),
+                            spike_sealed=spikes.read(_spike_path(args)))
+    race_index = args.out_dir / "web" / "race" / "index.json"
+    if race_index.exists():  # the race chart's scores; the full race loads per series
+        out["race"] = json.loads(race_index.read_text())
+    return out
+
+
+def cmd_race(args) -> None:
+    """The race: TimesFM, Radiant and Seldon against what happened, replayed back up to ten years
+    (growing by ``--grow`` TimesFM windows per series per run) and sealed from the first forecast on."""
+    cache = race.load_cache(args.out_dir / "race")
+    if cache.empty:
+        bt = args.out_dir / "backtest_paths.csv"
+        cache = race.seed(pd.read_csv(bt) if bt.exists() else None)
+    series = _load([s for s in catalog.CATALOG if race.eligible(s)], args.data_dir)
+    added = 0
+    if args.grow > 0:
+        cache, added = race.grow(series, load_model(args.stand_in or race.MODEL), cache, limit=args.grow, years=args.years)
+    race.save_cache(cache, args.out_dir / "race")
+    book = race.build(race.paths(series, cache), ledger.read(args.scored))
+    n = race.write(book, args.out_dir / "web" / "race")
+    print(race.describe(book))
+    print(f"\n{added} new TimesFM windows; {cache.groupby(['series_id', 'origin']).ngroups if len(cache) else 0} kept. "
+          f"Race for {n} series written to {args.out_dir / 'web' / 'race'}")
 
 
 def cmd_export(args) -> None:
@@ -815,11 +854,23 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--save", type=Path, default=None, help="also write every monthly backtest call to this CSV")
     p.set_defaults(func=cmd_hype)
 
+    p = sub.add_parser("race", help="the race: TimesFM, Radiant and Seldon against what happened, replayed back up to ten years and sealed since")
+    common(p)
+    p.add_argument("--grow", type=int, default=race.GROW, help=f"new TimesFM windows per series this run (default {race.GROW}; 0: replay only)")
+    p.add_argument("--years", type=int, default=race.YEARS, help=f"how far back the race goes (default {race.YEARS} years)")
+    p.add_argument("--stand-in", default=None, help=argparse.SUPPRESS)  # a cheap model in TimesFM's place, for timing rehearsals only
+    p.set_defaults(func=cmd_race)
+
     p = sub.add_parser("spikes", help="spike watch: attention that jumped to twice its usual level, where it will be four weeks on, and the record")
     common(p)
     p.add_argument("--seal", action="store_true", help="seal the live calls in predictions/spike_ledger.csv (once per spike)")
     p.add_argument("--save", type=Path, default=None, help="also write every spike in the backtest to this CSV")
     p.set_defaults(func=cmd_spikes)
+
+    p = sub.add_parser("tally", help="the track record in plain words: every call right or wrong since the first forecast, and what it says now")
+    common(p)
+    p.add_argument("--save", type=Path, default=None, help="also write every settled call to this CSV")
+    p.set_defaults(func=cmd_tally)
 
     p = sub.add_parser("wire", help="the newest headlines for every topic, from GDELT, for the World terminal")
     common(p)

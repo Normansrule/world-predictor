@@ -13,7 +13,8 @@
   const CODES = { sp500: "SPX", msci_world: "MXWO", nasdaq100: "NDX", gold: "XAU", silver: "XAG", oil_wti: "WTI", copper: "HG", bitcoin: "BTC", us10y: "UST10", tlt: "TLT", vix: "VIX",
     news_composite: "N:ALL", tech_composite: "T:ALL", adoption_internet: "T:NET", adoption_solar: "T:SOLAR", adoption_wind: "T:WIND",
     adoption_ev: "T:EV", space_launches: "T:LAUNCH", politics_composite: "P:ALL", weather_world_air: "WX:AIR", weather_world_sea: "WX:SEA",
-    weather_arctic_ice: "WX:ICE", weather_new_delhi: "WX:DEL", weather_los_angeles: "WX:LA", quakes_m45: "WX:QUAKE" };
+    weather_arctic_ice: "WX:ICE", weather_new_delhi: "WX:DEL", weather_los_angeles: "WX:LA", quakes_m45: "WX:QUAKE",
+    msft: "MSFT", amzn: "AMZN", googl: "GOOGL", ethereum: "ETH", natgas: "NG", eurusd: "EURUSD", weather_new_york: "WX:NYC" };
   const SETTLE_DAYS = 7; // a call settles on the first real value within a week of its date
   const state = { area: "all", focus: null, watchOnly: false, msg: "", allOdds: false };
   let D = null, host = null;
@@ -376,7 +377,8 @@
   const LIVE_QUERY = (o) => ({ sp500: '"S&P 500"', msci_world: '"global stocks"', nasdaq100: "Nasdaq", aapl: '("Apple Inc" OR iPhone)', nvda: "Nvidia", tsla: "Tesla", xom: '"Exxon Mobil"',
     gold: '"gold price"', silver: '"silver price"', oil_wti: '"oil prices"', copper: '"copper price"', bitcoin: "bitcoin", news_war: '"war"', news_election: '"election"', news_inflation: '"inflation"',
     news_climate: '"climate change"', news_pandemic: "(pandemic OR outbreak OR epidemic)", news_protest: "(protest OR protests)", wiki_llm: '"language model"', wiki_ai: '"artificial intelligence"',
-    wiki_quantum: '"quantum computing"', wiki_crispr: "CRISPR", wiki_ev: '"electric vehicles"', wiki_fusion: '"fusion energy"', wiki_humanoid: '"humanoid robot"', adoption_solar: '"solar power"', adoption_wind: '"wind power"' }[o.id]);
+    wiki_quantum: '"quantum computing"', wiki_crispr: "CRISPR", wiki_ev: '"electric vehicles"', wiki_fusion: '"fusion energy"', wiki_humanoid: '"humanoid robot"', adoption_solar: '"solar power"', adoption_wind: '"wind power"',
+    msft: "Microsoft", amzn: "Amazon", googl: "(Google OR Alphabet)", ethereum: "(ethereum OR ether)", natgas: '"natural gas"', wiki_smr: '"small modular reactor"', wiki_ar: '"augmented reality"' }[o.id]);
 
   function paintBook() {
     const { plot, fmt } = window.WPCharts;

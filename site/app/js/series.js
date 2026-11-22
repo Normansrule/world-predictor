@@ -108,6 +108,7 @@
         <h1 id="sp-h" tabindex="-1">${esc(title)}</h1>
         <p class="lede">${esc((o && o.description) || "")}${o && o.description ? ". " : ""}Every forecast ${esc(modelName)} made for it, and what really happened.</p>
       </div>
+      ${window.WPRecord ? window.WPRecord.seriesCard(D, id) : ""}
       <div class="card detail"><dl class="facts">
         ${fact('Skill vs "no change"', row ? fmt.signedPct(row.skill) : "–", row ? skillCls(row.skill) : "")}
         ${fact("Right direction", row ? fmt.pct(row.direction) : "–")}
@@ -151,6 +152,7 @@
         ${o ? `<a class="btn" href="#compare/${esc(id)}">Compare with others</a>` : ""}
         ${o ? `<button class="btn" id="sp-embed" title="Copy the code that shows this forecast as a live card on any web page">Embed</button>` : ""}
       </div>`;
+    if (window.WPRace) window.WPRace.hydrate(host, D);
     const share = host.querySelector("#sp-share");
     const embed = host.querySelector("#sp-embed");
     if (embed) embed.onclick = async () => {

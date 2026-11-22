@@ -30,7 +30,9 @@ QUERIES = {
     "wiki_crispr": "CRISPR", "wiki_ev": '"electric vehicles"', "wiki_fusion": '"fusion energy"',
     "wiki_humanoid": '"humanoid robot"', "adoption_solar": '"solar power"', "adoption_wind": '"wind power"',
     "wiki_battery": '"battery technology"', "wiki_gene_therapy": '"gene therapy"', "wiki_self_driving": '("self-driving" OR robotaxi)',
-    "wiki_starship": "Starship SpaceX",
+    "wiki_starship": "Starship SpaceX", "msft": "Microsoft", "amzn": "Amazon", "googl": "(Google OR Alphabet)",
+    "ethereum": "(ethereum OR ether)", "natgas": '"natural gas"', "eurusd": '(euro dollar OR "exchange rate")',
+    "wiki_smr": '"small modular reactor"', "wiki_ar": '"augmented reality"',
 }
 FIRST = ("news", "politics", "tech")  # the world event predictor's topics come before markets
 

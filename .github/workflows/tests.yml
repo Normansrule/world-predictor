@@ -20,3 +20,6 @@ jobs:
       - name: The app's JavaScript parses
         if: matrix.python-version == '3.12'
         run: for f in site/app/js/*.js site/assets/site.js site/sw.js; do node --check "$f"; done
+      - name: Rehearse the weekly run on eleven years of synthetic history (each step timed against a budget)
+        if: matrix.python-version == '3.12'
+        run: python scripts/rehearse.py

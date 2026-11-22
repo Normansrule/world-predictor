@@ -78,13 +78,26 @@ Nothing here is financial advice, and most of the interesting results are about 
 
 ## Key features
 
+- **A track record anyone can read.** Every sealed forecast is read as a plain call ("Gold will be
+  higher", "War will be in the news less", "London will be warmer") with how sure it was, and checked
+  when its day comes. The Track record tab keeps the running score since the first forecast: **560
+  right, 283 wrong (66%)** on the first month, and markets alone at 49%, a coin flip. The calls it
+  **stands behind** (only those at least as sure as calls that were right 80% of the time before) were
+  right **75%** of the time on later days they had not seen. Every call also comes with a range,
+  "likely between 7,273 and 7,836", and the day landed inside it **83%** of the time (markets 80%).
+  [How it works](#track-record-every-call-right-or-wrong).
+- **The race: every forecaster against what happened, over years.** Each series page opens with
+  what really happened and what TimesFM, Radiant and Seldon each said every day would be, a panel
+  showing how far apart they were, YTD, 1Y, 2Y, 5Y and 10Y buttons, and beside the forecast a
+  scoreboard of how each did in the past and how it is doing now.
+  [How it works](#the-race-every-forecaster-against-what-happened-over-years).
 - **Today: one screen that says what happens next, and how sure.** Rise alerts in three tiers (75%,
   85% and 95% or more chance of going higher), each carrying its own record of how often calls like it
   came true; every series read at six time frames, from tomorrow to ten years out; a history chart of
   every past forecast laid over what really happened; and a "who to trust" board with the 70% club.
   [Open it](https://normansrule.github.io/world-predictor/app/).
 - **Five kinds of prediction, one scoreboard.** World news, politics, markets, new technologies, and
-  the weather and the planet: 55 series, every one fetched from free open data, forecast by the same
+  the weather and the planet: 70 series (rain in five cities joined in November; Microsoft, Amazon, Google, ether, natural gas, the euro, small nuclear reactors, augmented reality and New York's weather and rain on 19 November), every one fetched from free open data, forecast by the same
   models, sealed the same way and scored against what really happened. Weather is forecast two weeks
   ahead and settled against thermometers and satellites; earthquakes are the honest control, a series
   nobody should be able to predict. [What's new](#weather-politics-and-the-next-technologies).
@@ -894,13 +907,14 @@ old level will attention be?** Four answers are compared:
 - **TimesFM**: its median for that day, from the weekly forecast.
 
 The backtest takes every spike in the history and forecasts it the day after its peak for four weeks
-on. A miss is the gap between forecast and outcome either way. With the last year of data this sandbox
-has (43 spikes in 17 series), spikes halve back towards their old level in a median of **one day**, and
-four weeks on they sit at a median 1.09 times it. "Old level" missed by a median 28%, "past spikes"
-32% and "no change" 54%. On the 9 spikes where TimesFM had a forecast made within a week of the peak,
-it missed by 25% against 26% for "old level", too few to tell them apart. The first full record, from
-the history since 2015, comes with the next run (`psychohistory spikes --save
-results/spike_backtest.csv`).
+on. A miss is the gap between forecast and outcome either way. The first full record (the run of
+18 November 2026: **565 spikes in 23 series since August 2015**, in `results/spike_backtest.csv`)
+says spikes halve back towards their old level in a median of **one day**, and four weeks on they sit
+at a median 1.10 times it, but only 48% are back within 25% of it: attention after a spike settles a
+little higher, and often a lot higher. "Old level" and "past spikes" tie, each missing by a median
+26%, and "no change" misses by 69%. On the 10 spikes where TimesFM had a forecast made within a week
+of the peak, it missed by 29% against 25% for "old level", too few to tell them apart. (A first look
+at one year of data had 43 spikes and the same order.)
 
 Live spikes are where it gets tested for real. On the run of the first weekly forecast after a peak,
 `psychohistory spikes --seal` writes each rule's call and TimesFM's to `predictions/spike_ledger.csv`,
@@ -914,7 +928,7 @@ in four weeks. Each links to Spike watch.
 
 <img src="docs/assets/app-spiking-now.png" alt="The Spiking now strip on Today: SpaceX Starship at 12 times its usual views, impeachment coverage at 12 times and tariffs at 2.1 times, each with TimesFM's call for four weeks on" width="100%">
 
-The backtest covers every spike since 2015, well over a thousand. It builds the past-spikes curve as
+The backtest covers every spike since 2015 (565 in the real data, about 1,500 in the stress test). It builds the past-spikes curve as
 one array operation for each forecast, so the whole replay takes seconds; a test keeps it that way,
 as a first version that rebuilt the curve spike by spike would have taken over ten minutes in the
 weekly run.
@@ -927,14 +941,163 @@ with its median over every week. A shuffle test draws 2,000 random sets of as ma
 often chance does as well. With 12 pairs tested at once, a Benjamini-Hochberg cut (Benjamini &
 Hochberg, 1995) keeps the false alarms down.
 
-<img src="docs/assets/app-spike-markets.png" alt="Do spikes move markets: a table of six markets against world news and politics spikes and technology spikes, each cell the median move after a spike against usual, none passing the false-discovery cut" width="100%">
+Markets have calm and wild years, and spikes do not fall evenly across them, so a second shuffle draws
+each random day from **the same calendar quarter** as its spike. A spike that happens to land in a wild
+year is then compared with other days of that wild year. A pair passes only if this stricter test
+survives the cut; the plain one is still shown beside it.
 
-On the last year of data here (29 news and politics spike days, 17 technology ones), **none of the 12
-pairs passed**. The biggest gap was oil after technology spikes, 6.8% against 5.0% usually (p 0.14),
-which is what chance gives often enough among 12 tries. The S&P 500 actually moved less than usual
-after news and politics spikes (0.52 times); the test only looks for bigger moves, so that is not
-evidence of anything either. The full history comes with the next run, and the view and
-`psychohistory spikes` update with it.
+<img src="docs/assets/app-spike-markets.png" alt="Do spikes move markets: a table of six markets against world news and politics spikes and technology spikes, each cell the median move after a spike against usual, from the 18 November 2026 run before the same-quarter test: bitcoin after news and politics spikes stands out at 1.27 times" width="100%">
+
+The first full run (18 November 2026: 313 news and politics spike days, 230 technology ones since 2015)
+found one pair that passed the plain test: **bitcoin moved 4.8% in the week after a news or politics
+spike, against 3.8% usually** (1.27 times, shuffle p 0.001). Nothing else came close after the cut;
+the VIX after technology spikes was next (1.20 times, p 0.012), and gold moved *less* than usual after
+them. That bitcoin result is why the same-quarter test exists: the news and politics spikes only begin in
+2017, while the plain shuffle compares them with every bitcoin week back to 2014, and bitcoin's swings
+have changed a lot from era to era; a mismatch in eras alone can make a gap like this one.
+The next weekly run reports both tests; until it does, the bitcoin gap is a lead to check, not a
+finding. Either way, this is about the *size* of the move, not its direction: the median move after
+those spikes was +0.7%, and 176 of the 313 weeks went up.
+
+### Track record: every call, right or wrong
+
+<img src="docs/assets/app-track-record.png" alt="The Track record tab: a ring at 66% right, 560 right and 283 wrong since 18 October 2026, last seven days 144 to 73, and below it What it says now in plain words: Bitcoin will be lower, market fear will be lower, climate change will be in the news less" width="100%">
+
+Numbers like "skill 4.2%" or "an odds score of 0.24" are honest but hard to read. The **Track record**
+tab (key `K`, or `psychohistory tally`) reads every sealed forecast the way a person would. Each
+forecast gives the chance that something will be higher than the last value it saw; the call is the
+side it gave more than 50%. A 65% chance of gold being higher is the call **"Gold will be higher"**,
+and it is right if gold was higher on the day. The same rule reads news as "in the news more or less",
+technology as "more or less attention" (on Wikipedia), and weather as "warmer or cooler". For each day
+and each thing, the newest call made before that day counts, once.
+
+The first month (calls sealed from 18 October to 16 November 2026, settled by 18 November):
+
+| Area | Right | Wrong | Share right | Always guessing one direction (hindsight) |
+|---|---:|---:|---:|---|
+| **All** | **560** | **283** | **66%** | |
+| Technology | 227 | 48 | 83% | 54% (always "more attention") |
+| Weather | 57 | 23 | 71% | 50% |
+| World news | 87 | 41 | 68% | 65% (always "less") |
+| Politics | 41 | 19 | 68% | 60% (always "less") |
+| Markets | 148 | 152 | **49%** | 58% (always "down") |
+
+How sure it was against how often it was right: calls it called **very likely** (80% or more, 92% on
+average) were right **93%** of the time (254 of 274); **likely** (70-80%) 68%; **leans** (60-70%)
+58%; and **toss-ups** (50-60%) 47%, so they really are toss-ups. The confident calls are the ones to
+trust, and they are mostly about attention, weather and the planet.
+
+Markets are where it has no edge yet: up or down over a few days was right 49% of the time, below
+simply saying "down" every day in a month when markets fell more often than they rose (which nobody could know in
+advance). Gold, for example, went 3 right and 19 wrong. That matches the backtests and the
+[follow-the-forecasts test](#would-following-the-forecasts-have-made-money), so the app says it
+plainly rather than calling anything a buy or a sell. Neighbouring days of one series are not
+independent, so read the counts as a running score, not a significance test.
+
+**The calls it stands behind.** Not every call deserves the same trust, and the record above shows
+it: very likely calls were right 93% of the time, toss-ups 47%. So the app stands behind a call only
+when it is at least as sure as calls that were right 80% of the time before, and says "no call"
+otherwise. The bar is learned, not picked: on the days up to 3 November the lowest bar that met 80%
+was 60% sure. On the later days, which the rule had not seen, the calls above that bar were right
+**278 times and wrong 91 (75%)**, against 66% for every call, and it stood behind 69% of its calls.
+
+| Area (later days, calls it stood behind) | Right | Wrong | Share right | Stood behind |
+|---|---:|---:|---:|---:|
+| Technology | 114 | 24 | 83% | 138 of 155 |
+| Politics | 37 | 10 | 79% | 47 of 60 |
+| Weather | 57 | 18 | 76% | 75 of 80 |
+| World news | 47 | 17 | 73% | 64 of 78 |
+| Markets | 23 | 22 | 51% | 45 of 164 |
+
+That is the 75% the project aimed for, reached honestly: every call is a real sealed forecast, the
+bar came only from earlier days, and the calls below it are still counted in the full record above.
+Markets did not get there. Even its surest market calls were a coin flip, and two other ideas that
+were tried did not help: taking each area's best model on the earlier days (the winners changed on
+the later days), and letting TimesFM, Chronos-Bolt, Seldon and Radiant vote (69% on the days all four
+covered, against 67% for TimesFM, 69% for Chronos-Bolt, 66% for Radiant and 70% for Seldon on those
+same days). From 18 November the bar, learned
+on every settled day, is 65%, and the tab keeps a separate live score of the calls made under it.
+
+<img src="docs/assets/app-range-calls.png" alt="Range calls, between X and Y: 623 inside, 124 outside, 83% inside, against 69% for the model's ranges as they came; by area markets 80%, world news 80%, politics 90%, technology 84%, weather 95%" width="100%">
+
+**Range calls: "between X and Y".** Up or down is only half the story, so every call now comes with
+a range it expects the value to land in, meant to hold 8 times in 10: "The S&P 500 is likely between
+7,273 and 7,836 on 20 November". TimesFM's own 80% ranges turned out too narrow (the day landed
+inside them only 69% of the time, and less as the weeks went on), so each range is widened by what
+earlier ranges needed: the widening that would have held 90% of the ranges that had **already
+settled when the call was made**, from the same area once it has 40 of them. No range learns from its
+own day or any day after it was made.
+
+| Area | Inside the range | Share | Model's own range | Typical width |
+|---|---:|---:|---:|---:|
+| Markets | 202 of 254 | 80% | 69% | 7.7% of the price |
+| World news | 86 of 108 | 80% | 56% | 60% of the level |
+| Politics | 54 of 60 | 90% | 57% | 99% of the level |
+| Technology | 204 of 244 | 84% | 74% | 43% of the level |
+| Weather | 77 of 81 | 95% | 84% | a few degrees |
+| **All** | **623 of 747** | **83%** | **69%** | |
+
+Two honest caveats. The 90% aim was picked after seeing these weeks (aiming at 80% held 71%, and 85%
+held 77%), so the clean test is the live record from 18 November, which the tab keeps separately.
+And a range that holds is only useful if it is narrow: market ranges are tight enough to mean
+something, while news and politics ranges are wide because attention is hard to pin down, and the
+app says so. Ranges show on Today's cards, on every series page with that series' own record, and
+beside each call in the daily log.
+
+<img src="docs/assets/app-forecasters-chart.png" alt="What happened, against each forecaster: charts for the S&P 500, gold, silver and bitcoin, each with the actual price as a white line, and TimesFM in blue, Radiant in orange and Seldon in teal as dots for what each said each day would be and dashed lines for their forecasts from now" width="100%">
+
+**What happened, against each forecaster.** Every series gets a chart: what really happened as a white
+line, and each forecaster in its own colour, TimesFM in blue, Radiant in orange and Seldon in teal.
+Dots are what its newest sealed forecast said each settled day would be, and the dashed line is its
+forecast from now. The Track record shows them for every series, filtered by area, and each series
+page shows its own at full width above its last ten calls.
+
+**Will it rain?** Five cities (London, New Delhi, Tokyo, Sydney and Los Angeles) now have daily rain
+from Open-Meteo beside their temperatures. Rain is called differently: the call is "London will get
+rain (1 mm or more)" or "London will stay dry" for tomorrow, read from the forecast's chance of 1 mm
+or more, and a dry day after a dry day still counts. Their first calls come with the next weekly
+forecast.
+
+<img src="docs/assets/app-track-record-days.png" alt="Every day: what it said and what happened. 17 November: 12 right, 12 wrong, with a strip of green and red marks; each call listed with a tick or cross, its chance, and what happened, such as Sydney will be warmer, 84%, warmer, +1.0 degrees" width="100%">
+
+Below the totals, **every day** is listed newest first: each call in words, how sure it was, when it
+was made and against which value, and what happened (+34% more attention, 1.9 °C cooler, down 2.6%).
+A filter shows one area at a time. The other forecasters (Chronos-Bolt, Seldon, Radiant, the
+ensemble) are scored the same way in a table at the bottom.
+
+**What it says now.** The same words open **Today**: the surest calls for about a week ahead in
+every area, each with its chance and how often it has been right on that one so far, and every series
+page starts with its call and its last ten calls, right or wrong.
+
+<img src="docs/assets/app-today-plain.png" alt="Today with What it says now: cards such as Bitcoin will be lower, leans, 65%, right 23 of 30; World stocks will be higher, leans, 62%; Climate change will be in the news less, very likely, 95%" width="100%">
+
+### The race: every forecaster against what happened, over years
+
+<img src="docs/assets/app-race.png" alt="The race on the S&P 500 page: the actual price as a white line with TimesFM in blue, Radiant in orange and Seldon in teal over the past year, a shaded sealed-live stretch at the end, dashed forecasts from now, a panel below of how far each was from what happened, YTD 1Y 2Y 5Y 10Y buttons, and a scoreboard beside it: TimesFM typical miss 1.1% in the past, 1.1% now, up or down right 13 of 23" width="100%">
+
+Every series page now opens with a race: what really happened as a white line, and what TimesFM,
+Radiant and Seldon each said every day would be, in their own colours, so you can follow how far
+apart they get. Below it, a second panel draws the gap itself: each forecaster's distance from what
+happened (a running median, so one wild day does not hide the rest), lower is better. Buttons switch
+between **YTD, 1Y, 2Y, 5Y and 10Y**.
+
+Two kinds of record are drawn and labelled apart. **Replayed**: rolling forecasts made with only the
+data up to each start, each running up to a month ahead, one after another, so every day is covered
+once. **Sealed live**: the forecasts written down before each day, from the first one on 18 October
+2026, shaded at the end of the chart. Beside the forecast, a scoreboard gives each forecaster's
+**typical miss** (the middle of its daily gaps) in the past, in the view chosen, and now, how often it
+was the closest of the three, and how many up-or-down calls it got right in the sealed record. On the
+S&P 500, for example, TimesFM's typical miss was 1.1% over the past year and 1.1% now; Seldon's 1.2%
+and 1.7%.
+
+The replay starts with the year the monthly backtest already ran and grows back towards ten years:
+TimesFM is the slow part, so `psychohistory race` keeps its windows in `results/race/` and the weekly
+run adds up to 48 more per series, newest first (and stops after 25 minutes of TimesFM, so a slow
+runner adds fewer rather than losing them), about two to four years a week, until ten years are in. After that only the newest finished window is added each week, and the sealed record grows
+every day. Radiant and Seldon are replayed from those windows on every run, each with weights
+learned only from windows that had finished by its start (Chronos-Bolt, which is not run there,
+sits out of both mixes). Until the replay reaches far enough, the longer buttons stay greyed out and
+say how far back it goes. The rehearsal times ten years of it at about four and a half minutes.
 
 ### Today: alerts, time frames and the 70% club
 
@@ -992,7 +1155,7 @@ share their numbers in news and technology because Radiant's weights there went 
 Politics and weather join the table after their first full backtest. The tuning runs again on every
 export, so the lean each model needs is always learned from its own past.
 
-**Simpler to use.** Five buttons instead of sixteen: Today, World, Markets, Scores and Your call. The
+**Simpler to use.** Five buttons instead of sixteen: Today, Track record, World, Markets and Scores (Your call moved under More in November). The
 other views are one tap away under More, and every keyboard shortcut still works. The status bar
 shows only what matters (live or demo, when it was updated, the next run).
 
@@ -1509,6 +1672,8 @@ psychohistory events      # event odds: the chance of a spike or a lull in news 
 psychohistory offline     # the whole app and your results in one HTML file that opens without internet
 psychohistory brief       # since the last run: what came due, changes of mind, streaks (--write saves results/BRIEF.md)
 psychohistory wire        # the newest headlines per topic from GDELT, for the World terminal
+psychohistory tally       # the track record in plain words: every call right or wrong, and what it says now
+psychohistory race        # the race: TimesFM, Radiant and Seldon against what happened, back up to ten years
 psychohistory export      # write the app's data file, results/web/data.js
 psychohistory site        # build the static app into build/site (what Pages serves)
 psychohistory simulate    # the toy crowd, no downloads
@@ -1566,6 +1731,42 @@ _wiki("wiki_solid_state_battery", "Solid-state_battery", "Wikipedia views: Solid
 ```
 
 ---
+
+### Rehearse the weekly run before you push
+
+The sandbox a change is written in usually holds about a year of history; the weekly run on GitHub
+reads ten years or more. A step that loops over history can take seconds on one year and an hour on
+eleven: the first spike backtest did exactly that (over ten minutes for about 1,500 spikes) and was
+caught before it shipped. [`scripts/rehearse.py`](scripts/rehearse.py) makes that check routine. It
+copies the ledgers and results into a throwaway folder, fills the data cache with seeded synthetic
+series as long as the real ones (daily from 2015, market days from 2015, yearly from 1990), runs
+every step of the weekly run that needs no download and no model, and times each one against a
+budget. The tests workflow runs it on every push, so a slow or broken step fails there, days before
+the Monday run would have hit it.
+
+```bash
+python scripts/rehearse.py            # every offline step on eleven years, about 2.5 minutes
+python scripts/rehearse.py --only spikes --only hype --keep   # two steps, keep the folder to look inside
+```
+
+The first rehearsal (18 November 2026, eleven years, 55 series) found every step inside its budget:
+
+| Step | Seconds | Budget |
+|---|---:|---:|
+| verify | 2 | 60 |
+| score | 8 | 300 |
+| spikes (seal and backtest, about 780 spikes) | 7 | 180 |
+| monitor | 3 | 300 |
+| brief | 1 | 120 |
+| report | 8 | 300 |
+| vol (backtest) | 79 | 600 |
+| events (backtest) | 2 | 600 |
+| hype (about 1,300 monthly calls) | 1 | 180 |
+| export | 42 | 300 |
+
+These are timings from a laptop-class sandbox, not results: the series are synthetic, so nothing in
+the rehearsal says anything about the world. Steps that download (fetch, bets, wire) or need a model
+(predict, backtest) are left out; they have their own time limits in the workflow.
 
 ## How it works
 
@@ -1749,7 +1950,7 @@ docs/                    METHODOLOGY.md, ARCHITECTURE.md, DESIGN.md, progress.js
 predictions/             ledger.csv (sealed forecasts) and scored.csv
 results/                 REPORT.md, charts, and run_status.json (which series got through each stage)
 .github/workflows/       tests, predict (weekly), pages (web app), release (downloads)
-scripts/                 make_readme_art.py, make_app_screenshots.py, rebuild_app_data.py, seldon_m4_check.py, publish_to_github.sh
+scripts/                 rehearse.py (the weekly run on long synthetic history), make_readme_art.py, make_app_screenshots.py, rebuild_app_data.py, seldon_m4_check.py, publish_to_github.sh
 ```
 
 The metric names, in full: MAE is mean absolute error, MASE is mean absolute scaled error, and sMAPE is
@@ -1854,7 +2055,7 @@ World Predictor is Apache-2.0).
 
 <!-- progress:start -->
 
-**67 of 69 milestones done (97%).** Drawn from [`docs/progress.json`](docs/progress.json); tests check every ticked item against the repository.
+**74 of 76 milestones done (97%).** Drawn from [`docs/progress.json`](docs/progress.json); tests check every ticked item against the repository.
 
 <details><summary><b>📰 World news</b> · 18/18</summary>
 
@@ -1894,7 +2095,7 @@ World Predictor is Apache-2.0).
 
 </details>
 
-<details><summary><b>🚀 New technologies</b> · 9/9</summary>
+<details><summary><b>🚀 New technologies</b> · 16/16</summary>
 
 - [x] Wikipedia attention for LLMs, AI, quantum, CRISPR, EVs, fusion, robots
 - [x] Adoption curves from Our World in Data
@@ -1905,6 +2106,13 @@ World Predictor is Apache-2.0).
 - [x] Spike watch: where a burst of news or tech attention lands four weeks on, three rules and TimesFM backtested over every past spike, live calls sealed once
 - [x] Do spikes move markets? Six markets the week after news, politics and tech spikes, with a shuffle test and a false-discovery cut
 - [x] Spiking now on Today, and a spike backtest fast enough for ten years of history (seconds, not ten minutes)
+- [x] Rehearse the weekly run on eleven years of synthetic history, timed step by step, on every push
+- [x] First full spike record (565 spikes since 2015) and a same-quarter market test, so a wild era cannot pass for a reaction
+- [x] Track record tab: every sealed forecast as a plain call (higher or lower, more or less in the news, warmer or cooler), right or wrong, with the running tally
+- [x] Calls it stands behind (75% right on later days it had not seen), forecaster-against-reality charts for TimesFM, Radiant and Seldon, and rain in five cities
+- [x] Range calls in plain words ("likely between X and Y"): the model's too-narrow ranges widened only from ranges already settled, 83% landing inside against 69% before
+- [x] The race: TimesFM, Radiant and Seldon against what happened on every series page, the gap between them, YTD to 10Y, and past and present scores beside the forecast
+- [x] Ten more things to predict: Microsoft, Amazon, Google, ether, natural gas, the euro, small nuclear reactors, augmented reality, and New York's weather and rain
 
 </details>
 

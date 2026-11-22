@@ -38,6 +38,7 @@ jobs:
           mkdir -p _site
           cp -r site/. _site/
           if [ -f results/web/data.js ]; then cp results/web/data.js _site/app/data/data.js; fi
+          if [ -d results/web/race ]; then cp -r results/web/race _site/app/data/race; fi
           mkdir -p _site/results
           cp -r results/plots _site/results/ 2>/dev/null || true
           cp results/REPORT.md results/dashboard.html _site/results/ 2>/dev/null || true

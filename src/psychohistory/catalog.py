@@ -47,6 +47,11 @@ def _city(id_, name, latitude, longitude):
                       f"Daily high temperature in {name} (deg C, Open-Meteo)")
 
 
+def _rain(id_, name, latitude, longitude):
+    return SeriesSpec(id_, "weather", "openmeteo", {"latitude": latitude, "longitude": longitude, "variable": "precipitation_sum"},
+                      "D", 14, "individual", f"Daily rain in {name} (mm, Open-Meteo)")
+
+
 def _owid(id_, slug, desc):
     # Adoption curves also get the Bass diffusion model as a theory-driven rival.
     return SeriesSpec(id_, "tech", "owid", {"slug": slug}, "YS", 3, "aggregate", desc, ("bass",))
@@ -82,6 +87,9 @@ MARKETS = [
     _stock("nvda", "NVDA", "NVIDIA Corp."),
     _stock("tsla", "TSLA", "Tesla Inc."),
     _stock("xom", "XOM", "Exxon Mobil Corp."),
+    _stock("msft", "MSFT", "Microsoft Corp."),
+    _stock("amzn", "AMZN", "Amazon.com Inc."),
+    _stock("googl", "GOOGL", "Alphabet Inc. (Google)"),
     _stock("gold", "GC=F", "Gold futures (USD/oz)"),
     _stock("silver", "SI=F", "Silver futures (USD/oz)"),
     # Bonds: the 10-year US Treasury yield (in percent, CBOE's ^TNX) and a long-Treasury fund's price.
@@ -92,6 +100,9 @@ MARKETS = [
     _stock("oil_wti", "CL=F", "WTI crude oil futures"),
     _stock("copper", "HG=F", "Copper futures"),
     SeriesSpec("bitcoin", "markets", "yahoo", {"ticker": "BTC-USD", "start": "2015-01-01"}, "D", 28, "individual", "Bitcoin in USD"),
+    SeriesSpec("ethereum", "markets", "yahoo", {"ticker": "ETH-USD", "start": "2017-11-09"}, "D", 28, "individual", "Ether in USD"),
+    _stock("natgas", "NG=F", "Natural gas futures (Henry Hub, front month)"),
+    _stock("eurusd", "EURUSD=X", "Euro in US dollars"),
 ]
 
 TECH = [
@@ -107,6 +118,8 @@ TECH = [
     _wiki("wiki_gene_therapy", "Gene_therapy", "Wikipedia views: Gene therapy"),
     _wiki("wiki_self_driving", "Self-driving_car", "Wikipedia views: Self-driving car"),
     _wiki("wiki_starship", "SpaceX_Starship", "Wikipedia views: SpaceX Starship"),
+    _wiki("wiki_smr", "Small_modular_reactor", "Wikipedia views: small modular reactors"),
+    _wiki("wiki_ar", "Augmented_reality", "Wikipedia views: augmented reality"),
     _owid("adoption_solar", "share-electricity-solar", "Share of world electricity from solar (OWID)"),
     _owid("adoption_wind", "share-electricity-wind", "Share of world electricity from wind (OWID)"),
     _owid("adoption_internet", "share-of-individuals-using-the-internet", "Share of people using the internet (OWID)"),
@@ -157,6 +170,13 @@ WEATHER = [
     _city("weather_tokyo", "Tokyo", 35.68, 139.69),
     _city("weather_sydney", "Sydney", -33.87, 151.21),
     _city("weather_los_angeles", "Los Angeles", 34.05, -118.24),
+    _city("weather_new_york", "New York", 40.71, -74.01),
+    _rain("rain_london", "London", 51.51, -0.13),
+    _rain("rain_new_delhi", "New Delhi", 28.61, 77.21),
+    _rain("rain_tokyo", "Tokyo", 35.68, 139.69),
+    _rain("rain_sydney", "Sydney", -33.87, 151.21),
+    _rain("rain_los_angeles", "Los Angeles", 34.05, -118.24),
+    _rain("rain_new_york", "New York", 40.71, -74.01),
     SeriesSpec("quakes_m45", "weather", "usgs", {"min_magnitude": 4.5}, "D", 14, "aggregate",
                "Earthquakes of magnitude 4.5 or more per day, worldwide (USGS)"),
 ]

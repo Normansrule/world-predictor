@@ -400,7 +400,9 @@ def describe(p: dict | None) -> str:
         lines += ["", f"Do spikes move markets? Median move over the next {st['after']} trading days after a spike, against usual:"]
         for r in st["rows"]:
             lines.append(f"  {r['group_label']:24} {r['name']:14} {r['n']:>3} spikes  {r['size']:>6.1%} vs {r['usual']:>5.1%}  "
-                         f"{r['ratio']:>5.2f}x  p {r['p']:.3f}{'  passes' if r['passes'] else ''}")
+                         f"{r['ratio']:>5.2f}x  p {r['p']:.3f}"
+                         + (f"  same quarters {r['ratio_era']:>4.2f}x p {r['p_era']:.3f}" if "p_era" in r else "")
+                         + ("  passes" if r["passes"] else ""))
         lines.append(p.get("markets_verdict", ""))
     return "\n".join(lines)
 
@@ -438,11 +440,30 @@ def _match(moves: pd.Series, days: list[pd.Timestamp]) -> np.ndarray:
     return np.asarray(out, float)
 
 
+def _era_draws(moves: pd.Series, days: list[pd.Timestamp], rng: np.random.Generator, shuffles: int) -> np.ndarray:
+    """``shuffles`` sets of random days, each spike's stand-in drawn from the same calendar quarter
+    as the spike, so a market's calm and wild years are matched: spikes that merely cluster in a
+    volatile era do not look like spikes that move the market. Returns the |move| draws."""
+    idx = moves.index
+    quarter = (idx.year * 4 + (idx.month - 1) // 3).to_numpy()
+    starts = {q: int(i) for q, i in zip(*np.unique(quarter, return_index=True))}
+    counts = dict(zip(*np.unique(quarter, return_counts=True)))
+    pos = [idx.searchsorted(d) - 1 for d in days]
+    pos = [k for k in pos if 0 <= k < len(idx)]
+    qs = quarter[pos]
+    lo = np.array([starts[q] for q in qs]); n = np.array([counts[q] for q in qs])
+    pick = lo[None, :] + np.floor(rng.random((shuffles, len(qs))) * n[None, :]).astype(int)
+    return np.abs(moves.to_numpy())[pick]
+
+
 def market_study(data: dict[str, pd.Series], every: list[dict] | None = None, seed: int = 0) -> dict | None:
     """For each kind of spike and each market: the median size of the market's move over the next
     week after a spike, against its median over all weeks, and a shuffle test: how often random
     days, as many as there were spikes, gave a median move at least as large. Spike days shared by
-    several series count once. The p-values are cut with Benjamini-Hochberg across every pair."""
+    several series count once. A second shuffle draws each random day from the same calendar quarter
+    as its spike (``p_era``), so a market's wild years cannot pass for a reaction to spikes that
+    happen to fall in them; a pair passes only if that stricter p survives the Benjamini-Hochberg
+    cut across every pair."""
     from .monitor import false_discoveries
     if every is None:
         every = [sp for sid in data if _domain(sid) in DOMAINS and not sid.endswith("_composite") for sp in find(sid, data[sid])]
@@ -467,15 +488,23 @@ def market_study(data: dict[str, pd.Series], every: list[dict] | None = None, se
             pool = np.abs(mv.to_numpy())
             draws = np.median(pool[rng.integers(0, len(pool), size=(SHUFFLES, len(hit)))], axis=1)
             p = float((1 + (draws >= size).sum()) / (SHUFFLES + 1))
+            era = np.median(_era_draws(mv, inside, rng, SHUFFLES), axis=1)
+            p_era = float((1 + (era >= size).sum()) / (SHUFFLES + 1))
+            usual_era = float(np.median(era))
             rows.append({"group": key, "group_label": label, "market": mid, "name": name, "n": int(len(hit)),
                          "size": round(size, 5), "usual": round(usual, 5), "ratio": round(size / usual, 3) if usual else None,
-                         "median": round(float(np.median(hit)), 5), "up": int((hit > 0).sum()), "p": round(p, 4)})
+                         "median": round(float(np.median(hit)), 5), "up": int((hit > 0).sum()), "p": round(p, 4),
+                         "usual_era": round(usual_era, 5), "ratio_era": round(size / usual_era, 3) if usual_era else None,
+                         "p_era": round(p_era, 4)})
     if not rows:
         return None
-    cut = false_discoveries([r["p"] for r in rows])
+    cut = false_discoveries([r["p_era"] for r in rows])
+    plain = false_discoveries([r["p"] for r in rows])
     for r in rows:
-        r["passes"] = bool(cut >= 0 and r["p"] <= cut)
-    return {"rows": rows, "after": AFTER, "shuffles": SHUFFLES, "passing": int(sum(r["passes"] for r in rows)), "tests": len(rows)}
+        r["passes"] = bool(cut >= 0 and r["p_era"] <= cut)
+        r["passes_plain"] = bool(plain >= 0 and r["p"] <= plain)
+    return {"rows": rows, "after": AFTER, "shuffles": SHUFFLES, "passing": int(sum(r["passes"] for r in rows)),
+            "passing_plain": int(sum(r["passes_plain"] for r in rows)), "tests": len(rows)}
 
 
 def market_verdict(st: dict | None) -> str:
@@ -486,9 +515,17 @@ def market_verdict(st: dict | None) -> str:
     text = (f"Across {st['tests']} pairs of spike kind and market, the biggest gap was {big['name']} after {big['group_label'].lower()} spikes: "
             f"a median move of {big['size']:.1%} over the next {st['after']} trading days against {big['usual']:.1%} usually "
             f"({big['ratio']:.2f} times, shuffle p {big['p']:.3f}).")
+    if "p_era" in big:
+        text += (f" Against days from the same quarters, when the market was as calm or as wild, the move was "
+                 f"{big['ratio_era']:.2f} times usual (p {big['p_era']:.3f}).")
     if st["passing"]:
         names = ", ".join(f"{r['name']} after {r['group_label'].lower()} spikes" for r in rows if r["passes"])
-        text += f" {st['passing']} pair{'s' if st['passing'] != 1 else ''} passed the false-discovery cut: {names}."
+        text += f" {st['passing']} pair{'s' if st['passing'] != 1 else ''} passed the false-discovery cut against same-quarter days: {names}."
+    elif st.get("passing_plain"):
+        names = ", ".join(f"{r['name']} after {r['group_label'].lower()} spikes" for r in rows if r.get("passes_plain"))
+        text += (f" {names} passed against random days from any year but not against days from the same quarters, "
+                 "so the gap comes from when the spikes happened (the market's wilder years), not from the spikes. "
+                 "This data shows no reliable link between attention spikes and bigger market moves.")
     else:
         text += " None passed the false-discovery cut for testing every pair at once, so this data shows no reliable link between attention spikes and bigger market moves."
     return text

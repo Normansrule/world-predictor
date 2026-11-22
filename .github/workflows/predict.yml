@@ -82,6 +82,11 @@ jobs:
         if: github.event.schedule != '30 22 * * 1-5'
         continue-on-error: true
         run: psychohistory hype --save results/hype_backtest.csv
+      - name: The race (TimesFM, Radiant and Seldon against what happened, growing back to ten years)
+        if: github.event.schedule != '30 22 * * 1-5'
+        continue-on-error: true
+        timeout-minutes: 45
+        run: psychohistory race
       - name: Betting odds (Polymarket's prices on real-world questions, sealed, scored when they settle)
         continue-on-error: true
         timeout-minutes: 10

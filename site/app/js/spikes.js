@@ -98,12 +98,15 @@
       const r = M.rows.find((q) => q.group === g && q.name === n);
       if (!r) return "<td>–</td>";
       const t = Math.max(-1, Math.min(1, Math.log(r.ratio) / Math.log(2)));
-      return `<td class="sk-heat${r.passes ? " pass" : ""}" style="--t:${t.toFixed(3)}" title="${r.n} spikes; median move ${(r.size * 100).toFixed(1)}% against ${(r.usual * 100).toFixed(1)}% usually; shuffle p ${r.p.toFixed(3)}">
-        <b>${r.ratio.toFixed(2)}×</b><small>${(r.size * 100).toFixed(1)}% vs ${(r.usual * 100).toFixed(1)}% · p ${r.p < 0.001 ? "< 0.001" : r.p.toFixed(2)}${r.passes ? " ✓" : ""}</small></td>`;
+      const pv = (v) => (v < 0.001 ? "< 0.001" : v.toFixed(2));
+      const era = r.p_era != null ? `<small class="sk-era">same quarters ${r.ratio_era.toFixed(2)}× · p ${pv(r.p_era)}</small>` : "";
+      return `<td class="sk-heat${r.passes ? " pass" : ""}" style="--t:${t.toFixed(3)}" title="${r.n} spikes; median move ${(r.size * 100).toFixed(1)}% against ${(r.usual * 100).toFixed(1)}% usually; shuffle p ${r.p.toFixed(3)}${r.p_era != null ? `; against days from the same quarters ${r.ratio_era.toFixed(2)}×, p ${r.p_era.toFixed(3)}` : ""}">
+        <b>${r.ratio.toFixed(2)}×</b><small>${(r.size * 100).toFixed(1)}% vs ${(r.usual * 100).toFixed(1)}% · p ${pv(r.p)}${r.passes ? " ✓" : ""}</small>${era}</td>`;
     };
     const label = (g) => M.rows.find((r) => r.group === g).group_label;
+    const strict = M.rows.some((r) => r.p_era != null);  // results from before the same-quarter test have only the plain one
     return `<section class="block" aria-labelledby="skm-h"><header class="bh"><div><h2 id="skm-h">Do spikes move markets?</h2>
-      <p>The median size of each market's move over the ${M.after} trading days after a spike (from the close before it), against its median over every week. Above 1× means bigger moves than usual. The p-value is how often ${M.shuffles.toLocaleString()} random sets of as many days did as well; a ✓ means it passed the Benjamini-Hochberg cut for testing all ${M.tests} pairs at once.</p></div></header>
+      <p>The median size of each market's move over the ${M.after} trading days after a spike (from the close before it), against its median over every week. Above 1× means bigger moves than usual. The p-value is how often ${M.shuffles.toLocaleString()} random sets of as many days did as well. ${strict ? `Markets have calm and wild years, so the second line draws each random day from the same quarter as its spike instead; a ✓ means that stricter test passed the Benjamini-Hochberg cut for testing all ${M.tests} pairs at once.` : `A ✓ means it passed the Benjamini-Hochberg cut for testing all ${M.tests} pairs at once. These results come from before the stricter same-quarter test; the next weekly run adds it.`}</p></div></header>
       <div class="table-wrap"><table class="ev-table sk-mk"><thead><tr><th>Market</th>${groups.map((g) => `<th>After ${esc(label(g).toLowerCase())} spikes<small>${M.rows.find((r) => r.group === g).n} days</small></th>`).join("")}</tr></thead>
       <tbody>${names.map((n) => `<tr><th scope="row">${esc(n)}</th>${groups.map((g) => cell(g, n)).join("")}</tr>`).join("")}</tbody></table></div>
       <p class="hy-verdict">${esc(S.markets_verdict)}</p></section>`;

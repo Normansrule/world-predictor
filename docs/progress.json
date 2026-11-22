@@ -204,6 +204,41 @@
           "title": "Spiking now on Today, and a spike backtest fast enough for ten years of history (seconds, not ten minutes)",
           "done": true,
           "evidence": "site/app/js/spikes.js"
+        },
+        {
+          "title": "Rehearse the weekly run on eleven years of synthetic history, timed step by step, on every push",
+          "done": true,
+          "evidence": "scripts/rehearse.py"
+        },
+        {
+          "title": "First full spike record (565 spikes since 2015) and a same-quarter market test, so a wild era cannot pass for a reaction",
+          "done": true,
+          "evidence": "src/psychohistory/spikes.py"
+        },
+        {
+          "title": "Track record tab: every sealed forecast as a plain call (higher or lower, more or less in the news, warmer or cooler), right or wrong, with the running tally",
+          "done": true,
+          "evidence": "src/psychohistory/tally.py"
+        },
+        {
+          "title": "Calls it stands behind (75% right on later days it had not seen), forecaster-against-reality charts for TimesFM, Radiant and Seldon, and rain in five cities",
+          "done": true,
+          "evidence": "site/app/js/record.js"
+        },
+        {
+          "title": "Range calls in plain words (\"likely between X and Y\"): the model's too-narrow ranges widened only from ranges already settled, 83% landing inside against 69% before",
+          "done": true,
+          "evidence": "src/psychohistory/tally.py"
+        },
+        {
+          "title": "The race: TimesFM, Radiant and Seldon against what happened on every series page, the gap between them, YTD to 10Y, and past and present scores beside the forecast",
+          "done": true,
+          "evidence": "src/psychohistory/race.py"
+        },
+        {
+          "title": "Ten more things to predict: Microsoft, Amazon, Google, ether, natural gas, the euro, small nuclear reactors, augmented reality, and New York's weather and rain",
+          "done": true,
+          "evidence": "src/psychohistory/catalog.py"
         }
       ]
     },

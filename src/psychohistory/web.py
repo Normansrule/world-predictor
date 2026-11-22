@@ -21,7 +21,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from . import __version__, brief, bets, catalog, champions, feeds, follow, health, hype, offline, spikes, worldevents, events, frames, monitor, radiant, seldon, volatility, yearbook
+from . import __version__, brief, bets, catalog, champions, feeds, follow, health, hype, offline, spikes, worldevents, events, frames, monitor, radiant, seldon, volatility, yearbook, tally
 from .backtest import MAX_CONTEXT, calibration, domain_table, head_to_head, summarize
 from .ledger import latest as ledger_latest
 from .simulate import CROWD_SIZES, crowd_predictability, simulate_crowd
@@ -159,6 +159,7 @@ def build_payload(
         "year": yearbook.build(data, _with_radiant(paths, data, model, domains), ledger, model) if not demo else None,
         "hype": hype.payload(data),
         "spikes": spikes.payload(data, catalog.CATALOG, paths, ledger, spike_sealed, {s.id: s.description for s in catalog.CATALOG}),
+        "tally": tally.payload(scored, ledger, {s.id: s.freq for s in catalog.CATALOG}),
         "health": health.payload(sources, {s.id: s.description for s in catalog.CATALOG}) if sources else None,
     }
     if not payload["duel"] and payload["lab"]:
@@ -707,6 +708,9 @@ def build_site(out: Path, data_js: Path | None = None, payload: dict | None = No
         shutil.copy(data_js, target)
     else:
         write_data_js(demo_payload(), target)
+    race_src = (data_js.parent if data_js is not None else Path("results") / "web") / "race"
+    if race_src.is_dir():  # the race chart's data, one file per series, loaded when a chart needs it
+        shutil.copytree(race_src, out / "app" / "data" / "race", dirs_exist_ok=True)
     feeds.publish(out)  # feed.xml and api/: the forecasts for feed readers and other programs
     offline.bundle(out)  # the one-file copy, so the local app can hand it out too
     return out
