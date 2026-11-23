@@ -1,6 +1,150 @@
 {
- "fetched": "2026-11-22T19:58Z",
+ "fetched": "2026-11-23T17:57Z",
  "topics": {
+  "msci_world": {
+   "query": "\"global stocks\"",
+   "articles": [
+    {
+     "title": "Indian shares set to open higher on foreign inflows as AI selloff persists",
+     "url": "https://www.livemint.com/market/indian-shares-set-to-open-higher-on-foreign-inflows-as-ai-selloff-persists-11795402774674.html",
+     "domain": "livemint.com",
+     "country": "India",
+     "seen": "2026-11-23T03:30Z"
+    },
+    {
+     "title": "Nasdaq wipes out gains for the year as Anthropic IPO fails to quell AI nerves",
+     "url": "https://www.kake.com/news/business/nasdaq-wipes-out-gains-for-the-year-as-anthropic-ipo-fails-to-quell-ai-nerves/article_80e6a874-ebc6-521f-b066-02621216e58d.html",
+     "domain": "kake.com",
+     "country": "United States",
+     "seen": "2026-11-21T16:30Z"
+    },
+    {
+     "title": "Global market crash : Why are trillions of dollars being lost , and what awaits the world economy ?",
+     "url": "https://en.apa.az/finance/global-market-crash-why-are-trillions-of-dollars-being-lost-and-what-awaits-the-world-economy-analysis-537636",
+     "domain": "en.apa.az",
+     "country": "Azerbaijan",
+     "seen": "2026-11-21T13:30Z"
+    },
+    {
+     "title": "Prediction : This International ETF Will Double Your Money in the Next 7 Years",
+     "url": "https://www.aol.com/articles/prediction-international-etf-double-money-110902000.html",
+     "domain": "aol.com",
+     "country": "United States",
+     "seen": "2026-11-21T13:30Z"
+    },
+    {
+     "title": "Nvidia stock crash : Record market cap wipeout deepens global tech sell - off ; shares plunge 14 %, Alphabet overtakes chipmaker",
+     "url": "https://www.ibtimes.co.in/nvidia-stock-crash-record-market-cap-wipeout-deepens-global-tech-sell-off-shares-plunge-14-908552",
+     "domain": "ibtimes.co.in",
+     "country": "India",
+     "seen": "2026-11-21T12:30Z"
+    },
+    {
+     "title": "Nifty , Sensex open lower as sell - off in AI weighs on sentiment , Gold down to lowest level of 2026",
+     "url": "http://www.milwaukeesun.com/news/279444425/nifty-sensex-open-lower-as-sell-off-in-ai-weighs-on-sentiment-gold-down-to-lowest-level-of-2026",
+     "domain": "milwaukeesun.com",
+     "country": "United States",
+     "seen": "2026-11-20T06:45Z"
+    }
+   ],
+   "fetched": "2026-11-23T17:50Z"
+  },
+  "nasdaq100": {
+   "query": "Nasdaq",
+   "articles": [
+    {
+     "title": "The Hindu Data team analyses the Anthropic IPO",
+     "url": "https://www.thehindu.com/data/data-viewpoint-on-anthropic-ipo/article71733208.ece",
+     "domain": "thehindu.com",
+     "country": "India",
+     "seen": "2026-11-23T03:30Z"
+    },
+    {
+     "title": "Stock market outlook today , 23 Nov : Sensex , Nifty prediction - DJIA , S & P , NASDAQ , GIFT Nifty , Kospi , Nikkei , Taiwan cues",
+     "url": "https://www.livemint.com/market/stock-market-news/stock-market-outlook-today-23-nov-sensex-nifty-prediction-djia-s-p-nasdaq-gift-nifty-kospi-nikkei-taiwan-cues-11795394068928.html",
+     "domain": "livemint.com",
+     "country": "India",
+     "seen": "2026-11-23T03:30Z"
+    },
+    {
+     "title": "Is the AI Stock Market Boom Coming to an End ?",
+     "url": "https://newsonjapan.com/article/151486.php",
+     "domain": "newsonjapan.com",
+     "country": "Japan",
+     "seen": "2026-11-23T03:30Z"
+    },
+    {
+     "title": "China announces measures to steady stock market",
+     "url": "http://www.argentinastar.com/news/279449437/china-announces-measures-to-steady-stock-market",
+     "domain": "argentinastar.com",
+     "country": "Argentina",
+     "seen": "2026-11-23T03:30Z"
+    },
+    {
+     "title": "China announces measures to steady stock market",
+     "url": "http://www.mexicostar.com/news/279449437/china-announces-measures-to-steady-stock-market",
+     "domain": "mexicostar.com",
+     "country": "Mexico",
+     "seen": "2026-11-23T03:30Z"
+    },
+    {
+     "title": "China announces measures to steady stock market",
+     "url": "http://www.greekherald.com/news/279449437/china-announces-measures-to-steady-stock-market",
+     "domain": "greekherald.com",
+     "country": "Greece",
+     "seen": "2026-11-23T03:30Z"
+    }
+   ],
+   "fetched": "2026-11-23T17:50Z"
+  },
+  "nvda": {
+   "query": "Nvidia",
+   "articles": [
+    {
+     "title": "The Hindu Data team analyses the Anthropic IPO",
+     "url": "https://www.thehindu.com/data/data-viewpoint-on-anthropic-ipo/article71733208.ece",
+     "domain": "thehindu.com",
+     "country": "India",
+     "seen": "2026-11-23T03:30Z"
+    },
+    {
+     "title": "Stock market outlook today , 23 Nov : Sensex , Nifty prediction - DJIA , S & P , NASDAQ , GIFT Nifty , Kospi , Nikkei , Taiwan cues",
+     "url": "https://www.livemint.com/market/stock-market-news/stock-market-outlook-today-23-nov-sensex-nifty-prediction-djia-s-p-nasdaq-gift-nifty-kospi-nikkei-taiwan-cues-11795394068928.html",
+     "domain": "livemint.com",
+     "country": "India",
+     "seen": "2026-11-23T03:30Z"
+    },
+    {
+     "title": "Spy in touch with China during affair with Nvidia chief",
+     "url": "https://www.bendigoadvertiser.com.au/story/9396499/spy-in-touch-with-china-during-affair-with-nvidia-chief/",
+     "domain": "bendigoadvertiser.com.au",
+     "country": "Australia",
+     "seen": "2026-11-23T03:30Z"
+    },
+    {
+     "title": "Spy in touch with China during affair with Nvidia chief",
+     "url": "https://www.newcastleherald.com.au/story/9396499/spy-in-touch-with-china-during-affair-with-nvidia-chief/",
+     "domain": "newcastleherald.com.au",
+     "country": "",
+     "seen": "2026-11-23T03:30Z"
+    },
+    {
+     "title": "Is the AI Stock Market Boom Coming to an End ?",
+     "url": "https://newsonjapan.com/article/151486.php",
+     "domain": "newsonjapan.com",
+     "country": "Japan",
+     "seen": "2026-11-23T03:30Z"
+    },
+    {
+     "title": "Spy in touch with China during affair with Nvidia chief",
+     "url": "https://www.naroomanewsonline.com.au/story/9396499/spy-in-touch-with-china-during-affair-with-nvidia-chief/",
+     "domain": "naroomanewsonline.com.au",
+     "country": "Australia",
+     "seen": "2026-11-23T03:30Z"
+    }
+   ],
+   "fetched": "2026-11-23T17:57Z"
+  },
   "wiki_smr": {
    "query": "\"small modular reactor\"",
    "articles": [
@@ -26,7 +170,8 @@
      "seen": "2026-11-20T02:30Z"
     }
    ],
-   "fetched": "2026-11-22T19:54Z"
+   "fetched": "2026-11-22T19:54Z",
+   "stale": true
   },
   "wiki_ar": {
    "query": "\"augmented reality\"",
@@ -39,7 +184,8 @@
      "seen": "2026-11-21T16:30Z"
     }
    ],
-   "fetched": "2026-11-22T19:58Z"
+   "fetched": "2026-11-22T19:58Z",
+   "stale": true
   },
   "wiki_battery": {
    "query": "\"battery technology\"",
@@ -1176,11 +1322,7 @@
   }
  },
  "failed": {
-  "wiki_fusion": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22fusion+energy%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sor",
-  "msci_world": "skipped: the wire's time budget ran out",
-  "nasdaq100": "skipped: the wire's time budget ran out",
-  "aapl": "skipped: the wire's time budget ran out",
-  "nvda": "skipped: the wire's time budget ran out",
+  "aapl": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%28%22Apple+Inc%22+OR+iPhone%29+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&tim",
   "tsla": "skipped: the wire's time budget ran out",
   "xom": "skipped: the wire's time budget ran out",
   "msft": "skipped: the wire's time budget ran out",
@@ -1221,6 +1363,8 @@
   "wiki_humanoid": "skipped: the wire's time budget ran out",
   "wiki_gene_therapy": "skipped: the wire's time budget ran out",
   "wiki_battery": "skipped: the wire's time budget ran out",
-  "adoption_wind": "skipped: the wire's time budget ran out"
+  "adoption_wind": "skipped: the wire's time budget ran out",
+  "wiki_smr": "skipped: the wire's time budget ran out",
+  "wiki_ar": "skipped: the wire's time budget ran out"
  }
 }
