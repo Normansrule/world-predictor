@@ -1,6 +1,54 @@
 {
- "fetched": "2026-11-23T17:57Z",
+ "fetched": "2026-11-24T06:48Z",
  "topics": {
+  "tsla": {
+   "query": "Tesla",
+   "articles": [
+    {
+     "title": "What Lifetime Warranties On Car Parts Usually Cover ( And What Wed Double - Check )",
+     "url": "https://www.aol.com/articles/lifetime-warranties-car-parts-usually-013500000.html",
+     "domain": "aol.com",
+     "country": "United States",
+     "seen": "2026-11-24T05:15Z"
+    },
+    {
+     "title": "Nvidia reinstates Jensen Huang as CEO : Trump , Musk , Altman react while the internet has jokes",
+     "url": "https://mashable.com/tech/nvidia-ceo-huang-reinstated-back-reactions-trump-musk-altman",
+     "domain": "mashable.com",
+     "country": "United States",
+     "seen": "2026-11-24T05:15Z"
+    },
+    {
+     "title": "California nursing student , mother accused in gruesome murder , dumping body",
+     "url": "https://www.aol.com/articles/california-nursing-student-mother-accused-010120000.html",
+     "domain": "aol.com",
+     "country": "United States",
+     "seen": "2026-11-24T05:15Z"
+    },
+    {
+     "title": "Chevy Bolt EV Owner With 134 , 012 Miles Boldly Plugs In With 2 Miles of Range Left - Why Range Anxiety Hits New EV Drivers and Veterans So Differently",
+     "url": "https://www.torquenews.com/1083/chevy-bolt-ev-owner-134012-miles-plugs-2-miles-range-left-why-range-anxiety-hits-new-ev",
+     "domain": "torquenews.com",
+     "country": "United States",
+     "seen": "2026-11-24T04:45Z"
+    },
+    {
+     "title": "Nvidia Market Capitalization Rises by Nearly $1 Trillion Following Jensen Huang Return",
+     "url": "http://www.bgnes.com/economy/nvidia-s-market-capitalization-rises-by-nearly-1-trillion-following-jensen-huang-s-return",
+     "domain": "bgnes.com",
+     "country": "Bulgaria",
+     "seen": "2026-11-24T04:45Z"
+    },
+    {
+     "title": "2023 Ford Lightning Owner is Sad and Disenchanted After Making his First Cross Country Drive , Other Owners Say He Should Have Stopped More Often to Charge",
+     "url": "https://www.torquenews.com/3768/2023-ford-lightning-owner-sad-and-disenchanted-after-making-his-first-cross-country-drive",
+     "domain": "torquenews.com",
+     "country": "United States",
+     "seen": "2026-11-24T04:45Z"
+    }
+   ],
+   "fetched": "2026-11-24T06:43Z"
+  },
   "msci_world": {
    "query": "\"global stocks\"",
    "articles": [
@@ -47,7 +95,8 @@
      "seen": "2026-11-20T06:45Z"
     }
    ],
-   "fetched": "2026-11-23T17:50Z"
+   "fetched": "2026-11-23T17:50Z",
+   "stale": true
   },
   "nasdaq100": {
    "query": "Nasdaq",
@@ -95,7 +144,8 @@
      "seen": "2026-11-23T03:30Z"
     }
    ],
-   "fetched": "2026-11-23T17:50Z"
+   "fetched": "2026-11-23T17:50Z",
+   "stale": true
   },
   "nvda": {
    "query": "Nvidia",
@@ -143,7 +193,8 @@
      "seen": "2026-11-23T03:30Z"
     }
    ],
-   "fetched": "2026-11-23T17:57Z"
+   "fetched": "2026-11-23T17:57Z",
+   "stale": true
   },
   "wiki_smr": {
    "query": "\"small modular reactor\"",
@@ -1323,9 +1374,7 @@
  },
  "failed": {
   "aapl": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%28%22Apple+Inc%22+OR+iPhone%29+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&tim",
-  "tsla": "skipped: the wire's time budget ran out",
-  "xom": "skipped: the wire's time budget ran out",
-  "msft": "skipped: the wire's time budget ran out",
+  "msft": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=Microsoft+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sort=DateDesc",
   "amzn": "skipped: the wire's time budget ran out",
   "googl": "skipped: the wire's time budget ran out",
   "gold": "skipped: the wire's time budget ran out",
@@ -1365,6 +1414,9 @@
   "wiki_battery": "skipped: the wire's time budget ran out",
   "adoption_wind": "skipped: the wire's time budget ran out",
   "wiki_smr": "skipped: the wire's time budget ran out",
-  "wiki_ar": "skipped: the wire's time budget ran out"
+  "wiki_ar": "skipped: the wire's time budget ran out",
+  "msci_world": "skipped: the wire's time budget ran out",
+  "nasdaq100": "skipped: the wire's time budget ran out",
+  "nvda": "skipped: the wire's time budget ran out"
  }
 }
