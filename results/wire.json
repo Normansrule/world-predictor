@@ -1,6 +1,46 @@
 {
- "fetched": "2026-11-24T06:48Z",
+ "fetched": "2026-11-25T05:32Z",
  "topics": {
+  "wiki_fusion": {
+   "query": "\"fusion energy\"",
+   "articles": [
+    {
+     "title": "Physics , Not Chance , Dictates When Electronics Die in Radiation",
+     "url": "https://english.pravda.ru/news/science/174194-physics-explains-radiation-failure/",
+     "domain": "english.pravda.ru",
+     "country": "Russia",
+     "seen": "2026-11-24T22:30Z"
+    }
+   ],
+   "fetched": "2026-11-25T05:22Z"
+  },
+  "xom": {
+   "query": "\"Exxon Mobil\"",
+   "articles": [
+    {
+     "title": "A Supreme Court case energy companies must win - On Line Opinion",
+     "url": "https://www.onlineopinion.com.au/view.asp?article=24264",
+     "domain": "onlineopinion.com.au",
+     "country": "Australia",
+     "seen": "2026-11-25T01:15Z"
+    },
+    {
+     "title": "Plastic Pollution Behemoth Begs for Solutions",
+     "url": "https://www.sej.org/publications/bookshelf/plastic-pollution-behemoth-begs-solutions",
+     "domain": "sej.org",
+     "country": "United States",
+     "seen": "2026-11-24T23:30Z"
+    },
+    {
+     "title": "CRTV - Does premium gas make a difference ?",
+     "url": "https://kvia.com/news/consumer-reports/2026/11/24/crtv-does-premium-gas-make-a-difference/",
+     "domain": "kvia.com",
+     "country": "United States",
+     "seen": "2026-11-24T20:15Z"
+    }
+   ],
+   "fetched": "2026-11-25T05:27Z"
+  },
   "tsla": {
    "query": "Tesla",
    "articles": [
@@ -47,7 +87,8 @@
      "seen": "2026-11-24T04:45Z"
     }
    ],
-   "fetched": "2026-11-24T06:43Z"
+   "fetched": "2026-11-24T06:43Z",
+   "stale": true
   },
   "msci_world": {
    "query": "\"global stocks\"",
@@ -1417,6 +1458,7 @@
   "wiki_ar": "skipped: the wire's time budget ran out",
   "msci_world": "skipped: the wire's time budget ran out",
   "nasdaq100": "skipped: the wire's time budget ran out",
-  "nvda": "skipped: the wire's time budget ran out"
+  "nvda": "skipped: the wire's time budget ran out",
+  "tsla": "skipped: the wire's time budget ran out"
  }
 }
