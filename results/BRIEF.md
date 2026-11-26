@@ -1,18 +1,18 @@
 # The brief
 
-## Came due, 2026-11-19 to 2026-11-25
+## Came due, 2026-11-20 to 2026-11-26
 
 | Model | Forecasts | Series | Inside 80% range | Right direction | Skill vs no change |
 |---|---:|---:|---:|---:|---:|
-| TimesFM | 2033 | 60 | 60% | 68% | +6.7% |
-| Radiant | 1655 | 60 | 63% | 67% | +4.5% |
-| Chronos-Bolt | 2033 | 60 | 62% | 68% | +8.8% |
-| Seldon | 1655 | 60 | 63% | 66% | +1.1% |
-| Seldon laws | 2033 | 60 | 58% | 55% | +4.6% |
-| AutoETS | 2033 | 60 | 72% | 49% | -0.2% |
-| Ensemble | 2033 | 60 | 71% | 63% | +5.3% |
+| TimesFM | 2193 | 59 | 64% | 70% | +9.7% |
+| Radiant | 1855 | 59 | 66% | 69% | +9.2% |
+| Chronos-Bolt | 2193 | 59 | 65% | 69% | +16.2% |
+| Seldon | 1855 | 59 | 66% | 68% | +5.5% |
+| Seldon laws | 2193 | 59 | 61% | 57% | +2.9% |
+| AutoETS | 2193 | 59 | 76% | 52% | -0.2% |
+| Ensemble | 2193 | 59 | 75% | 65% | +6.7% |
 
-**Radiant's closest calls:** Wikipedia views: SpaceX Starship (said -6.2%, was -6.2% by 2026-11-22); Share of world news coverage mentioning climate change (said -14.6%, was -14.6% by 2026-11-24); Share of coverage about coups and martial law (said -17.7%, was -17.7% by 2026-11-23); Interest in AI (Wikipedia) (said +25.9%, was +25.9% by 2026-11-19); Wikipedia views: Quantum computing (said -1.1%, was -1.1% by 2026-11-22).
+**Radiant's closest calls:** Wikipedia views: SpaceX Starship (said -6.2%, was -6.2% by 2026-11-22); Share of world news coverage mentioning climate change (said -14.6%, was -14.6% by 2026-11-24); Share of coverage about coups and martial law (said -17.7%, was -17.7% by 2026-11-23); Wikipedia views: Quantum computing (said -1.1%, was -1.1% by 2026-11-22); Apple Inc. (said +0.2%, was +0.2% by 2026-11-23).
 
 **Biggest surprises:** Share of world news coverage mentioning climate change (range -16.8% to +31.2%, was +167.6%, 2.8 range widths outside); Wikipedia views: Large language model (range +17.3% to +42.2%, was +91.5%, 2.0 range widths outside); NVIDIA Corp. (range -6.3% to +10.3%, was -39.3%, 2.0 range widths outside); CBOE Volatility Index (VIX, the fear gauge) (range -17.8% to +19.1%, was +86.0%, 1.8 range widths outside); Gold (USD/oz) (range -3.4% to +3.5%, was -13.5%, 1.4 range widths outside).
 

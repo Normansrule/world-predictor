@@ -1,6 +1,198 @@
 {
- "fetched": "2026-11-25T05:32Z",
+ "fetched": "2026-11-26T04:46Z",
  "topics": {
+  "aapl": {
+   "query": "(\"Apple Inc\" OR iPhone)",
+   "articles": [
+    {
+     "title": "Time Is Running Out for Apple iPhone Settlement . How to File a Claim Before Dec . 21",
+     "url": "https://www.cnet.com/tech/mobile/apple-250-million-ai-iphone-settlement-when-who-eligible-claim-2/",
+     "domain": "cnet.com",
+     "country": "Japan",
+     "seen": "2026-11-26T04:15Z"
+    },
+    {
+     "title": "Wispr Flow improves dictation accuracy with new Canto - 2 speech - to - text model",
+     "url": "https://9to5mac.com/2026/11/25/wispr-flow-improves-dictation-accuracy-with-new-canto-2-speech-to-text-model/",
+     "domain": "9to5mac.com",
+     "country": "United States",
+     "seen": "2026-11-26T04:15Z"
+    },
+    {
+     "title": "Samsung might be giving the TriFold another go in 2027 , and Im rooting for it",
+     "url": "https://www.digitaltrends.com/phones/samsung-galaxy-z-trifold-2-2027/",
+     "domain": "digitaltrends.com",
+     "country": "United States",
+     "seen": "2026-11-26T03:30Z"
+    },
+    {
+     "title": "House of thieves : MPs steal from one another , turn Parliament into a theatre of shame",
+     "url": "https://www.standardmedia.co.ke/politics/article/2001563037/house-of-thieves-mps-steal-from-one-another-turn-parliament-into-a-theatre-of-shame",
+     "domain": "standardmedia.co.ke",
+     "country": "Kenya",
+     "seen": "2026-11-26T03:30Z"
+    },
+    {
+     "title": "Top 4 Smart Pergolas for 2027",
+     "url": "https://www.digitaltrends.com/partner-content/top-4-smart-pergolas-for-2027/",
+     "domain": "digitaltrends.com",
+     "country": "United States",
+     "seen": "2026-11-26T03:30Z"
+    },
+    {
+     "title": "Discover the Best Mobile No - deposit Gambling establishment pokie sites with pompeii for November 2026",
+     "url": "https://www.15rounds.com/2026/11/25/discover-the-best-mobile-no-deposit-gambling-establishment-pokie-sites-with-pompeii-for-november-2026/",
+     "domain": "15rounds.com",
+     "country": "United States",
+     "seen": "2026-11-26T03:00Z"
+    }
+   ],
+   "fetched": "2026-11-26T04:36Z"
+  },
+  "msft": {
+   "query": "Microsoft",
+   "articles": [
+    {
+     "title": "BOK Chief Forecasts Nominal GDP to Surpass 3 Quadrillion Won This Year",
+     "url": "https://world.kbs.co.kr/service/news_view.htm?lang=e&Seq_Code=205838",
+     "domain": "world.kbs.co.kr",
+     "country": "South Korea",
+     "seen": "2026-11-26T04:15Z"
+    },
+    {
+     "title": "ICT Officer at Impact Relief - Malawi24 Marketplace",
+     "url": "https://malawi24.com/marketplace/listing/ict-officer/",
+     "domain": "malawi24.com",
+     "country": "Malawi",
+     "seen": "2026-11-26T04:15Z"
+    },
+    {
+     "title": "BRIAN KANTOR | Will AI capex create wealth or destroy it ?",
+     "url": "https://www.businessday.co.za/opinion/2026-11-26-brian-kantor-will-ai-capex-create-wealth-or-destroy-it/",
+     "domain": "businessday.co.za",
+     "country": "South Africa",
+     "seen": "2026-11-26T04:15Z"
+    },
+    {
+     "title": "Microsoft pushes cloud PCs to combat high PC prices",
+     "url": "https://www.reseller.co.nz/article/4253440/microsoft-has-an-old-but-new-idea-for-pc-upgrades-cloud-pcs-2.html",
+     "domain": "reseller.co.nz",
+     "country": "New Zealand",
+     "seen": "2026-11-26T04:15Z"
+    },
+    {
+     "title": "Xero expands AI tools for accounting with user control",
+     "url": "https://itbrief.co.nz/story/xero-expands-ai-tools-for-accounting-with-user-control",
+     "domain": "itbrief.co.nz",
+     "country": "New Zealand",
+     "seen": "2026-11-26T04:15Z"
+    },
+    {
+     "title": "Unofficial versions of GTA VI are already running on PCs",
+     "url": "http://www.bgnes.com/entertainment/unofficial-versions-of-gta-vi-are-already-running-on-pcs",
+     "domain": "bgnes.com",
+     "country": "Bulgaria",
+     "seen": "2026-11-26T04:15Z"
+    }
+   ],
+   "fetched": "2026-11-26T04:36Z"
+  },
+  "amzn": {
+   "query": "Amazon",
+   "articles": [
+    {
+     "title": "BRIAN KANTOR | Will AI capex create wealth or destroy it ?",
+     "url": "https://www.businessday.co.za/opinion/2026-11-26-brian-kantor-will-ai-capex-create-wealth-or-destroy-it/",
+     "domain": "businessday.co.za",
+     "country": "South Africa",
+     "seen": "2026-11-26T04:15Z"
+    },
+    {
+     "title": "Elderly Alzheimer patient found after 11 days lost in Amazon",
+     "url": "https://www.timeslive.co.za/news/world/2026-11-26-elderly-alzheimers-patient-found-after-11-days-lost-in-amazon/",
+     "domain": "timeslive.co.za",
+     "country": "South Africa",
+     "seen": "2026-11-26T04:15Z"
+    },
+    {
+     "title": "FedEx Plane Goes Off Miami Airport Runway Causing Ground Stop",
+     "url": "https://650keni.iheart.com/content/2026-11-26-fedex-plane-goes-off-miami-airport-runway-causing-ground-stop/",
+     "domain": "650keni.iheart.com",
+     "country": "United States",
+     "seen": "2026-11-26T04:15Z"
+    },
+    {
+     "title": "FedEx aircraft overruns runway at Miami airport , closing all but 1 runway",
+     "url": "http://www.bozemandailychronicle.com/wire/news/fedex-aircraft-overruns-runway-at-miami-airport-closing-all-but-1-runway/article_040d99a9-ad3d-56dc-9ff4-e1db1318ff86.html",
+     "domain": "bozemandailychronicle.com",
+     "country": "United States",
+     "seen": "2026-11-26T04:15Z"
+    },
+    {
+     "title": "Apple pulls Chinese AI chatbot from the App Store amid child safety concerns",
+     "url": "https://9to5mac.com/2026/11/25/apple-pulls-popular-chinese-ai-chatbot-from-the-app-store-amid-child-safety-concerns/",
+     "domain": "9to5mac.com",
+     "country": "United States",
+     "seen": "2026-11-26T04:15Z"
+    },
+    {
+     "title": "FedEx Plane Goes Off Miami Airport Runway Causing Ground Stop",
+     "url": "https://powertalk1360.iheart.com/content/2026-11-26-fedex-plane-goes-off-miami-airport-runway-causing-ground-stop/",
+     "domain": "powertalk1360.iheart.com",
+     "country": "United States",
+     "seen": "2026-11-26T04:15Z"
+    }
+   ],
+   "fetched": "2026-11-26T04:36Z"
+  },
+  "gold": {
+   "query": "\"gold price\"",
+   "articles": [
+    {
+     "title": "Press Release",
+     "url": "https://www.mining.com/press-release/?id=6b0789a3f081e5fad9f9cbaf",
+     "domain": "mining.com",
+     "country": "Canada",
+     "seen": "2026-11-26T04:15Z"
+    },
+    {
+     "title": "2026 Annual General Meeting - Chair Address",
+     "url": "https://www.thesudburystar.com/press-releases/pr-newswire/2026-annual-general-meeting-chairs-address/",
+     "domain": "thesudburystar.com",
+     "country": "Canada",
+     "seen": "2026-11-26T04:15Z"
+    },
+    {
+     "title": "2026 Annual General Meeting - Chair Address",
+     "url": "https://www.chathamdailynews.ca/press-releases/pr-newswire/2026-annual-general-meeting-chairs-address/",
+     "domain": "chathamdailynews.ca",
+     "country": "Canada",
+     "seen": "2026-11-26T04:15Z"
+    },
+    {
+     "title": "2026 Annual General Meeting - Chair Address",
+     "url": "https://www.timminspress.com/press-releases/pr-newswire/2026-annual-general-meeting-chairs-address/",
+     "domain": "timminspress.com",
+     "country": "Canada",
+     "seen": "2026-11-26T03:30Z"
+    },
+    {
+     "title": "Rs 51 , 700 fall in 10g gold price from January peaks : Should you invest now ?",
+     "url": "https://economictimes.indiatimes.com/wealth/invest/rs-51700-fall-in-mcx-10g-gold-rate-price-today-from-january-peaks-should-you-invest-now/articleshow/136166158.cms",
+     "domain": "economictimes.indiatimes.com",
+     "country": "India",
+     "seen": "2026-11-26T03:30Z"
+    },
+    {
+     "title": "2026 Annual General Meeting - Chair Address",
+     "url": "https://nationalpost.com/press-releases/pr-newswire/2026-annual-general-meeting-chairs-address/",
+     "domain": "nationalpost.com",
+     "country": "Canada",
+     "seen": "2026-11-26T03:30Z"
+    }
+   ],
+   "fetched": "2026-11-26T04:46Z"
+  },
   "wiki_fusion": {
    "query": "\"fusion energy\"",
    "articles": [
@@ -12,7 +204,8 @@
      "seen": "2026-11-24T22:30Z"
     }
    ],
-   "fetched": "2026-11-25T05:22Z"
+   "fetched": "2026-11-25T05:22Z",
+   "stale": true
   },
   "xom": {
    "query": "\"Exxon Mobil\"",
@@ -39,7 +232,8 @@
      "seen": "2026-11-24T20:15Z"
     }
    ],
-   "fetched": "2026-11-25T05:27Z"
+   "fetched": "2026-11-25T05:27Z",
+   "stale": true
   },
   "tsla": {
    "query": "Tesla",
@@ -1414,11 +1608,7 @@
   }
  },
  "failed": {
-  "aapl": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%28%22Apple+Inc%22+OR+iPhone%29+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&tim",
-  "msft": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=Microsoft+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sort=DateDesc",
-  "amzn": "skipped: the wire's time budget ran out",
-  "googl": "skipped: the wire's time budget ran out",
-  "gold": "skipped: the wire's time budget ran out",
+  "googl": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%28Google+OR+Alphabet%29+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4",
   "silver": "skipped: the wire's time budget ran out",
   "us10y": "skipped: the wire's time budget ran out",
   "tlt": "skipped: the wire's time budget ran out",
@@ -1459,6 +1649,8 @@
   "msci_world": "skipped: the wire's time budget ran out",
   "nasdaq100": "skipped: the wire's time budget ran out",
   "nvda": "skipped: the wire's time budget ran out",
-  "tsla": "skipped: the wire's time budget ran out"
+  "tsla": "skipped: the wire's time budget ran out",
+  "wiki_fusion": "skipped: the wire's time budget ran out",
+  "xom": "skipped: the wire's time budget ran out"
  }
 }
