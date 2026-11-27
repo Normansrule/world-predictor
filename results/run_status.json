@@ -1,5 +1,5 @@
 {
- "run_id": "45754109062",
+ "run_id": "45939878400",
  "recorded": "Rebuilt on 2026-10-19 from this run's outputs: the run predates run_status.json. Reasons come from reading the run log on 2026-10-18; both were fixed in commit 633e744 and the next weekly run retries every series.",
  "stages": {
   "predict": {
@@ -141,7 +141,7 @@
    }
   },
   "fetch": {
-   "at": "2026-11-26T04:35:17Z",
+   "at": "2026-11-27T04:45:02Z",
    "ok": [
     "aapl",
     "adoption_ev",
@@ -216,11 +216,16 @@
    ],
    "skipped": {},
    "stale": {
-    "news_election": "Busy: GDELT still busy after 555s of back-off this run (budget 600s) (used the copy through 2026-11-25)",
-    "news_pandemic": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%28pandemic+OR+outbreak+OR+epidemic%29&mode=timelinevol&format=json&STARTDATETIME=20261010000000&ENDDATETIME=20261126042411&TIMELINESMOOTH=0 (used the copy through 2026-11-24)",
-    "politics_impeachment": "Busy: GDELT still busy after 600s of back-off this run (budget 600s) (used the copy through 2026-11-25)",
+    "news_climate": "Busy: GDELT still busy after 600s of back-off this run (budget 600s) (used the copy through 2026-11-26)",
+    "news_election": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22election%22&mode=timelinevol&format=json&STARTDATETIME=20261011000000&ENDDATETIME=20261127043447&TIMELINESMOOTH=0 (used the copy through 2026-11-25)",
+    "news_pandemic": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%28pandemic+OR+outbreak+OR+epidemic%29&mode=timelinevol&format=json&STARTDATETIME=20261010000000&ENDDATETIME=20261127042956&TIMELINESMOOTH=0 (used the copy through 2026-11-24)",
+    "news_protest": "Busy: GDELT still busy after 600s of back-off this run (budget 600s) (used the copy through 2026-11-26)",
+    "news_war": "Busy: GDELT still busy after 600s of back-off this run (budget 600s) (used the copy through 2026-11-26)",
+    "politics_impeachment": "Busy: GDELT still busy after 555s of back-off this run (budget 600s) (used the copy through 2026-11-25)",
     "politics_referendum": "Busy: GDELT still busy after 600s of back-off this run (budget 600s) (used the copy through 2026-11-25)",
+    "politics_sanctions": "Busy: GDELT still busy after 600s of back-off this run (budget 600s) (used the copy through 2026-11-26)",
     "politics_tariffs": "Busy: GDELT still busy after 600s of back-off this run (budget 600s) (used the copy through 2026-11-25)",
+    "rain_los_angeles": "ReadTimeout: HTTPSConnectionPool(host='archive-api.open-meteo.com', port=443): Read timed out. (read timeout=60.0) (used the copy through 2026-11-25)",
     "rain_new_york": "ReadTimeout: HTTPSConnectionPool(host='archive-api.open-meteo.com', port=443): Read timed out. (read timeout=60.0) (used the copy through 2026-11-24)"
    }
   }

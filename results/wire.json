@@ -1,6 +1,102 @@
 {
- "fetched": "2026-11-26T04:46Z",
+ "fetched": "2026-11-27T04:59Z",
  "topics": {
+  "googl": {
+   "query": "(Google OR Alphabet)",
+   "articles": [
+    {
+     "title": "Met Office issues warning to over 65s on Friday",
+     "url": "https://www.aol.co.uk/articles/met-office-issues-warning-over-033400000.html",
+     "domain": "aol.co.uk",
+     "country": "United Kingdom",
+     "seen": "2026-11-27T04:30Z"
+    },
+    {
+     "title": "Zelensky questions Trump  strange  friendship with Putin after bizarre change to NATO statement",
+     "url": "https://www.aol.co.uk/articles/zelensky-questions-trumps-strange-friendship-034421000.html",
+     "domain": "aol.co.uk",
+     "country": "United Kingdom",
+     "seen": "2026-11-27T04:30Z"
+    },
+    {
+     "title": "Christina Blake troubled mental health as new theory emerges",
+     "url": "https://scallywagandvagabond.com/2026/11/wasilla-alaska-mom-who-walked-into-airplane-propeller-had-troubled-mental-health/",
+     "domain": "scallywagandvagabond.com",
+     "country": "United States",
+     "seen": "2026-11-27T04:30Z"
+    },
+    {
+     "title": "Canada and Qatar sign agreement to boost investment",
+     "url": "https://calgary.citynews.ca/2026/11/24/canada-and-qatar-sign-agreement-to-boost-investment/",
+     "domain": "calgary.citynews.ca",
+     "country": "",
+     "seen": "2026-11-27T04:30Z"
+    },
+    {
+     "title": "65 People Share Their Wildest Uber Experiences",
+     "url": "https://2.boredpanda.com/unhinged-uber-drivers-customers/",
+     "domain": "2.boredpanda.com",
+     "country": "United States",
+     "seen": "2026-11-27T04:30Z"
+    },
+    {
+     "title": "84 best Black Friday deals as chosen by shopping experts",
+     "url": "https://www.dailypost.co.uk/whats-on/shopping/best-black-friday-deals-2026-34965204",
+     "domain": "dailypost.co.uk",
+     "country": "United Kingdom",
+     "seen": "2026-11-27T04:30Z"
+    }
+   ],
+   "fetched": "2026-11-27T04:47Z"
+  },
+  "us10y": {
+   "query": "\"Treasury yields\"",
+   "articles": [
+    {
+     "title": "Shares find footing after bruising month , dollar set for third monthly gain",
+     "url": "https://ksevradio.com/shares-find-footing-after-bruising-month-dollar-set-for-third-monthly-gain/",
+     "domain": "ksevradio.com",
+     "country": "United States",
+     "seen": "2026-11-27T03:30Z"
+    },
+    {
+     "title": "Markets cautious amid Fed worries , AI share volatility",
+     "url": "https://www.financialmirror.com/2026/11/26/markets-cautious-amid-fed-worries-ai-share-volatility/",
+     "domain": "financialmirror.com",
+     "country": "China",
+     "seen": "2026-11-26T12:45Z"
+    },
+    {
+     "title": "Dollar steady as sliding yields temper safe - haven bid",
+     "url": "https://www.freemalaysiatoday.com/category/business/2026/11/26/dollar-steady-as-sliding-yields-temper-safe-haven-bid",
+     "domain": "freemalaysiatoday.com",
+     "country": "Malaysia",
+     "seen": "2026-11-26T05:15Z"
+    },
+    {
+     "title": "Asian shares bounce as AI concerns , fresh US tariffs lurk in background",
+     "url": "https://www.business-standard.com/markets/news/asian-shares-bounce-as-ai-concerns-fresh-us-tariffs-lurk-in-background-126112600046_1.html",
+     "domain": "business-standard.com",
+     "country": "India",
+     "seen": "2026-11-26T04:30Z"
+    },
+    {
+     "title": "Asian shares bounce , AI and tariffs lurk in background",
+     "url": "https://www.dailyliberal.com.au/story/9398747/asian-shares-bounce-ai-and-tariffs-lurk-in-background/",
+     "domain": "dailyliberal.com.au",
+     "country": "Australia",
+     "seen": "2026-11-26T04:15Z"
+    },
+    {
+     "title": "Indian Shares Set To Follow Asian Peers Higher",
+     "url": "https://www.finanzen.ch/nachrichten/aktien/indian-shares-set-to-follow-asian-peers-higher-1036801590",
+     "domain": "finanzen.ch",
+     "country": "Switzerland",
+     "seen": "2026-11-26T03:30Z"
+    }
+   ],
+   "fetched": "2026-11-27T04:54Z"
+  },
   "aapl": {
    "query": "(\"Apple Inc\" OR iPhone)",
    "articles": [
@@ -47,7 +143,8 @@
      "seen": "2026-11-26T03:00Z"
     }
    ],
-   "fetched": "2026-11-26T04:36Z"
+   "fetched": "2026-11-26T04:36Z",
+   "stale": true
   },
   "msft": {
    "query": "Microsoft",
@@ -95,7 +192,8 @@
      "seen": "2026-11-26T04:15Z"
     }
    ],
-   "fetched": "2026-11-26T04:36Z"
+   "fetched": "2026-11-26T04:36Z",
+   "stale": true
   },
   "amzn": {
    "query": "Amazon",
@@ -143,7 +241,8 @@
      "seen": "2026-11-26T04:15Z"
     }
    ],
-   "fetched": "2026-11-26T04:36Z"
+   "fetched": "2026-11-26T04:36Z",
+   "stale": true
   },
   "gold": {
    "query": "\"gold price\"",
@@ -191,7 +290,8 @@
      "seen": "2026-11-26T03:30Z"
     }
    ],
-   "fetched": "2026-11-26T04:46Z"
+   "fetched": "2026-11-26T04:46Z",
+   "stale": true
   },
   "wiki_fusion": {
    "query": "\"fusion energy\"",
@@ -1608,10 +1708,8 @@
   }
  },
  "failed": {
-  "googl": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%28Google+OR+Alphabet%29+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4",
-  "silver": "skipped: the wire's time budget ran out",
-  "us10y": "skipped: the wire's time budget ran out",
-  "tlt": "skipped: the wire's time budget ran out",
+  "silver": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22silver+price%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sort",
+  "tlt": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22bond+market%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sort=",
   "vix": "skipped: the wire's time budget ran out",
   "oil_wti": "skipped: the wire's time budget ran out",
   "copper": "skipped: the wire's time budget ran out",
@@ -1651,6 +1749,10 @@
   "nvda": "skipped: the wire's time budget ran out",
   "tsla": "skipped: the wire's time budget ran out",
   "wiki_fusion": "skipped: the wire's time budget ran out",
-  "xom": "skipped: the wire's time budget ran out"
+  "xom": "skipped: the wire's time budget ran out",
+  "aapl": "skipped: the wire's time budget ran out",
+  "msft": "skipped: the wire's time budget ran out",
+  "amzn": "skipped: the wire's time budget ran out",
+  "gold": "skipped: the wire's time budget ran out"
  }
 }

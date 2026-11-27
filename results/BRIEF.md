@@ -1,20 +1,20 @@
 # The brief
 
-## Came due, 2026-11-20 to 2026-11-26
+## Came due, 2026-11-21 to 2026-11-27
 
 | Model | Forecasts | Series | Inside 80% range | Right direction | Skill vs no change |
 |---|---:|---:|---:|---:|---:|
-| TimesFM | 2193 | 59 | 64% | 70% | +9.7% |
-| Radiant | 1855 | 59 | 66% | 69% | +9.2% |
-| Chronos-Bolt | 2193 | 59 | 65% | 69% | +16.2% |
-| Seldon | 1855 | 59 | 66% | 68% | +5.5% |
-| Seldon laws | 2193 | 59 | 61% | 57% | +2.9% |
-| AutoETS | 2193 | 59 | 76% | 52% | -0.2% |
-| Ensemble | 2193 | 59 | 75% | 65% | +6.7% |
+| TimesFM | 2072 | 59 | 65% | 71% | +11.6% |
+| Radiant | 1790 | 59 | 68% | 70% | +10.7% |
+| Chronos-Bolt | 2072 | 59 | 67% | 71% | +17.2% |
+| Seldon | 1790 | 59 | 67% | 70% | +12.8% |
+| Seldon laws | 2072 | 59 | 63% | 58% | +3.6% |
+| AutoETS | 2072 | 59 | 78% | 54% | -0.1% |
+| Ensemble | 2072 | 59 | 78% | 67% | +7.1% |
 
-**Radiant's closest calls:** Wikipedia views: SpaceX Starship (said -6.2%, was -6.2% by 2026-11-22); Share of world news coverage mentioning climate change (said -14.6%, was -14.6% by 2026-11-24); Share of coverage about coups and martial law (said -17.7%, was -17.7% by 2026-11-23); Wikipedia views: Quantum computing (said -1.1%, was -1.1% by 2026-11-22); Apple Inc. (said +0.2%, was +0.2% by 2026-11-23).
+**Radiant's closest calls:** Wikipedia views: SpaceX Starship (said -6.2%, was -6.2% by 2026-11-22); Share of world news coverage mentioning climate change (said -14.6%, was -14.6% by 2026-11-24); Share of coverage about coups and martial law (said -17.7%, was -17.7% by 2026-11-23); Ether in USD (said -1.2%, was -1.2% by 2026-11-25); Wikipedia views: Quantum computing (said -1.1%, was -1.1% by 2026-11-22).
 
-**Biggest surprises:** Share of world news coverage mentioning climate change (range -16.8% to +31.2%, was +167.6%, 2.8 range widths outside); Wikipedia views: Large language model (range +17.3% to +42.2%, was +91.5%, 2.0 range widths outside); NVIDIA Corp. (range -6.3% to +10.3%, was -39.3%, 2.0 range widths outside); CBOE Volatility Index (VIX, the fear gauge) (range -17.8% to +19.1%, was +86.0%, 1.8 range widths outside); Gold (USD/oz) (range -3.4% to +3.5%, was -13.5%, 1.4 range widths outside).
+**Biggest surprises:** Share of world news coverage mentioning climate change (range -16.8% to +31.2%, was +167.6%, 2.8 range widths outside); Wikipedia views: Large language model (range -7.5% to +14.7%, was +48.7%, 1.5 range widths outside); Copper futures (range -4.5% to +4.2%, was -15.3%, 1.2 range widths outside); NVIDIA Corp. (range -6.8% to +11.2%, was -27.8%, 1.2 range widths outside); Gold (USD/oz) (range -3.9% to +5.0%, was -13.7%, 1.1 range widths outside).
 
 ## Radiant changed its mind, 2026-11-22 to 2026-11-23
 
