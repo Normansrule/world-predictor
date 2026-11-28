@@ -711,6 +711,9 @@ def build_site(out: Path, data_js: Path | None = None, payload: dict | None = No
     race_src = (data_js.parent if data_js is not None else Path("results") / "web") / "race"
     if race_src.is_dir():  # the race chart's data, one file per series, loaded when a chart needs it
         shutil.copytree(race_src, out / "app" / "data" / "race", dirs_exist_ok=True)
+    fast_src = race_src.parent / "fastlane.json"
+    if fast_src.is_file():  # the fast lane, loaded when the Markets page opens
+        shutil.copy2(fast_src, out / "app" / "data" / "fastlane.json")
     feeds.publish(out)  # feed.xml and api/: the forecasts for feed readers and other programs
     offline.bundle(out)  # the one-file copy, so the local app can hand it out too
     return out

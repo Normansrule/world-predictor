@@ -80,6 +80,7 @@ everything that ships or downloads with this project are in [CREDITS.md](CREDITS
 | Rule of succession, skill scores | Laplace (1814); Wilks (2011) | Event odds: the persistence baseline and the Brier skill score. |
 | Behavioural finance | Jegadeesh and Titman (1993); De Bondt and Thaler (1985); Lehmann (1990); Moskowitz, Ooi and Pedersen (2012); Daniel and Moskowitz (2016); Shiller (2000) | **Built in**: Radiant's core turns momentum, overreaction, short-term reversal and momentum crashes into signals. |
 | Herding and attention | Bikhchandani, Hirshleifer and Welch (1992); Barber and Odean (2008); Da, Engelberg and Gao (2011) | Radiant's momentum and attention-spike signals; why news and interest burst and fade. |
+| Information speed and lead-lag | Granger (1969); Grossman and Stiglitz (1980); Hou (2007); Künsch (1989) | **Built in**: the fast lane tries every faster series as an early signal for each market, keeps only links that held on years no fit saw, and scores the fear clock with a block bootstrap. |
 | Fear gauge | Whaley (2000) | The VIX, tracked in the year ledger and the terminal. |
 | Learning from experts | Freund and Schapire (1997); Cesa-Bianchi and Lugosi (2006); Hoerl and Kennard (1970) | **Built in**: Radiant's exponential-weights mix, and the ridge regression behind its core. |
 
@@ -89,6 +90,30 @@ everything that ships or downloads with this project are in [CREDITS.md](CREDITS
 |---|---|---|
 | [koala73/worldmonitor](https://github.com/koala73/worldmonitor) | AGPL-3.0 | The idea of one app shipped two ways: a GitHub Pages web app and a downloadable full version. Ideas only, no code copied. |
 | [Normansrule/worldmonitor](https://github.com/Normansrule/worldmonitor) (Terra Atlas) | AGPL-3.0 | The `site/` + `site/app/` Pages layout and the tag-driven release workflow, re-implemented from scratch. |
+
+## Motion and game references
+
+Round 31 added Call It, a game on real data, and a livelier look. These projects shaped it.
+
+| Project | Licence | What World Predictor takes from it |
+|---|---|---|
+| [juliangarnier/anime](https://github.com/juliangarnier/anime) (anime.js 4.5.0) | MIT | Shipped unchanged in `site/app/vendor/`: the game's springs, staggers and count-ups, behind `site/app/js/motion.js`. |
+| [greensock/gsap-skills](https://github.com/greensock/gsap-skills) | MIT | Motion rules: animate transform and opacity only, keep entrances short, respect reduced motion. Guidance only. |
+| [bklit/bklit-ui](https://github.com/bklit/bklit-ui) | MIT | Gradient areas under chart lines and a hover dot that follows the line. Ideas only. |
+| [codecrafters-io/build-your-own-x](https://github.com/codecrafters-io/build-your-own-x) | see repository | Game-loop tutorials behind the round, reveal and score loop. Ideas only. |
+
+## Trading references: information speed
+
+Round 30 asked how trading algorithms behave when some information is learned faster than the whole
+market learns it. Three open-source trading projects shaped how World Predictor tests that idea. Ideas
+only: no code was copied from any of them, and the fast lane in `src/psychohistory/fastlane.py` is
+written from scratch with NumPy and pandas.
+
+| Project | Licence | What World Predictor takes from it |
+|---|---|---|
+| [The-Swarm-Corporation/AutoHedge](https://github.com/The-Swarm-Corporation/AutoHedge) | MIT | The risk-first order of a trading desk (director, quant, risk, then execution): the fast lane sizes the likely move before it talks about direction. |
+| [HKUDS/Vibe-Trading](https://github.com/HKUDS/Vibe-Trading) | MIT | Lead-lag cross-correlation at several lags, Ornstein-Uhlenbeck half-life for mean reversion, and bootstrap confidence intervals: the three tools behind the lead-lag scan, the fear clock and its 95% ranges. |
+| [Fincept-Corporation/FinceptTerminal](https://github.com/Fincept-Corporation/FinceptTerminal) | AGPL-3.0 | Its statistics toolkit (Granger causality, Engle-Granger cointegration) prompted the test of whether faster series lead slower ones. Ideas only. |
 
 ## Bibliography (APA 7th edition)
 
@@ -129,10 +154,13 @@ date", with the day they were retrieved; several undated works by one author are
 - Geller, R. J. (1997). Earthquake prediction: A critical review. *Geophysical Journal International, 131*(3), 425–450. https://doi.org/10.1111/j.1365-246X.1997.tb06588.x
 - Gibbs, I., & Candès, E. (2021). Adaptive conformal inference under distribution shift. In *Advances in Neural Information Processing Systems 34* (pp. 1660–1672). https://arxiv.org/abs/2106.00170
 - Gneiting, T., & Raftery, A. E. (2007). Strictly proper scoring rules, prediction, and estimation. *Journal of the American Statistical Association, 102*(477), 359–378. https://doi.org/10.1198/016214506000001437
+- Granger, C. W. J. (1969). Investigating causal relations by econometric models and cross-spectral methods. *Econometrica, 37*(3), 424–438. https://doi.org/10.2307/1912791
+- Grossman, S. J., & Stiglitz, J. E. (1980). On the impossibility of informationally efficient markets. *The American Economic Review, 70*(3), 393–408.
 - Harvey, D., Leybourne, S., & Newbold, P. (1997). Testing the equality of prediction mean squared errors. *International Journal of Forecasting, 13*(2), 281–291. https://doi.org/10.1016/S0169-2070(96)00719-4
 - Herbster, M., & Warmuth, M. K. (1998). Tracking the best expert. *Machine Learning, 32*(2), 151–178. https://doi.org/10.1023/A:1007424614876
 - Hersbach, H., Bell, B., Berrisford, P., Hirahara, S., Horányi, A., Muñoz-Sabater, J., Nicolas, J., Peubey, C., Radu, R., Schepers, D., Simmons, A., Soci, C., Abdalla, S., Abellan, X., Balsamo, G., Bechtold, P., Biavati, G., Bidlot, J., Bonavita, M., … Thépaut, J.-N. (2020). The ERA5 global reanalysis. *Quarterly Journal of the Royal Meteorological Society, 146*(730), 1999–2049. https://doi.org/10.1002/qj.3803
 - Hoerl, A. E., & Kennard, R. W. (1970). Ridge regression: Biased estimation for nonorthogonal problems. *Technometrics, 12*(1), 55–67. https://doi.org/10.1080/00401706.1970.10488634
+- Hou, K. (2007). Industry information diffusion and the lead-lag effect in stock returns. *The Review of Financial Studies, 20*(4), 1113–1138. https://doi.org/10.1093/revfin/hhm003
 - Huang, B., Liu, C., Banzon, V., Freeman, E., Graham, G., Hankins, B., Smith, T., & Zhang, H.-M. (2021). Improvements of the Daily Optimum Interpolation Sea Surface Temperature (DOISST) version 2.1. *Journal of Climate, 34*(8), 2923–2939. https://doi.org/10.1175/JCLI-D-20-0166.1
 - Hyndman, R. J., & Billah, B. (2003). Unmasking the Theta method. *International Journal of Forecasting, 19*(2), 287–290. https://doi.org/10.1016/S0169-2070(01)00143-1
 - Hyndman, R. J., & Khandakar, Y. (2008). Automatic time series forecasting: The forecast package for R. *Journal of Statistical Software, 27*(3), 1–22. https://doi.org/10.18637/jss.v027.i03
@@ -142,6 +170,7 @@ date", with the day they were retrieved; several undated works by one author are
 - J.P. Morgan/Reuters. (1996). *RiskMetrics: Technical document* (4th ed.). Morgan Guaranty Trust Company.
 - Kivinen, J., & Warmuth, M. K. (1997). Exponentiated gradient versus gradient descent for linear predictors. *Information and Computation, 132*(1), 1–63. https://doi.org/10.1006/inco.1996.2612
 - Koenker, R., & Bassett, G., Jr. (1978). Regression quantiles. *Econometrica, 46*(1), 33–50. https://doi.org/10.2307/1913643
+- Künsch, H. R. (1989). The jackknife and the bootstrap for general stationary observations. *The Annals of Statistics, 17*(3), 1217–1241. https://doi.org/10.1214/aos/1176347265
 - Laplace, P.-S. (1814). *Essai philosophique sur les probabilités*. Courcier.
 - Leetaru, K., & Schrodt, P. A. (2013, April). *GDELT: Global data on events, location, and tone, 1979–2012* [Paper presentation]. International Studies Association Annual Convention, San Francisco, CA, United States.
 - Lehmann, B. N. (1990). Fads, martingales, and market efficiency. *The Quarterly Journal of Economics, 105*(1), 1–28. https://doi.org/10.2307/2937816
@@ -177,14 +206,19 @@ date", with the day they were retrieved; several undated works by one author are
 - Aroussi, R. (n.d.). *yfinance* [Computer software]. GitHub. https://github.com/ranaroussi/yfinance
 - AutoGluon. (n.d.). *fev* [Computer software]. GitHub. https://github.com/autogluon/fev
 - Bakaus, P. (n.d.). *impeccable* [Computer software]. GitHub. https://github.com/pbakaus/impeccable
+- bklit. (n.d.). *bklit-ui* [Computer software]. MIT License. https://github.com/bklit/bklit-ui
 - BlackRock. (n.d.). *iShares 20+ Year Treasury Bond ETF (TLT)* [Data set]. Retrieved November 2, 2026, from https://www.ishares.com/us/products/239454/
 - Cboe Global Markets. (n.d.-a). *Cboe 10-Year U.S. Treasury Note Yield Index (TNX)* [Data set]. Retrieved November 2, 2026, from https://www.cboe.com/
 - Cboe Global Markets. (n.d.-b). *Cboe Volatility Index (VIX)* [Data set]. Retrieved November 2, 2026, from https://www.cboe.com/tradable_products/vix/
 - Climate Change Institute, University of Maine. (n.d.). *Climate Reanalyzer: Daily surface air and sea surface temperature* [Data set]. Retrieved November 4, 2026, from https://climatereanalyzer.org/
+- CodeCrafters. (n.d.). *build-your-own-x* [Computer software]. GitHub. https://github.com/codecrafters-io/build-your-own-x
 - Desruisseaux, B. (Ed.). (2009). *Internet calendaring and scheduling core object specification (iCalendar)* (RFC 5545). Internet Engineering Task Force. https://doi.org/10.17487/RFC5545
 - Fetterer, F., Knowles, K., Meier, W. N., Savoie, M., & Windnagel, A. K. (2017). *Sea Ice Index* (Version 3) [Data set]. National Snow and Ice Data Center. https://doi.org/10.7265/N5K072F8
+- Fincept Corporation. (n.d.). *FinceptTerminal* [Computer software]. GitHub. https://github.com/Fincept-Corporation/FinceptTerminal
+- Garnier, J. (2026). *anime.js* (Version 4.5.0) [Computer software]. MIT License. https://github.com/juliangarnier/anime
 - Garza, A., Mergenthaler Canseco, M., Challú, C., & Olivares, K. G. (2022). *StatsForecast: Lightning fast forecasting with statistical and econometric models* [Computer software]. GitHub. https://github.com/Nixtla/statsforecast
 - Google Research. (n.d.). *timesfm* [Computer software]. GitHub. https://github.com/google-research/timesfm
+- GreenSock. (2026). *gsap-skills* [Computer software]. MIT License. https://github.com/greensock/gsap-skills
 - HKUDS. (2026). *Vibe-Trading* [Computer software]. MIT License. https://github.com/HKUDS/Vibe-Trading
 - IBM. (n.d.). *IBM Plex* [Typeface]. GitHub. https://github.com/IBM/plex
 - International Energy Agency. (2025). *Global EV outlook 2025*. https://www.iea.org/reports/global-ev-outlook-2025
@@ -210,10 +244,11 @@ date", with the day they were retrieved; several undated works by one author are
 - Streamlit. (n.d.). *streamlit* [Computer software]. GitHub. https://github.com/streamlit/streamlit
 - TauricResearch. (2024). *TradingAgents* [Computer software]. Apache License 2.0. https://github.com/TauricResearch/TradingAgents
 - The GDELT Project. (n.d.). *GDELT DOC 2.0 API* [Data set]. Retrieved October 20, 2026, from https://www.gdeltproject.org/
+- The Swarm Corporation. (n.d.). *AutoHedge* [Computer software]. GitHub. https://github.com/The-Swarm-Corporation/AutoHedge
 - time-series-foundation-models. (n.d.). *lag-llama* [Computer software]. GitHub. https://github.com/time-series-foundation-models/lag-llama
-- United Nations Office for Outer Space Affairs. (n.d.). *Online index of objects launched into outer space* [Data set]. Retrieved November 4, 2026, from https://www.unoosa.org/oosa/osoindex/
-- Unit8. (n.d.). *darts* [Computer software]. GitHub. https://github.com/unit8co/darts
 - U.S. Geological Survey. (2017). *Advanced National Seismic System (ANSS) comprehensive catalog of earthquake events and products* [Data set]. https://doi.org/10.5066/F7MS3QZH
+- Unit8. (n.d.). *darts* [Computer software]. GitHub. https://github.com/unit8co/darts
+- United Nations Office for Outer Space Affairs. (n.d.). *Online index of objects launched into outer space* [Data set]. Retrieved November 4, 2026, from https://www.unoosa.org/oosa/osoindex/
 - Wikimedia Foundation. (n.d.). *Wikimedia REST API: Pageviews* [Data set]. Retrieved October 20, 2026, from https://wikimedia.org/api/rest_v1/
 - Yahoo. (n.d.). *Yahoo Finance* [Data set]. Retrieved October 20, 2026, from https://finance.yahoo.com/
 - Zippenfeld, P. (2023). *Open-Meteo.com weather API* [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.7970649

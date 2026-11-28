@@ -2116,6 +2116,29 @@ def test_tally_reads_every_sealed_forecast_as_a_plain_call_and_keeps_score(tmp_p
     assert "3</span> right" in out["page"] and "Every day: what it said" in out["page"] and "London will be warmer" in out["page"]
     assert "+2.5°C" in out["page"] and "What it says now" in out["now"] and "Gold will be higher" in out["series"]
     assert "What happened, against each forecaster" in out["page"] and "tr-chart" in out["series"] and "Radiant" in out["series"]
+    # every day at a glance: one square per day that had calls, a blank for a day with none
+    two = {**p, "days": [{**p["days"][0], "date": "2026-11-05"}, p["days"][0]]}
+    js = (f"global.window={{}};require({json.dumps(str(root / 'app' / 'js' / 'record.js'))});const host={{innerHTML:''}};"
+          "window.WPRecord.render(host,{tally:" + json.dumps(two) + "});console.log(host.innerHTML);")
+    page = subprocess.run(["node", "-e", js], capture_output=True, text=True, check=True).stdout
+    assert "Every day at a glance" in page and page.count('class="tr-cal-d"') == 2 and page.count("nothing came due") == 1
+    assert 'data-tr-day="2026-11-05"' in page and 'id="tr-d-2026-11-03"' in page
+    # "Since you last looked": the calls that came due after the last day seen, kept for the whole page load
+    js = (f"const S={{'wp-last-visit-v1':JSON.stringify({{seen:'2026-11-02',at:'2026-11-02'}})}};"
+          "global.localStorage={getItem:(k)=>S[k]||null,setItem:(k,v)=>{S[k]=v;}};global.window={};"
+          f"require({json.dumps(str(root / 'app' / 'js' / 'record.js'))});const R=window.WPRecord;const D={{tally:" + json.dumps(p) + "};"
+          "console.log(JSON.stringify({a:R.since(D),b:R.since(D),saved:JSON.parse(S['wp-last-visit-v1']).seen}));")
+    out = json.loads(subprocess.run(["node", "-e", js], capture_output=True, text=True, check=True).stdout)
+    assert "Since you last looked" in out["a"] and "4 calls came due over 1 day" in out["a"] and out["a"] == out["b"]
+    assert out["saved"] == "2026-11-03"
+    # surprises: ranges the day landed outside, furthest first in range widths, each series once
+    calls = [[f"s{i % 6}", "markets", f"Thing {i % 6} will be higher", 0.7, i % 2 == 0, 0.01, "2026-11-01", "2026-11-01", "went up", "price", 1.0,
+              [100.0, 110.0, i >= 6, 100.0 + (25 + i if i < 6 else 5)]] for i in range(12)]
+    js = (f"global.window={{}};require({json.dumps(str(root / 'app' / 'js' / 'record.js'))});"
+          "console.log(window.WPRecord.surprises({tally:{days:[{date:'2026-11-02',calls:" + json.dumps(calls) + "}]}}, 8));")
+    sp = subprocess.run(["node", "-e", js], capture_output=True, text=True, check=True).stdout
+    assert "6 of 12 ranges held (50%)" in sp and sp.count('class="tr-sp-c"') == 6 and "2.0 range widths out" in sp
+    assert sp.index("Thing 5") < sp.index("Thing 0") and "above its likely" in sp
 
 
 def test_tally_rain_calls_charts_and_the_calls_it_stands_behind():
@@ -2186,6 +2209,38 @@ def test_tally_range_calls_widen_only_from_ranges_already_settled():
     assert now[0]["lo"] == pytest.approx(100 - k_now * 12.8, rel=1e-3) and now[0]["range_record"][1] == int((r["series_id"] == now[0]["id"]).sum())
     days_ = tally.days(tally.standing(scored), rng=r)
     assert any(c[11] is not None for d in days_ for c in d["calls"]) and all(len(c) == 12 for d in days_ for c in d["calls"])
+    assert all(len(c[11]) == 4 for d in days_ for c in d["calls"] if c[11])  # low, high, inside, what happened
+
+
+def test_fastlane_finds_a_planted_lead_drops_a_fake_one_and_reads_the_fear_clock():
+    from psychohistory import fastlane
+    rng = np.random.default_rng(3)
+    days = pd.bdate_range("2014-01-01", "2024-12-31")
+    n = len(days)
+    lead = rng.normal(0, 0.01, n)
+    tgt = 0.35 * np.r_[0, lead[:-1]] + rng.normal(0, 0.01, n)  # copper today tells the S&P 500 tomorrow
+    fake = rng.normal(0, 0.01, n)
+    fake[: n // 2] = 0.3 * np.r_[tgt[1: n // 2], 0] + rng.normal(0, 0.01, n // 2)  # tells the next day only in the early years
+    lv = np.zeros(n); lv[0] = np.log(18)
+    for i in range(1, n):  # fear that returns to 18 with a half-life of about 10 trading days
+        lv[i] = lv[i - 1] + 0.067 * (np.log(18) - lv[i - 1]) + rng.normal(0, 0.06)
+    data = {"sp500": pd.Series(100 * np.exp(np.cumsum(tgt)), days), "copper": pd.Series(5 * np.exp(np.cumsum(lead)), days),
+            "gold": pd.Series(1800 * np.exp(np.cumsum(fake)), days), "vix": pd.Series(np.exp(lv), days),
+            "bitcoin": pd.Series(30000 * np.exp(np.cumsum(np.r_[tgt[1:], 0] * 2)), days)}  # moves with tomorrow's stocks, but closes later
+    specs = [catalog.by_id(k) for k in data]
+    p = fastlane.payload(data, specs, test_from="2020-01-01")
+    held = {(l["source"], l["target"], l["lag"]) for l in p["scan"]["held_links"]}
+    assert ("copper", "sp500", 0) in held  # the planted lead survives the years it never saw
+    assert not any(s == "gold" and t == "sp500" for s, t, _ in held)  # the early-years-only link does not
+    assert not any(s == "bitcoin" and t == "sp500" and lag == 0 for s, t, lag in held)  # a later close is never used the same day
+    f = p["fear"]
+    assert 6 < f["half_life"] < 16 and abs(f["normal"] - 18) < 3
+    assert all(r["hit"] > 0.5 for r in f["record"]) and f["record"][-1]["lo"] > 0.5
+    sz = {r["id"]: r for r in p["sizing"]}
+    assert 0.7 < sz["sp500"]["inside"] < 0.9 and sz["sp500"]["move"] > 0
+    text = fastlane.describe(p)
+    assert "Lead-lag scan" in text and "Fear clock" in text and fastlane.describe(None).startswith("The fast lane needs")
+    assert fastlane.payload({"sp500": data["sp500"].iloc[:200]}, specs) is None
 
 
 def test_race_grows_back_ten_years_on_a_fixed_grid_and_replays_without_peeking(tmp_path):
@@ -2340,3 +2395,53 @@ def test_source_health_keeps_the_record_across_runs(tmp_path, monkeypatch):
     assert len(again["runs"]) == 6 and again["series"]["news_war"]["streak"] == 6
     root = Path(__file__).resolve().parents[1]
     assert "news_war" in health.read(root / "results" / "source_health.json")["series"]
+
+
+def test_call_it_game_deals_blind_rounds_from_the_race_and_scores_the_models_fairly():
+    import json
+    import shutil
+    import subprocess
+    if not shutil.which("node"):
+        pytest.skip("node is not installed")
+    root = Path(__file__).resolve().parents[1] / "site"
+    html, sw = (root / "app" / "index.html").read_text(), (root / "sw.js").read_text()
+    for js in ("vendor/anime.umd.min.js", "js/motion.js", "js/play.js"):
+        assert f"app/{js}" in sw and f'src="{js}"' in html
+    assert html.index('src="vendor/anime.umd.min.js"') < html.index('src="js/motion.js"') < html.index('src="js/play.js"') < html.index('src="js/app.js"')
+    assert 'href="#play"' in html and 'id="play-root"' in html
+    assert "@license MIT" in (root / "app" / "vendor" / "anime.umd.min.js").read_text()[:200]
+    # A race file: 200 days rising by 1 a day, windows every 20 days; TimesFM always says "flat + 5", Seldon "-5".
+    dates = [f"2026-{1 + i // 28:02d}-{1 + i % 28:02d}" for i in range(200)]
+    actual = [100.0 + i for i in range(200)]
+    origins = [dates[i] for i in range(0, 200, 20)]
+    tfm, sel = [None] * 200, [None] * 200
+    for k, o in enumerate(range(0, 200, 20)):
+        for i in range(o + 1, min(200, o + 21)):
+            tfm[i], sel[i] = actual[o] + 5, actual[o] - 5
+    J = {"id": "gold", "dates": dates, "actual": actual, "origins": origins, "m": {"timesfm-2.5": tfm, "seldon": sel}}
+    script = """
+global.window = {}; global.matchMedia = () => ({ matches: true }); global.localStorage = { getItem: () => null, setItem() {} };
+global.document = { addEventListener() {}, documentElement: { dataset: {} } };
+require(process.argv[1] + '/app/js/play.js');
+const T = window.WPPlay._test, J = JSON.parse(process.argv[2]);
+const W = T.windows(J);
+const R = T.build(J, W[0], { title: 'Gold', domain: 'markets' }, 'dir');
+const P = T.pool({ series: [{ id: 'gold', title: 'Gold (USD/oz)', domain: 'markets' }, { id: 'rain_london', title: 'Rain', domain: 'weather' }],
+  outlook: [], race: { gold: {}, rain_london: {} }, tally: { names: { gold: ['Gold', 'price'], news_war: ['War', 'talk'] } } });
+const a = T.rng(T.hash('call-it-2026-11-28')), b = T.rng(T.hash('call-it-2026-11-28'));
+console.log(JSON.stringify({ n: W.length, w: W[0], last: R.last, end: R.end, up: R.up, ctxLast: R.ctx[R.ctx.length - 1], ansFirst: R.ans[0],
+  calls: Object.fromEntries(Object.entries(R.models).map(([m, x]) => [m, x.call])), blind: T.domainOf(R, false), full: T.domainOf(R, true),
+  ids: P.ids, title: P.meta.gold.title, same: [a(), a()].join() === [b(), b()].join(), levels: [T.level(0).n, T.level(120).n, T.level(10 ** 6).name] }));
+"""
+    out = json.loads(subprocess.run(["node", "-e", script, str(root), json.dumps(J)], capture_output=True, text=True, check=True).stdout)
+    # The first windows are skipped until 70 days are known; each window stops before the next origin.
+    assert out["w"] == {"li": 80, "end": 99} and out["n"] == 6
+    # The visible chart ends on the origin day and the hidden part starts the day after: nothing leaks.
+    assert out["ctxLast"] == [dates[80], 180.0] and out["ansFirst"] == [dates[81], 181.0]
+    assert out["last"] == 180.0 and out["end"] == 199.0 and out["up"] == 1
+    assert out["calls"] == {"timesfm-2.5": 1, "seldon": -1}  # each model's call is read from its own forecast for the last hidden day
+    lo, hi = out["blind"]
+    assert lo < 111 and hi > 180 and hi < 199 + 40  # before the reveal the window is padded evenly and fits the seen days
+    assert out["full"][1] >= 199                    # after it, the answer fits
+    assert out["ids"] == ["gold"] and out["title"] == "Gold"  # rain is not a game of higher or lower; plain names win
+    assert out["same"] and out["levels"] == [0, 1, "Seldon's heir"]

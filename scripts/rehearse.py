@@ -47,7 +47,8 @@ STEPS = [
     ("vol", ["vol", "--backtest"], 600),
     ("events", ["events", "--backtest"], 600),
     ("hype", ["hype", "--save", "results/hype_backtest.csv"], 180),
-    ("race", ["race", "--stand-in", "naive", "--grow", "400"], 600),  # ten years at once, a cheap model in TimesFM's place
+    ("race", ["race", "--stand-in", "naive", "--grow", "400"], 600),
+    ("fastlane", ["fastlane"], 180),  # the lead-lag scan, fear clock and move sizes over every market  # ten years at once, a cheap model in TimesFM's place
     ("export", ["export"], 300),
 ]
 

@@ -14,7 +14,12 @@
     news_composite: "N:ALL", tech_composite: "T:ALL", adoption_internet: "T:NET", adoption_solar: "T:SOLAR", adoption_wind: "T:WIND",
     adoption_ev: "T:EV", space_launches: "T:LAUNCH", politics_composite: "P:ALL", weather_world_air: "WX:AIR", weather_world_sea: "WX:SEA",
     weather_arctic_ice: "WX:ICE", weather_new_delhi: "WX:DEL", weather_los_angeles: "WX:LA", quakes_m45: "WX:QUAKE",
-    msft: "MSFT", amzn: "AMZN", googl: "GOOGL", ethereum: "ETH", natgas: "NG", eurusd: "EURUSD", weather_new_york: "WX:NYC" };
+    msft: "MSFT", amzn: "AMZN", googl: "GOOGL", ethereum: "ETH", natgas: "NG", eurusd: "EURUSD", weather_new_york: "WX:NYC",
+    meta: "META", nikkei: "N225", ftse: "UKX", dax: "DAX", wheat: "ZW", solana: "SOL", weather_paris: "WX:PAR",
+    jpm: "JPM", amd: "AMD", corn: "ZC", usdjpy: "USDJPY", weather_sao_paulo: "WX:SAO",
+    nflx: "NFLX", brk: "BRK.B", gbpusd: "GBPUSD", platinum: "XPT", xrp: "XRP", weather_mumbai: "WX:BOM",
+    visa: "V", wmt: "WMT", hsi: "HSI", soybeans: "ZS", weather_cape_town: "WX:CPT",
+    intc: "INTC", ko: "KO", cocoa: "CC", audusd: "AUDUSD", weather_singapore: "WX:SIN" };
   const SETTLE_DAYS = 7; // a call settles on the first real value within a week of its date
   const state = { area: "all", focus: null, watchOnly: false, msg: "", allOdds: false };
   let D = null, host = null;

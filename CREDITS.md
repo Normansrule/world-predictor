@@ -84,6 +84,28 @@ affiliated with or endorsed by Google.
 - PyTorch (BSD-3-Clause), installed with TimesFM <https://pytorch.org/>
 - Hugging Face Hub client (Apache 2.0) <https://github.com/huggingface/huggingface_hub>
 
+## Motion and the game
+
+- **anime.js** by Julian Garnier (MIT) <https://github.com/juliangarnier/anime>, version 4.5.0, is shipped unchanged
+  as `site/app/vendor/anime.umd.min.js` (its licence header is kept in the file). It animates Call It and the app's
+  counters and entrances through the small wrapper in `site/app/js/motion.js`.
+- **GSAP skills** by GreenSock (MIT) <https://github.com/greensock/gsap-skills>: the motion rules the wrapper follows
+  (transform and opacity only, short entrances, reduced motion respected). No GSAP code is used.
+- **bklit UI** (MIT) <https://github.com/bklit/bklit-ui>: the idea of gradient areas under chart lines and a dot that
+  follows the hover. Re-drawn in the app's own SVG chart kit; no code copied.
+- **build-your-own-x** (CodeCrafters) <https://github.com/codecrafters-io/build-your-own-x>: its list of game-loop
+  tutorials informed Call It's round, reveal and score loop. Ideas only.
+- **OpenManus** (MIT) <https://github.com/FoundationAgents/OpenManus> was reviewed for this round; an agent framework,
+  it has no part in the app.
+
+## Trading references
+
+The fast lane (lead-lag scan, fear clock, risk-first move sizing) learned its methods from three open-source
+trading projects. Ideas only, no code copied: AutoHedge by The Swarm Corporation (MIT)
+<https://github.com/The-Swarm-Corporation/AutoHedge>, Vibe-Trading by HKUDS (MIT)
+<https://github.com/HKUDS/Vibe-Trading> and FinceptTerminal by Fincept Corporation (AGPL-3.0)
+<https://github.com/Fincept-Corporation/FinceptTerminal>. Details are in [REFERENCES.md](REFERENCES.md).
+
 ## Further references
 
 Twenty open-source repositories and the modelling theories this project draws on are listed in

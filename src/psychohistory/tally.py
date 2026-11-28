@@ -46,14 +46,16 @@ RAIN = 1.0  # millimetres in a day that count as rain: the usual meteorological 
 NAMES = {
     "news_war": ("War", "talk"), "news_election": ("Elections", "talk"), "news_inflation": ("Inflation", "talk"),
     "news_climate": ("Climate change", "talk"), "news_pandemic": ("Disease outbreaks", "talk"), "news_protest": ("Protests", "talk"),
+    "news_ai": ("AI", "talk"), "news_housing": ("Housing and house prices", "talk"), "news_jobs": ("Layoffs and unemployment", "talk"), "news_energy": ("Energy prices", "talk"), "news_wildfire": ("Wildfires and droughts", "talk"), "news_cyber": ("Cyberattacks", "talk"),
     "news_composite": ("The big news topics", "talk"),
-    "politics_sanctions": ("Sanctions", "talk"), "politics_tariffs": ("Tariffs", "talk"), "politics_ceasefire": ("Ceasefires and peace talks", "talk"),
-    "politics_coup": ("Coups", "talk"), "politics_impeachment": ("Impeachments", "talk"), "politics_referendum": ("Referendums", "talk"),
+    "politics_sanctions": ("Sanctions", "talk"), "politics_summits": ("G7 and G20 summits", "talk"), "politics_tariffs": ("Tariffs", "talk"), "politics_ceasefire": ("Ceasefires and peace talks", "talk"),
+    "politics_coup": ("Coups", "talk"), "politics_impeachment": ("Impeachments", "talk"), "politics_referendum": ("Referendums", "talk"), "politics_immigration": ("Immigration", "talk"), "politics_nato": ("NATO", "talk"), "politics_un": ("The United Nations", "talk"),
     "politics_composite": ("The big political topics", "talk"),
     "sp500": ("The S&P 500", "price"), "msci_world": ("World stocks", "price"), "nasdaq100": ("The Nasdaq-100", "price"),
     "aapl": ("Apple stock", "price"), "nvda": ("NVIDIA stock", "price"), "tsla": ("Tesla stock", "price"), "xom": ("Exxon stock", "price"),
     "msft": ("Microsoft stock", "price"), "amzn": ("Amazon stock", "price"), "googl": ("Google (Alphabet) stock", "price"),
-    "ethereum": ("Ether", "price"), "natgas": ("Natural gas", "price"), "eurusd": ("The euro against the dollar", "price"),
+    "ethereum": ("Ether", "price"), "meta": ("Meta stock", "price"), "jpm": ("JPMorgan stock", "price"), "amd": ("AMD stock", "price"), "nflx": ("Netflix stock", "price"), "intc": ("Intel stock", "price"), "ko": ("Coca-Cola stock", "price"), "cocoa": ("Cocoa", "price"), "audusd": ("The Australian dollar", "price"), "visa": ("Visa stock", "price"), "wmt": ("Walmart stock", "price"), "hsi": ("Hong Kong stocks (Hang Seng)", "price"), "brk": ("Berkshire Hathaway stock", "price"), "nikkei": ("Tokyo stocks (Nikkei)", "price"),
+    "ftse": ("London stocks (FTSE 100)", "price"), "dax": ("German stocks (DAX)", "price"), "wheat": ("Wheat", "price"), "corn": ("Corn", "price"), "usdjpy": ("The dollar against the yen", "price"), "gbpusd": ("The pound against the dollar", "price"), "platinum": ("Platinum", "price"), "soybeans": ("Soybeans", "price"), "xrp": ("XRP", "price"), "solana": ("Solana", "price"), "natgas": ("Natural gas", "price"), "eurusd": ("The euro against the dollar", "price"),
     "gold": ("Gold", "price"), "silver": ("Silver", "price"), "us10y": ("The 10-year US interest rate", "price"),
     "tlt": ("Long US bonds", "price"), "vix": ("Market fear (VIX)", "price"), "oil_wti": ("Oil", "price"),
     "copper": ("Copper", "price"), "bitcoin": ("Bitcoin", "price"),
@@ -62,16 +64,16 @@ NAMES = {
     "wiki_humanoid": ("Humanoid robots", "interest"), "wiki_battery": ("Solid-state batteries", "interest"),
     "wiki_gene_therapy": ("Gene therapy", "interest"), "wiki_self_driving": ("Self-driving cars", "interest"),
     "wiki_starship": ("SpaceX Starship", "interest"),
-    "wiki_smr": ("Small nuclear reactors", "interest"), "wiki_ar": ("Augmented reality", "interest"), "tech_composite": ("The big technologies", "interest"),
+    "wiki_smr": ("Small nuclear reactors", "interest"), "wiki_ar": ("Augmented reality", "interest"), "wiki_drones": ("Drones", "interest"), "wiki_cultured_meat": ("Lab-grown meat", "interest"), "wiki_semaglutide": ("Ozempic (semaglutide)", "interest"), "wiki_neuralink": ("Neuralink", "interest"), "wiki_vr": ("Virtual reality", "interest"), "wiki_6g": ("6G networks", "interest"), "wiki_mrna": ("mRNA vaccines", "interest"), "tech_composite": ("The big technologies", "interest"),
     "adoption_solar": ("Solar's share of electricity", "share"), "adoption_wind": ("Wind's share of electricity", "share"),
     "adoption_internet": ("People online", "share"), "adoption_ev": ("Electric cars' share of sales", "share"),
     "space_launches": ("Space launches", "share"),
     "weather_world_air": ("The world's air", "temp"), "weather_world_sea": ("The oceans", "temp"),
     "weather_arctic_ice": ("Arctic sea ice", "ice"), "weather_london": ("London", "temp"), "weather_new_delhi": ("New Delhi", "temp"),
-    "weather_tokyo": ("Tokyo", "temp"), "weather_sydney": ("Sydney", "temp"), "weather_los_angeles": ("Los Angeles", "temp"), "weather_new_york": ("New York", "temp"),
+    "weather_tokyo": ("Tokyo", "temp"), "weather_singapore": ("Singapore", "temp"), "weather_sydney": ("Sydney", "temp"), "weather_los_angeles": ("Los Angeles", "temp"), "weather_new_york": ("New York", "temp"), "weather_paris": ("Paris", "temp"), "weather_sao_paulo": ("São Paulo", "temp"), "weather_mumbai": ("Mumbai", "temp"), "weather_cape_town": ("Cape Town", "temp"),
     "quakes_m45": ("Big earthquakes", "count"),
-    "rain_london": ("London", "rain"), "rain_new_delhi": ("New Delhi", "rain"), "rain_tokyo": ("Tokyo", "rain"),
-    "rain_sydney": ("Sydney", "rain"), "rain_los_angeles": ("Los Angeles", "rain"), "rain_new_york": ("New York", "rain"),
+    "rain_london": ("London", "rain"), "rain_singapore": ("Singapore", "rain"), "rain_new_delhi": ("New Delhi", "rain"), "rain_tokyo": ("Tokyo", "rain"),
+    "rain_sydney": ("Sydney", "rain"), "rain_los_angeles": ("Los Angeles", "rain"), "rain_new_york": ("New York", "rain"), "rain_paris": ("Paris", "rain"), "rain_sao_paulo": ("São Paulo", "rain"), "rain_mumbai": ("Mumbai", "rain"), "rain_cape_town": ("Cape Town", "rain"),
 }
 AREAS = [("markets", "Markets"), ("news", "World news"), ("politics", "Politics"), ("tech", "Technology"), ("weather", "Weather")]
 
@@ -360,9 +362,10 @@ def models(scored: pd.DataFrame | None) -> list[dict]:
 
 def days(calls: pd.DataFrame, titles: dict[str, str] | None = None, rng: pd.DataFrame | None = None) -> list[dict]:
     """Every day's calls with what happened, newest day first; with the range call for the same day
-    (low, high, landed inside) where there is one."""
-    look = {} if rng is None or rng.empty else {(a, b): [float(f"{lo:.4g}"), float(f"{hi:.4g}"), bool(i)]
-                                                for a, b, lo, hi, i in zip(rng["series_id"], rng["target_date"], rng["lo"], rng["hi"], rng["inside"])}
+    (low, high, landed inside, the real value) where there is one."""
+    look = {} if rng is None or rng.empty else {(a, b): [float(f"{lo:.4g}"), float(f"{hi:.4g}"), bool(i), float(f"{v:.5g}")]
+                                                for a, b, lo, hi, i, v in zip(rng["series_id"], rng["target_date"], rng["lo"], rng["hi"],
+                                                                              rng["inside"], rng["actual"])}
     out = []
     for d, day in calls.groupby("target_date"):
         rows = [[r.series_id, r.domain, sentence(r.series_id, bool(r.up)), round(float(r.chance), 3), bool(r.right),
@@ -419,7 +422,8 @@ def payload(scored: pd.DataFrame | None, ledger: pd.DataFrame | None, freqs: dic
     rng = ranges(settled)
     return {"model": MODEL, "record": rec, "models": models(scored), "days": days(calls, rng=rng) if len(calls) else [],
             "confident": confident(calls), "lines": lines(scored), "ranges": range_record(rng),
-            "now": now(ledger, calls, freqs, settled=settled, rng=rng), "bands": [[f, k, l] for f, k, l in BANDS]}
+            "now": now(ledger, calls, freqs, settled=settled, rng=rng), "bands": [[f, k, l] for f, k, l in BANDS],
+            "names": {k: list(v) for k, v in NAMES.items()}}  # plain names, for the game and anything else that speaks to people
 
 
 def describe(p: dict | None) -> str:

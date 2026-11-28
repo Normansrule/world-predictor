@@ -152,6 +152,19 @@
         if (r.label) el("text", { x: sx(r.x) + 4, y: m.t + 10, style: `fill:${color}` }, svg).textContent = r.label;
       }
     });
+    // A soft gradient under the first solid line, fading to nothing at the floor (after bklit's area charts).
+    const lead = spec.area === false ? null : (spec.lines || []).find((s) => !s.dash && s.points.filter((p) => p[1] != null).length > 2);
+    if (lead) {
+      const pts = lead.points.filter((p) => p[1] !== null && p[1] !== undefined);
+      const gid = "wp-area-" + (++uid);
+      const g = el("linearGradient", { id: gid, x1: 0, x2: 0, y1: 0, y2: 1 }, defs);
+      el("stop", { offset: 0, "stop-color": lead.color, "stop-opacity": spec.areaOpacity ?? 0.2 }, g);
+      el("stop", { offset: 1, "stop-color": lead.color, "stop-opacity": 0 }, g);
+      const floor = height - m.b;
+      const d = pts.map((p, i) => (i ? "L" : "M") + sx(p[0]).toFixed(1) + "," + sy(p[1]).toFixed(1)).join("") +
+        `L${sx(pts[pts.length - 1][0]).toFixed(1)},${floor}L${sx(pts[0][0]).toFixed(1)},${floor}Z`;
+      el("path", { d, fill: `url(#${gid})`, stroke: "none", class: "area" + (animate ? " fade" : "") }, svg);
+    }
     const endLabels = [];
     (spec.lines || []).forEach((s) => {
       const pts = s.points.filter((p) => p[1] !== null && p[1] !== undefined);
@@ -204,6 +217,8 @@
     if (spec.hover !== false && hoverSrc.length) {
       const tip = document.createElement("div"); tip.className = "tip"; container.appendChild(tip);
       const cross = el("line", { y1: m.t, y2: height - m.b, stroke: "var(--ink-2)", "stroke-width": 1, "stroke-dasharray": "2 3", opacity: 0 }, svg);
+      const halo = el("circle", { r: 9, fill: "var(--ink)", opacity: 0, class: "hover-halo" }, svg);
+      const dot = el("circle", { r: 4, fill: "var(--ink)", stroke: "var(--panel)", "stroke-width": 2, opacity: 0, class: "hover-dot" }, svg);
       svg.addEventListener("pointermove", (ev) => {
         const best = nearest(ev);
         if (!best) return;
@@ -214,8 +229,11 @@
         tip.style.left = (sx(best.x) / width) * 100 + "%";
         tip.style.top = (sy(best.y) / height) * 100 + "%";
         tip.style.opacity = 1; cross.setAttribute("x1", sx(best.x)); cross.setAttribute("x2", sx(best.x)); cross.setAttribute("opacity", 0.4);
+        const c = best.s.color || "var(--ink)";
+        [halo, dot].forEach((n) => { n.setAttribute("cx", sx(best.x)); n.setAttribute("cy", sy(best.y)); n.setAttribute("fill", c); });
+        halo.setAttribute("opacity", 0.18); dot.setAttribute("opacity", 1);
       });
-      svg.addEventListener("pointerleave", () => { tip.style.opacity = 0; cross.setAttribute("opacity", 0); });
+      svg.addEventListener("pointerleave", () => { tip.style.opacity = 0; cross.setAttribute("opacity", 0); halo.setAttribute("opacity", 0); dot.setAttribute("opacity", 0); });
     }
     const inv = (py) => y0 + ((height - m.b - py) / (height - m.t - m.b)) * (y1 - y0);
     return { svg, sx, sy, inv, m, width, height, y0, y1 };

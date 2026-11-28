@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap">
   <link rel="stylesheet" href="css/app.css">
-  <script>document.documentElement.classList.add("js"); try { const t = localStorage.getItem("wp-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
+  <script>document.documentElement.classList.add("js"); try { const t = localStorage.getItem("wp-theme"); if (t) document.documentElement.dataset.theme = t; const m = localStorage.getItem("wp-motion"); if (m) document.documentElement.dataset.motion = m; } catch (e) {}</script>
 </head>
 <body class="term">
 <a class="skip" href="#main">Skip to content</a>
@@ -33,7 +33,7 @@
 <div class="cmd" role="search">
   <label class="cmd-field">
     <span class="prompt" aria-hidden="true">&gt;</span>
-    <input id="cmd" type="text" autocomplete="off" spellcheck="false" placeholder="Go to a series or view" aria-label="Go to a series or view" aria-controls="cmd-list" aria-expanded="false" role="combobox" aria-autocomplete="list">
+    <input id="cmd" type="text" autocomplete="off" spellcheck="false" placeholder="Search series" aria-label="Go to a series or view" aria-controls="cmd-list" aria-expanded="false" role="combobox" aria-autocomplete="list">
     <kbd>/</kbd>
   </label>
   <ul class="cmd-list" id="cmd-list" role="listbox" hidden></ul>
@@ -42,6 +42,7 @@
 
 <div class="shell">
   <nav class="rail" aria-label="Views">
+    <a href="#play" class="primary play-link"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4.5v15l13-7.5z"/></svg>Play</a>
     <a href="#today" class="primary"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg>Today</a>
     <a href="#record" class="primary"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12l5 5L20 6"/><path d="M4 21h16" opacity=".5"/></svg>Track record</a>
     <a href="#terminal" class="primary"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg>World</a>
@@ -50,6 +51,7 @@
     <details class="more-nav">
       <summary>More</summary>
       <div class="more-sheet">
+      <a href="#desk" class="phone-only">Scores</a>
       <a href="#lab">Your call</a>
       <a href="#events">World events</a>
       <a href="#calendar">Coming up</a>
@@ -132,6 +134,8 @@
         </div>
       </div>
     </section>
+
+    <section class="view" id="view-play" aria-label="Call It, the game"><div id="play-root"></div></section>
 
     <section class="view" id="view-lab" aria-labelledby="lab-h">
       <div class="vhead">
@@ -333,6 +337,7 @@
 <dialog id="help" aria-labelledby="help-h">
   <header><h2 id="help-h">Shortcuts and offline</h2><button class="icon-btn" data-close aria-label="Close">✕</button></header>
   <div class="help-keys"></div>
+  <p class="help-motion">Motion: <button class="btn small" id="motion-btn" aria-pressed="false">Full</button> <span>Calm stills the moving backdrop and the entrances; your system's reduced-motion setting always wins.</span></p>
   <p>Everything is also one tap away: the five buttons on the left (at the bottom on a phone), and More for the rest. <a href="#about" data-close>About World Predictor</a></p>
   <div id="offline-box"></div>
   <div id="follow-box">
@@ -344,6 +349,8 @@
 </dialog>
 <script src="data/data.js"></script>
 <script src="data/pipeline.js"></script>
+<script src="vendor/anime.umd.min.js"></script>
+<script src="js/motion.js"></script>
 <script src="js/charts.js"></script>
 <script src="js/trace.js"></script>
 <script src="js/lab.js"></script>
@@ -361,8 +368,10 @@
 <script src="js/spikes.js"></script>
 <script src="js/record.js"></script>
 <script src="js/race.js"></script>
+<script src="js/fastlane.js"></script>
 <script src="js/share.js"></script>
 <script src="js/today.js"></script>
+<script src="js/play.js"></script>
 <script src="js/app.js"></script>
 <script src="js/offline.js"></script>
 </body>

@@ -127,7 +127,8 @@
       <p class="lede">${esc(modelName)}, Radiant and their rivals forecast the world every week. Here is everything they give a 75% or better chance of going higher, from tomorrow to ten years out, and how often calls like these came true. ${esc(edge)}</p>
       <div class="counters" role="list">
         ${["world", "major", "watch"].map((k) => `<a role="listitem" class="counter t-${k}" href="#today" data-jump="${k}"><b data-n="${n(k)}">${n(k)}</b><span>${TIER_COPY[k][0]}</span><small>${TIER_COPY[k][1]}</small></a>`).join("")}
-      </div>${F.fallback ? `<p class="fallback">Read in your browser from this week's sealed forecasts. Each tier's record, the 70% club and the year-to-decade frames arrive with the next forecast run.</p>` : ""}</section>`;
+      </div>
+      <a class="play-promo" href="#play"><span class="pp-new">New</span><span class="pp-t"><b>Call It</b>: a real chart, the ending hidden. Can you call it better than TimesFM?</span><span class="pp-go">Play</span></a>${F.fallback ? `<p class="fallback">Read in your browser from this week's sealed forecasts. Each tier's record, the 70% club and the year-to-decade frames arrive with the next forecast run.</p>` : ""}</section>`;
   }
 
   // ---------- alerts ----------
@@ -347,7 +348,7 @@
   }
 
   // The screen, top to bottom. Every change redraws it in place and keeps the scroll position.
-  const page = (F) => tour() + hero(F) + (window.WPRecord ? window.WPRecord.now(D, 9) : "") + watchlist(F) + (window.WPEvents ? window.WPEvents.teaser(D) : "") + (window.WPCalendar ? window.WPCalendar.teaser(D) : "") + (window.WPSpikes ? window.WPSpikes.teaser(D) : "") + alerts(F) + brief(F) + frames(F) + history(F) + trust(F);
+  const page = (F) => tour() + hero(F) + (window.WPRecord ? window.WPRecord.since(D) + window.WPRecord.now(D, 9) : "") + watchlist(F) + (window.WPEvents ? window.WPEvents.teaser(D) : "") + (window.WPCalendar ? window.WPCalendar.teaser(D) : "") + (window.WPSpikes ? window.WPSpikes.teaser(D) : "") + alerts(F) + brief(F) + frames(F) + history(F) + trust(F);
   const link = () => `#today/${state.id}${state.frame !== "all" ? ":" + state.frame : ""}`;
 
   function render(host, data, arg) {

@@ -213,13 +213,16 @@ def replay(wins: list[dict]) -> pd.DataFrame:
                 own[i + 1] = own[i]
             m = f["model"]
             ratios.append(radiant.band_ratios(m.q(0.1), m.q(0.5), m.q(0.9), a))
+        scales: dict[int, float] = {}  # windows on the same grid date share a cut-off: work each widening out once
         for w in mine:
             k = int(np.searchsorted(ends, w["origin"].value, side="right"))  # windows finished by the origin
+            if k not in scales:
+                scales[k] = radiant.band_scale(ratios[:k])
             x = {e: w["f"][e] for e in ("model", "laws", "core", "naive")}
             logits = np.log(radiant.prior(False)) - radiant.ETA * rad[k]
             wt = np.exp(logits - logits.max())
             wt = radiant.present(wt / wt.sum(), x)
-            mixed = radiant.widen(radiant.mix(x, wt), radiant.band_scale(ratios[:k]))
+            mixed = radiant.widen(radiant.mix(x, wt), scales[k])
             logits = -seldon.OWN_ETA * own[k]
             ow = np.exp(logits - logits.max())
             sel, _ = seldon.own_mix({e: w["f"][e] for e in seldon.OWN if e in w["f"]}, ow / ow.sum())

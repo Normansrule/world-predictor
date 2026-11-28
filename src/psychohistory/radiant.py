@@ -85,22 +85,20 @@ def fit(z: np.ndarray, horizon: int, lam: float = LAMBDA) -> tuple[np.ndarray, n
     dates of this series. None when the history is too short to learn anything."""
     z = z[-MAX_HISTORY:]
     n = len(z)
-    rows, targets, steps = [], [], []
-    for t in range(MIN_TRAIN, n - horizon, max(1, horizon // 4)):
-        s = signals(z, t, horizon)
-        for h in range(1, horizon + 1):
-            rows.append(s * h / horizon)
-            targets.append(z[t + h] - z[t])
-            steps.append(h)
-    if len(targets) < 4 * horizon:
+    ts = np.arange(MIN_TRAIN, n - horizon, max(1, horizon // 4))
+    if len(ts) * horizon < 4 * horizon:
         return None
-    x, y = np.array(rows), np.array(targets)
+    # Every training date times every step ahead, built as whole arrays: the same numbers, in the
+    # same order and by the same arithmetic as one row at a time, only without a Python loop per row.
+    sig = np.array([signals(z, int(t), horizon) for t in ts])
+    hs = np.arange(1, horizon + 1)
+    x = (sig[:, None, :] * hs[None, :, None] / horizon).reshape(-1, sig.shape[1])
+    y = (z[ts[:, None] + hs[None, :]] - z[ts][:, None]).reshape(-1)
     scale = np.sqrt((x ** 2).mean(axis=0)) + 1e-12
     xs = x / scale
     beta = np.linalg.solve(xs.T @ xs + lam * len(y) * np.eye(x.shape[1]), xs.T @ y) / scale
-    resid = y - x @ beta
-    steps = np.array(steps)
-    spread = np.array([np.std(resid[steps == h]) if np.any(steps == h) else np.std(resid) for h in range(1, horizon + 1)])
+    resid = (y - x @ beta).reshape(len(ts), horizon)
+    spread = np.array([np.std(np.ascontiguousarray(resid[:, j])) for j in range(horizon)])  # one residual per training date
     return beta, spread
 
 

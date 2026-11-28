@@ -32,7 +32,15 @@ QUERIES = {
     "wiki_battery": '"battery technology"', "wiki_gene_therapy": '"gene therapy"', "wiki_self_driving": '("self-driving" OR robotaxi)',
     "wiki_starship": "Starship SpaceX", "msft": "Microsoft", "amzn": "Amazon", "googl": "(Google OR Alphabet)",
     "ethereum": "(ethereum OR ether)", "natgas": '"natural gas"', "eurusd": '(euro dollar OR "exchange rate")',
-    "wiki_smr": '"small modular reactor"', "wiki_ar": '"augmented reality"',
+    "wiki_smr": '"small modular reactor"', "wiki_ar": '"augmented reality"', "meta": '("Meta Platforms" OR Zuckerberg)',
+    "nikkei": "Nikkei", "ftse": '"FTSE 100"', "dax": "DAX", "wheat": '"wheat prices"', "solana": "Solana",
+    "jpm": "JPMorgan", "amd": "AMD chips", "corn": '"corn prices"', "usdjpy": '(yen dollar OR "Bank of Japan")',
+    "wiki_drones": "drones", "wiki_neuralink": "Neuralink",
+    "nflx": "Netflix", "brk": '"Berkshire Hathaway"', "gbpusd": '(pound sterling OR "Bank of England")', "platinum": '"platinum price"',
+    "xrp": "XRP", "wiki_vr": '"virtual reality"',
+    "visa": '"Visa Inc"', "wmt": "Walmart", "hsi": '"Hang Seng"', "soybeans": "soybeans", "wiki_6g": '"6G"', "wiki_mrna": '"mRNA"',
+    "intc": "Intel chips", "ko": "Coca-Cola", "cocoa": '"cocoa prices"', "audusd": '("Australian dollar" OR "Reserve Bank of Australia")',
+    "wiki_cultured_meat": '"lab-grown meat"', "wiki_semaglutide": '(Ozempic OR Wegovy OR semaglutide)',
 }
 FIRST = ("news", "politics", "tech")  # the world event predictor's topics come before markets
 

@@ -113,6 +113,7 @@
       <div class="card"><header class="ph"><h2>Watchlist</h2><span class="pm">click a row for the detail · tick up to four to compare</span></header>
         <div class="table-wrap"><table class="mk-watch" id="mk-watch"></table></div>
         <p class="note">Move and range are the forecast's middle and 80% range at the horizon, against the last close. Vol is annualised: the forecast's own (read off its 80% range) against the market's last three months. Record is ${esc(modelName())}'s skill against "no change" on this asset's past windows, with the share of reality that landed inside its 80% range; Trust is the model with the least error there.</p></div>
+      <div class="card fl" data-fast></div>
       <div class="mk-grid">
         <div class="card detail mk-detail" id="mk-detail"></div>
         <div class="card" id="mk-side"></div>
@@ -130,6 +131,7 @@
     host.querySelector("#mk-csv").onclick = () => exportCsv(list);
     host.querySelector("#mk-json").onclick = () => exportJson();
     host.querySelector("#mk-link").onclick = (e) => copyLink(e.currentTarget);
+    if (window.WPFast) window.WPFast.hydrate(host);
     watch(list);
     detail(list.find((a) => a.id === state.id));
     compare(list);

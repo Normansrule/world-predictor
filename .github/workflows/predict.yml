@@ -87,6 +87,10 @@ jobs:
         continue-on-error: true
         timeout-minutes: 45
         run: psychohistory race
+      - name: The fast lane (does anything move before markets do? lead-lag scan, fear clock, next week's move sizes)
+        continue-on-error: true
+        timeout-minutes: 15
+        run: psychohistory fastlane
       - name: Betting odds (Polymarket's prices on real-world questions, sealed, scored when they settle)
         continue-on-error: true
         timeout-minutes: 10

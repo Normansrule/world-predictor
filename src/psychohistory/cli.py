@@ -12,7 +12,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from . import ask, backtest, bets, brief, catalog, follow, health, hype, offline, dashboard, race, data, desk, events, ledger, monitor, radiant, report, seldon, simulate, spikes, story, tally, volatility, web, wire, yearbook
+from . import ask, backtest, bets, brief, catalog, fastlane, follow, health, hype, offline, dashboard, race, data, desk, events, ledger, monitor, radiant, report, seldon, simulate, spikes, story, tally, volatility, web, wire, yearbook
 from .models import BASELINES, LAWS, classical_available, load_model
 
 log = logging.getLogger("psychohistory")
@@ -684,6 +684,17 @@ def _payload(args, demo: bool = False) -> dict | None:
     return out
 
 
+def cmd_fastlane(args) -> None:
+    """The fast lane: does anything we follow move before markets do? A lead-lag scan, the fear clock
+    and next week's move sizes, all scored on years no fit had seen."""
+    specs = [s for s in catalog.CATALOG if s.id in set(fastlane.markets()) | set(fastlane.attention())]
+    p = fastlane.payload(_load(specs, args.data_dir), test_from=args.test_from)
+    print(fastlane.describe(p))
+    path = fastlane.write(p, args.out_dir / "web" / "fastlane.json")
+    if path:
+        print(f"\nFast lane written to {path}")
+
+
 def cmd_race(args) -> None:
     """The race: TimesFM, Radiant and Seldon against what happened, replayed back up to ten years
     (growing by ``--grow`` TimesFM windows per series per run) and sealed from the first forecast on."""
@@ -853,6 +864,11 @@ def main(argv: list[str] | None = None) -> None:
     common(p)
     p.add_argument("--save", type=Path, default=None, help="also write every monthly backtest call to this CSV")
     p.set_defaults(func=cmd_hype)
+
+    p = sub.add_parser("fastlane", help="the fast lane: does anything move before markets do? lead-lag scan, fear clock, next week's move sizes")
+    common(p)
+    p.add_argument("--test-from", default=fastlane.TEST_FROM, help=f"first held-out day (default {fastlane.TEST_FROM})")
+    p.set_defaults(func=cmd_fastlane)
 
     p = sub.add_parser("race", help="the race: TimesFM, Radiant and Seldon against what happened, replayed back up to ten years and sealed since")
     common(p)

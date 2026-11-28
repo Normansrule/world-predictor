@@ -109,6 +109,30 @@
         <p class="tr-v">${a.key === "weather" ? "Temperatures within a few degrees." : a.width != null ? `A typical range spans ${pct(a.width)} of the level${a.width > 0.4 ? ": attention is hard to pin down, so the ranges are wide." : "."}` : ""}</p></div>`).join("")}</div>
       <p class="note">The line on each bar marks 80%. A range that is right far more often than 80% is wider than it needs to be.</p></section>`;
   }
+  // Surprises: the days reality landed outside the range, the furthest out first (measured in range widths).
+  function surprises(limit = 8, span14 = 14) {
+    const days = (T.days || []).slice(0, span14);
+    const ranged = days.flatMap((d) => d.calls.filter((c) => c[11] && c[11].length > 3 && c[11][1] > c[11][0]).map((c) => ({ c, date: d.date })));
+    if (ranged.length < 10) return "";
+    const held = ranged.filter((x) => x.c[11][2]).length;
+    const out = ranged.filter((x) => !x.c[11][2]).map((x) => {
+      const [lo, hi, , v] = x.c[11], w = hi - lo;
+      return { ...x, lo, hi, v, by: v < lo ? (lo - v) / w : (v - hi) / w, below: v < lo };
+    }).filter((x) => x.by > 0).sort((a, b) => b.by - a.by)
+      .filter((x, i, all) => all.findIndex((y) => y.c[0] === x.c[0]) === i).slice(0, limit);  // each series once, at its biggest miss
+    if (!out.length) return "";
+    const bar = (x) => {
+      const a = Math.min(x.lo, x.v), b = Math.max(x.hi, x.v), pad = (b - a) * 0.08 || 1, A = a - pad, W = b + pad - A;
+      const px = (v) => (((v - A) / W) * 100).toFixed(1);
+      return `<span class="tr-sp-bar" aria-hidden="true"><s style="left:${px(x.lo)}%;width:${(px(x.hi) - px(x.lo)).toFixed(1)}%"></s><i style="left:${px(x.v)}%"></i></span>`;
+    };
+    return `<section class="block" aria-labelledby="trp-h"><header class="bh"><div><h2 id="trp-h">Surprises: where it landed outside the range</h2>
+      <p>Over the last ${days.length} days, ${held} of ${ranged.length} ranges held (${pct(held / ranged.length)}). These are the ones that missed by the most (each thing once, at its biggest miss), measured against how wide the range was. The shaded box is the range, the dot is what happened.</p></div></header>
+      <div class="tr-sp">${out.map((x) => `<a class="tr-sp-c" href="#series/${esc(x.c[0])}" style="--c:var(--${esc(x.c[1])})">
+        <span class="tr-sp-h"><b>${esc(x.c[2])}</b><small>${esc(day(x.date))}</small></span>${bar(x)}
+        <span class="tr-sp-t">Landed at <b>${val(x.v, x.c[9])}</b>, ${x.below ? "below" : "above"} its likely ${span(x.lo, x.hi, x.c[9])}</span>
+        <span class="tr-sp-k">${x.by >= 1 ? `${x.by.toFixed(1)} range widths out` : `${Math.round(x.by * 100)}% of a range width out`} · the up/down call was ${x.c[4] ? "right" : "wrong"}</span></a>`).join("")}</div></section>`;
+  }
   const state = { area: "all", shown: 7, chart: "all", charts: 6 };
   let D, T;
 
@@ -201,7 +225,8 @@
     return `<section class="block" aria-labelledby="trl-h"><header class="bh"><div><h2 id="trl-h">Every day: what it said, and what happened</h2>
       <p>Newest first; tap a day to open or close it. ✓ right, ✗ wrong. The chance is how sure it was when it made the call; “compared with” is the last value it had seen.</p></div></header>
       <div class="chips" role="group" aria-label="Area">${chips}</div>
-      ${shown.map((d, i) => `<details class="tr-day"${i < 2 ? " open" : ""}><summary><h3>${esc(day(d.date, true))} <span class="tr-dscore ${d.right >= d.wrong ? "good" : "bad"}">${d.right} right, ${d.wrong} wrong (${pct(d.right / d.calls.length)})</span>
+      ${calendar(days)}
+      ${shown.map((d, i) => `<details class="tr-day" id="tr-d-${esc(d.date)}"${i < 2 || d.date === state.open ? " open" : ""}><summary><h3>${esc(day(d.date, true))} <span class="tr-dscore ${d.right >= d.wrong ? "good" : "bad"}">${d.right} right, ${d.wrong} wrong (${pct(d.right / d.calls.length)})</span>
           <span class="tr-strip" aria-hidden="true">${d.calls.map((c) => `<i class="${c[4] ? "ok" : "no"}"></i>`).join("")}</span></h3></summary>
         <ul class="tr-calls">${d.calls.map((c) => `<li class="${c[4] ? "ok" : "no"}"><span class="tr-mark" aria-label="${c[4] ? "right" : "wrong"}">${c[4] ? "✓" : "✗"}</span>
           <span class="tr-call"><b>${esc(c[2])}</b><small>called on ${esc(day(c[6]))}, compared with ${esc(day(c[7]))}</small></span>
@@ -209,6 +234,29 @@
           <span class="tr-what">${esc(c[8][0].toUpperCase() + c[8].slice(1))} <small>${change(c)}</small>${c[11] ? `<small class="tr-rl ${c[11][2] ? "ok" : "no"}">range ${span(c[11][0], c[11][1], c[9])} ${c[11][2] ? "✓" : "✗"}</small>` : ""}</span></li>`).join("")}</ul></details>`).join("")}
       ${days.length > state.shown ? `<button class="btn" data-tr-more>Show 7 more days (${days.length - state.shown} left)</button>` : ""}
     </section>`;
+  }
+
+  // Every day at a glance: one square per day, greener the more calls came true, redder the fewer.
+  function calendar(days) {
+    if (days.length < 2) return "";
+    const byDate = new Map(days.map((d) => [d.date, d]));
+    const first = new Date(days[days.length - 1].date + "T00:00:00Z"), last = new Date(days[0].date + "T00:00:00Z");
+    const lead = (first.getUTCDay() + 6) % 7;  // Monday first
+    const cells = Array.from({ length: lead }, () => `<i class="tr-cal-x"></i>`);
+    for (let t = first.getTime(); t <= last.getTime(); t += 864e5) {
+      const iso = new Date(t).toISOString().slice(0, 10), d = byDate.get(iso);
+      if (!d) { cells.push(`<i class="tr-cal-x tr-cal-none" title="${esc(day(iso, true))}: nothing came due"></i>`); continue; }
+      const share = d.right / d.calls.length, k = Math.max(-1, Math.min(1, (share - 0.5) * 2.5));
+      const col = k >= 0 ? "var(--up)" : "var(--down)", mix = Math.round(18 + 72 * Math.abs(k));
+      cells.push(`<button class="tr-cal-d" data-tr-day="${iso}" style="background:color-mix(in oklab, ${col} ${mix}%, var(--panel-2, var(--panel)))"
+        title="${esc(day(iso, true))}: ${d.right} right, ${d.wrong} wrong (${pct(share)})" aria-label="${esc(day(iso, true))}: ${d.right} right, ${d.wrong} wrong"></button>`);
+    }
+    const ranked = days.filter((d) => d.calls.length >= 5).sort((a, b) => b.right / b.calls.length - a.right / a.calls.length);
+    const best = ranked[0], worst = ranked[ranked.length - 1], good = days.filter((d) => d.right > d.wrong).length;
+    return `<div class="tr-cal"><div class="tr-cal-g"><span class="tr-cal-w" aria-hidden="true"><b>Mon</b><b></b><b>Wed</b><b></b><b>Fri</b><b></b><b>Sun</b></span>
+        <div class="tr-cal-grid" role="group" aria-label="Every day at a glance">${cells.join("")}</div></div>
+      <div class="tr-cal-k"><p><b>Every day at a glance.</b> ${good} of ${days.length} days had more right than wrong.${best && worst && best !== worst ? ` Best: ${esc(day(best.date))}, ${best.right} of ${best.calls.length}. Worst: ${esc(day(worst.date))}, ${worst.right} of ${worst.calls.length}.` : ""} Tap a day to open it below.</p>
+        <span class="tr-cal-l" aria-hidden="true">fewer right <i style="background:var(--down)"></i><i style="background:color-mix(in oklab, var(--down) 40%, var(--panel))"></i><i style="background:color-mix(in oklab, var(--up) 18%, var(--panel))"></i><i style="background:color-mix(in oklab, var(--up) 55%, var(--panel))"></i><i style="background:var(--up)"></i> more right</span></div></div>`;
   }
 
   // ---------- What it says now: plain calls for about a week ahead, for Today ----------
@@ -228,9 +276,31 @@
         <b>${esc(c.call)}</b>
         <span class="tr-meta"><span class="tr-chance b-${c.band.replace(" ", "-")}">${esc(BAND[c.band] || c.band)} · ${pct(c.chance)}</span>
         ${c.record ? `<span>right ${c.record.right} of ${c.record.n}</span>` : "<span>no record yet</span>"}</span>
-        ${c.lo != null ? `<span class="tr-rng">Likely between <b>${span(c.lo, c.hi, c.kind)}</b>${c.range_record ? ` <small>· inside ${c.range_record[0]} of ${c.range_record[1]} so far</small>` : ""}</span>` : ""}
-        ${T2.confident && T2.confident.bar != null ? (c.chance >= T2.confident.bar ? `<span class="tr-sb yes">✓ a call it stands behind</span>` : `<span class="tr-sb">below its ${pct(T2.confident.bar)} bar: treat as a guess</span>`) : ""}
-        <small>by ${esc(day(c.target))}, compared with ${esc(day(c.from))}</small></a>`).join("")}</div></section>`;
+        ${c.lo != null ? `<span class="tr-rng"${c.range_record ? ` title="Its ranges here held ${c.range_record[0]} of ${c.range_record[1]} times so far"` : ""}>Likely <b>${span(c.lo, c.hi, c.kind)}</b></span>` : ""}
+        <span class="tr-foot"><span>by ${esc(day(c.target))}</span>${T2.confident && T2.confident.bar != null ? (c.chance >= T2.confident.bar ? `<span class="tr-sb yes">✓ stands behind it</span>` : `<span class="tr-sb">a guess, below its ${pct(T2.confident.bar)} bar</span>`) : ""}</span></a>`).join("")}</div></section>`;
+  }
+
+  // ---------- Since you last looked: the calls that came due between two visits, for Today ----------
+  const LAST = "wp-last-visit-v1";
+  let prevVisit;  // read once per page load, so re-rendering Today does not swallow the news
+  function since(data) {
+    const T2 = data.tally;
+    if (!T2 || !T2.days || !T2.days.length) return "";
+    const newest = T2.days[0].date;
+    if (prevVisit === undefined) {
+      try { prevVisit = JSON.parse(localStorage.getItem(LAST)); } catch (e) { prevVisit = null; }
+      try { localStorage.setItem(LAST, JSON.stringify({ seen: newest, at: new Date().toISOString().slice(0, 10) })); } catch (e) { /* private mode */ }
+    }
+    if (!prevVisit || !prevVisit.seen || newest <= prevVisit.seen) return "";
+    const fresh = T2.days.filter((d) => d.date > prevVisit.seen);
+    const calls = fresh.flatMap((d) => d.calls), right = calls.filter((c) => c[4]).length;
+    if (!calls.length) return "";
+    const miss = calls.filter((c) => !c[4]).sort((a, b) => b[3] - a[3])[0];
+    const hit = calls.filter((c) => c[4]).sort((a, b) => b[3] - a[3])[0];
+    return `<section class="tr-since" aria-label="Since you last looked">
+      <span class="tr-since-ring">${ring(right / calls.length, 56)}</span>
+      <div><p class="tr-since-h"><b>Since you last looked</b>${prevVisit.at ? ` on ${esc(day(prevVisit.at))}` : ""}: ${calls.length} calls came due over ${fresh.length} day${fresh.length === 1 ? "" : "s"}, <span class="w">${right} right</span> and <span class="l">${calls.length - right} wrong</span>.</p>
+      <p class="tr-since-s">${hit ? `Surest hit: “${esc(hit[2])}” at ${pct(hit[3])}.` : ""} ${miss ? `Biggest miss: “${esc(miss[2])}” at ${pct(miss[3])}.` : ""} <a href="#record">Every day, right or wrong</a></p></div></section>`;
   }
 
   // One series in plain words, for its own page: the call now, and its last ten calls right or wrong.
@@ -255,14 +325,22 @@
     if (!T || !T.record) {
       return `<section class="block"><h2>Track record</h2><div class="empty"><b>No call has come due yet.</b>The first ones settle a day after the first weekly forecast.</div></section>`;
     }
-    return scoreboard() + behind() + rangeBlock() + nowCards(D, 12).replace('class="pm" href="#record"', 'class="pm" hidden href="#record"') + charts() + areas() + sureness() + log() + models();
+    return scoreboard() + behind() + rangeBlock() + surprises() + nowCards(D, 12).replace('class="pm" href="#record"', 'class="pm" hidden href="#record"') + charts() + areas() + sureness() + log() + models();
   }
 
   function render(host, data) {
     D = data; T = data.tally;
     host.innerHTML = page();
     host.onclick = (e) => {
-      const a = e.target.closest("[data-tr-area]"), more = e.target.closest("[data-tr-more]");
+      const a = e.target.closest("[data-tr-area]"), more = e.target.closest("[data-tr-more]"), cal = e.target.closest("[data-tr-day]");
+      if (cal) {
+        const iso = cal.dataset.trDay, all = (T.days || []).map((d) => d.date), at = all.indexOf(iso);
+        state.open = iso; if (at >= state.shown) state.shown = at + 1;
+        host.innerHTML = page();
+        const el = host.querySelector(`#tr-d-${iso}`);
+        if (el) { el.open = true; el.scrollIntoView({ behavior: "smooth", block: "start" }); }
+        return;
+      }
       const ch = e.target.closest("[data-tr-chart]"), mc = e.target.closest("[data-tr-charts]");
       if (ch || mc) { const y = window.scrollY; if (ch) { state.chart = ch.dataset.trChart; state.charts = 6; } else state.charts += 6; host.innerHTML = page(); window.scrollTo(0, y); return; }
       if (a) { state.area = a.dataset.trArea; state.shown = 7; host.innerHTML = page(); }
@@ -270,5 +348,5 @@
     };
   }
 
-  window.WPRecord = { render, now: nowCards, verdict, seriesCard, chart };
+  window.WPRecord = { render, now: nowCards, since, verdict, seriesCard, chart, surprises: (data, n) => { D = data; T = data.tally; return surprises(n); } };
 })();

@@ -78,6 +78,10 @@ Nothing here is financial advice, and most of the interesting results are about 
 
 ## Key features
 
+- **Call It, a game on real data.** A real chart with the ending hidden: call it higher or lower, bet
+  how sure you are, and watch what really happened beside what TimesFM, Seldon and Radiant said at that
+  same moment. Quick runs, a daily five that is the same for everyone, bullseye rounds, live calls on the
+  real future, streaks, levels, badges and sound. [How it works](#call-it-the-game).
 - **A track record anyone can read.** Every sealed forecast is read as a plain call ("Gold will be
   higher", "War will be in the news less", "London will be warmer") with how sure it was, and checked
   when its day comes. The Track record tab keeps the running score since the first forecast: **560
@@ -91,13 +95,27 @@ Nothing here is financial advice, and most of the interesting results are about 
   showing how far apart they were, YTD, 1Y, 2Y, 5Y and 10Y buttons, and beside the forecast a
   scoreboard of how each did in the past and how it is doing now.
   [How it works](#the-race-every-forecaster-against-what-happened-over-years).
+- **The fast lane: does anything move before markets do?** Every news, politics and Wikipedia series
+  and every other market is tried as an early signal for each market's next day, and only links that
+  held on years no fit saw are kept. The honest answer is that almost nothing does, and the Markets page
+  says so; what does work is shown beside it: a fear clock for the VIX, right 60% of weeks since 2021,
+  and a risk-first range for how big each market's next week could be.
+  [How it works](#the-fast-lane-does-anything-move-before-markets-do).
+- **Surprises.** The Track record shows where reality landed furthest outside the range it gave, each
+  as a small bar (the range, and a dot for what happened), so the misses are as easy to see as the hits.
+- **Every day at a glance.** The Track record opens its day-by-day log with a calendar: one square per
+  day, greener the more calls came true and redder the fewer, with the best and worst days named. Tap a
+  square to open that day.
+- **Since you last looked, and a calmer finish.** Today opens with the calls that came due since your
+  last visit: how many, right and wrong, the surest hit and the biggest miss. Cards are lighter, with
+  soft borders, thin colour hairlines instead of thick stripes and a quieter status bar.
 - **Today: one screen that says what happens next, and how sure.** Rise alerts in three tiers (75%,
   85% and 95% or more chance of going higher), each carrying its own record of how often calls like it
   came true; every series read at six time frames, from tomorrow to ten years out; a history chart of
   every past forecast laid over what really happened; and a "who to trust" board with the 70% club.
   [Open it](https://normansrule.github.io/world-predictor/app/).
 - **Five kinds of prediction, one scoreboard.** World news, politics, markets, new technologies, and
-  the weather and the planet: 70 series (rain in five cities joined in November; Microsoft, Amazon, Google, ether, natural gas, the euro, small nuclear reactors, augmented reality and New York's weather and rain on 19 November), every one fetched from free open data, forecast by the same
+  the weather and the planet: 120 series (rain in five cities joined in November; Microsoft, Amazon, Google, ether, natural gas, the euro, small nuclear reactors, augmented reality and New York's weather and rain on 19 November; Meta, the Nikkei, FTSE 100 and DAX, wheat, Solana, AI and housing in the news, and Paris weather and rain on 22 November; JPMorgan, AMD, corn, the dollar in yen, layoffs and immigration in the news, drones, Neuralink, and São Paulo weather and rain on 23 November; Netflix, Berkshire Hathaway, platinum, the pound, XRP, energy prices and NATO in the news, virtual reality, and Mumbai weather and rain, then Visa, Walmart, the Hang Seng, soybeans, cyber attacks and the UN in the news, 6G, mRNA vaccines, and Cape Town weather and rain, on 24 November; Intel, Coca-Cola, cocoa, the Australian dollar, wildfires and G7 and G20 summits in the news, lab-grown meat, Ozempic, and Singapore weather and rain on 28 November), every one fetched from free open data, forecast by the same
   models, sealed the same way and scored against what really happened. Weather is forecast two weeks
   ahead and settled against thermometers and satellites; earthquakes are the honest control, a series
   nobody should be able to predict. [What's new](#weather-politics-and-the-next-technologies).
@@ -1071,6 +1089,84 @@ page starts with its call and its last ten calls, right or wrong.
 
 <img src="docs/assets/app-today-plain.png" alt="Today with What it says now: cards such as Bitcoin will be lower, leans, 65%, right 23 of 30; World stocks will be higher, leans, 62%; Climate change will be in the news less, very likely, 95%" width="100%">
 
+### Call It: the game
+
+<img src="docs/assets/app-play-round.png" alt="A Call It round after the reveal: a real chart of Tariffs in the news, the hidden four weeks now drawn in green over TimesFM, Seldon and Radiant's dashed forecasts, confetti and Right! +236, with each machine's call ticked below" width="100%">
+
+**Call It** (key <kbd>G</kbd>, first in the menu) turns the project's own question into a game: can you
+read where something is heading better than the machines? Each round is a real stretch of a real
+series: a market, a news topic, a technology's Wikipedia views or a city's temperature. You see the last
+ninety values; the next few weeks are hidden, and so are the dates, so hindsight can't help. Call it
+**higher** or **lower** and say how sure you are: **Lean** risks nothing, **Sure** and **All in** pay
+double and triple but cost 100 and 200 points when wrong. Quick answers earn a bonus and streaks
+multiply the points (×1.5 from three in a row, ×2 from five, ×3 from eight). Every fifth round is a
+**bullseye**: drag the dot to where you think it ends, and beat TimesFM's and Seldon's miss for extra.
+
+Then the hidden stretch draws itself in, with what **TimesFM**, **Seldon** and **Radiant** said at the
+same moment as dashed lines, and a tick or a cross for each. The rounds come from the race files, the
+replayed forecasts in `results/web/race/`, so every model made its call from only the data before the
+window, exactly the blind spot the player has. Over the 5,546 windows the game can deal, TimesFM called
+the direction right 68.7% of the time and Seldon 65.1%: 53% on markets, where both are close to a coin
+flip, and 86% on Wikipedia views, where attention that has spiked usually fades. That is the score to
+beat.
+
+- **Quick run**: ten rounds, about three minutes, never the same window twice in your last 300.
+- **Daily five**: the same five rounds for everyone on a given day (seeded by the date), with a score
+  you can share as a row of squares.
+- **Call the real future**: higher or lower for about a week ahead on a few live series. TimesFM's
+  sealed call is shown once you have made yours, and both are settled when the data arrives.
+- **Your record**: levels from *Coin flipper* to *Seldon's heir*, nine badges, your last runs, and your
+  lifetime hit rate next to TimesFM's and Seldon's on the same rounds. All of it stays in your browser.
+
+Sound is made on the spot with the Web Audio API (no files), and can be switched off. Keys: <kbd>←</kbd>
+lower, <kbd>→</kbd> higher, <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> how sure, <kbd>Enter</kbd> next; on a
+phone, swipe up or down on the chart. Motion comes from [anime.js](https://animejs.com) (MIT), shipped
+in `site/app/vendor/`, and follows the reduced-motion setting and the new **Calm** switch in the
+shortcuts panel.
+
+### The fast lane: does anything move before markets do?
+
+<img src="docs/assets/app-fastlane.png" alt="The fast lane on the Markets page: a lead-lag scan with 11 of 2,898 links held and the verdict that news, attention and other markets are already in the price by the close; a fear clock with the VIX at 19.46 against a normal of about 17, half the gap closing in about 9 trading days, right 54.8% of days, 59.6% of weeks and 63.0% of months; and a risk-first table of how big a move to expect next week in each market" width="100%">
+
+Algorithms make money when they learn something before the rest of the market has. Economists have
+argued about how often that can happen since Grossman and Stiglitz (1980) showed that prices cannot
+hold every piece of information, or no one would pay to collect it. World Predictor follows dozens of
+series that move faster than a quarterly report (news coverage, political attention, Wikipedia views,
+other markets that close later), so the obvious question is whether any of them tell a market where
+it is going before its own price does. The fast lane on the **Markets** page answers it on days no
+fit had seen. The methods came from three open-source trading projects, credited in
+[REFERENCES.md](REFERENCES.md#trading-references-information-speed): lead-lag scans, Ornstein-Uhlenbeck
+half-lives and bootstrap ranges from HKUDS's Vibe-Trading, the risk-first order of AutoHedge's trading
+desk, and the Granger-style "does the fast one lead the slow one" test from FinceptTerminal's toolkit.
+
+**Lead-lag scan.** Every attention series and every other market was tried as an early signal for each
+market's next day, and for the day after and the one after that, with nothing used before it was known (bitcoin,
+ether and currencies close after New York, so they count a day later). On the years up to 2021,
+**250 of 2,898 links looked real**. After 2021, on days the scan had never seen, **11 still held,
+against about 6 expected by luck alone**. Of the 40 strongest links before 2021, 27 flipped sign
+afterwards and 10 faded; three held. Most of the 11 survivors are stocks rising today and the VIX
+rising back tomorrow, which is the fear clock below seen from another side. Plainly: by the close,
+news, attention and other markets are already in the price. A model that threw all of them at the
+next day's direction was right 50.0% of the time, below the 51.1% of simply betting on each market's
+usual drift.
+
+**Fear clock.** What does work is slower. Fear overreacts and then fades: the VIX is pulled back to its
+normal level, and half the gap closes in about **nine trading days** (an Ornstein-Uhlenbeck fit on the
+three years before each day). Saying "fear will move back towards normal" was right **54.8% of days
+one day ahead, 59.6% one week ahead and 63.0% one month ahead** since 2021, and the lower end of each
+95% range (a block bootstrap, Künsch, 1989, so runs of calm or panicky days are not counted as
+independent) stays above a coin toss. In the quarter of days furthest from normal it was right 57%,
+63% and 73% of the time.
+
+**Risk first.** Before the direction, the size. Each market gets a range meant to hold 8 weeks in 10
+for its next week, from its own recent swings; fear and attention spikes join only where they made
+the range better on earlier years. Since 2021 the ranges held **79.4%** of weeks (aiming for 80%). The
+extras made the range clearly better (by more than 0.2%) on 4 of 21 markets, most on the VIX itself, and by little or nothing elsewhere, so most markets
+keep their own swings.
+
+`psychohistory fastlane` writes `results/web/fastlane.json` every week from the long history the race
+keeps, and the page reads it. None of this is a buy or sell signal.
+
 ### The race: every forecaster against what happened, over years
 
 <img src="docs/assets/app-race.png" alt="The race on the S&P 500 page: the actual price as a white line with TimesFM in blue, Radiant in orange and Seldon in teal over the past year, a shaded sealed-live stretch at the end, dashed forecasts from now, a panel below of how far each was from what happened, YTD 1Y 2Y 5Y 10Y buttons, and a scoreboard beside it: TimesFM typical miss 1.1% in the past, 1.1% now, up or down right 13 of 23" width="100%">
@@ -1674,6 +1770,7 @@ psychohistory brief       # since the last run: what came due, changes of mind, 
 psychohistory wire        # the newest headlines per topic from GDELT, for the World terminal
 psychohistory tally       # the track record in plain words: every call right or wrong, and what it says now
 psychohistory race        # the race: TimesFM, Radiant and Seldon against what happened, back up to ten years
+psychohistory fastlane    # the fast lane: lead-lag scan, fear clock and next-week ranges for every market
 psychohistory export      # write the app's data file, results/web/data.js
 psychohistory site        # build the static app into build/site (what Pages serves)
 psychohistory simulate    # the toy crowd, no downloads
@@ -2055,7 +2152,7 @@ World Predictor is Apache-2.0).
 
 <!-- progress:start -->
 
-**74 of 76 milestones done (97%).** Drawn from [`docs/progress.json`](docs/progress.json); tests check every ticked item against the repository.
+**87 of 89 milestones done (98%).** Drawn from [`docs/progress.json`](docs/progress.json); tests check every ticked item against the repository.
 
 <details><summary><b>📰 World news</b> · 18/18</summary>
 
@@ -2095,7 +2192,7 @@ World Predictor is Apache-2.0).
 
 </details>
 
-<details><summary><b>🚀 New technologies</b> · 16/16</summary>
+<details><summary><b>🚀 New technologies</b> · 27/27</summary>
 
 - [x] Wikipedia attention for LLMs, AI, quantum, CRISPR, EVs, fusion, robots
 - [x] Adoption curves from Our World in Data
@@ -2113,10 +2210,21 @@ World Predictor is Apache-2.0).
 - [x] Range calls in plain words ("likely between X and Y"): the model's too-narrow ranges widened only from ranges already settled, 83% landing inside against 69% before
 - [x] The race: TimesFM, Radiant and Seldon against what happened on every series page, the gap between them, YTD to 10Y, and past and present scores beside the forecast
 - [x] Ten more things to predict: Microsoft, Amazon, Google, ether, natural gas, the euro, small nuclear reactors, augmented reality, and New York's weather and rain
+- [x] Since you last looked: the calls that came due between two visits, on Today
+- [x] A sleeker look: soft borders, hairline accents, a calmer status bar and ticker
+- [x] 80 series: Meta, Nikkei, FTSE 100, DAX, wheat, Solana, AI and housing news, Paris weather and rain
+- [x] Every day at a glance: a calendar of right and wrong days on the Track record
+- [x] 90 series: JPMorgan, AMD, corn, dollar-yen, layoffs and immigration news, drones, Neuralink, São Paulo weather and rain
+- [x] Surprises: where reality landed furthest outside the range, on the Track record
+- [x] 100 series: Netflix, Berkshire Hathaway, platinum, the pound, XRP, energy and NATO news, virtual reality, Mumbai weather and rain
+- [x] The fast lane: a lead-lag scan of every faster series against every market, a fear clock and risk-first ranges, scored on years no fit saw
+- [x] 110 series: Visa, Walmart, Hang Seng, soybeans, cyber and UN news, 6G, mRNA, Cape Town weather and rain
+- [x] Call It: a game on real data against TimesFM, Seldon and Radiant, with a daily five and live calls
+- [x] 120 series: Intel, Coca-Cola, cocoa, the Australian dollar, wildfire and summit news, lab-grown meat, Ozempic, Singapore weather and rain
 
 </details>
 
-<details><summary><b>🌐 Web app (GitHub Pages)</b> · 24/24</summary>
+<details><summary><b>🌐 Web app (GitHub Pages)</b> · 26/26</summary>
 
 - [x] World terminal: command line, world board, movers, just-opened forecasts, focus and scoreboard
 - [x] Your book: sealed calls settled for good, running skill against TimesFM, export and import
@@ -2142,6 +2250,8 @@ World Predictor is Apache-2.0).
 - [x] Six time frames per series (day to ten years) with a long view for years
 - [x] The 70% club: direction calls tuned on early windows, checked on later ones
 - [x] Five-button navigation and the Dusk palette
+- [x] A livelier look: a slowly drifting colour backdrop, gradient areas and a glowing hover dot on every chart, motion by anime.js, and a Calm switch
+- [x] Call It first in the menu (key G), a Today banner for it, and Scores moved under More on a phone
 
 </details>
 
@@ -2174,6 +2284,7 @@ bibliography, with every model, data source, theory and design reference, is in
 - Bates, J. M., & Granger, C. W. J. (1969). The combination of forecasts. *Operational Research Quarterly, 20*(4), 451–468. https://doi.org/10.1057/jors.1969.103
 - Benjamini, Y., & Hochberg, Y. (1995). Controlling the false discovery rate: A practical and powerful approach to multiple testing. *Journal of the Royal Statistical Society: Series B (Methodological), 57*(1), 289–300. https://doi.org/10.1111/j.2517-6161.1995.tb02031.x
 - Bikhchandani, S., Hirshleifer, D., & Welch, I. (1992). A theory of fads, fashion, custom, and cultural change as informational cascades. *Journal of Political Economy, 100*(5), 992–1026. https://doi.org/10.1086/261849
+- bklit. (n.d.). *bklit-ui* [Computer software]. MIT License. https://github.com/bklit/bklit-ui
 - BlackRock. (n.d.). *iShares 20+ Year Treasury Bond ETF (TLT)* [Data set]. Retrieved November 2, 2026, from https://www.ishares.com/us/products/239454/
 - Bollerslev, T. (1986). Generalized autoregressive conditional heteroskedasticity. *Journal of Econometrics, 31*(3), 307–327. https://doi.org/10.1016/0304-4076(86)90063-1
 - Brier, G. W. (1950). Verification of forecasts expressed in terms of probability. *Monthly Weather Review, 78*(1), 1–3. https://doi.org/10.1175/1520-0493(1950)078<0001:VOFEIT>2.0.CO;2
@@ -2181,11 +2292,12 @@ bibliography, with every model, data source, theory and design reference, is in
 - Cboe Global Markets. (n.d.-b). *Cboe Volatility Index (VIX)* [Data set]. Retrieved November 2, 2026, from https://www.cboe.com/tradable_products/vix/
 - Cesa-Bianchi, N., & Lugosi, G. (2006). *Prediction, learning, and games*. Cambridge University Press. https://doi.org/10.1017/CBO9780511546921
 - Climate Change Institute, University of Maine. (n.d.). *Climate Reanalyzer: Daily surface air and sea surface temperature* [Data set]. Retrieved November 4, 2026, from https://climatereanalyzer.org/
+- CodeCrafters. (n.d.). *build-your-own-x* [Computer software]. GitHub. https://github.com/codecrafters-io/build-your-own-x
 - Da, Z., Engelberg, J., & Gao, P. (2011). In search of attention. *The Journal of Finance, 66*(5), 1461–1499. https://doi.org/10.1111/j.1540-6261.2011.01679.x
 - Daniel, K., & Moskowitz, T. J. (2016). Momentum crashes. *Journal of Financial Economics, 122*(2), 221–247. https://doi.org/10.1016/j.jfineco.2015.12.002
 - Das, A., Kong, W., Sen, R., & Zhou, Y. (2024). A decoder-only foundation model for time-series forecasting. In *Proceedings of the 41st International Conference on Machine Learning* (Proceedings of Machine Learning Research, Vol. 235). PMLR. https://arxiv.org/abs/2310.10688
-- Dedehayir, O., & Steinert, M. (2016). The hype cycle model: A review and future directions. *Technological Forecasting and Social Change, 108*, 28–41. https://doi.org/10.1016/j.techfore.2016.04.005
 - De Bondt, W. F. M., & Thaler, R. (1985). Does the stock market overreact? *The Journal of Finance, 40*(3), 793–805. https://doi.org/10.1111/j.1540-6261.1985.tb05004.x
+- Dedehayir, O., & Steinert, M. (2016). The hype cycle model: A review and future directions. *Technological Forecasting and Social Change, 108*, 28–41. https://doi.org/10.1016/j.techfore.2016.04.005
 - Desruisseaux, B. (Ed.). (2009). *Internet calendaring and scheduling core object specification (iCalendar)* (RFC 5545). Internet Engineering Task Force. https://doi.org/10.17487/RFC5545
 - Diebold, F. X., & Mariano, R. S. (1995). Comparing predictive accuracy. *Journal of Business & Economic Statistics, 13*(3), 253–263. https://doi.org/10.1080/07350015.1995.10524599
 - Elliot, A. J., & Maier, M. A. (2014). Color psychology: Effects of perceiving color on psychological functioning in humans. *Annual Review of Psychology, 65*, 95–120. https://doi.org/10.1146/annurev-psych-010213-115035
@@ -2193,26 +2305,34 @@ bibliography, with every model, data source, theory and design reference, is in
 - Fama, E. F. (1970). Efficient capital markets: A review of theory and empirical work. *The Journal of Finance, 25*(2), 383–417. https://doi.org/10.2307/2325486
 - Fenn, J., & Raskino, M. (2008). *Mastering the hype cycle: How to choose the right innovation at the right time*. Harvard Business Press.
 - Fetterer, F., Knowles, K., Meier, W. N., Savoie, M., & Windnagel, A. K. (2017). *Sea Ice Index* (Version 3) [Data set]. National Snow and Ice Data Center. https://doi.org/10.7265/N5K072F8
+- Fincept Corporation. (n.d.). *FinceptTerminal* [Computer software]. GitHub. https://github.com/Fincept-Corporation/FinceptTerminal
 - Freund, Y., & Schapire, R. E. (1997). A decision-theoretic generalization of on-line learning and an application to boosting. *Journal of Computer and System Sciences, 55*(1), 119–139. https://doi.org/10.1006/jcss.1997.1504
 - Gardner, E. S., Jr., & McKenzie, E. (1985). Forecasting trends in time series. *Management Science, 31*(10), 1237–1246. https://doi.org/10.1287/mnsc.31.10.1237
+- Garnier, J. (2026). *anime.js* (Version 4.5.0) [Computer software]. MIT License. https://github.com/juliangarnier/anime
 - Garza, A., Mergenthaler Canseco, M., Challú, C., & Olivares, K. G. (2022). *StatsForecast: Lightning fast forecasting with statistical and econometric models* [Computer software]. GitHub. https://github.com/Nixtla/statsforecast
 - Geller, R. J. (1997). Earthquake prediction: A critical review. *Geophysical Journal International, 131*(3), 425–450. https://doi.org/10.1111/j.1365-246X.1997.tb06588.x
 - Gibbs, I., & Candès, E. (2021). Adaptive conformal inference under distribution shift. In *Advances in Neural Information Processing Systems 34* (pp. 1660–1672). https://arxiv.org/abs/2106.00170
 - Gneiting, T., & Raftery, A. E. (2007). Strictly proper scoring rules, prediction, and estimation. *Journal of the American Statistical Association, 102*(477), 359–378. https://doi.org/10.1198/016214506000001437
 - Google Research. (n.d.). *timesfm* [Computer software]. GitHub. https://github.com/google-research/timesfm
+- Granger, C. W. J. (1969). Investigating causal relations by econometric models and cross-spectral methods. *Econometrica, 37*(3), 424–438. https://doi.org/10.2307/1912791
+- GreenSock. (2026). *gsap-skills* [Computer software]. MIT License. https://github.com/greensock/gsap-skills
+- Grossman, S. J., & Stiglitz, J. E. (1980). On the impossibility of informationally efficient markets. *The American Economic Review, 70*(3), 393–408.
 - Harvey, D., Leybourne, S., & Newbold, P. (1997). Testing the equality of prediction mean squared errors. *International Journal of Forecasting, 13*(2), 281–291. https://doi.org/10.1016/S0169-2070(96)00719-4
 - Herbster, M., & Warmuth, M. K. (1998). Tracking the best expert. *Machine Learning, 32*(2), 151–178. https://doi.org/10.1023/A:1007424614876
 - Hersbach, H., Bell, B., Berrisford, P., Hirahara, S., Horányi, A., Muñoz-Sabater, J., Nicolas, J., Peubey, C., Radu, R., Schepers, D., Simmons, A., Soci, C., Abdalla, S., Abellan, X., Balsamo, G., Bechtold, P., Biavati, G., Bidlot, J., Bonavita, M., … Thépaut, J.-N. (2020). The ERA5 global reanalysis. *Quarterly Journal of the Royal Meteorological Society, 146*(730), 1999–2049. https://doi.org/10.1002/qj.3803
+- HKUDS. (2026). *Vibe-Trading* [Computer software]. MIT License. https://github.com/HKUDS/Vibe-Trading
 - Hoerl, A. E., & Kennard, R. W. (1970). Ridge regression: Biased estimation for nonorthogonal problems. *Technometrics, 12*(1), 55–67. https://doi.org/10.1080/00401706.1970.10488634
+- Hou, K. (2007). Industry information diffusion and the lead-lag effect in stock returns. *The Review of Financial Studies, 20*(4), 1113–1138. https://doi.org/10.1093/revfin/hhm003
 - Huang, B., Liu, C., Banzon, V., Freeman, E., Graham, G., Hankins, B., Smith, T., & Zhang, H.-M. (2021). Improvements of the Daily Optimum Interpolation Sea Surface Temperature (DOISST) version 2.1. *Journal of Climate, 34*(8), 2923–2939. https://doi.org/10.1175/JCLI-D-20-0166.1
 - Hyndman, R. J., & Billah, B. (2003). Unmasking the Theta method. *International Journal of Forecasting, 19*(2), 287–290. https://doi.org/10.1016/S0169-2070(01)00143-1
 - Hyndman, R. J., & Koehler, A. B. (2006). Another look at measures of forecast accuracy. *International Journal of Forecasting, 22*(4), 679–688. https://doi.org/10.1016/j.ijforecast.2006.03.001
 - International Energy Agency. (2025). *Global EV outlook 2025*. https://www.iea.org/reports/global-ev-outlook-2025
-- Jegadeesh, N., & Titman, S. (1993). Returns to buying winners and selling losers: Implications for stock market efficiency. *The Journal of Finance, 48*(1), 65–91. https://doi.org/10.1111/j.1540-6261.1993.tb04702.x
 - J.P. Morgan/Reuters. (1996). *RiskMetrics: Technical document* (4th ed.). Morgan Guaranty Trust Company.
+- Jegadeesh, N., & Titman, S. (1993). Returns to buying winners and selling losers: Implications for stock market efficiency. *The Journal of Finance, 48*(1), 65–91. https://doi.org/10.1111/j.1540-6261.1993.tb04702.x
 - Kivinen, J., & Warmuth, M. K. (1997). Exponentiated gradient versus gradient descent for linear predictors. *Information and Computation, 132*(1), 1–63. https://doi.org/10.1006/inco.1996.2612
 - koala73. (n.d.). *worldmonitor* [Computer software]. GitHub. https://github.com/koala73/worldmonitor
 - Koenker, R., & Bassett, G., Jr. (1978). Regression quantiles. *Econometrica, 46*(1), 33–50. https://doi.org/10.2307/1913643
+- Künsch, H. R. (1989). The jackknife and the bootstrap for general stationary observations. *The Annals of Statistics, 17*(3), 1217–1241. https://doi.org/10.1214/aos/1176347265
 - Leetaru, K., & Schrodt, P. A. (2013, April). *GDELT: Global data on events, location, and tone, 1979–2012* [Paper presentation]. International Studies Association Annual Convention, San Francisco, CA, United States.
 - Lehmann, B. N. (1990). Fads, martingales, and market efficiency. *The Quarterly Journal of Economics, 105*(1), 1–28. https://doi.org/10.2307/2937816
 - Lichtendahl, K. C., Jr., Grushka-Cockayne, Y., & Winkler, R. L. (2013). Is it better to average probabilities or quantiles? *Management Science, 59*(7), 1594–1611. https://doi.org/10.1287/mnsc.1120.1667
@@ -2224,8 +2344,8 @@ bibliography, with every model, data source, theory and design reference, is in
 - Manski, C. F. (2006). Interpreting the predictions of prediction markets. *Economics Letters, 91*(3), 425–429. https://doi.org/10.1016/j.econlet.2006.01.004
 - Moskowitz, T. J., Ooi, Y. H., & Pedersen, L. H. (2012). Time series momentum. *Journal of Financial Economics, 104*(2), 228–250. https://doi.org/10.1016/j.jfineco.2011.11.003
 - Newey, W. K., & West, K. D. (1987). A simple, positive semi-definite, heteroskedasticity and autocorrelation consistent covariance matrix. *Econometrica, 55*(3), 703–708. https://doi.org/10.2307/1913610
-- Nottingham, M., & Sayre, R. (Eds.). (2005). *The Atom syndication format* (RFC 4287). Internet Engineering Task Force. https://doi.org/10.17487/RFC4287
 - Normansrule. (n.d.). *worldmonitor (Terra Atlas)* [Computer software]. GitHub. https://github.com/Normansrule/worldmonitor
+- Nottingham, M., & Sayre, R. (Eds.). (2005). *The Atom syndication format* (RFC 4287). Internet Engineering Task Force. https://doi.org/10.17487/RFC4287
 - Our World in Data. (n.d.). *Our World in Data* [Data set]. Retrieved October 20, 2026, from https://ourworldindata.org/
 - Patton, A. J. (2011). Volatility forecast comparison using imperfect volatility proxies. *Journal of Econometrics, 160*(1), 246–256. https://doi.org/10.1016/j.jeconom.2010.03.034
 - Polymarket. (n.d.). *Gamma Markets API* [Data set]. Retrieved November 9, 2026, from https://docs.polymarket.com/
@@ -2236,9 +2356,10 @@ bibliography, with every model, data source, theory and design reference, is in
 - Tashman, L. J. (2000). Out-of-sample tests of forecasting accuracy: An analysis and review. *International Journal of Forecasting, 16*(4), 437–450. https://doi.org/10.1016/S0169-2070(00)00065-0
 - Tetlock, P. E., & Gardner, D. (2015). *Superforecasting: The art and science of prediction*. Crown.
 - The GDELT Project. (n.d.). *GDELT DOC 2.0 API* [Data set]. Retrieved October 20, 2026, from https://www.gdeltproject.org/
+- The Swarm Corporation. (n.d.). *AutoHedge* [Computer software]. GitHub. https://github.com/The-Swarm-Corporation/AutoHedge
 - Timmermann, A. (2006). Forecast combinations. In G. Elliott, C. W. J. Granger, & A. Timmermann (Eds.), *Handbook of economic forecasting* (Vol. 1, pp. 135–196). Elsevier. https://doi.org/10.1016/S1574-0706(05)01004-9
-- United Nations Office for Outer Space Affairs. (n.d.). *Online index of objects launched into outer space* [Data set]. Retrieved November 4, 2026, from https://www.unoosa.org/oosa/osoindex/
 - U.S. Geological Survey. (2017). *Advanced National Seismic System (ANSS) comprehensive catalog of earthquake events and products* [Data set]. https://doi.org/10.5066/F7MS3QZH
+- United Nations Office for Outer Space Affairs. (n.d.). *Online index of objects launched into outer space* [Data set]. Retrieved November 4, 2026, from https://www.unoosa.org/oosa/osoindex/
 - Wallis, K. F. (2014). The two-piece normal, binormal, or double Gaussian distribution: Its origin and rediscoveries. *Statistical Science, 29*(1), 106–112. https://doi.org/10.1214/13-STS417
 - Whaley, R. E. (2000). The investor fear gauge. *The Journal of Portfolio Management, 26*(3), 12–17. https://doi.org/10.3905/jpm.2000.319728
 - Wikimedia Foundation. (n.d.). *Wikimedia REST API: Pageviews* [Data set]. Retrieved October 20, 2026, from https://wikimedia.org/api/rest_v1/
@@ -2266,7 +2387,14 @@ This project stands on other people's work. Full attribution, licences and terms
   [docs/DESIGN.md](docs/DESIGN.md).
 - **GDELT Project** for world news coverage data.
 - **Polymarket** Gamma API for the betting odds, and **TradingAgents** (Tauric Research, Apache-2.0) for the idea of reading them.
-- **Vibe-Trading** (HKUDS, MIT) for testing a trading rule with costs and out of sample.
+- **Vibe-Trading** (HKUDS, MIT) for testing a trading rule with costs and out of sample, and for the lead-lag,
+  half-life and bootstrap methods in the fast lane.
+- **anime.js** by Julian Garnier (MIT), shipped in `site/app/vendor/` for the game's and the app's motion; the
+  **GSAP skills** by GreenSock (MIT) for the motion rules it follows; **bklit UI** (MIT) for the gradient areas and
+  hover dots on the charts; **build-your-own-x** (CodeCrafters) for its game-loop tutorials. Ideas only from the
+  last three, no code copied.
+- **AutoHedge** (The Swarm Corporation, MIT) for the risk-first order of the fast lane, and **FinceptTerminal**
+  (Fincept Corporation, AGPL-3.0) for the lead-lag (Granger) test idea. Ideas only, no code copied.
 - **Yahoo Finance** data via the **yfinance** library by Ran Aroussi.
 - **Wikimedia Foundation** Pageviews API.
 - **Our World in Data** (CC BY 4.0, Creative Commons Attribution).

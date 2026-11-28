@@ -239,6 +239,61 @@
           "title": "Ten more things to predict: Microsoft, Amazon, Google, ether, natural gas, the euro, small nuclear reactors, augmented reality, and New York's weather and rain",
           "done": true,
           "evidence": "src/psychohistory/catalog.py"
+        },
+        {
+          "title": "Since you last looked: the calls that came due between two visits, on Today",
+          "done": true,
+          "evidence": "site/app/js/record.js"
+        },
+        {
+          "title": "A sleeker look: soft borders, hairline accents, a calmer status bar and ticker",
+          "done": true,
+          "evidence": "site/app/css/app.css"
+        },
+        {
+          "title": "80 series: Meta, Nikkei, FTSE 100, DAX, wheat, Solana, AI and housing news, Paris weather and rain",
+          "done": true,
+          "evidence": "src/psychohistory/catalog.py"
+        },
+        {
+          "title": "Every day at a glance: a calendar of right and wrong days on the Track record",
+          "done": true,
+          "evidence": "site/app/js/record.js"
+        },
+        {
+          "title": "90 series: JPMorgan, AMD, corn, dollar-yen, layoffs and immigration news, drones, Neuralink, São Paulo weather and rain",
+          "done": true,
+          "evidence": "src/psychohistory/catalog.py"
+        },
+        {
+          "title": "Surprises: where reality landed furthest outside the range, on the Track record",
+          "done": true,
+          "evidence": "site/app/js/record.js"
+        },
+        {
+          "title": "100 series: Netflix, Berkshire Hathaway, platinum, the pound, XRP, energy and NATO news, virtual reality, Mumbai weather and rain",
+          "done": true,
+          "evidence": "src/psychohistory/catalog.py"
+        },
+        {
+          "title": "The fast lane: a lead-lag scan of every faster series against every market, a fear clock and risk-first ranges, scored on years no fit saw",
+          "done": true,
+          "evidence": "src/psychohistory/fastlane.py"
+        },
+        {
+          "title": "110 series: Visa, Walmart, Hang Seng, soybeans, cyber and UN news, 6G, mRNA, Cape Town weather and rain",
+          "done": true,
+          "evidence": "src/psychohistory/catalog.py"
+        },
+        {
+          "title": "Call It: a game on real data against TimesFM, Seldon and Radiant, with a daily five and live calls",
+          "done": true,
+          "evidence": "site/app/js/play.js"
+        },
+        {
+          "title": "120 series: Intel, Coca-Cola, cocoa, the Australian dollar, wildfire and summit news, lab-grown meat, Ozempic, Singapore weather and rain",
+          "done": true,
+          "evidence": "src/psychohistory/catalog.py"
         }
       ]
     },
@@ -364,6 +419,16 @@
         },
         {
           "title": "Five-button navigation and the Dusk palette",
+          "done": true,
+          "evidence": "site/app/index.html"
+        },
+        {
+          "title": "A livelier look: a slowly drifting colour backdrop, gradient areas and a glowing hover dot on every chart, motion by anime.js, and a Calm switch",
+          "done": true,
+          "evidence": "site/app/js/motion.js"
+        },
+        {
+          "title": "Call It first in the menu (key G), a Today banner for it, and Scores moved under More on a phone",
           "done": true,
           "evidence": "site/app/index.html"
         }
