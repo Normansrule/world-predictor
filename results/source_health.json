@@ -31,14 +31,15 @@
   "2026-11-25T05:19:04Z",
   "2026-11-26T04:35:17Z",
   "2026-11-27T04:45:02Z",
-  "2026-11-28T04:24:41Z"
+  "2026-11-28T04:24:41Z",
+  "2026-11-28T19:18:19Z"
  ],
  "series": {
   "aapl": {
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 32,
+   "ok": 33,
    "since": null,
    "streak": 0
   },
@@ -46,7 +47,7 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 23,
+   "ok": 24,
    "since": null,
    "streak": 0
   },
@@ -54,7 +55,7 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 32,
+   "ok": 33,
    "since": null,
    "streak": 0
   },
@@ -62,7 +63,7 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 32,
+   "ok": 33,
    "since": null,
    "streak": 0
   },
@@ -70,7 +71,15 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 32,
+   "ok": 33,
+   "since": null,
+   "streak": 0
+  },
+  "amd": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
    "since": null,
    "streak": 0
   },
@@ -78,7 +87,15 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 7,
+   "ok": 8,
+   "since": null,
+   "streak": 0
+  },
+  "audusd": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
    "since": null,
    "streak": 0
   },
@@ -86,7 +103,23 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 32,
+   "ok": 33,
+   "since": null,
+   "streak": 0
+  },
+  "brk": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
+   "since": null,
+   "streak": 0
+  },
+  "cocoa": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
    "since": null,
    "streak": 0
   },
@@ -94,7 +127,23 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 32,
+   "ok": 33,
+   "since": null,
+   "streak": 0
+  },
+  "corn": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
+   "since": null,
+   "streak": 0
+  },
+  "dax": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
    "since": null,
    "streak": 0
   },
@@ -102,7 +151,7 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 7,
+   "ok": 8,
    "since": null,
    "streak": 0
   },
@@ -110,7 +159,23 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 7,
+   "ok": 8,
+   "since": null,
+   "streak": 0
+  },
+  "ftse": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
+   "since": null,
+   "streak": 0
+  },
+  "gbpusd": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
    "since": null,
    "streak": 0
   },
@@ -118,7 +183,7 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 32,
+   "ok": 33,
    "since": null,
    "streak": 0
   },
@@ -126,7 +191,47 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 7,
+   "ok": 8,
+   "since": null,
+   "streak": 0
+  },
+  "hsi": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
+   "since": null,
+   "streak": 0
+  },
+  "intc": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
+   "since": null,
+   "streak": 0
+  },
+  "jpm": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
+   "since": null,
+   "streak": 0
+  },
+  "ko": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
+   "since": null,
+   "streak": 0
+  },
+  "meta": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
    "since": null,
    "streak": 0
   },
@@ -134,7 +239,7 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 32,
+   "ok": 33,
    "since": null,
    "streak": 0
   },
@@ -142,7 +247,7 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 7,
+   "ok": 8,
    "since": null,
    "streak": 0
   },
@@ -150,7 +255,7 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 32,
+   "ok": 33,
    "since": null,
    "streak": 0
   },
@@ -158,7 +263,15 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 7,
+   "ok": 8,
+   "since": null,
+   "streak": 0
+  },
+  "news_ai": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
    "since": null,
    "streak": 0
   },
@@ -167,7 +280,7 @@
    "error": null,
    "failed": 9,
    "last_ok": "2026-11-28",
-   "ok": 23,
+   "ok": 24,
    "since": null,
    "streak": 0
   },
@@ -175,52 +288,110 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 32,
+   "ok": 33,
+   "since": null,
+   "streak": 0
+  },
+  "news_cyber": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
    "since": null,
    "streak": 0
   },
   "news_election": {
    "cached": true,
-   "error": null,
-   "failed": 11,
+   "error": "Busy: GDELT still busy after 600s of back-off this run (budget 600s) (used the copy through 2026-11-28)",
+   "failed": 12,
    "last_ok": "2026-11-28",
    "ok": 21,
+   "since": "2026-11-28",
+   "streak": 1
+  },
+  "news_energy": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
+   "since": null,
+   "streak": 0
+  },
+  "news_housing": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
    "since": null,
    "streak": 0
   },
   "news_inflation": {
    "cached": true,
-   "error": null,
-   "failed": 13,
+   "error": "Busy: GDELT still busy after 600s of back-off this run (budget 600s) (used the copy through 2026-11-28)",
+   "failed": 14,
    "last_ok": "2026-11-28",
    "ok": 19,
-   "since": null,
-   "streak": 0
+   "since": "2026-11-28",
+   "streak": 1
+  },
+  "news_jobs": {
+   "cached": false,
+   "error": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%28layoffs+OR+unemployment%29&mode=timelinevol&format=json&STARTDATETIME=20170101000000&ENDDATETIME=20261128190520&TIMELINESMOOTH=0",
+   "failed": 1,
+   "last_ok": null,
+   "ok": 0,
+   "since": "2026-11-28",
+   "streak": 1
   },
   "news_pandemic": {
    "cached": true,
-   "error": null,
-   "failed": 14,
+   "error": "Busy: GDELT still busy after 600s of back-off this run (budget 600s) (used the copy through 2026-11-28)",
+   "failed": 15,
    "last_ok": "2026-11-28",
    "ok": 18,
-   "since": null,
-   "streak": 0
+   "since": "2026-11-28",
+   "streak": 1
   },
   "news_protest": {
    "cached": true,
-   "error": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%28protest+OR+protests%29&mode=timelinevol&format=json&STARTDATETIME=20261012000000&ENDDATETIME=20261128041704&TIMELINESMOOTH=0 (used the copy through 2026-11-26)",
-   "failed": 14,
+   "error": "Busy: GDELT still busy after 585s of back-off this run (budget 600s) (used the copy through 2026-11-26)",
+   "failed": 15,
    "last_ok": "2026-11-26",
    "ok": 18,
    "since": "2026-11-27",
-   "streak": 2
+   "streak": 3
   },
   "news_war": {
    "cached": true,
-   "error": null,
-   "failed": 24,
+   "error": "Busy: GDELT still busy after 600s of back-off this run (budget 600s) (used the copy through 2026-11-28)",
+   "failed": 25,
    "last_ok": "2026-11-28",
    "ok": 8,
+   "since": "2026-11-28",
+   "streak": 1
+  },
+  "news_wildfire": {
+   "cached": false,
+   "error": "Busy: GDELT still busy after 525s of back-off this run (budget 600s)",
+   "failed": 1,
+   "last_ok": null,
+   "ok": 0,
+   "since": "2026-11-28",
+   "streak": 1
+  },
+  "nflx": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
+   "since": null,
+   "streak": 0
+  },
+  "nikkei": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
    "since": null,
    "streak": 0
   },
@@ -228,7 +399,7 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 32,
+   "ok": 33,
    "since": null,
    "streak": 0
   },
@@ -236,25 +407,33 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 32,
+   "ok": 33,
+   "since": null,
+   "streak": 0
+  },
+  "platinum": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
    "since": null,
    "streak": 0
   },
   "politics_ceasefire": {
    "cached": true,
    "error": "Busy: GDELT still busy after 600s of back-off this run (budget 600s) (used the copy through 2026-11-27)",
-   "failed": 10,
+   "failed": 11,
    "last_ok": "2026-11-27",
    "ok": 13,
    "since": "2026-11-28",
-   "streak": 1
+   "streak": 2
   },
   "politics_composite": {
    "cached": false,
    "error": null,
    "failed": 1,
    "last_ok": "2026-11-28",
-   "ok": 22,
+   "ok": 23,
    "since": null,
    "streak": 0
   },
@@ -263,43 +442,75 @@
    "error": null,
    "failed": 11,
    "last_ok": "2026-11-28",
-   "ok": 12,
+   "ok": 13,
+   "since": null,
+   "streak": 0
+  },
+  "politics_immigration": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
    "since": null,
    "streak": 0
   },
   "politics_impeachment": {
    "cached": true,
-   "error": null,
-   "failed": 13,
+   "error": "Busy: GDELT still busy after 600s of back-off this run (budget 600s) (used the copy through 2026-11-28)",
+   "failed": 14,
    "last_ok": "2026-11-28",
    "ok": 10,
+   "since": "2026-11-28",
+   "streak": 1
+  },
+  "politics_nato": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
    "since": null,
    "streak": 0
   },
   "politics_referendum": {
    "cached": true,
-   "error": null,
-   "failed": 14,
+   "error": "Busy: GDELT still busy after 600s of back-off this run (budget 600s) (used the copy through 2026-11-28)",
+   "failed": 15,
    "last_ok": "2026-11-28",
    "ok": 9,
-   "since": null,
-   "streak": 0
+   "since": "2026-11-28",
+   "streak": 1
   },
   "politics_sanctions": {
    "cached": true,
-   "error": null,
-   "failed": 13,
+   "error": "Busy: GDELT still busy after 600s of back-off this run (budget 600s) (used the copy through 2026-11-28)",
+   "failed": 14,
    "last_ok": "2026-11-28",
    "ok": 10,
+   "since": "2026-11-28",
+   "streak": 1
+  },
+  "politics_summits": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
    "since": null,
    "streak": 0
   },
   "politics_tariffs": {
    "cached": true,
-   "error": null,
-   "failed": 11,
+   "error": "Busy: GDELT still busy after 600s of back-off this run (budget 600s) (used the copy through 2026-11-28)",
+   "failed": 12,
    "last_ok": "2026-11-28",
    "ok": 12,
+   "since": "2026-11-28",
+   "streak": 1
+  },
+  "politics_un": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
    "since": null,
    "streak": 0
   },
@@ -307,7 +518,15 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 23,
+   "ok": 24,
+   "since": null,
+   "streak": 0
+  },
+  "rain_cape_town": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
    "since": null,
    "streak": 0
   },
@@ -315,7 +534,7 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 7,
+   "ok": 8,
    "since": null,
    "streak": 0
   },
@@ -324,50 +543,99 @@
    "error": null,
    "failed": 4,
    "last_ok": "2026-11-28",
-   "ok": 3,
+   "ok": 4,
+   "since": null,
+   "streak": 0
+  },
+  "rain_mumbai": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
    "since": null,
    "streak": 0
   },
   "rain_new_delhi": {
-   "error": null,
-   "failed": 0,
+   "cached": true,
+   "error": "ReadTimeout: HTTPSConnectionPool(host='archive-api.open-meteo.com', port=443): Read timed out. (read timeout=60.0) (used the copy through 2026-11-27)",
+   "failed": 1,
    "last_ok": "2026-11-28",
    "ok": 7,
-   "since": null,
-   "streak": 0
+   "since": "2026-11-28",
+   "streak": 1
   },
   "rain_new_york": {
    "cached": true,
-   "error": "ReadTimeout: HTTPSConnectionPool(host='archive-api.open-meteo.com', port=443): Read timed out. (read timeout=60.0) (used the copy through 2026-11-24)",
+   "error": null,
    "failed": 4,
-   "last_ok": "2026-11-25",
-   "ok": 3,
-   "since": "2026-11-26",
-   "streak": 3
+   "last_ok": "2026-11-28",
+   "ok": 4,
+   "since": null,
+   "streak": 0
+  },
+  "rain_paris": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
+   "since": null,
+   "streak": 0
+  },
+  "rain_sao_paulo": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
+   "since": null,
+   "streak": 0
+  },
+  "rain_singapore": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
+   "since": null,
+   "streak": 0
   },
   "rain_sydney": {
    "cached": true,
    "error": null,
    "failed": 3,
    "last_ok": "2026-11-28",
-   "ok": 4,
+   "ok": 5,
    "since": null,
    "streak": 0
   },
   "rain_tokyo": {
    "cached": true,
-   "error": null,
-   "failed": 1,
+   "error": "ReadTimeout: HTTPSConnectionPool(host='archive-api.open-meteo.com', port=443): Read timed out. (read timeout=60.0) (used the copy through 2026-11-27)",
+   "failed": 2,
    "last_ok": "2026-11-28",
    "ok": 6,
-   "since": null,
-   "streak": 0
+   "since": "2026-11-28",
+   "streak": 1
   },
   "silver": {
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 32,
+   "ok": 33,
+   "since": null,
+   "streak": 0
+  },
+  "solana": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
+   "since": null,
+   "streak": 0
+  },
+  "soybeans": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
    "since": null,
    "streak": 0
   },
@@ -375,7 +643,7 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 32,
+   "ok": 33,
    "since": null,
    "streak": 0
   },
@@ -383,7 +651,7 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 23,
+   "ok": 24,
    "since": null,
    "streak": 0
   },
@@ -391,7 +659,7 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 32,
+   "ok": 33,
    "since": null,
    "streak": 0
   },
@@ -399,7 +667,7 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 27,
+   "ok": 28,
    "since": null,
    "streak": 0
   },
@@ -407,7 +675,7 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 32,
+   "ok": 33,
    "since": null,
    "streak": 0
   },
@@ -415,7 +683,23 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 27,
+   "ok": 28,
+   "since": null,
+   "streak": 0
+  },
+  "usdjpy": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
+   "since": null,
+   "streak": 0
+  },
+  "visa": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
    "since": null,
    "streak": 0
   },
@@ -423,7 +707,7 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 27,
+   "ok": 28,
    "since": null,
    "streak": 0
   },
@@ -431,7 +715,15 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 23,
+   "ok": 24,
+   "since": null,
+   "streak": 0
+  },
+  "weather_cape_town": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
    "since": null,
    "streak": 0
   },
@@ -439,7 +731,7 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 23,
+   "ok": 24,
    "since": null,
    "streak": 0
   },
@@ -447,7 +739,15 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 23,
+   "ok": 24,
+   "since": null,
+   "streak": 0
+  },
+  "weather_mumbai": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
    "since": null,
    "streak": 0
   },
@@ -455,7 +755,7 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 23,
+   "ok": 24,
    "since": null,
    "streak": 0
   },
@@ -463,7 +763,31 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 7,
+   "ok": 8,
+   "since": null,
+   "streak": 0
+  },
+  "weather_paris": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
+   "since": null,
+   "streak": 0
+  },
+  "weather_sao_paulo": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
+   "since": null,
+   "streak": 0
+  },
+  "weather_singapore": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
    "since": null,
    "streak": 0
   },
@@ -471,7 +795,7 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 23,
+   "ok": 24,
    "since": null,
    "streak": 0
   },
@@ -479,7 +803,7 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 23,
+   "ok": 24,
    "since": null,
    "streak": 0
   },
@@ -487,7 +811,7 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 23,
+   "ok": 24,
    "since": null,
    "streak": 0
   },
@@ -495,7 +819,23 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 23,
+   "ok": 24,
+   "since": null,
+   "streak": 0
+  },
+  "wheat": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
+   "since": null,
+   "streak": 0
+  },
+  "wiki_6g": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
    "since": null,
    "streak": 0
   },
@@ -503,7 +843,7 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 32,
+   "ok": 33,
    "since": null,
    "streak": 0
   },
@@ -511,7 +851,7 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 7,
+   "ok": 8,
    "since": null,
    "streak": 0
   },
@@ -519,7 +859,7 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 23,
+   "ok": 24,
    "since": null,
    "streak": 0
   },
@@ -527,7 +867,23 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 32,
+   "ok": 33,
+   "since": null,
+   "streak": 0
+  },
+  "wiki_cultured_meat": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
+   "since": null,
+   "streak": 0
+  },
+  "wiki_drones": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
    "since": null,
    "streak": 0
   },
@@ -535,7 +891,7 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 32,
+   "ok": 33,
    "since": null,
    "streak": 0
   },
@@ -543,7 +899,7 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 32,
+   "ok": 33,
    "since": null,
    "streak": 0
   },
@@ -551,7 +907,7 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 23,
+   "ok": 24,
    "since": null,
    "streak": 0
   },
@@ -559,7 +915,7 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 32,
+   "ok": 33,
    "since": null,
    "streak": 0
   },
@@ -567,7 +923,23 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 32,
+   "ok": 33,
+   "since": null,
+   "streak": 0
+  },
+  "wiki_mrna": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
+   "since": null,
+   "streak": 0
+  },
+  "wiki_neuralink": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
    "since": null,
    "streak": 0
   },
@@ -575,7 +947,7 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 32,
+   "ok": 33,
    "since": null,
    "streak": 0
   },
@@ -583,7 +955,15 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 23,
+   "ok": 24,
+   "since": null,
+   "streak": 0
+  },
+  "wiki_semaglutide": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
    "since": null,
    "streak": 0
   },
@@ -591,7 +971,7 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 7,
+   "ok": 8,
    "since": null,
    "streak": 0
   },
@@ -599,7 +979,23 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 23,
+   "ok": 24,
+   "since": null,
+   "streak": 0
+  },
+  "wiki_vr": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
+   "since": null,
+   "streak": 0
+  },
+  "wmt": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
    "since": null,
    "streak": 0
   },
@@ -607,7 +1003,15 @@
    "error": null,
    "failed": 0,
    "last_ok": "2026-11-28",
-   "ok": 32,
+   "ok": 33,
+   "since": null,
+   "streak": 0
+  },
+  "xrp": {
+   "error": null,
+   "failed": 0,
+   "last_ok": "2026-11-28",
+   "ok": 1,
    "since": null,
    "streak": 0
   }

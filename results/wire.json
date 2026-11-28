@@ -1,6 +1,294 @@
 {
- "fetched": "2026-11-28T04:37Z",
+ "fetched": "2026-11-28T20:13Z",
  "topics": {
+  "news_ai": {
+   "query": "\"artificial intelligence\"",
+   "articles": [
+    {
+     "title": "Hackers got into the Air Force cloud computing system but critical parts not impacted",
+     "url": "https://www.wdio.com/ap-top-news/ap-top-news-technology/hackers-got-into-the-air-force-cloud-computing-system-but-critical-parts-not-impacted/",
+     "domain": "wdio.com",
+     "country": "United States",
+     "seen": "2026-11-28T19:30Z"
+    },
+    {
+     "title": "El Niño Rains Could Trigger Another Poisonous Wild Mushroom Surge",
+     "url": "https://www.independent.com/2026/11/28/el-nino-rains-could-trigger-another-poisonous-wild-mushroom-surge/",
+     "domain": "independent.com",
+     "country": "United States",
+     "seen": "2026-11-28T19:30Z"
+    },
+    {
+     "title": "UK biggest - spending government department confirms it was hit by a cyberattack",
+     "url": "https://www.clickorlando.com/business/2026/11/28/uks-biggest-spending-government-department-confirms-it-was-hit-by-a-cyberattack/",
+     "domain": "clickorlando.com",
+     "country": "United States",
+     "seen": "2026-11-28T19:30Z"
+    },
+    {
+     "title": "2 Stocks to Buy in the AI Chip Stock Sell - Off and Hold for 5 Years",
+     "url": "https://www.aol.com/articles/2-stocks-buy-ai-chip-182002000.html",
+     "domain": "aol.com",
+     "country": "United States",
+     "seen": "2026-11-28T19:30Z"
+    },
+    {
+     "title": "Binance founder suggests security complacency before $6 . 3bn hack",
+     "url": "https://www.thenationalnews.com/future/technology/2026/11/28/binance-changpeng-zhao-blockchain-week-netflix-the-altruists/",
+     "domain": "thenationalnews.com",
+     "country": "",
+     "seen": "2026-11-28T19:30Z"
+    },
+    {
+     "title": "UK biggest - spending government department hit by a cyberattack",
+     "url": "https://abcnews.com/Business/wireStory/uks-biggest-spending-government-department-confirms-hit-cyberattack-138501313",
+     "domain": "abcnews.com",
+     "country": "United States",
+     "seen": "2026-11-28T19:30Z"
+    }
+   ],
+   "fetched": "2026-11-28T20:03Z"
+  },
+  "news_housing": {
+   "query": "(\"housing market\" OR \"house prices\")",
+   "articles": [
+    {
+     "title": "Why buying a home is harder today than in the 1980s",
+     "url": "https://www.fox13news.com/news/why-buying-home-is-harder-today-than-1980s",
+     "domain": "fox13news.com",
+     "country": "United States",
+     "seen": "2026-11-28T18:15Z"
+    },
+    {
+     "title": "AI : Nvidia is Not the Problem | Daily Reckoning",
+     "url": "https://dailyreckoning.com/post/ai-nvidia-is-not-the-problem",
+     "domain": "dailyreckoning.com",
+     "country": "United States",
+     "seen": "2026-11-28T18:15Z"
+    },
+    {
+     "title": "Housing market outlook : Zillow says mortgage rates will stay above 7 % until at least mid - 2027",
+     "url": "https://fortune.com/2026/11/28/housing-market-outlook-zillow-30-year-fixed-mortgage-rates-7-percent-mid-2027/",
+     "domain": "fortune.com",
+     "country": "United States",
+     "seen": "2026-11-28T17:30Z"
+    },
+    {
+     "title": "Majority of B . C . residents say housing is hurting their mental health | Daily Hive",
+     "url": "https://dailyhive.com/vancouver/bc-residents-housing-well-being-mental-health",
+     "domain": "dailyhive.com",
+     "country": "Canada",
+     "seen": "2026-11-28T17:15Z"
+    },
+    {
+     "title": "AI : Nvidia is Not the Problem | Daily Reckoning",
+     "url": "http://dailyreckoning.com/post/ai-nvidia-is-not-the-problem",
+     "domain": "dailyreckoning.com",
+     "country": "United States",
+     "seen": "2026-11-28T17:15Z"
+    },
+    {
+     "title": "What to Watch Thanksgiving Weekend : New Movies and Must - See Streaming Shows | KFI AM 640",
+     "url": "https://kfiam640.iheart.com/featured/heather-brooker/content/2026-11-28-what-to-watch-thanksgiving-weekend-2026-new-movies-and-must-see-streaming-shows/",
+     "domain": "kfiam640.iheart.com",
+     "country": "United States",
+     "seen": "2026-11-28T17:15Z"
+    }
+   ],
+   "fetched": "2026-11-28T20:04Z"
+  },
+  "news_cyber": {
+   "query": "(cyberattack OR ransomware)",
+   "articles": [
+    {
+     "title": "UK biggest - spending government department confirms it was hit by a cyberattack",
+     "url": "https://www.clickorlando.com/business/2026/11/28/uks-biggest-spending-government-department-confirms-it-was-hit-by-a-cyberattack/",
+     "domain": "clickorlando.com",
+     "country": "United States",
+     "seen": "2026-11-28T19:30Z"
+    },
+    {
+     "title": "UK biggest - spending government department hit by a cyberattack",
+     "url": "https://abcnews.com/Business/wireStory/uks-biggest-spending-government-department-confirms-hit-cyberattack-138501313",
+     "domain": "abcnews.com",
+     "country": "United States",
+     "seen": "2026-11-28T19:30Z"
+    },
+    {
+     "title": "UK biggest - spending government department confirms it was hit by a cyberattack",
+     "url": "http://www.goskagit.com/news/world/uks-biggest-spending-government-department-confirms-it-was-hit-by-a-cyberattack/article_d574023c-d7f9-5ab0-95a0-3fdcdbd50a96.html",
+     "domain": "goskagit.com",
+     "country": "United States",
+     "seen": "2026-11-28T19:15Z"
+    },
+    {
+     "title": "UK biggest - spending government department confirms it was hit by a cyberattack",
+     "url": "https://www.wral.com/news/ap/7ea75-uks-biggest-spending-government-department-confirms-it-was-hit-by-a-cyberattack/",
+     "domain": "wral.com",
+     "country": "United States",
+     "seen": "2026-11-28T19:15Z"
+    },
+    {
+     "title": "UK pensions department says it was hit by cyberattack",
+     "url": "https://www.bordermail.com.au/story/9399913/uk-pensions-department-says-it-was-hit-by-cyberattack/",
+     "domain": "bordermail.com.au",
+     "country": "Australia",
+     "seen": "2026-11-28T19:15Z"
+    },
+    {
+     "title": "British pensions department hit by cyberattack , welfare payments unaffected",
+     "url": "https://www.livemint.com/news/world/british-pensions-department-hit-by-cyberattack-welfare-payments-unaffected-11795888936708.html",
+     "domain": "livemint.com",
+     "country": "India",
+     "seen": "2026-11-28T19:15Z"
+    }
+   ],
+   "fetched": "2026-11-28T20:04Z"
+  },
+  "news_energy": {
+   "query": "(\"energy prices\" OR \"energy crisis\")",
+   "articles": [
+    {
+     "title": "Martin Lewi blunt advice to anyone who cant afford to heat their home",
+     "url": "https://www.nottinghampost.com/news/cost-of-living/martin-lewis-blunt-advice-anyone-11259561",
+     "domain": "nottinghampost.com",
+     "country": "United Kingdom",
+     "seen": "2026-11-28T19:15Z"
+    },
+    {
+     "title": "Martin Lewi blunt advice to anyone who cant afford to heat their home",
+     "url": "https://www.somersetlive.co.uk/news/cost-of-living/martin-lewis-blunt-advice-anyone-11259561",
+     "domain": "somersetlive.co.uk",
+     "country": "United Kingdom",
+     "seen": "2026-11-28T19:15Z"
+    },
+    {
+     "title": "Averof is Disy choice for the top job",
+     "url": "https://cyprus-mail.com/2026/11/28/averof-is-disys-choice-for-the-top-job",
+     "domain": "cyprus-mail.com",
+     "country": "Cyprus",
+     "seen": "2026-11-28T19:15Z"
+    },
+    {
+     "title": "Saint Lucia CIP Top - Ranking ! - The Voice St . Lucia News",
+     "url": "https://thevoiceslu.com/2026/11/saint-lucia-cip-top-ranking/",
+     "domain": "thevoiceslu.com",
+     "country": "Saint Lucia",
+     "seen": "2026-11-28T19:00Z"
+    },
+    {
+     "title": "Martin Lewi blunt advice to anyone who cant afford to heat their home",
+     "url": "https://www.bristolpost.co.uk/news/cost-of-living/martin-lewis-blunt-advice-anyone-11259561",
+     "domain": "bristolpost.co.uk",
+     "country": "United Kingdom",
+     "seen": "2026-11-28T19:00Z"
+    },
+    {
+     "title": "Martin Lewis issues urgent message to all households ahead of energy price rise",
+     "url": "https://www.getsurrey.co.uk/news/cost-of-living/martin-lewis-issues-urgent-message-34980348",
+     "domain": "getsurrey.co.uk",
+     "country": "United Kingdom",
+     "seen": "2026-11-28T19:00Z"
+    }
+   ],
+   "fetched": "2026-11-28T20:10Z"
+  },
+  "news_jobs": {
+   "query": "(layoffs OR unemployment)",
+   "articles": [
+    {
+     "title": "Group unveils 2027 flood resilience policy platform",
+     "url": "https://www.news-expressky.com/news/group-unveils-2027-flood-resilience-policy-platform/article_98b04308-524a-48bb-94ba-c0601000125d.html",
+     "domain": "news-expressky.com",
+     "country": "United States",
+     "seen": "2026-11-28T19:45Z"
+    },
+    {
+     "title": "No Politician Is Worth Dying For : Think Before You Campaign – By Matthew Ma",
+     "url": "https://www.opinionnigeria.com/no-politician-is-worth-dying-for-think-before-you-campaign-by-matthew-ma/",
+     "domain": "opinionnigeria.com",
+     "country": "Nigeria",
+     "seen": "2026-11-28T19:45Z"
+    },
+    {
+     "title": "How Victoria will change under Jess Wilson Coalition government",
+     "url": "https://www.abc.net.au/news/2026-11-29/how-victoria-will-change-under-a-wilson-liberal-government/107416532",
+     "domain": "abc.net.au",
+     "country": "Australia",
+     "seen": "2026-11-28T19:45Z"
+    },
+    {
+     "title": "Bilawal urges PML - N , PPP to end politics of revenge",
+     "url": "https://www.pakistantoday.com.pk/2026/11/28/bilawal-urges-pml-n-ppp-to-end-politics-of-revenge",
+     "domain": "pakistantoday.com.pk",
+     "country": "Pakistan",
+     "seen": "2026-11-28T19:45Z"
+    },
+    {
+     "title": "Out of commission : End of skill games devastates bottom line for device owners , local host sites",
+     "url": "https://www.altoonamirror.com/news/local-news/2026/11/pa-skillgames-deviceowners-hostsites-bottomline-devastates/",
+     "domain": "altoonamirror.com",
+     "country": "United States",
+     "seen": "2026-11-28T19:45Z"
+    },
+    {
+     "title": "COP31 : Why did it fail ? It the economy , stupid",
+     "url": "https://www.brisbanetimes.com.au/environment/climate-change/cop31-was-the-last-gasp-of-the-climate-crusades-20261129-p61hoa.html",
+     "domain": "brisbanetimes.com.au",
+     "country": "Australia",
+     "seen": "2026-11-28T19:45Z"
+    }
+   ],
+   "fetched": "2026-11-28T20:12Z"
+  },
+  "politics_un": {
+   "query": "(\"United Nations\" OR \"Security Council\")",
+   "articles": [
+    {
+     "title": "The USAID Files and Hindsight Experience Gives Preview of Govt Intent Behind AI Control",
+     "url": "https://theconservativetreehouse.com/blog/2026/11/28/the-usaid-files-and-hindsight-experience-gives-preview-of-govt-intent-behind-ai-control/comment-page-2/",
+     "domain": "theconservativetreehouse.com",
+     "country": "United States",
+     "seen": "2026-11-28T19:45Z"
+    },
+    {
+     "title": "Hackers got into the Air Force cloud computing system but critical parts not impacted",
+     "url": "http://www.leadertelegram.com/news/nation-world/hackers-got-into-the-air-force-cloud-computing-system-but-critical-parts-not-impacted/article_675797d5-4b78-5df6-a657-8299ba887bfc.html",
+     "domain": "leadertelegram.com",
+     "country": "United States",
+     "seen": "2026-11-28T19:45Z"
+    },
+    {
+     "title": "Hackers breach US Air Force cloud system , but critical operations safe",
+     "url": "https://www.business-standard.com/world-news/hackers-breach-us-air-force-cloud-system-but-critical-operations-safe-126112800989_1.html",
+     "domain": "business-standard.com",
+     "country": "India",
+     "seen": "2026-11-28T19:45Z"
+    },
+    {
+     "title": "Three days in the dark : How prepared are we for the lights to go out",
+     "url": "http://www.parisguardian.com/news/279470829/three-days-in-the-dark-how-prepared-are-we-for-the-lights-to-go-out",
+     "domain": "parisguardian.com",
+     "country": "France",
+     "seen": "2026-11-28T19:45Z"
+    },
+    {
+     "title": "African countries mark 1st intl day against child marriage",
+     "url": "http://www.bignewsnetwork.com/news/279471507/african-countries-mark-1st-intl-day-against-child-marriage",
+     "domain": "bignewsnetwork.com",
+     "country": "United States",
+     "seen": "2026-11-28T19:45Z"
+    },
+    {
+     "title": "AP Technology SummaryBrief at 12 : 34 p . m . EST",
+     "url": "http://www.leadertelegram.com/news/nation-world/ap-technology-summarybrief-at-12-34-p-m-est/article_21616ca5-6f0e-5a3d-a31c-f4d820e88376.html",
+     "domain": "leadertelegram.com",
+     "country": "United States",
+     "seen": "2026-11-28T19:45Z"
+    }
+   ],
+   "fetched": "2026-11-28T20:13Z"
+  },
   "silver": {
    "query": "\"silver price\"",
    "articles": [
@@ -47,7 +335,8 @@
      "seen": "2026-11-26T01:15Z"
     }
    ],
-   "fetched": "2026-11-28T04:26Z"
+   "fetched": "2026-11-28T04:26Z",
+   "stale": true
   },
   "tlt": {
    "query": "\"bond market\"",
@@ -95,7 +384,8 @@
      "seen": "2026-11-27T20:30Z"
     }
    ],
-   "fetched": "2026-11-28T04:26Z"
+   "fetched": "2026-11-28T04:26Z",
+   "stale": true
   },
   "vix": {
    "query": "\"stock market\" fear",
@@ -143,7 +433,8 @@
      "seen": "2026-11-28T01:45Z"
     }
    ],
-   "fetched": "2026-11-28T04:27Z"
+   "fetched": "2026-11-28T04:27Z",
+   "stale": true
   },
   "oil_wti": {
    "query": "\"oil prices\"",
@@ -191,7 +482,8 @@
      "seen": "2026-11-28T01:45Z"
     }
    ],
-   "fetched": "2026-11-28T04:27Z"
+   "fetched": "2026-11-28T04:27Z",
+   "stale": true
   },
   "copper": {
    "query": "\"copper price\"",
@@ -239,7 +531,8 @@
      "seen": "2026-11-25T03:45Z"
     }
    ],
-   "fetched": "2026-11-28T04:30Z"
+   "fetched": "2026-11-28T04:30Z",
+   "stale": true
   },
   "googl": {
    "query": "(Google OR Alphabet)",
@@ -1902,10 +2195,44 @@
   }
  },
  "failed": {
-  "bitcoin": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=bitcoin+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sort=DateDesc",
-  "ethereum": "Busy: GDELT still busy after 495s of back-off this run (budget 600s)",
+  "news_wildfire": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%28wildfire+OR+drought%29+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=",
+  "politics_summits": "skipped: the wire's time budget ran out",
+  "politics_nato": "skipped: the wire's time budget ran out",
+  "politics_immigration": "skipped: the wire's time budget ran out",
+  "wiki_drones": "skipped: the wire's time budget ran out",
+  "wiki_vr": "skipped: the wire's time budget ran out",
+  "wiki_6g": "skipped: the wire's time budget ran out",
+  "wiki_mrna": "skipped: the wire's time budget ran out",
+  "wiki_cultured_meat": "skipped: the wire's time budget ran out",
+  "wiki_semaglutide": "skipped: the wire's time budget ran out",
+  "wiki_neuralink": "skipped: the wire's time budget ran out",
+  "meta": "skipped: the wire's time budget ran out",
+  "jpm": "skipped: the wire's time budget ran out",
+  "amd": "skipped: the wire's time budget ran out",
+  "nflx": "skipped: the wire's time budget ran out",
+  "visa": "skipped: the wire's time budget ran out",
+  "wmt": "skipped: the wire's time budget ran out",
+  "intc": "skipped: the wire's time budget ran out",
+  "ko": "skipped: the wire's time budget ran out",
+  "hsi": "skipped: the wire's time budget ran out",
+  "brk": "skipped: the wire's time budget ran out",
+  "nikkei": "skipped: the wire's time budget ran out",
+  "ftse": "skipped: the wire's time budget ran out",
+  "dax": "skipped: the wire's time budget ran out",
+  "bitcoin": "skipped: the wire's time budget ran out",
+  "ethereum": "skipped: the wire's time budget ran out",
   "natgas": "skipped: the wire's time budget ran out",
   "eurusd": "skipped: the wire's time budget ran out",
+  "wheat": "skipped: the wire's time budget ran out",
+  "corn": "skipped: the wire's time budget ran out",
+  "usdjpy": "skipped: the wire's time budget ran out",
+  "gbpusd": "skipped: the wire's time budget ran out",
+  "audusd": "skipped: the wire's time budget ran out",
+  "platinum": "skipped: the wire's time budget ran out",
+  "soybeans": "skipped: the wire's time budget ran out",
+  "cocoa": "skipped: the wire's time budget ran out",
+  "xrp": "skipped: the wire's time budget ran out",
+  "solana": "skipped: the wire's time budget ran out",
   "news_election": "skipped: the wire's time budget ran out",
   "news_climate": "skipped: the wire's time budget ran out",
   "news_inflation": "skipped: the wire's time budget ran out",
@@ -1944,6 +2271,11 @@
   "amzn": "skipped: the wire's time budget ran out",
   "gold": "skipped: the wire's time budget ran out",
   "googl": "skipped: the wire's time budget ran out",
-  "us10y": "skipped: the wire's time budget ran out"
+  "us10y": "skipped: the wire's time budget ran out",
+  "silver": "skipped: the wire's time budget ran out",
+  "tlt": "skipped: the wire's time budget ran out",
+  "vix": "skipped: the wire's time budget ran out",
+  "oil_wti": "skipped: the wire's time budget ran out",
+  "copper": "skipped: the wire's time budget ran out"
  }
 }

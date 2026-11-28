@@ -4,32 +4,32 @@
 
 | Model | Forecasts | Series | Inside 80% range | Right direction | Skill vs no change |
 |---|---:|---:|---:|---:|---:|
-| TimesFM | 2298 | 59 | 68% | 70% | +11.7% |
-| Radiant | 2029 | 59 | 71% | 70% | +8.6% |
-| Chronos-Bolt | 2298 | 59 | 70% | 70% | +16.9% |
-| Seldon | 2029 | 59 | 69% | 70% | +5.5% |
-| Seldon laws | 2298 | 59 | 66% | 59% | +5.9% |
-| AutoETS | 2298 | 59 | 80% | 56% | -0.1% |
-| Ensemble | 2298 | 59 | 80% | 68% | +7.1% |
+| TimesFM | 2322 | 60 | 68% | 70% | +10.6% |
+| Radiant | 2051 | 60 | 71% | 70% | +8.4% |
+| Chronos-Bolt | 2322 | 60 | 69% | 70% | +15.4% |
+| Seldon | 2051 | 60 | 69% | 70% | +4.9% |
+| Seldon laws | 2322 | 60 | 66% | 58% | +5.1% |
+| AutoETS | 2322 | 60 | 79% | 56% | -0.2% |
+| Ensemble | 2322 | 60 | 79% | 68% | +8.3% |
 
 **Radiant's closest calls:** Wikipedia views: SpaceX Starship (said -6.2%, was -6.2% by 2026-11-22); Share of world news coverage mentioning climate change (said -14.6%, was -14.6% by 2026-11-24); Share of coverage about coups and martial law (said -17.7%, was -17.7% by 2026-11-23); Ether in USD (said -1.2%, was -1.2% by 2026-11-25); Share of world news coverage mentioning sanctions (said +2.2%, was +2.2% by 2026-11-28).
 
-**Biggest surprises:** Share of world news coverage mentioning climate change (range -16.8% to +31.2%, was +167.6%, 2.8 range widths outside); Copper futures (range -4.5% to +4.2%, was -15.3%, 1.2 range widths outside); NVIDIA Corp. (range -6.8% to +11.2%, was -27.8%, 1.2 range widths outside); Gold (USD/oz) (range -3.9% to +5.0%, was -13.7%, 1.1 range widths outside); Share of world news coverage mentioning tariffs (range -15.7% to +44.5%, was +109.1%, 1.1 range widths outside).
+**Biggest surprises:** Share of world news coverage mentioning climate change (range -16.8% to +31.2%, was +167.6%, 2.8 range widths outside); Daily rain in New York (mm, Open-Meteo) (range -472.0% to +4980.8%, was +20100.0%, 2.8 range widths outside); Copper futures (range -4.5% to +4.2%, was -15.3%, 1.2 range widths outside); NVIDIA Corp. (range -6.8% to +11.2%, was -27.8%, 1.2 range widths outside); Gold (USD/oz) (range -3.9% to +5.0%, was -13.7%, 1.1 range widths outside).
 
-## Radiant changed its mind, 2026-11-22 to 2026-11-23
+## Radiant changed its mind, 2026-11-23 to 2026-11-28
 
-Chance of ending above today's level on the farthest date both batches cover. 5 of 66 series flipped side.
+Chance of ending above today's level on the farthest date both batches cover. 2 of 68 series flipped side.
 
 | Series | Target | Before | Now | Shift | Series moved |
 |---|---|---:|---:|---:|---:|
-| NVIDIA Corp. | 2026-12-21 | 11% | 50% | +39 pts | +30.9% |
-| Tesla Inc. | 2026-12-21 | 27% | 49% | +22 pts | +12.5% |
-| Nasdaq-100 index (flip) | 2026-12-21 | 39% | 58% | +19 pts | +6.8% |
-| iShares MSCI World ETF (global equities) | 2026-12-21 | 55% | 74% | +19 pts | +4.2% |
-| S&P 500 | 2026-12-21 | 48% | 67% | +19 pts | +4.8% |
-| Gold (USD/oz) | 2026-12-21 | 32% | 50% | +18 pts | +4.1% |
-| Wikipedia views: Fusion power | 2026-12-19 | 78% | 95% | +17 pts | +13.8% |
-| CBOE Volatility Index (VIX, the fear gauge) | 2026-12-21 | 34% | 18% | -16 pts | -22.3% |
+| Share of world news coverage mentioning tariffs | 2026-12-21 | 5% | 27% | +22 pts | +58.1% |
+| Apple Inc. | 2026-12-22 | 33% | 52% | +18 pts | +3.0% |
+| Wikipedia views: Fusion power | 2026-12-20 | 87% | 70% | -17 pts | +1.4% |
+| World sea surface temperature, 60S-60N (deg C, NOAA OISST via Climate Reanalyzer) (flip) | 2026-11-21 | 55% | 38% | -17 pts | -0.2% |
+| NVIDIA Corp. | 2026-12-22 | 65% | 49% | -16 pts | -8.4% |
+| Interest in AI (Wikipedia) | 2026-12-20 | 21% | 5% | -16 pts | +0.2% |
+| Ether in USD | 2026-12-21 | 64% | 48% | -16 pts | -6.6% |
+| Euro in US dollars | 2026-12-22 | 35% | 49% | +14 pts | +0.8% |
 
 ## Streaks (TimesFM, next-step calls, one per sealed batch)
 
