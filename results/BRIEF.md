@@ -1,20 +1,20 @@
 # The brief
 
-## Came due, 2026-11-21 to 2026-11-27
+## Came due, 2026-11-22 to 2026-11-28
 
 | Model | Forecasts | Series | Inside 80% range | Right direction | Skill vs no change |
 |---|---:|---:|---:|---:|---:|
-| TimesFM | 2072 | 59 | 65% | 71% | +11.6% |
-| Radiant | 1790 | 59 | 68% | 70% | +10.7% |
-| Chronos-Bolt | 2072 | 59 | 67% | 71% | +17.2% |
-| Seldon | 1790 | 59 | 67% | 70% | +12.8% |
-| Seldon laws | 2072 | 59 | 63% | 58% | +3.6% |
-| AutoETS | 2072 | 59 | 78% | 54% | -0.1% |
-| Ensemble | 2072 | 59 | 78% | 67% | +7.1% |
+| TimesFM | 2298 | 59 | 68% | 70% | +11.7% |
+| Radiant | 2029 | 59 | 71% | 70% | +8.6% |
+| Chronos-Bolt | 2298 | 59 | 70% | 70% | +16.9% |
+| Seldon | 2029 | 59 | 69% | 70% | +5.5% |
+| Seldon laws | 2298 | 59 | 66% | 59% | +5.9% |
+| AutoETS | 2298 | 59 | 80% | 56% | -0.1% |
+| Ensemble | 2298 | 59 | 80% | 68% | +7.1% |
 
-**Radiant's closest calls:** Wikipedia views: SpaceX Starship (said -6.2%, was -6.2% by 2026-11-22); Share of world news coverage mentioning climate change (said -14.6%, was -14.6% by 2026-11-24); Share of coverage about coups and martial law (said -17.7%, was -17.7% by 2026-11-23); Ether in USD (said -1.2%, was -1.2% by 2026-11-25); Wikipedia views: Quantum computing (said -1.1%, was -1.1% by 2026-11-22).
+**Radiant's closest calls:** Wikipedia views: SpaceX Starship (said -6.2%, was -6.2% by 2026-11-22); Share of world news coverage mentioning climate change (said -14.6%, was -14.6% by 2026-11-24); Share of coverage about coups and martial law (said -17.7%, was -17.7% by 2026-11-23); Ether in USD (said -1.2%, was -1.2% by 2026-11-25); Share of world news coverage mentioning sanctions (said +2.2%, was +2.2% by 2026-11-28).
 
-**Biggest surprises:** Share of world news coverage mentioning climate change (range -16.8% to +31.2%, was +167.6%, 2.8 range widths outside); Wikipedia views: Large language model (range -7.5% to +14.7%, was +48.7%, 1.5 range widths outside); Copper futures (range -4.5% to +4.2%, was -15.3%, 1.2 range widths outside); NVIDIA Corp. (range -6.8% to +11.2%, was -27.8%, 1.2 range widths outside); Gold (USD/oz) (range -3.9% to +5.0%, was -13.7%, 1.1 range widths outside).
+**Biggest surprises:** Share of world news coverage mentioning climate change (range -16.8% to +31.2%, was +167.6%, 2.8 range widths outside); Copper futures (range -4.5% to +4.2%, was -15.3%, 1.2 range widths outside); NVIDIA Corp. (range -6.8% to +11.2%, was -27.8%, 1.2 range widths outside); Gold (USD/oz) (range -3.9% to +5.0%, was -13.7%, 1.1 range widths outside); Share of world news coverage mentioning tariffs (range -15.7% to +44.5%, was +109.1%, 1.1 range widths outside).
 
 ## Radiant changed its mind, 2026-11-22 to 2026-11-23
 

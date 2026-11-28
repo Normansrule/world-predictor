@@ -1,6 +1,246 @@
 {
- "fetched": "2026-11-27T04:59Z",
+ "fetched": "2026-11-28T04:37Z",
  "topics": {
+  "silver": {
+   "query": "\"silver price\"",
+   "articles": [
+    {
+     "title": "Gold Rises 0 . 56 % to US$3 , 597 as Rate Bets Weigh | Gold & Silver , Nov …",
+     "url": "https://www.riotimesonline.com/gold-silver-precious-metals-thursday-november-26-2026/",
+     "domain": "riotimesonline.com",
+     "country": "Brazil",
+     "seen": "2026-11-27T01:45Z"
+    },
+    {
+     "title": "Press Release",
+     "url": "https://www.mining.com/press-release/?id=6b07899ff081e5fad9f9cbae",
+     "domain": "mining.com",
+     "country": "Canada",
+     "seen": "2026-11-26T04:15Z"
+    },
+    {
+     "title": "Rs 51 , 700 fall in 10g gold price from January peaks : Should you invest now ?",
+     "url": "https://economictimes.indiatimes.com/wealth/invest/rs-51700-fall-in-mcx-10g-gold-rate-price-today-from-january-peaks-should-you-invest-now/articleshow/136166158.cms",
+     "domain": "economictimes.indiatimes.com",
+     "country": "India",
+     "seen": "2026-11-26T03:30Z"
+    },
+    {
+     "title": "Orvana Minerals Announces FY2026 Results & FY2027 Guidance",
+     "url": "https://www.juniorminingnetwork.com/junior-miner-news/press-releases/511-tsx/orv/215465-orvana-announces-fy2026-results-fy2027-guidance.html",
+     "domain": "juniorminingnetwork.com",
+     "country": "Canada",
+     "seen": "2026-11-26T02:30Z"
+    },
+    {
+     "title": "Silverco Mining Announces Filing of Q3 2026 Financial Statements and MD & A",
+     "url": "https://www.juniorminingnetwork.com/junior-miner-news/press-releases/3328-tsx-venture/sico/215467-silverco-mining-announces-filing-of-q3-2026-financial-statements-and-md-a.html",
+     "domain": "juniorminingnetwork.com",
+     "country": "Canada",
+     "seen": "2026-11-26T02:30Z"
+    },
+    {
+     "title": "Orvana Minerals Corp .: ORVANA ANNOUNCES FY2026 RESULTS & FY2027 GUIDANCE",
+     "url": "https://www.finanznachrichten.de/nachrichten-2026-11/70231767-orvana-minerals-corp-orvana-announces-fy2026-results-fy2027-guidance-008.htm",
+     "domain": "finanznachrichten.de",
+     "country": "Germany",
+     "seen": "2026-11-26T01:15Z"
+    }
+   ],
+   "fetched": "2026-11-28T04:26Z"
+  },
+  "tlt": {
+   "query": "\"bond market\"",
+   "articles": [
+    {
+     "title": "Stocks jump to close out erratic week ; Wall Street best in more than a year",
+     "url": "https://hayspost.com/posts/0eb0f6c8-f850-40fa-a1b9-2f3746343905",
+     "domain": "hayspost.com",
+     "country": "United States",
+     "seen": "2026-11-28T01:45Z"
+    },
+    {
+     "title": "Are target - maturity bond funds right for your portfolio ?",
+     "url": "https://www.theglobeandmail.com/investing/education/article-are-target-maturity-bond-funds-right-for-your-portfolio/",
+     "domain": "theglobeandmail.com",
+     "country": "Canada",
+     "seen": "2026-11-27T23:45Z"
+    },
+    {
+     "title": "Stocks rise and keep Wall Street on track to close out an erratic week with big gains – Butler Eagle",
+     "url": "https://www.butlereagle.com/20261127/stocks-rise-and-keep-wall-street-on-track-to-close-out-an-erratic-week-with-big-gains/",
+     "domain": "butlereagle.com",
+     "country": "United States",
+     "seen": "2026-11-27T22:30Z"
+    },
+    {
+     "title": "Stocks rise and keep Wall Street on track to close out an erratic week with big gains – KTBB News , Weather , Talk",
+     "url": "https://ktbb.com/post/?p=1564935",
+     "domain": "ktbb.com",
+     "country": "United States",
+     "seen": "2026-11-27T20:30Z"
+    },
+    {
+     "title": "Stocks jump to close out an erratic week that was also Wall Street best in more than a year",
+     "url": "https://www.kvoa.com/news/national/stocks-jump-to-close-out-an-erratic-week-that-was-also-wall-streets-best-in/article_5348ba31-69e8-530c-b55b-7ccf293546c4.html",
+     "domain": "kvoa.com",
+     "country": "United States",
+     "seen": "2026-11-27T20:30Z"
+    },
+    {
+     "title": "Stocks jump to close out an erratic week that was also Wall Street best in more than a year",
+     "url": "http://www.hngnews.com/nation_world/stocks-jump-to-close-out-an-erratic-week-that-was-also-wall-streets-best-in/article_d39c16a0-4535-5334-a79c-f516c27e0267.html",
+     "domain": "hngnews.com",
+     "country": "United States",
+     "seen": "2026-11-27T20:30Z"
+    }
+   ],
+   "fetched": "2026-11-28T04:26Z"
+  },
+  "vix": {
+   "query": "\"stock market\" fear",
+   "articles": [
+    {
+     "title": "Brazil Stocks Slip 0 . 13 % as Exporters Fall | Brazil Market Report …",
+     "url": "https://www.riotimesonline.com/brazil-markets-ibovespa-real-friday-november-27-2026/",
+     "domain": "riotimesonline.com",
+     "country": "Brazil",
+     "seen": "2026-11-28T01:45Z"
+    },
+    {
+     "title": "Zinc Miners Jump as Buenaventura Gains 7 . 39 %",
+     "url": "https://www.riotimesonline.com/zinc-markets-latam-friday-november-27-2026/",
+     "domain": "riotimesonline.com",
+     "country": "Brazil",
+     "seen": "2026-11-28T01:45Z"
+    },
+    {
+     "title": "Mexico Stocks Rise 1 . 83 % as Peso Steadies | Mexico Market Report …",
+     "url": "https://www.riotimesonline.com/mexico-markets-ipc-peso-friday-november-27-2026/",
+     "domain": "riotimesonline.com",
+     "country": "Brazil",
+     "seen": "2026-11-28T01:45Z"
+    },
+    {
+     "title": "Argentine Peso Slips to 1 , 605 per Dollar | Argentina Market Report …",
+     "url": "https://www.riotimesonline.com/argentina-markets-merval-peso-friday-november-27-2026/",
+     "domain": "riotimesonline.com",
+     "country": "Brazil",
+     "seen": "2026-11-28T01:45Z"
+    },
+    {
+     "title": "Oil Slips 1 . 52 % Before OPEC+ Meeting as Petrobras Gains",
+     "url": "https://www.riotimesonline.com/oil-markets-latam-friday-november-27-2026/",
+     "domain": "riotimesonline.com",
+     "country": "Brazil",
+     "seen": "2026-11-28T01:45Z"
+    },
+    {
+     "title": "Chile Stocks Rise 1 . 69 % as Peso Firms | Chile Market Report , Nov 27",
+     "url": "https://www.riotimesonline.com/chile-markets-ipsa-peso-friday-november-27-2026/",
+     "domain": "riotimesonline.com",
+     "country": "Brazil",
+     "seen": "2026-11-28T01:45Z"
+    }
+   ],
+   "fetched": "2026-11-28T04:27Z"
+  },
+  "oil_wti": {
+   "query": "\"oil prices\"",
+   "articles": [
+    {
+     "title": "Iran issues new threats as war stalemate drags on",
+     "url": "https://foxreno.com/news/nation-world/iran-issues-new-threats-as-war-stalemate-drags-on",
+     "domain": "foxreno.com",
+     "country": "United States",
+     "seen": "2026-11-28T02:30Z"
+    },
+    {
+     "title": "Rising optimism in Alberta economy fueled by oil prices and booming Calgary tech sector",
+     "url": "https://calgary.citynews.ca/2026/11/25/rising-optimism-in-albertas-economy-fueled-by-oil-prices-and-booming-calgary-tech-sector/",
+     "domain": "calgary.citynews.ca",
+     "country": "",
+     "seen": "2026-11-28T02:30Z"
+    },
+    {
+     "title": "Iran issues new threats as war stalemate drags on",
+     "url": "https://myfox28columbus.com/news/nation-world/iran-issues-new-threats-as-war-stalemate-drags-on",
+     "domain": "myfox28columbus.com",
+     "country": "United States",
+     "seen": "2026-11-28T02:30Z"
+    },
+    {
+     "title": "Iran issues new threats as war stalemate drags on",
+     "url": "https://foxrochester.com/news/nation-world/iran-issues-new-threats-as-war-stalemate-drags-on",
+     "domain": "foxrochester.com",
+     "country": "United States",
+     "seen": "2026-11-28T02:30Z"
+    },
+    {
+     "title": "Thailand Business News Morning Briefing – Thailand Business News",
+     "url": "https://www.thailand-business-news.com/news/342624-thailand-business-news-morning-briefing-14",
+     "domain": "thailand-business-news.com",
+     "country": "Thailand",
+     "seen": "2026-11-28T01:45Z"
+    },
+    {
+     "title": "International Business : US  pushed Venezuela and Iraq to consider leaving Opec",
+     "url": "https://www.gdnonline.com:443/Details/1414180",
+     "domain": "gdnonline.com",
+     "country": "United States",
+     "seen": "2026-11-28T01:45Z"
+    }
+   ],
+   "fetched": "2026-11-28T04:27Z"
+  },
+  "copper": {
+   "query": "\"copper price\"",
+   "articles": [
+    {
+     "title": "Copper Fund Jumps 2 . 31 % as Miners Rally",
+     "url": "https://www.riotimesonline.com/copper-markets-latam-friday-november-27-2026/",
+     "domain": "riotimesonline.com",
+     "country": "Brazil",
+     "seen": "2026-11-28T01:45Z"
+    },
+    {
+     "title": "Gold Rises 0 . 56 % to US$3 , 597 as Rate Bets Weigh | Gold & Silver , Nov …",
+     "url": "https://www.riotimesonline.com/gold-silver-precious-metals-thursday-november-26-2026/",
+     "domain": "riotimesonline.com",
+     "country": "Brazil",
+     "seen": "2026-11-27T01:45Z"
+    },
+    {
+     "title": "Chile Stocks Rise 0 . 82 % as Peso Weakens | Chile Market Report , Nov 25",
+     "url": "https://www.riotimesonline.com/chile-markets-ipsa-peso-wednesday-november-25-2026/",
+     "domain": "riotimesonline.com",
+     "country": "Brazil",
+     "seen": "2026-11-26T02:30Z"
+    },
+    {
+     "title": "Copper Fund Edges Up 0 . 03 % After a 19 . 39 % Slide | Copper Wrap , Nov 25",
+     "url": "https://www.riotimesonline.com/copper-markets-latam-wednesday-november-25-2026/",
+     "domain": "riotimesonline.com",
+     "country": "Brazil",
+     "seen": "2026-11-26T02:30Z"
+    },
+    {
+     "title": "Copper Fund Falls 3 . 87 % to a Six - Month Low | Copper Wrap , Nov 24",
+     "url": "https://www.riotimesonline.com/copper-markets-latam-tuesday-november-24-2026/",
+     "domain": "riotimesonline.com",
+     "country": "Brazil",
+     "seen": "2026-11-25T03:45Z"
+    },
+    {
+     "title": "Chile Stocks Fall 1 . 13 % as Copper Slides | Chile Market Report , Nov 24",
+     "url": "https://www.riotimesonline.com/chile-markets-ipsa-peso-tuesday-november-24-2026/",
+     "domain": "riotimesonline.com",
+     "country": "Brazil",
+     "seen": "2026-11-25T03:45Z"
+    }
+   ],
+   "fetched": "2026-11-28T04:30Z"
+  },
   "googl": {
    "query": "(Google OR Alphabet)",
    "articles": [
@@ -47,7 +287,8 @@
      "seen": "2026-11-27T04:30Z"
     }
    ],
-   "fetched": "2026-11-27T04:47Z"
+   "fetched": "2026-11-27T04:47Z",
+   "stale": true
   },
   "us10y": {
    "query": "\"Treasury yields\"",
@@ -95,7 +336,8 @@
      "seen": "2026-11-26T03:30Z"
     }
    ],
-   "fetched": "2026-11-27T04:54Z"
+   "fetched": "2026-11-27T04:54Z",
+   "stale": true
   },
   "aapl": {
    "query": "(\"Apple Inc\" OR iPhone)",
@@ -1657,64 +1899,11 @@
    ],
    "fetched": "2026-11-10T05:28Z",
    "stale": true
-  },
-  "oil_wti": {
-   "query": "\"oil prices\"",
-   "articles": [
-    {
-     "title": "San Diego gas prices down 40 cents a gallon in the past month . But what happens next ?",
-     "url": "https://www.sandiegouniontribune.com/2026/11/02/san-diego-gas-prices-down-40-cents-a-gallon-in-the-past-month-but-what-happens-next/",
-     "domain": "sandiegouniontribune.com",
-     "country": "United States",
-     "seen": "2026-11-03T02:15Z"
-    },
-    {
-     "title": "Building immunity to shocks - The HinduBusinessLine",
-     "url": "https://www.thehindubusinessline.com/opinion/building-immunity-to-shocks/article71657750.ece",
-     "domain": "thehindubusinessline.com",
-     "country": "India",
-     "seen": "2026-11-03T02:15Z"
-    },
-    {
-     "title": "Stock Market Today Live : Gift Nifty points to gap - up opening ; crude oil , US election in focus",
-     "url": "https://www.thehindubusinessline.com/markets/sensex-nifty50-today-stock-market-live-updates-3-november-2026/article71657258.ece",
-     "domain": "thehindubusinessline.com",
-     "country": "India",
-     "seen": "2026-11-03T02:15Z"
-    },
-    {
-     "title": "Ontario gasoline , diesel prices to plummet Wednesday",
-     "url": "https://www.niagarathisweek.com/news/ontario-gas-price-prediction-for-nov-4/article_3a74bb58-21aa-579f-9247-a053deae89b2.html",
-     "domain": "niagarathisweek.com",
-     "country": "Canada",
-     "seen": "2026-11-03T02:15Z"
-    },
-    {
-     "title": "RBA interest rate decision : Xmas , unemployment and Trump",
-     "url": "https://www.crikey.com.au/2026/11/03/interest-rate-decision-reserve-bank-rba-inflation-unemployment-donald-trump/",
-     "domain": "crikey.com.au",
-     "country": "Australia",
-     "seen": "2026-11-03T02:15Z"
-    },
-    {
-     "title": "Explosions rock Iran Qeshm Island as Tehran claims three US drones downed",
-     "url": "https://www.thehindubusinessline.com/news/world/explosions-reported-on-irans-qeshm-island-amid-rising-tensions-with-us/article71659179.ece",
-     "domain": "thehindubusinessline.com",
-     "country": "India",
-     "seen": "2026-11-03T02:15Z"
-    }
-   ],
-   "stale": true
   }
  },
  "failed": {
-  "silver": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22silver+price%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sort",
-  "tlt": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%22bond+market%22+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sort=",
-  "vix": "skipped: the wire's time budget ran out",
-  "oil_wti": "skipped: the wire's time budget ran out",
-  "copper": "skipped: the wire's time budget ran out",
-  "bitcoin": "skipped: the wire's time budget ran out",
-  "ethereum": "skipped: the wire's time budget ran out",
+  "bitcoin": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=bitcoin+sourcelang%3Aenglish&mode=ArtList&format=json&maxrecords=6&timespan=4d&sort=DateDesc",
+  "ethereum": "Busy: GDELT still busy after 495s of back-off this run (budget 600s)",
   "natgas": "skipped: the wire's time budget ran out",
   "eurusd": "skipped: the wire's time budget ran out",
   "news_election": "skipped: the wire's time budget ran out",
@@ -1753,6 +1942,8 @@
   "aapl": "skipped: the wire's time budget ran out",
   "msft": "skipped: the wire's time budget ran out",
   "amzn": "skipped: the wire's time budget ran out",
-  "gold": "skipped: the wire's time budget ran out"
+  "gold": "skipped: the wire's time budget ran out",
+  "googl": "skipped: the wire's time budget ran out",
+  "us10y": "skipped: the wire's time budget ran out"
  }
 }
